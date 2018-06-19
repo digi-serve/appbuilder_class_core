@@ -23,6 +23,7 @@
 // webpack can handle 'require()' statements, but node can't handle import
 // so let's use require():
 var ABObject = require("../platform/ABObject");
+var ABFieldManager = require("./ABFieldManager");
 
 
 module.exports = class ABApplicationBase {
@@ -298,9 +299,9 @@ module.exports = class ABApplicationBase {
 	 *
 	 * @return {ABObject}
 	 */
-	// objectNew( values ) {
-	// 	return new ABObject(values, this);
-	// }
+	objectNew( values ) {
+		return new ABObject(values, this);
+	}
 
 
 	///
@@ -529,10 +530,7 @@ module.exports = class ABApplicationBase {
 	 */
 	fieldNew ( values, object ) {
 		// NOTE: ABFieldManager returns the proper ABFieldXXXX instance.
-		// return ABFieldManager.newField( values, object );
-console.warn('ABApplicationCore.fieldNew() still waiting for an ABFieldManager object ...')
-values.toObj = function() { return values; }
-return values;
+		return ABFieldManager.newField( values, object );
 	}
 
 
