@@ -5,7 +5,7 @@
  * that can instantiate themselves and provide field and model resources.
  */
 
-
+var ABModel = require("../platform/ABModel");
 
 module.exports =  class ABObjectCore {
 
@@ -168,14 +168,14 @@ module.exports =  class ABObjectCore {
 	 * @param {int} oldWidth the old width of the field
 	 * @return {Promise}
 	 */
-	columnResize( columnName, newWidth, oldWidth ) {
-		for(var i=0; i<this._fields.length; i++) {
-			if (this._fields[i].columnName == columnName) {
-				this._fields[i].settings.width = newWidth;
-			}
-		}
-		return this.save();
-	}
+	// columnResize( columnName, newWidth, oldWidth ) {
+	// 	for(var i=0; i<this._fields.length; i++) {
+	// 		if (this._fields[i].columnName == columnName) {
+	// 			this._fields[i].settings.width = newWidth;
+	// 		}
+	// 	}
+	// 	return this.save();
+	// }
 
 
 
@@ -265,11 +265,11 @@ module.exports =  class ABObjectCore {
 	 * @param {ABField} field The instance of the field to remove.
 	 * @return {Promise}
 	 */
-	fieldRemove( field ) {
-		this._fields = this.fields(function(o){ return o.id != field.id });
+	// fieldRemove( field ) {
+	// 	this._fields = this.fields(function(o){ return o.id != field.id });
 
-		return this.save();
-	}
+	// 	return this.save();
+	// }
 
 
 	/**
@@ -280,38 +280,38 @@ module.exports =  class ABObjectCore {
 	 * @param {ABField} field The instance of the field to remove.
 	 * @return {Promise}
 	 */
-	fieldReorder( sourceId, targetId ) {
-		// We know what was moved and what item it has replaced/pushed forward
-		// so first we want to splice the item moved out of the array of fields
-		// and store it so we can put it somewhere else
-		let itemMoved = null;
-		let oPos = 0; // original position
-		for(var i=0; i<this._fields.length; i++) {
-			if (this._fields[i].columnName == sourceId) {
-				itemMoved = this._fields[i];
-				this._fields.splice(i, 1);
-				oPos = i;
-				break;
-			}
-		}
-		// once we have removed/stored it we can find where its new position
-		// will be by looping back through the array and finding the item it
-		// is going to push forward
-		for(var j=0; j<this._fields.length; j++) {
-			if (this._fields[j].columnName == targetId) {
-				// if the original position was before the new position we will 
-				// follow webix's logic that the drop should go after the item 
-				// it was placed on 
-				if (oPos <= j) {
-					j++;
-				}
-				this._fields.splice(j, 0, itemMoved);
-				break;
-			}
-		}
+	// fieldReorder( sourceId, targetId ) {
+	// 	// We know what was moved and what item it has replaced/pushed forward
+	// 	// so first we want to splice the item moved out of the array of fields
+	// 	// and store it so we can put it somewhere else
+	// 	let itemMoved = null;
+	// 	let oPos = 0; // original position
+	// 	for(var i=0; i<this._fields.length; i++) {
+	// 		if (this._fields[i].columnName == sourceId) {
+	// 			itemMoved = this._fields[i];
+	// 			this._fields.splice(i, 1);
+	// 			oPos = i;
+	// 			break;
+	// 		}
+	// 	}
+	// 	// once we have removed/stored it we can find where its new position
+	// 	// will be by looping back through the array and finding the item it
+	// 	// is going to push forward
+	// 	for(var j=0; j<this._fields.length; j++) {
+	// 		if (this._fields[j].columnName == targetId) {
+	// 			// if the original position was before the new position we will 
+	// 			// follow webix's logic that the drop should go after the item 
+	// 			// it was placed on 
+	// 			if (oPos <= j) {
+	// 				j++;
+	// 			}
+	// 			this._fields.splice(j, 0, itemMoved);
+	// 			break;
+	// 		}
+	// 	}
 
-		return this.save();
-	}
+	// 	return this.save();
+	// }
 
 
 	/**
@@ -323,14 +323,14 @@ module.exports =  class ABObjectCore {
 	 * @param {ABField} field The instance of the field to save.
 	 * @return {Promise}
 	 */
-	fieldSave( field ) {
-		var isIncluded = (this.fields(function(o){ return o.id == field.id }).length > 0);
-		if (!isIncluded) {
-			this._fields.push(field);
-		}
+	// fieldSave( field ) {
+	// 	var isIncluded = (this.fields(function(o){ return o.id == field.id }).length > 0);
+	// 	if (!isIncluded) {
+	// 		this._fields.push(field);
+	// 	}
 
-		return this.save();
-	}
+	// 	return this.save();
+	// }
 
 
 	/**
@@ -349,6 +349,33 @@ module.exports =  class ABObjectCore {
 		})
 
 		return fields;
+	}
+
+
+	///
+	/// Working with data from server
+	///
+
+	/**
+	 * @method model
+	 * return a Model object that will allow you to interact with the data for
+	 * this ABObject.
+	 */
+	model() {
+
+		if (!this._model) {
+
+			if (this.isImported) {
+//// TODO:
+				var obj = ABApplication.objectFromRef(this.importFromObject);
+				this._model = new ABModel(obj);
+			}
+			else {
+				this._model = new ABModel(this);
+			}
+		}
+
+		return this._model;
 	}
 
 
@@ -470,14 +497,14 @@ module.exports =  class ABObjectCore {
 	 * @param {obj} data a key=>value hash of the inputs to parse.
 	 * @return {array}
 	 */
-	isValidData(data) {
-		var validator = OP.Validation.validator();
-		this.fields().forEach((f) => {
-			var p = f.isValidData(data, validator);
-		})
+	// isValidData(data) {
+	// 	var validator = OP.Validation.validator();
+	// 	this.fields().forEach((f) => {
+	// 		var p = f.isValidData(data, validator);
+	// 	})
 
-		return validator;
-	}
+	// 	return validator;
+	// }
 
 
 
@@ -519,6 +546,7 @@ module.exports =  class ABObjectCore {
 	PK() {
 		return this.primaryColumnName || 'id';
 	}
+
 
 
 }

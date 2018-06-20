@@ -24,6 +24,8 @@
 // so let's use require():
 var ABObject = require("../platform/ABObject");
 var ABFieldManager = require("./ABFieldManager");
+var ABViewManager = require("./ABViewManager");
+var ABViewPageCore = require("./views/ABViewPageCore");
 
 
 module.exports = class ABApplicationBase {
@@ -51,12 +53,12 @@ module.exports = class ABApplicationBase {
 		this._objects = newObjects;
 		  
 
-		// // import all our ABViews
-		// var newPages = [];
-		// (attributes.json.pages || []).forEach((page) => {
-		// 	newPages.push( this.pageNew(page) );  
-		// })
-		// this._pages = newPages;
+		// import all our ABViews
+		var newPages = [];
+		(attributes.json.pages || []).forEach((page) => {
+			newPages.push( this.pageNew(page) );  
+		})
+		this._pages = newPages;
 
 
 		// // NOTE: keep this after ABObjects are loaded
@@ -156,12 +158,12 @@ module.exports = class ABApplicationBase {
 
 
 
-		// // for each View: compile to json
-		// var currPages = [];
-		// this._pages.forEach((page) => {
-		// 	currPages.push(page.toObj())
-		// })
-		// this.json.pages = currPages;
+		// for each View: compile to json
+		var currPages = [];
+		this._pages.forEach((page) => {
+			currPages.push(page.toObj())
+		})
+		this.json.pages = currPages;
 
 
 		// // for each MobileApp: compile to json
@@ -327,6 +329,59 @@ module.exports = class ABApplicationBase {
 	objectNew( values ) {
 		return new ABObject(values, this);
 	}
+
+
+	///
+	/// Pages
+	///
+
+
+	/**
+	 * @method pages()
+	 *
+	 * return an array of all the ABViewPages for this ABApplication.
+	 *
+	 * @param {fn} filter		a filter fn to return a set of ABViewPages that this fn
+	 *							returns true for.
+	 * @param {boolean} deep	flag to find in sub pages
+	 * 
+	 * @return {array}			array of ABViewPages
+	 */
+	pages(filter, deep) {
+
+		var result = [];
+
+		if (!this._pages || this._pages.length < 1)
+			return result;
+
+		// find into sub-pages recursively
+		if (filter && deep) {
+
+			result = this._pages.filter(filter);
+
+			if (result.length < 1) {
+				this._pages.forEach((p) => {
+					var subPages = p.pages(filter, deep);
+					if (subPages && subPages.length > 0) {
+						result = subPages;
+					}
+				});
+			}
+
+		}
+		// find root pages
+		else {
+
+			filter = filter || function () { return true; };
+
+			result = this._pages.filter(filter);
+
+		}
+
+		return result;
+	}
+
+
 
 
 	///
@@ -531,6 +586,27 @@ module.exports = class ABApplicationBase {
 	fieldNew ( values, object ) {
 		// NOTE: ABFieldManager returns the proper ABFieldXXXX instance.
 		return ABFieldManager.newField( values, object );
+	}
+
+
+
+	/**
+	 * @method pageNew()
+	 *
+	 * return an instance of a new (unsaved) ABViewPage that is tied to this
+	 * ABApplication.
+	 *
+	 * NOTE: this new page is not included in our this.pages until a .save()
+	 * is performed on the page.
+	 *
+	 * @return {ABViewPage}
+	 */
+	pageNew(values) {
+
+		// make sure this is an ABViewPage description
+		values.key = ABViewPageCore.common().key;
+
+		return new ABViewManager.newView(values, this, null);
 	}
 
 
