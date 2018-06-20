@@ -75,7 +75,7 @@ module.exports = class ABFieldTreeCore extends ABField {
       // translate options list
       if (this.settings.options && this.settings.options.length > 0) {
           this.settings.options.forEach(function (opt) {
-              OP.Multilingual.translate(opt, opt, ["text"]);
+              this.object.application.translate(opt, opt, ["text"]);
           });
       }
 
@@ -101,7 +101,7 @@ module.exports = class ABFieldTreeCore extends ABField {
        // Un-translate options list
        if (obj.settings.options && obj.settings.options.length > 0) {
           obj.settings.options.forEach(function (opt) {
-            OP.Multilingual.unTranslate(opt, opt, ["text"]);
+            this.object.application.unTranslate(opt, opt, ["text"]);
           });
       }
        
