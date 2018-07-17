@@ -25,8 +25,13 @@ module.exports = class ABViewDataCollectionCore {
 
 
 		this._data = [];  // an array of Objects we received from the server.
+		this._emitter = this.loadEmitter();
+
 	}
 
+	static contextKey() {
+		return 'datacollection';
+	}
 
 	// /**
  //     * @method save()
@@ -60,6 +65,31 @@ module.exports = class ABViewDataCollectionCore {
 	///
 	/// Instance Methods
 	///
+loadEmitter() {
+	console.error("!! ABDataCollectionCore.loadEmitter() expects your platform implementation to override this!");
+	
+	// return a useless emitter object:
+	return {
+		on:function() {},
+		emit:function(){}
+	}
+}
+
+	on() {
+		this._emitter.on.apply(this._emitter, arguments);
+	}
+
+	once() {
+		this._emitter.once.apply(this._emitter, arguments);
+	}
+
+	emit(){
+		this._emitter.emit.apply(this._emitter, arguments);
+	}
+
+	trigger() {
+		this.emit.apply(this, arguments);
+	}
 
 
 	/**
@@ -388,6 +418,7 @@ module.exports = class ABViewDataCollectionCore {
 		return this.page.dataCollections((dc) => dc.id == this.settings.linkDataCollection)[0];
 	}
 
+
 	/**
 	* @method fieldLink
 	* return a ABFieldConnect field that link of this.
@@ -403,6 +434,19 @@ module.exports = class ABViewDataCollectionCore {
 	}
 
 
+	/**
+	 * @method remoteUpdate
+	 * this alerts us of a change in our data that came from a remote
+	 * source: socket update, Relay response, etc...
+	 */
+	remoteUpdate(data) {
+
+		return this.processIncomingData(data)
+		.then(()=>{
+			this.emit('data', this._data);
+		})
+		
+	}
 
 	
 	loadData(start, limit, callback) {
@@ -412,6 +456,12 @@ module.exports = class ABViewDataCollectionCore {
 
 		var model = obj.model();
 		if (model == null) return Promise.resolve([]);
+
+		// reset the context on the Model so any data updates get sent to this
+		// DataCollection
+		model.contextKey(ABViewDataCollectionCore.contextKey());
+		model.contextValues({id:this.id});  // the datacollection.id
+
 
 		var sorts = this.settings.objectWorkspace.sortFields || [];
 
@@ -435,7 +485,25 @@ module.exports = class ABViewDataCollectionCore {
 		return model.findAll(cond)
 			.then((data) => {
 
-				this._data = data;
+				return this.processIncomingData(data);
+				
+			}).then((data) => {
+
+				if (callback)
+					callback(null, data);
+
+				return data;
+			});
+
+	}
+
+
+	processIncomingData(data) {
+		return Promise.resolve()
+		.then(()=>{
+
+
+			return this._data = data;
 
 
 //// TODO:  An implementation of a DataCollection needs to follow our 
@@ -524,15 +592,9 @@ module.exports = class ABViewDataCollectionCore {
 					
 				});
 */
-			}).then(() => {
 
-				if (callback)
-					callback();
-
-			});
-
+		})
 	}
-
 
 	reloadData() {
 		this._data = [];

@@ -84,7 +84,9 @@ module.exports =  class ABObjectCore {
   	/// on the instance values of the Application.
   	///
 
-
+  	static contextKey() {
+  		return 'object';
+  	}
 
 	///
 	/// Instance Methods
@@ -363,7 +365,12 @@ module.exports =  class ABObjectCore {
 	 */
 	model() {
 
-		if (!this._model) {
+		// NOTE: now that a DataCollection overwrites the context of it's 
+		// object's model, it is no longer a good idea to only have a single
+		// instance of this._model per ABObject.  We should proive a new 
+		// instance each time.
+
+		// if (!this._model) {
 
 			if (this.isImported) {
 //// TODO:
@@ -373,7 +380,11 @@ module.exports =  class ABObjectCore {
 			else {
 				this._model = new ABModel(this);
 			}
-		}
+
+			// default the context of this model's operations to this object
+			this._model.contextKey(ABObjectCore.contextKey());
+			this._model.contextValues({id:this.id});  // the datacollection.id
+		// }
 
 		return this._model;
 	}
@@ -548,6 +559,11 @@ module.exports =  class ABObjectCore {
 	}
 
 
+
+
+	remoteCreate(data) {
+		console.log('object['+this.name+'] received a remoteCreate() with data:',data);
+	}
 
 }
 

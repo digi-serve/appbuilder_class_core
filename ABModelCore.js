@@ -24,6 +24,9 @@ module.exports =   class ABModelCore {
 		this._sort = null;
 		this._skip = null;
 		this._limit = null;
+
+		// include this 
+		this.responseContext = { key:'--', context:{} };
 	}
 
 
@@ -40,6 +43,15 @@ module.exports =   class ABModelCore {
 	///
 	/// Instance Methods
 	///
+
+	contextKey(key) {
+		this.responseContext.key = key || '--';
+	}
+
+	contextValues(values) {
+		this.responseContext.context = values || {};
+	}
+
 
 
 	// Prepare multilingual fields to be untranslated
@@ -73,33 +85,33 @@ module.exports =   class ABModelCore {
 	}
 
 
-	/**
-	 * @method create
-	 * update model values on the server.
-	 */
-	create(values) {
+	// /**
+	//  * @method create
+	//  * update model values on the server.
+	//  */
+	// create(values) {
 
-		this.prepareMultilingualData(values);
+	// 	this.prepareMultilingualData(values);
 
-		var params = {
-			url: this.object.urlRest(),
-			params: values
-		}
-		return this.request('post', params)
-			.then((data) => {
+	// 	var params = {
+	// 		url: this.object.urlRest(),
+	// 		params: values
+	// 	}
+	// 	return this.request('post', params)
+	// 		.then((data) => {
 
-				this.normalizeData(data);
+	// 			this.normalizeData(data);
 
-				return data;
+	// 			return data;
 
-				// FIX: now with sockets, the triggers are fired from socket updates.
-				// trigger a create event
-				// triggerEvent('create', this.object, data);
+	// 			// FIX: now with sockets, the triggers are fired from socket updates.
+	// 			// trigger a create event
+	// 			// triggerEvent('create', this.object, data);
 
-			})
-			.catch(reject);
+	// 		})
+	// 		.catch(reject);
 
-	}
+	// }
 
 
 	/**
@@ -108,61 +120,88 @@ module.exports =   class ABModelCore {
 	 * @param {integer} id  the .id of the instance to remove.
 	 * @return {Promise}
 	 */
-	delete(id) {
+	// delete(id) {
 
-		var params = {
-			url: this.object.urlRestItem(id)
-		}
-		return this.request('delete', params)
-			.then((data) => {
+	// 	var params = {
+	// 		url: this.object.urlRestItem(id)
+	// 	}
+	// 	return this.request('delete', params)
+	// 		.then((data) => {
 
-				return data;
+	// 			return data;
 
-				// FIX: now with sockets, the triggers are fired from socket updates.
-				// trigger a delete event
-				// triggerEvent('delete', this.object, id);
+	// 			// FIX: now with sockets, the triggers are fired from socket updates.
+	// 			// trigger a delete event
+	// 			// triggerEvent('delete', this.object, id);
 
-			})
-	}
+	// 		})
+	// }
 
 
 	/**
 	 * @method findAll
 	 * performs a data find with the provided condition.
 	 */
-	findAll(cond) {
+// 	findAll(cond) {
 
-		cond = cond || {};
+// 		cond = cond || {};
 
 
-		var params = {
+// 		var params = {
+// 			url: this.object.urlRest(),
+// 			params: cond
+// 		}
+// 		return this.request('get', params)
+// 			.then((data) => {
+
+// 				this.normalizeData(data.data);
+
+// 				resolve(data);
+// 			})
+// 			.catch((err) => {
+// /// TODO: this should be done in platform/ABModel:
+// 				// if (err && err.code) {
+// 				// 	switch(err.code) {
+// 				// 		case "ER_PARSE_ERROR":
+// 				// 			OP.Error.log('AppBuilder:ABModel:findAll(): Parse Error with provided condition', { error: err, condition:cond })
+// 				// 			break;
+
+// 				// 		default:
+// 				// 			OP.Error.log('AppBuilder:ABModel:findAll(): Unknown Error with provided condition', { error: err, condition:cond })
+// 				// 			break;
+// 				// 	}
+
+// 				// }
+// console.error(err);
+// 			})
+
+// 	}
+
+	urlParamsCreate(values) {
+		return {
 			url: this.object.urlRest(),
-			params: cond
+			params: values
 		}
-		return this.request('get', params)
-			.then((data) => {
+	}
 
-				this.normalizeData(data.data);
+	urlParamsDelete(id) {
+		return {
+			url: this.object.urlRestItem(id)
+		}
+	}
 
-				resolve(data);
-			})
-			.catch((err) => {
-/// TODO: this should be done in platform/ABModel:
-				// if (err && err.code) {
-				// 	switch(err.code) {
-				// 		case "ER_PARSE_ERROR":
-				// 			OP.Error.log('AppBuilder:ABModel:findAll(): Parse Error with provided condition', { error: err, condition:cond })
-				// 			break;
+	urlParamsFind(cond) {
+		return {
+			url: this.object.urlRest(),
+			params: cond || {}
+		}
+	}
 
-				// 		default:
-				// 			OP.Error.log('AppBuilder:ABModel:findAll(): Unknown Error with provided condition', { error: err, condition:cond })
-				// 			break;
-				// 	}
-
-				// }
-console.error(err);
-			})
-
+	urlParamsUpdate(id, values) {
+		return {
+			url: this.object.urlRestItem(id),
+			params: values
+		}
 	}
 
 
@@ -426,43 +465,43 @@ reject(err);
 
 
 
-	/**
-	 * @method update
-	 * update model values on the server.
-	 */
-	update(id, values) {
+// 	/**
+// 	 * @method update
+// 	 * update model values on the server.
+// 	 */
+// 	update(id, values) {
 
-		this.prepareMultilingualData(values);
+// 		this.prepareMultilingualData(values);
 
-		// remove empty properties
-		for (var key in values) {
-			if (values[key] == null)
-				delete values[key];
-		}
+// 		// remove empty properties
+// 		for (var key in values) {
+// 			if (values[key] == null)
+// 				delete values[key];
+// 		}
 
-		var params = {
-			url: this.object.urlRestItem(id),
-			params: values
-		}
-		return this.request('put', params)
-			.then((data) => {
+// 		var params = {
+// 			url: this.object.urlRestItem(id),
+// 			params: values
+// 		}
+// 		return this.request('put', params)
+// 			.then((data) => {
 
-				// .data is an empty object ?? 
+// 				// .data is an empty object ?? 
 
-				this.normalizeData(data);
+// 				this.normalizeData(data);
 
-				return data;
+// 				return data;
 
-				// FIX: now with sockets, the triggers are fired from socket updates.
-				// trigger a update event
-				// triggerEvent('update', this.object, data);
+// 				// FIX: now with sockets, the triggers are fired from socket updates.
+// 				// trigger a update event
+// 				// triggerEvent('update', this.object, data);
 
-			})
-			.catch((err)=>{
-console.error(err);
-			});
+// 			})
+// 			.catch((err)=>{
+// console.error(err);
+// 			});
 
-	}
+// 	}
 
 
 
