@@ -606,7 +606,21 @@ module.exports = class ABApplicationBase {
 		// make sure this is an ABViewPage description
 		values.key = ABViewPageCore.common().key;
 
-		return new ABViewManager.newView(values, this, null);
+		return ABViewManager.newView(values, this, null);
+	}
+
+
+
+	/**
+	 * @method viewNew()
+	 *
+	 * return an instance of a new (unsaved) ABView.
+	 *
+	 * @return {ABView}
+	 */
+	viewNew(values, application, parent) {
+
+		return ABViewManager.newView(values, application, parent);
 	}
 
 

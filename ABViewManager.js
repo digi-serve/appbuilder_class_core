@@ -115,8 +115,8 @@ module.exports =  {
 
 		parent = parent || null;
 		
-		if ((values.key) && (Views[values.key])) {
-
+//		if ((values.key) && (Views[values.key])) {
+if ((values.key)) {
 if(!Views[values.key]) {
 console.error('!! View['+values.key+'] not yet defined.  Have an ABView instead:');
 return new Views['view'](values, application, parent);
