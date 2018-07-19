@@ -71,7 +71,9 @@ loadEmitter() {
 	// return a useless emitter object:
 	return {
 		on:function() {},
-		emit:function(){}
+		once:function() {},
+		emit:function() {},
+		trigger:function() {}
 	}
 }
 
