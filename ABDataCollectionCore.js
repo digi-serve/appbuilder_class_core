@@ -7,9 +7,9 @@
  * 
  *
  */
+var ABEmitter = require("../platform/ABEmitter");
 
-
-module.exports = class ABViewDataCollectionCore {
+module.exports = class ABViewDataCollectionCore extends ABEmitter {
 
 	/**
 	 * @param {obj} values  key=>value hash of ABView values
@@ -18,6 +18,8 @@ module.exports = class ABViewDataCollectionCore {
 	 */
 	constructor(values, application, page) {
 
+		super();
+
 		this.application = application;
 		this.page = page;
 
@@ -25,7 +27,6 @@ module.exports = class ABViewDataCollectionCore {
 
 
 		this._data = [];  // an array of Objects we received from the server.
-		this._emitter = this.loadEmitter();
 
 	}
 
@@ -65,33 +66,6 @@ module.exports = class ABViewDataCollectionCore {
 	///
 	/// Instance Methods
 	///
-loadEmitter() {
-	console.error("!! ABDataCollectionCore.loadEmitter() expects your platform implementation to override this!");
-	
-	// return a useless emitter object:
-	return {
-		on:function() {},
-		once:function() {},
-		emit:function() {},
-		trigger:function() {}
-	}
-}
-
-	on() {
-		this._emitter.on.apply(this._emitter, arguments);
-	}
-
-	once() {
-		this._emitter.once.apply(this._emitter, arguments);
-	}
-
-	emit(){
-		this._emitter.emit.apply(this._emitter, arguments);
-	}
-
-	trigger() {
-		this.emit.apply(this, arguments);
-	}
 
 
 	/**
@@ -461,6 +435,8 @@ loadEmitter() {
 
 		// reset the context on the Model so any data updates get sent to this
 		// DataCollection
+		// NOTE: we only do this on loadData(), other operations should be 
+		// received by the related Objects.
 		model.contextKey(ABViewDataCollectionCore.contextKey());
 		model.contextValues({id:this.id});  // the datacollection.id
 

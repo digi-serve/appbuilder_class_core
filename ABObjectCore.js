@@ -6,10 +6,14 @@
  */
 
 var ABModel = require("../platform/ABModel");
+var ABEmitter = require("../platform/ABEmitter");
 
-module.exports =  class ABObjectCore {
+module.exports =  class ABObjectCore extends ABEmitter {
 
 	constructor(attributes, application) {
+
+		super();
+		
 /*
 {
 	id: uuid(),
@@ -367,7 +371,7 @@ module.exports =  class ABObjectCore {
 
 		// NOTE: now that a DataCollection overwrites the context of it's 
 		// object's model, it is no longer a good idea to only have a single
-		// instance of this._model per ABObject.  We should proive a new 
+		// instance of this._model per ABObject.  We should provide a new 
 		// instance each time.
 
 		// if (!this._model) {
