@@ -35,9 +35,11 @@ module.exports = class ABFieldCore {
 			translations:[]
   		}
   		*/
-  		this.fromValues(values);
+  		
 
     	this.object = object;
+
+    	this.fromValues(values);
 
     	this.object.application.translate(this, this, ['label']);
   	}
