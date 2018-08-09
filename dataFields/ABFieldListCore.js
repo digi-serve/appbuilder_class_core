@@ -188,6 +188,16 @@ module.exports = class ABFieldListCore extends ABField {
 
 
 
+	/**
+	 * @method options
+	 * Return an array of [{ id, text }] options defined by this field.
+	 * @return {array} 
+	 */
+	options() {
+		return this.settings.options.map((opt)=>{ return { id:opt.id, text: opt.text }});
+	}
+
+
 	format(rowData) {
 
 		var val = rowData[this.columnName] || [];
