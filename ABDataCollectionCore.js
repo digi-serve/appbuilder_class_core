@@ -480,7 +480,11 @@ module.exports = class ABViewDataCollectionCore extends ABEmitter {
 		return Promise.resolve()
 		.then(()=>{
 
-
+			var mlFields = this.datasource.multilingualFields();
+			if (mlFields.length>0) {
+				this.application.translate(data, data, mlFields);
+			}
+			
 			return this._data = data;
 
 
