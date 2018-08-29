@@ -482,7 +482,20 @@ module.exports = class ABViewDataCollectionCore extends ABEmitter {
 
 			var mlFields = this.datasource.multilingualFields();
 			if (mlFields.length>0) {
-				this.application.translate(data, data, mlFields);
+
+
+				// if this is an Array of data, then translate each entry:
+				if (Array.isArray(data)) {
+					data.forEach((d)=>{
+						this.application.translate(d, d, mlFields);
+					})
+
+				} else {
+					
+					// attempt to translate this one
+					this.application.translate(data, data, mlFields);
+				}
+				
 			}
 			
 			return this._data = data;
