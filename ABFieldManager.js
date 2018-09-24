@@ -17,6 +17,9 @@ var ABFieldFile 	= require( "../platform/dataFields/ABFieldFile");
 var ABFieldImage  	= require( "../platform/dataFields/ABFieldImage");
 var ABFieldUser 	= require( "../platform/dataFields/ABFieldUser");
 var ABFieldConnect 	= require( "../platform/dataFields/ABFieldConnect");
+var ABFieldCalculate = require( "../platform/dataFields/ABFieldCalculate");
+var ABFieldTextFormula = require( "../platform/dataFields/ABFieldTextFormula");
+var ABFieldFormula  = require( "../platform/dataFields/ABFieldFormula" );
 
 /*
  * Fields
@@ -35,6 +38,9 @@ Fields[ABFieldFile.defaults().key] 		= ABFieldFile;
 Fields[ABFieldImage.defaults().key] 	= ABFieldImage;
 Fields[ABFieldUser.defaults().key] 		= ABFieldUser;
 Fields[ABFieldConnect.defaults().key] 	= ABFieldConnect;
+Fields[ABFieldCalculate.defaults().key] = ABFieldCalculate;
+Fields[ABFieldTextFormula.defaults().key] = ABFieldTextFormula;
+Fields[ABFieldFormula.defaults().key] = ABFieldFormula;
 
 
 module.exports = {
