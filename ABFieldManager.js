@@ -62,7 +62,14 @@ module.exports = {
 	newField: function (values, object) {
 
 		if (values.key) {
-			return new Fields[values.key](values, object);
+			try {
+				return new Fields[values.key](values, object);
+			} catch (err) {
+				console.log('Error', err);
+				console.log('Available fields', Fields);
+				console.log('Requested field', values.key);
+			}
+			
 		} else {
 
 //// TODO: what to do here?
