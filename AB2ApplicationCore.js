@@ -86,6 +86,14 @@ module.exports = class ABApplicationBase {
 // ABMobileApp: needs to find .datacollection()
 // implement: datacollection().first().value()
 
+        // now properly handle our data sources.
+        var dataCollections = [];
+        (attributes.dataCollections || []).forEach((data) => {
+            dataCollections.push(this.dataCollectionNew(data));
+        })
+        this._dataCollections = dataCollections;
+
+
 		// // Mobile Apps
 		// // an Application can have one or more Mobile Apps registered.
 		// var newMobileApps = [];
@@ -423,6 +431,55 @@ module.exports = class ABApplicationBase {
 	}
 
 
+
+
+	///
+	/// DataCollections
+	///
+
+    /**
+     * @method dataCollections()
+     *
+     * return an array of all the ABViewDataCollection for this ABViewPage.
+     *
+     * @param {fn} filter		a filter fn to return a set of ABViewDataCollection that this fn
+     *							returns true for.
+     * 
+     * @return {array}			array of ABViewDataCollection
+     */
+    dataCollections(filter) {
+
+        if (!this._dataCollections) return [];
+
+        filter = filter || function () { return true; };
+
+        return this._dataCollections.filter(filter);
+
+    }
+
+    /**
+     * @method dataCollectionNew()
+     *
+     * return an instance of a new (unsaved) ABViewDataCollection that is tied to this
+     * ABViewPage.
+     *
+     * NOTE: this new data source is not included in our this.dataCollections until a .save()
+     * is performed on the page.
+     * 
+     * @param {json} values the ABViewDataCollection settings object.
+     * @return {ABViewDataCollection}
+     */
+    dataCollectionNew(values) {
+
+        values = values || {};
+        values.key = 'datacollection';
+
+        // NOTE: this returns a new ABViewDataCollection component.  
+        var dataCollection = ABViewManager.newView(values, this, this);
+        dataCollection.parent = this;
+
+        return dataCollection;
+    }
 
 
 	/**
@@ -787,6 +844,20 @@ module.exports = class ABApplicationBase {
 			}
 
 		}
+	}
+
+
+
+	/**
+	 * Migration issues
+	 */
+
+	pageRoot(){
+		console.error(".pageRoot() called on Application.  Tell a developer to fix this.");
+		// old code was something like [View].pageRoot().dataCollections()
+		// now should be:  [View].application.dataCollections()
+		
+		return this;
 	}
 
 }

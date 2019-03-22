@@ -329,4 +329,76 @@ console.error('!!! where is this being called???')
 		return this.save();
 	}
 
+
+
+
+	///
+	/// Events
+	///
+	
+
+	/**
+	 * @method eventAdd()
+	 *
+	 * 
+	 *
+	 * @param {object} evt - {
+	 * 							emitter: object,
+	 * 							eventName: string,
+	 * 							listener: function
+	 * 						}
+	 */
+	eventAdd(evt) {
+
+		if (!evt || 
+			!evt.emitter ||
+			!evt.listener)
+			return;
+
+		var exists = this.__events.find(e => {
+			return e.emitter == evt.emitter &&
+					e.eventName == evt.eventName;
+					// && e.listener == evt.listener;
+		});
+
+		if (!exists || exists.length < 1) {
+
+			// add to array
+			this.__events.push({
+				emitter: evt.emitter,
+				eventName: evt.eventName,
+				listener: evt.listener
+			});
+
+			// listening this event
+			evt.emitter.on(evt.eventName, evt.listener);
+		}
+
+	}
+
+
+	/**
+	 * @method eventClear()
+	 * unsubscribe all events.
+	 * should do it before destroy a component
+	 *
+	 * @param {bool} deep - clear events of child views
+	 */
+	eventClear(deep) {
+
+		if (deep) {
+			this.views().forEach(v => {
+				v.eventClear(deep);
+			});
+		}
+
+		if (this.__events && this.__events.length > 0) {
+			this.__events.forEach(e => {
+				e.emitter.removeListener(e.eventName, e.listener);
+			});
+		}
+
+	}
+
+
 }
