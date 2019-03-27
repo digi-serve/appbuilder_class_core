@@ -22,11 +22,17 @@
 
 // webpack can handle 'require()' statements, but node can't handle import
 // so let's use require():
-var ABObject = require("../platform/ABObject");
-var ABObjectQuery = require("../platform/ABObjectQuery");
-var ABFieldManager = require("./ABFieldManager");
-var ABViewManager = require("./ABViewManager");
-var ABViewPageCore = require("./views/ABViewPageCore");
+
+
+
+//// NOTE: this is for our transition phase to get our existing code into
+//// the ../platform/ arrangement.
+
+var ABObject = require("../ABObject");
+var ABObjectQuery = require("../ABObjectQuery");
+var ABFieldManager = require("../ABFieldManager");
+var ABViewManager = require("../ABViewManager");
+var ABViewPageCore = require("../views/ABViewPage");
 
 
 module.exports = class ABApplicationBase {
@@ -60,11 +66,11 @@ module.exports = class ABApplicationBase {
 		  
 
 		// import all our ABViews
-		// var newPages = [];
-		// (attributes.json.pages || []).forEach((page) => {
-		// 	newPages.push( this.pageNew(page) );  
-		// })
-		// this._pages = newPages;
+		var newPages = [];
+		(attributes.json.pages || []).forEach((page) => {
+			newPages.push( this.pageNew(page) );  
+		})
+		this._pages = newPages;
 
 
 		// NOTE: keep this after ABObjects are loaded
@@ -80,11 +86,6 @@ module.exports = class ABApplicationBase {
 	  	})
 		this._queries = newQueries;
 
-//// LEFT OFF HERE:
-// import datacollections
-// when ABMobileApp initialized, it should initialize the data for All Datacollections.
-// ABMobileApp: needs to find .datacollection()
-// implement: datacollection().first().value()
 
         // now properly handle our data sources.
         var dataCollections = [];
@@ -94,16 +95,16 @@ module.exports = class ABApplicationBase {
         this._dataCollections = dataCollections;
 
 
-		// // Mobile Apps
-		// // an Application can have one or more Mobile Apps registered.
-		// var newMobileApps = [];
-		// (attributes.json.mobileApps || []).forEach((ma) => {
-		// 	// prevent processing of null values.  
-		// 	if (ma) {
-		//   		newMobileApps.push( this.mobileAppNew(ma) );  
-		//   	}
-	 //  	})
-		// this._mobileApps = newMobileApps;
+		// Mobile Apps
+		// an Application can have one or more Mobile Apps registered.
+		var newMobileApps = [];
+		(attributes.json.mobileApps || []).forEach((ma) => {
+			// prevent processing of null values.  
+			if (ma) {
+		  		newMobileApps.push( this.mobileAppNew(ma) );  
+		  	}
+	  	})
+		this._mobileApps = newMobileApps;
 
 
 
@@ -185,12 +186,12 @@ module.exports = class ABApplicationBase {
 		this.json.pages = currPages;
 
 
-		// // for each MobileApp: compile to json
-		// var currApps = [];
-		// this._mobileApps.forEach((app) => {
-		// 	currApps.push(app.toObj())
-		// })
-		// this.json.mobileApps = currApps;
+		// for each MobileApp: compile to json
+		var currApps = [];
+		this._mobileApps.forEach((app) => {
+			currApps.push(app.toObj())
+		})
+		this.json.mobileApps = currApps;
 
 
 		return {
@@ -480,7 +481,6 @@ module.exports = class ABApplicationBase {
 
         return dataCollection;
     }
-
 
 
 
