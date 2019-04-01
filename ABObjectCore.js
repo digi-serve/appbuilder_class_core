@@ -75,8 +75,8 @@ module.exports =  class ABObjectCore extends ABEmitter {
 	  	// convert '0' to 0
 	  	this.isImported = parseInt(this.isImported || 0);
 
-	  	// link me to my parent ABApplication
-	  	this.application = application;
+	  	this.createdInAppID = attributes.createdInAppID;
+
   	}
 
 
@@ -159,7 +159,8 @@ module.exports =  class ABObjectCore extends ABEmitter {
 			importFromObject: this.importFromObject,
 			objectWorkspace: this.objectWorkspace,
 			translations: 	this.translations,
-			fields: 	 	currFields
+			fields: 	 	currFields,
+			createdInAppID: this.createdInAppID
 		}
 	}
 

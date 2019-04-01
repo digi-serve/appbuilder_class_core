@@ -32,9 +32,11 @@ module.exports = class ABApplicationBase {
 
     constructor(attributes) {
 
+    	attributes.json = attributes.json || {};
+
     	// ABApplication Attributes
     	this.id    = attributes.id;
-    	this.json  = attributes.json || {};
+    	this.json  = attributes.json;
 		if (typeof this.json == "string")
 			this.json = JSON.parse(this.json);
     	this.name  = attributes.name || this.json.name || "";
@@ -46,11 +48,11 @@ module.exports = class ABApplicationBase {
 	  	// So we provide object methods in the base class.  However, each
 	  	// ABObject sub class (client and server) needs to implement it's own
 	  	// .objectNew() method.
-	  	var newObjects = [];
-	  	(attributes.json.objects || []).forEach((obj) => {
-	  		newObjects.push( this.objectNew(obj) );  
-	  	})
-		this._objects = newObjects;
+	 //  	var newObjects = [];
+	 //  	(attributes.json.objects || []).forEach((obj) => {
+	 //  		newObjects.push( this.objectNew(obj) );  
+	 //  	})
+		// this._objects = newObjects;
 		  
 
 		// import all our ABViews
