@@ -39,7 +39,7 @@ module.exports = class ABApplicationBase {
 // tenantID
 // userID
 
-    	this.id    = "id"; // attributes.id;
+    	this.id    = attributes.id;
     	this.json  = attributes;
 		if (typeof this.json == "string")
 			this.json = JSON.parse(this.json);

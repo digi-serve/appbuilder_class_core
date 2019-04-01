@@ -28,11 +28,13 @@
 //// NOTE: this is for our transition phase to get our existing code into
 //// the ../platform/ arrangement.
 
-var ABObject = require("../ABObject");
-var ABObjectQuery = require("../ABObjectQuery");
-var ABFieldManager = require("../ABFieldManager");
-var ABViewManager = require("../ABViewManager");
-var ABViewPageCore = require("../views/ABViewPage");
+var ABObject = require("../ABObject").default;
+var ABObjectQuery = require("../ABObjectQuery").default;
+var ABMobileApp =  require("../ABMobileApp").default;
+var ABFieldManager = require("../ABFieldManager").default;
+var ABViewManager = require("../ABViewManager").default;
+var ABViewPage = require("../views/ABViewPage").default;
+var ABViewReportPage = require("../views/ABViewReportPage").default;
 
 
 module.exports = class ABApplicationBase {
@@ -40,13 +42,20 @@ module.exports = class ABApplicationBase {
     constructor(attributes) {
 
     	// ABApplication Attributes
+    	// {
+    	// 	id:
+    	// 	json: {ApplicationDefinition}
+    	// 	name:
+    	// 	translations:
+    	// }
 //// TODO:
 // what fields are now relevant to our new design?
 // tenantID
 // userID
 
-    	this.id    = "id"; // attributes.id;
-    	this.json  = attributes;
+
+    	this.id    = attributes.id;
+    	this.json  = attributes.json || {};
 		if (typeof this.json == "string")
 			this.json = JSON.parse(this.json);
     	this.name  = attributes.name || this.json.name || "";
@@ -58,11 +67,12 @@ module.exports = class ABApplicationBase {
 	  	// So we provide object methods in the base class.  However, each
 	  	// ABObject sub class (client and server) needs to implement it's own
 	  	// .objectNew() method.
-	  	var newObjects = [];
-	  	(attributes.objects || []).forEach((obj) => {
-	  		newObjects.push( this.objectNew(obj) );  
-	  	})
-		this._objects = newObjects;
+	 //  	var newObjects = [];
+	 //  	(attributes.objects || []).forEach((obj) => {
+	 //  		newObjects.push( this.objectNew(obj) );  
+	 //  	})
+		// this._objects = newObjects;
+		this._objects = attributes.objects;
 		  
 
 		// import all our ABViews
@@ -675,12 +685,12 @@ module.exports = class ABApplicationBase {
 	 *
 	 * @param {obj} values  the initial values for this field.  
 	 *						{ key:'{string}'} is required 
-	 * @param {ABObject} object  the parent object this field belongs to.
+	 * @param {ABObject} parent  the parent object this field belongs to.
 	 * @return {ABField}
 	 */
-	fieldNew ( values, object ) {
+	fieldNew ( values, parent ) {
 		// NOTE: ABFieldManager returns the proper ABFieldXXXX instance.
-		return ABFieldManager.newField( values, object );
+		return ABFieldManager.newField( values, parent );
 	}
 
 
