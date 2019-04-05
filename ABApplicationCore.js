@@ -28,10 +28,15 @@ var ABViewManager = require("./ABViewManager");
 var ABViewPageCore = require("./views/ABViewPageCore");
 
 
-module.exports = class ABApplicationBase {
+module.exports = class ABApplicationCore {
 
     constructor(attributes) {
-
+    	// attributes should be in format:
+    	// {
+    	// 	id:##,
+    	// 	json:{},
+    	// 	name:"XYZ"
+    	// }
     	attributes.json = attributes.json || {};
 
     	// ABApplication Attributes
@@ -42,6 +47,11 @@ module.exports = class ABApplicationBase {
     	this.name  = attributes.name || this.json.name || "";
     	this.role  = attributes.role;
 
+    	// Transition:
+    	// _datacollections, _objects, and _queries are now defined
+    	// globally.  And not part of the internal definition of an 
+    	// ABApplication.
+    	this._datacollections = [];
 
 	  	// import all our ABObjects
 	  	// NOTE: we work with ABObjects on both the client and server sides.
@@ -52,15 +62,7 @@ module.exports = class ABApplicationBase {
 	 //  	(attributes.json.objects || []).forEach((obj) => {
 	 //  		newObjects.push( this.objectNew(obj) );  
 	 //  	})
-		// this._objects = newObjects;
-		  
-
-		// import all our ABViews
-		var newPages = [];
-		(attributes.json.pages || []).forEach((page) => {
-			newPages.push( this.pageNew(page) );  
-		})
-		this._pages = newPages;
+		this._objects = [];
 
 
 		// // NOTE: keep this after ABObjects are loaded
@@ -74,7 +76,19 @@ module.exports = class ABApplicationBase {
 		//   		newQueries.push( this.queryNew(query) );  
 		//   	}
 	 //  	})
-		// this._queries = newQueries;
+		this._queries = [];
+
+
+		// Transition:
+		// _pages, and _mobileApps, are still included in the ABApplication
+		// definition:
+
+		// import all our ABViews
+		// var newPages = [];
+		// (attributes.json.pages || []).forEach((page) => {
+		// 	newPages.push( this.pageNew(page) );  
+		// })
+		// this._pages = [];
 
 
 		// // Mobile Apps
@@ -86,7 +100,7 @@ module.exports = class ABApplicationBase {
 		//   		newMobileApps.push( this.mobileAppNew(ma) );  
 		//   	}
 	 //  	})
-		// this._mobileApps = newMobileApps;
+		// this._mobileApps = [newMobileApps];
 
 
 
@@ -207,6 +221,37 @@ module.exports = class ABApplicationBase {
 
 		return this._mobileApps.filter(filter);
 
+	}
+
+
+
+	///
+	/// Datacollections
+	///
+
+
+
+
+	/**
+	 * @method datacollections()
+	 *
+	 * return an array of all the ABObjects for this ABApplication.
+	 *
+	 * @param {fn} filter  	a filter fn to return a set of ABObjects that this fn
+	 *						returns true for.
+	 * @return {array} 	array of ABObject
+	 */
+	datacollections (filter) {
+
+		filter = filter || function() {return true; };
+
+		return this._datacollections.filter(filter);
+
+	}
+
+
+	datacollectionByID (ID) {
+		return this._datacollections.find((dc)=>{ return (dc.id == ID || dc.name == ID); });
 	}
 
 

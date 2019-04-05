@@ -855,7 +855,7 @@ module.exports = class ABApplicationBase {
 	pageRoot(){
 		console.error(".pageRoot() called on Application.  Tell a developer to fix this.");
 		// old code was something like [View].pageRoot().dataCollections()
-		// now should be:  [View].application.dataCollections()
+		// now should be:  [View].application.datacollections()
 		
 		return this;
 	}

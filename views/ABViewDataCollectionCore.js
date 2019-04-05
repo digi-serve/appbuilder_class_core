@@ -1385,7 +1385,7 @@ export default class ABViewDataCollectionCore extends ABView {
 
 		if (!this.application) return null;
 
-		return this.application.dataCollections((dc) => dc.id == this.settings.linkDataCollection)[0];
+		return this.application.datacollectionByID(this.settings.linkDataCollection);
 	}
 
 	/**

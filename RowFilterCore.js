@@ -360,7 +360,7 @@ module.exports = class RowFilter extends ABComponent {
 				}
 
 				// var dc = this._View.pageRoot().dataCollections(dc => dc.id == compareValue)[0];
-				var dc = this._View.application.dataCollections(dc => dc.id == compareValue)[0];
+				var dc = this._View.application.datacollections(dc => dc.id == compareValue)[0];
 					
 				switch (rule) {
 					case 'in_data_collection':
