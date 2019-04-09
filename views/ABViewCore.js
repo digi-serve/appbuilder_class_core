@@ -7,7 +7,7 @@
  *
  */
 
-
+var ABEmitter = require("../../platform/ABEmitter");
 
 var ABViewDefaults = {
 	key: 'view',					// {string} unique key for this view
@@ -15,7 +15,7 @@ var ABViewDefaults = {
 	labelKey: 'ab.components.view'  // {string} the multilingual label key for the class label
 }
 
-module.exports = class ABViewCore {
+module.exports = class ABViewCore extends ABEmitter {
 
 	/**
 	 * @param {obj} values  key=>value hash of ABView values
@@ -23,7 +23,11 @@ module.exports = class ABViewCore {
 	 * @param {ABView} parent the ABView this view is a child of. (can be null)
 	 */
 	constructor(values, application, parent, defaultValues) {
+		super();
 
+		this.__events = [];
+			// keep track of any event listeners attached to this ABView object
+			
 		this.defaults = defaultValues || ABViewDefaults;
 
 		this.application = application;

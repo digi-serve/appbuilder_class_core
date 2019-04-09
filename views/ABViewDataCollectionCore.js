@@ -62,6 +62,14 @@ export default class ABViewDataCollectionCore extends ABView {
 		// mark data status does not be initialized
 		this._dataStatus = this.dataStatusFlag.notInitial;
 
+		// on .loadData() operations, our responses need to alert any pending 
+		// Promises.  When populated, this should be an {obj}:
+		// {
+		// 	resolve: fnResolve(),
+		// 	reject: fnReject()
+		// }
+		this._pendingLoadDataResolve = null;
+
 	}
 
 
@@ -69,6 +77,17 @@ export default class ABViewDataCollectionCore extends ABView {
 
 		return ABViewDefaults;
 
+	}
+
+
+	/**
+	 * contextKey()
+	 * returns a unique key that represents a dataCollection in 
+	 * our networking job resolutions.
+	 * @return {string} 
+	 */
+	static contextKey() {
+		return 'datacollection';
 	}
 
 
@@ -1630,9 +1649,17 @@ export default class ABViewDataCollectionCore extends ABView {
 
 	}
 
-	loadData(start, limit, callback, preParseData) {
-
-		preParseData = preParseData || function(){};
+	/**
+	 * loadData
+	 * used by the webix data collection to import all the data
+	 * the only time start, limit are set, is when the settings.loadAll
+	 * is false, and then we use the datacollection's paging feature.
+	 * @param {int} start  the index of the row tostart at (0 based)
+	 * @param {int} limit  the limit of # of rows to return each call
+	 * @param {fn}  callback  a node style callback fn(err, results)
+	 * @return {Promise}
+	 */
+	loadData(start, limit, callback) {
 
 		// mark data status is initializing
 		if (this._dataStatus == this.dataStatusFlag.notInitial) {
@@ -1652,6 +1679,7 @@ export default class ABViewDataCollectionCore extends ABView {
 			return Promise.resolve([]);
 		}
 
+		// pull the defined sort values
 		var sorts = this.settings.objectWorkspace.sortFields || [];
 
 		// pull filter conditions
@@ -1678,12 +1706,22 @@ export default class ABViewDataCollectionCore extends ABView {
 			sort: sorts,
 		};
 
-		// load all data
+		// if settings specify loadAll, then remove the limit
 		if (this.settings.loadAll) {
 			delete cond.limit;
 		}
 
-		function waitForDataCollectionToInitialize(DC) {
+		/*
+		 * waitForDataCollectionToInitialize()
+		 * there are certain situations where this datacollection shouldn't 
+		 * load until another one has loaded.  In those cases, the fn() 
+		 * will wait for the required datacollection to emit "initializedData"
+		 * before continuing on.
+		 * @param {ABViewDataCollection} DC  
+		 * 		  the DC this datacollection depends on.
+		 * @returns {Promise}
+		 */
+		var waitForDataCollectionToInitialize = (DC) => {
 			return new Promise((resolve, reject) => {
 
 				switch (DC.dataStatus) {
@@ -1729,11 +1767,11 @@ export default class ABViewDataCollectionCore extends ABView {
 			//
 			.then(() => {
 
-				// check data status of link data collection and listen change cursor event
+				// If we are linked to another datacollection then wait for it
 				let linkDc = this.dataCollectionLink;
 				if (!linkDc) return;
 
-				return waitForDataCollectionToInitialize(linkDC);
+				return waitForDataCollectionToInitialize(linkDc);
 
 			})
 			//
@@ -1773,65 +1811,99 @@ export default class ABViewDataCollectionCore extends ABView {
 
 				return new Promise((resolve, reject) => {
 
-					model.findAll(cond)
-					.then((data) => {
+					// we will keep track of the resolve, reject for this 
+					// operation.
+					this._pendingLoadDataResolve = { 
+						resolve: resolve, 
+						reject: reject 
+					};
 
-						preParseData(data);
-						// data.data.forEach((d) => {
-	
-						// 	// define $height of rows to render in webix elements
-						// 	if (d.properties != null && d.properties.height != "undefined" && parseInt(d.properties.height) > 0) {
-						// 		d.$height = parseInt(d.properties.height);
-						// 	} else if (defaultHeight > 0) {
-						// 		d.$height = defaultHeight;
+
+
+					// if (bootstate==initialzied) {
+					if (this.bootState == "initialized") {
+console.error("!!! TODO: implement .loadData() : bootState == initialized ")
+						//  model = model.local()  
+						// 	model.findAll(cond)
+						// 	.then(data)=>{
+						// 		processIncomingData(preparseData, data);
+
+						// 		// processIncomingData() is everything in this following .then()
+						//		// in processIncomingData: if this.pendingLoadDataResolve()
 						// 	}
-	
-						// });
 
-						// populate data to webix's data collection and the loading cursor is hidden here
-						this.__dataCollection.parse(data);
-	
-	
-						var linkDc = this.dataCollectionLink;
-						if (linkDc) {
-	
-							// filter data by match link data collection
-							this.refreshLinkCursor();
-	
-						}
-						else {
-	
-							// set static cursor
-							this.setStaticCursor();
-	
-						}
+					} else {
+						//  We have not been initialized yet, so we need to 
+						//  request our data from the remote source()
+						var modelRemote = model.remote();
 
-						// mark initialized data
-						if (this._dataStatus != this.dataStatusFlag.initialized) {
-							this._dataStatus = this.dataStatusFlag.initialized;
-							this.emit("initializedData", {});
-						}
+						// reset the context on the Model so any data updates get sent to this
+						// DataCollection
+						// NOTE: we only do this on loadData(), other operations should be 
+						// received by the related Objects.
+						modelRemote.contextKey(ABViewDataCollectionCore.contextKey());
+						modelRemote.contextValues({id:this.id});  // the datacollection.id
 
-						if (callback)
-							callback();
-	
-						resolve();
-		
-					})
-					.catch(err => {
-		
-						if (callback)
-							callback(err);
+						//   model.findAll()
+						modelRemote.findAll(cond);
+							// note:  our ABRelay.listener will take incoming data and call: 
+							// this.processIncomingData()
+					}
 
-						reject(err);
-		
-					});
 
 				});
 
 			});
 
 	}
+
+    /**
+     * processIncomingData()
+     * is called from loadData() once the data is returned.  This method
+     * allows the platform to make adjustments to the data based upon any
+     * platform defined criteria.
+     * @param {obj} data  the data as it was returned from the Server
+     *        which should be in following format:
+     *        {
+     *          status: "success", // or "error"
+     *          data:[ {ABObjectData}, {ABObjectData}, ...]
+     *        }
+     */
+    processIncomingData(data) {
+
+    	// load the data into our actual dataCollection
+		this.__dataCollection.parse(data);
+
+
+		// if we are linked, then refresh our cursor
+		var linkDc = this.dataCollectionLink;
+		if (linkDc) {
+
+			// filter data by match link data collection
+			this.refreshLinkCursor();
+
+		}
+		else {
+			// otherwise we are a static cursor
+			// set static cursor
+			this.setStaticCursor();
+
+		}
+
+		// mark initialized data
+		if (this._dataStatus != this.dataStatusFlag.initialized) {
+			this._dataStatus = this.dataStatusFlag.initialized;
+			this.emit("initializedData", {});
+		}
+
+		if (this._pendingLoadDataResolve) {
+			this._pendingLoadDataResolve.resolve();
+
+			// after we call .resolve() stop tracking this:
+			this._pendingLoadDataResolve = null;
+		} 
+    }
+
 
 	reloadData() {
 		this.__dataCollection.clearAll();

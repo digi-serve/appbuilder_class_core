@@ -251,7 +251,12 @@ module.exports = class ABApplicationCore {
 
 
 	datacollectionByID (ID) {
-		return this._datacollections.find((dc)=>{ return (dc.id == ID || dc.name == ID); });
+		// an undefined or null ID should not match any DC.
+		if (!ID) return null;
+
+		return this._datacollections.find((dc)=>{ 
+			return ( dc.id == ID || dc.name == ID || dc.label == ID); 
+		});
 	}
 
 
