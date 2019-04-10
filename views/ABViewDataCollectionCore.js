@@ -1822,15 +1822,49 @@ export default class ABViewDataCollectionCore extends ABView {
 
 					// if (bootstate==initialzied) {
 					if (this.bootState == "initialized") {
-console.error("!!! TODO: implement .loadData() : bootState == initialized ")
-						//  model = model.local()  
-						// 	model.findAll(cond)
-						// 	.then(data)=>{
-						// 		processIncomingData(preparseData, data);
+						// We have already initialized our data, so that means
+						// we have local data that we can work with right now.
 
-						// 		// processIncomingData() is everything in this following .then()
-						//		// in processIncomingData: if this.pendingLoadDataResolve()
-						// 	}
+						// NOTE: we will get all the local data for our Object
+						// and let our filterComponent tell us if it should be
+						// included:
+						var modelLocal = model.local();
+						modelLocal.findAll(cond)
+						.then((entries)=>{
+							var validEntries = [];
+							entries.forEach((entry)=>{
+								// add it to our list if it passes our filter:
+								if (this.__filterComponent.isValid(entry)) {
+									validEntries.push(entry);
+								}
+							})
+
+							// load our valid entries:
+							this.processIncomingData(validEntries);
+
+							// we can start working on this data now
+							resolve();
+						})
+						.then(()=>{
+							// However, this local data might be out of date
+							// with the server.  So let's spawn a remote 
+							// lookup in the background:
+
+							var modelRemote = model.remote();
+
+							// reset the context on the Model so any data updates get sent to this
+							// DataCollection
+							// NOTE: we only do this on loadData(), other operations should be 
+							// received by the related Objects.
+							modelRemote.contextKey(ABViewDataCollectionCore.contextKey());
+							modelRemote.contextValues({id:this.id, verb:"refresh"}); 
+								// id: the datacollection.id
+								// verb: tells our ABRelay.listener why this remote lookup was called.
+
+							// initiate the request:
+							modelRemote.findAll(cond);
+
+						})
 
 					} else {
 						//  We have not been initialized yet, so we need to 
@@ -1842,9 +1876,11 @@ console.error("!!! TODO: implement .loadData() : bootState == initialized ")
 						// NOTE: we only do this on loadData(), other operations should be 
 						// received by the related Objects.
 						modelRemote.contextKey(ABViewDataCollectionCore.contextKey());
-						modelRemote.contextValues({id:this.id});  // the datacollection.id
+						modelRemote.contextValues({id:this.id, verb:"uninitialized"});  
+							// id: the datacollection.id
+							// verb: tells our ABRelay.listener why this remote lookup was called.
 
-						//   model.findAll()
+						// initiate the request:
 						modelRemote.findAll(cond);
 							// note:  our ABRelay.listener will take incoming data and call: 
 							// this.processIncomingData()
