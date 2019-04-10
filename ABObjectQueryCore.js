@@ -13,7 +13,8 @@
 // A where statement is also part of the definition.
 // 
 
-import ABObject from "../platform/ABObject"
+var ABObject = require("../platform/ABObject");
+var ABModel = require("../platform/ABModel");
 
 module.exports = class ABObjectQuery extends ABObject {
 
@@ -84,8 +85,15 @@ module.exports = class ABObjectQuery extends ABObject {
   	/// on the instance values of the Application.
   	///
 
-
-
+	/**
+	 * contextKey()
+	 * returns a unique key that represents a query in 
+	 * our networking job resolutions.
+	 * @return {string} 
+	 */
+	static contextKey() {
+		return 'query';
+	}
 
 
 	///
@@ -405,6 +413,31 @@ module.exports = class ABObjectQuery extends ABObject {
 	/// Working with Client Components:
 	///
 
+	/**
+	 * @method model
+	 * return a Model object that will allow you to interact with the data for
+	 * this ABObjectQuery.
+	 */
+	model() {
+
+		// NOTE: now that a DataCollection overwrites the context of it's 
+		// object's model, it is no longer a good idea to only have a single
+		// instance of this._model per ABObject.  We should provide a new 
+		// instance each time.
+
+		// if (!this._model) {
+
+			
+			this._model = new ABModel(this);
+			
+
+			// default the context of this model's operations to this object
+			this._model.contextKey(ABObjectQuery.contextKey());
+			this._model.contextValues({id:this.id});  // the datacollection.id
+		// }
+
+		return this._model;
+	}
 
 	/**
 	 * @method canFilterObject
