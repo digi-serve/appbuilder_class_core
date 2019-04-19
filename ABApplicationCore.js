@@ -26,6 +26,7 @@ var ABObject = require("../platform/ABObject");
 var ABFieldManager = require("./ABFieldManager");
 var ABViewManager = require("./ABViewManager");
 var ABViewPageCore = require("./views/ABViewPageCore");
+var ABQLManager = require("./ABQLManager");
 
 
 module.exports = class ABApplicationCore {
@@ -676,6 +677,17 @@ module.exports = class ABApplicationCore {
 	}
 
 
+
+	/**
+	 * @method viewNew()
+	 *
+	 * return an instance of a new (unsaved) ABView.
+	 *
+	 * @return {ABView}
+	 */
+	qlopNew(values, application, parent) {
+		return ABQLManager.newOP(values, application || this, parent);
+	}
 
 
 	///

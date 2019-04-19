@@ -3,7 +3,7 @@
  *
  *
  */
-
+//// TODO: convert import  to require();
 import ABView from "../../platform/views/ABView"
 // import ABPropertyComponent from "../ABPropertyComponent"
 // import ABPopupSortField from "../../components/ab_work_object_workspace_popupSortFields"
@@ -11,6 +11,8 @@ import ABView from "../../platform/views/ABView"
 
 import RowFilter from "../../platform/RowFilter"
 
+
+var ABQL = require("../ql/ABQL");
 
 
 
@@ -2179,5 +2181,19 @@ export default class ABViewDataCollectionCore extends ABView {
 		this._dataStatus = this.dataStatusFlag.notInitial;
 	}
 
+
+
+	//
+	// Query Interface
+	// 
+
+	QL() {
+
+		var params = {
+			key: ABQL.common().key,
+			dc: this.id
+		}
+		return this.application.qlopNew(params);
+	}
 
 }
