@@ -272,7 +272,7 @@ module.exports = class RowFilter extends ABComponent {
 				return result;
 			},
 
-			queryValid: function(rowData, rule, compareValue) {
+			queryValid: (rowData, rule, compareValue) => {
 
 				var result = false;
 
@@ -311,7 +311,7 @@ module.exports = class RowFilter extends ABComponent {
 
 			},
 
-			inQueryValid: function(rowData, columnName, rule, compareValue) {
+			inQueryValid: (rowData, columnName, rule, compareValue) => {
 
 				let result = false;
 				
@@ -345,7 +345,7 @@ module.exports = class RowFilter extends ABComponent {
 
 			},
 
-			dataCollectionValid: function (rowData, columnName, rule, compareValue) {
+			dataCollectionValid: (rowData, columnName, rule, compareValue) => {
 
 				var result = false;
 
