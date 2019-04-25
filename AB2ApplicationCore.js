@@ -80,11 +80,6 @@ module.exports = class ABApplicationBase {
 	  	})
 		this._queries = newQueries;
 
-//// LEFT OFF HERE:
-// import datacollections
-// when ABMobileApp initialized, it should initialize the data for All Datacollections.
-// ABMobileApp: needs to find .datacollection()
-// implement: datacollection().first().value()
 
         // now properly handle our data sources.
         var dataCollections = [];
