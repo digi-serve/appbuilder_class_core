@@ -453,7 +453,7 @@ module.exports = class RowFilter extends ABComponent {
 		if (rowData == null)
 			return false;
 
-		var result = (config_settings.glue === "glue" ? true : false);
+		var result = (config_settings.glue === "and" ? true : false);
 
 		config_settings.rules.forEach(filter => {
 
@@ -495,7 +495,7 @@ module.exports = class RowFilter extends ABComponent {
 					break;
 			}
 
-			if (config_settings.glue === "glue") {
+			if (config_settings.glue === "and") {
 				result = result && condResult;
 			} else {
 				result = result || condResult;
@@ -521,7 +521,7 @@ module.exports = class RowFilter extends ABComponent {
 
 		// insert our 'this object' entry if an Object was given.
 		if (this._Object) {
-			this._Fields.unshift({ id: 'this_object', label: this._Object.label });
+			this._Fields.unshift({ id: 'this_object', label: this._Object.label || this._Object.name });
 		}
 
 	}
