@@ -252,10 +252,10 @@ module.exports = class RowFilter extends ABComponent {
 
 				switch (rule) {
 					case "is_current_user":
-						result = value == OP.User.username();
+						result = value == AB.Account.username;
 						break;
 					case "is_not_current_user":
-						result = value != OP.User.username();
+						result = value != AB.Account.username;
 						break;
 					case "equals":
 						result = value.indexOf(compareValue) > -1;
@@ -410,6 +410,57 @@ module.exports = class RowFilter extends ABComponent {
 						break;
 				}
 				
+			},
+
+			thisObjectValid: (rowData,  rule, compareValue) => {
+					
+				let result = false;
+
+				switch( rule ) {
+
+					// if in_query condition
+					case "in_query":
+					case "not_in_query":
+
+
+							// if > 1 copy of this object in query ==> Error!
+							let query = this._Object.application.queries(q => q.id == compareValue)[0];
+							if (!query)
+								return result;
+
+							var listThisObjects = query.objects((o)=>{ return o.id == this._Object.id; });
+							if (listThisObjects.length > 1) {
+								
+// Alternative: choose the 1st instance of this object in the query, and make the compare on that.
+// Be sure to warn the developer of the limitiations of an "this_object" "in_query"  when query has > 1 copy of 
+// this object as part of the query.
+
+								console.error("HEY!  Can't compare this_object to a query that has > 1 copy of that object!");
+								return true;
+							}
+
+							// get this object's alias from the query
+							var alias = query.objectAlias(this._Object.id);
+
+							// make sure all my columns in rowData are prefixed by "alias".columnName
+							var newRowData = {};
+							Object.keys(rowData).forEach((key)=>{
+								newRowData[`${alias}.${key}`] = rowData[key];
+							})
+
+							// then pass this on to the _logic.queryValid();
+							return _logic.inQueryValid(newRowData, null, rule, compareValue); 
+						break;
+
+					// if in_datacollection condition
+					case 'in_data_collection':
+					case 'not_in_data_collection':
+						// send rowData, null to datacollectionValid()
+						return _logic.dataCollectionValid(rowData, null, rule, compareValue);
+						break;
+
+				}	
+
 			}
 
 		};
@@ -463,11 +514,20 @@ module.exports = class RowFilter extends ABComponent {
 			if (!fieldInfo) return;
 
 			var condResult;
-			
-			if (typeof fieldInfo.key == "undefined" && fieldInfo.id != "this_object")
-				fieldInfo.key = "connectField"; // if you are looking at the parent object it won't have a key to analyze
 
-			switch (fieldInfo.key) {
+			// Filters that have "this_object" don't have a fieldInfo.key, so in that case,
+			// define a special .key == "this_object"
+			var ruleFieldType = fieldInfo.key;
+			if (typeof fieldInfo.key == "undefined") {
+				if (fieldInfo.id != "this_object") {
+					fieldInfo.key = "connectField"; // if you are looking at the parent object it won't have a key to analyze
+					ruleFieldType = fieldInfo.key;
+				}
+				else 
+					ruleFieldType = "this_object";
+			}
+
+			switch (ruleFieldType) {
 				case "string":
 				case "LongText":
 				case "email":
@@ -492,6 +552,9 @@ module.exports = class RowFilter extends ABComponent {
 				case "connectField":
 				case "connectObject":
 					condResult = _logic.connectFieldValid(rowData, fieldInfo.relationName(), filter.rule, filter.value);
+					break;
+				case "this_object":
+					condResult = _logic.thisObjectValid(rowData, filter.rule, filter.value);
 					break;
 			}
 
