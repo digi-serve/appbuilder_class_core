@@ -261,6 +261,32 @@ module.exports = class ABObjectQuery extends ABObject {
 	}
 
 
+
+	/**
+	 * @method objectAlias()
+	 *
+	 * return alias of of ABObjects.
+	 *
+	 * @return {string}
+	 */
+	objectAlias (objectId) {
+
+		let result = null;
+
+		Object.keys(this._objects || {}).forEach(alias => {
+
+			let obj = this._objects[alias];
+			if (obj.id == objectId && !result) {
+				result = alias;
+			}
+
+		});
+
+		return result;
+
+	}
+
+
 	/**
 	 * @method objectBase
 	 * return the origin object
