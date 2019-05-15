@@ -347,24 +347,13 @@ module.exports = class ABApplicationCore {
 	/**
 	 * @method objectByID()
 	 * return the specific object requested by the provided id.
-	 * @param {string} id
+	 * @param {string} ID
 	 * @return {obj}
 	 */
-	objectByID (id) {
-
-		return this.objects((o)=>{ return o.id == id; })[0];
-	}
-
-	
-	/**
-	 * @method objectByID()
-	 * return the specific object requested by the provided id.
-	 * @param {string} id
-	 * @return {obj}
-	 */
-	objectByID (id) {
-	 
-		return this.objects((o)=>{ return o.id == id; })[0];
+	objectByID (ID) {
+		return this.objects((o)=>{ 
+			return ( o.id == ID || o.name == ID || o.label == ID); 
+		})[0];
 	}
 
 	
