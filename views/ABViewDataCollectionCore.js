@@ -4,12 +4,12 @@
  *
  */
 //// TODO: convert import  to require();
-import ABView from "../../platform/views/ABView"
+var ABView = require( "../../platform/views/ABView" );
 // import ABPropertyComponent from "../ABPropertyComponent"
 // import ABPopupSortField from "../../components/ab_work_object_workspace_popupSortFields"
 // import ABWorkspaceDatatable from "../../components/ab_work_object_workspace_datatable"
 
-import RowFilter from "../../platform/RowFilter"
+var RowFilter = require( "../../platform/RowFilter" );
 
 
 var ABQL = require("../ql/ABQL");
@@ -40,7 +40,7 @@ var ABViewDefaults = {
 }
 
 
-export default class ABViewDataCollectionCore extends ABView {
+module.exports = class ABViewDataCollectionCore extends ABView {
 
 	/**
 	 * @param {obj} values  key=>value hash of ABView values

@@ -14,7 +14,7 @@ function getFieldVal(rowData, columnName) {
 		return rowData[columnName];
 	}
 }
-import ABComponent from "../platform/ABComponent";
+var ABComponent = require( "../platform/ABComponent" );
 
 
 module.exports = class RowFilter extends ABComponent {
