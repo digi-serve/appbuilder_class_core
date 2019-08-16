@@ -136,6 +136,22 @@ console.error('!!! where is this being called???')
 		this.translations = values.translations || [];
 
 		this.settings = values.settings || {};
+		
+		// If the View / DataCollection does not have a .name already,
+		// use the English label translation as the .name instead.
+		if (!this.name && Array.isArray(this.translations)) {
+    		for (var i=0; i<this.translations.length; i++) {
+        		if (i == 0) {
+            		// Use the first label found, in case there is no 'en'
+            		this.name = this.translations[i].label;
+                }
+                if (this.translations[i].language_code == 'en') {
+                    // But the 'en' label will have final priority
+                    this.name = this.translations[i].label;
+                    break;
+                }
+            }
+        }
 
 
 		// label is a multilingual value:
