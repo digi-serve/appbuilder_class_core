@@ -25,7 +25,7 @@ module.exports = class RowFilter extends ABComponent {
 
 		super(App, idBase);
 
-
+		this.Account = { username:"??" };
 		this._Object;
 		this._Fields;
 		this._QueryFields = [];
@@ -241,7 +241,7 @@ module.exports = class RowFilter extends ABComponent {
 
 			},
 
-			userValid: function (rowData, columnName, rule, compareValue) {
+			userValid: (rowData, columnName, rule, compareValue) => {
 
 				var result = false;
 
@@ -252,10 +252,10 @@ module.exports = class RowFilter extends ABComponent {
 
 				switch (rule) {
 					case "is_current_user":
-						result = value == AB.Account.username;
+						result = value == this.Account.username;
 						break;
 					case "is_not_current_user":
-						result = value != AB.Account.username;
+						result = value != this.Account.username;
 						break;
 					case "equals":
 						result = value.indexOf(compareValue) > -1;
@@ -295,6 +295,7 @@ module.exports = class RowFilter extends ABComponent {
 
 				let qIdBase = "{idBase}-query-field-{id}".replace("{idBase}", idBase).replace("{id}", query.id),
 					inQueryFieldFilter = new RowFilter(App, qIdBase);
+				inQueryFieldFilter.Account = this.Account;
 				inQueryFieldFilter.objectLoad(query);
 				inQueryFieldFilter.setValue(query.workspaceFilterConditions);
 
@@ -329,6 +330,7 @@ module.exports = class RowFilter extends ABComponent {
 
 				let qIdBase = "{idBase}-query-{id}".replace("{idBase}", idBase).replace("{id}", query.id),
 					inQueryFilter = new RowFilter(App, qIdBase);
+				inQueryFilter.Account = this.Account;
 				inQueryFilter.objectLoad(query);
 				inQueryFilter.setValue(query.workspaceFilterConditions);
 
