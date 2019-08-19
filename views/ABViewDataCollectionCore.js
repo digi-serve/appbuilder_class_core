@@ -1703,10 +1703,16 @@ module.exports = class ABViewDataCollectionCore extends ABView {
 		// set query condition
 		var cond = {
 			where: wheres,
-			limit: limit || 20,
+			// limit: limit || 20,
 			skip: start || 0,
 			sort: sorts,
 		};
+
+		//// NOTE: we no longer set a default limit on loadData() but
+		//// require the platform.loadData() to pass in a default limit.
+		if (limit) {
+			cond.limit = limit;
+		}
 
 		// if settings specify loadAll, then remove the limit
 		if (this.settings.loadAll) {
