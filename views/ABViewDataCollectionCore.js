@@ -1915,37 +1915,42 @@ module.exports = class ABViewDataCollectionCore extends ABView {
      */
     processIncomingData(data) {
 
-    	// load the data into our actual dataCollection
-		this.__dataCollection.parse(data);
+    	return Promise.resolve()
+    	.then(()=>{
+
+	    	// load the data into our actual dataCollection
+			this.__dataCollection.parse(data);
 
 
-		// if we are linked, then refresh our cursor
-		var linkDc = this.dataCollectionLink;
-		if (linkDc) {
+			// if we are linked, then refresh our cursor
+			var linkDc = this.dataCollectionLink;
+			if (linkDc) {
 
-			// filter data by match link data collection
-			this.refreshLinkCursor();
+				// filter data by match link data collection
+				this.refreshLinkCursor();
 
-		}
-		else {
-			// otherwise we are a static cursor
-			// set static cursor
-			this.setStaticCursor();
+			}
+			else {
+				// otherwise we are a static cursor
+				// set static cursor
+				this.setStaticCursor();
 
-		}
+			}
 
-		// mark initialized data
-		if (this._dataStatus != this.dataStatusFlag.initialized) {
-			this._dataStatus = this.dataStatusFlag.initialized;
-			this.emit("initializedData", {});
-		}
+			// mark initialized data
+			if (this._dataStatus != this.dataStatusFlag.initialized) {
+				this._dataStatus = this.dataStatusFlag.initialized;
+				this.emit("initializedData", {});
+			}
 
-		if (this._pendingLoadDataResolve) {
-			this._pendingLoadDataResolve.resolve();
+			if (this._pendingLoadDataResolve) {
+				this._pendingLoadDataResolve.resolve();
 
-			// after we call .resolve() stop tracking this:
-			this._pendingLoadDataResolve = null;
-		} 
+				// after we call .resolve() stop tracking this:
+				this._pendingLoadDataResolve = null;
+			} 
+			
+    	})
     }
 
 
