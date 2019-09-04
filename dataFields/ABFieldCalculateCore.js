@@ -7,164 +7,173 @@
 
 var ABField = require("../../platform/dataFields/ABField");
 
-
-
 function L(key, altText) {
-	return altText;  // AD.lang.label.getLabel(key) || altText;
+    return altText; // AD.lang.label.getLabel(key) || altText;
 }
 
 /**
  * @method convertToJs
- * 
- * @param {ABOBject} object 
- * @param {string} formula 
- * @param {object} rowData 
+ *
+ * @param {ABOBject} object
+ * @param {string} formula
+ * @param {object} rowData
  * @param {integer} place
  */
 function convertToJs(object, formula, rowData, place) {
+    if (!formula) return "";
 
-	if (!formula) return "";
+    // replace with current date
+    formula = formula.replace(/\(CURRENT\)/g, "(new Date())");
 
-	// replace with current date
-	formula = formula.replace(/\(CURRENT\)/g, "(new Date())");
+    object.fields().forEach((f) => {
+        var colName = f.columnName;
+        if (colName.indexOf(".") > -1)
+            // QUERY: get only column name
+            colName = colName.split(".")[1];
 
-	object.fields().forEach(f => {
+        // if template does not contain, then should skip
+        if (formula.indexOf("{" + colName + "}") < 0) return;
 
-		var colName = f.columnName;
-		if (colName.indexOf('.') > -1) // QUERY: get only column name
-			colName = colName.split('.')[1];
+        // number fields
+        if (f.key == "number") {
+            let numberVal = "(#numberVal#)".replace(
+                "#numberVal#",
+                rowData[f.columnName] || 0
+            ); // (number) - NOTE : (-5) to support negative number
+            formula = formula.replace(
+                new RegExp("{" + colName + "}", "g"),
+                numberVal
+            );
+        }
+        // calculate and formula fields
+        else if (f.key == "calculate" || f.key == "formula") {
+            let calVal = "(#calVal#)".replace(
+                "#calVal#",
+                f.format(rowData) || 0
+            );
+            formula = formula.replace(
+                new RegExp("{" + colName + "}", "g"),
+                calVal
+            );
+        }
+        // date fields
+        else if (f.key == "date") {
+            let dateVal = '"#dataVal#"'.replace(
+                "#dataVal#",
+                rowData[f.columnName] ? rowData[f.columnName] : ""
+            ); // "date"
+            formula = formula.replace(
+                new RegExp("{" + colName + "}", "g"),
+                dateVal
+            );
+        }
+    });
 
-		// if template does not contain, then should skip
-		if (formula.indexOf('{' + colName + '}') < 0)
-			return;
-
-		// number fields
-		if (f.key == 'number') {
-			let numberVal = "(#numberVal#)".replace("#numberVal#", rowData[f.columnName] || 0); // (number) - NOTE : (-5) to support negative number
-			formula = formula.replace(new RegExp('{' + colName + '}', 'g'), numberVal);
-		}
-		// calculate and formula fields
-		else if (f.key == 'calculate' || f.key == "formula") {
-			let calVal = "(#calVal#)".replace("#calVal#", f.format(rowData) || 0);
-			formula = formula.replace(new RegExp('{' + colName + '}', 'g'), calVal);
-		}
-		// date fields
-		else if (f.key == 'date') {
-			let dateVal = '"#dataVal#"'.replace("#dataVal#", rowData[f.columnName] ? rowData[f.columnName] : ""); // "date"
-			formula = formula.replace(new RegExp('{' + colName + '}', 'g'), dateVal);
-		}
-
-	});
-
-	// decimal places - toFixed()
-	// FIX: floating number calculation 
-	// https://randomascii.wordpress.com/2012/02/25/comparing-floating-point-numbers-2012-edition/
-	return eval(formula).toFixed(place || 0);
+    // decimal places - toFixed()
+    // FIX: floating number calculation
+    // https://randomascii.wordpress.com/2012/02/25/comparing-floating-point-numbers-2012-edition/
+    return eval(formula).toFixed(place || 0);
 }
 
 function AGE(dateString) {
+    // validate
+    if (!dateString) return 0;
+    var dataDate = new Date(dateString);
+    if (!dataDate) return 0;
 
-	// validate
-	if (!dateString) return 0
-	var dataDate = new Date(dateString);
-	if (!dataDate) return 0
+    var today = new Date();
+    var oneYear = 31536000000; // (24 * 60 * 60 * 1000) * 365;
+    var diffYears = (today - dataDate) / oneYear;
 
-	var today = new Date();
-	var oneYear = 31536000000; // (24 * 60 * 60 * 1000) * 365;
-	var diffYears = (today - dataDate) / oneYear;
+    if (diffYears < 1) return Math.round(diffYears * 10) / 10;
+    // float 2 digits
+    else return Math.floor(diffYears); // no float digit
 
-	if (diffYears < 1)
-		return Math.round(diffYears * 10) / 10; // float 2 digits
-	else
-		return Math.floor(diffYears); // no float digit
+    // var today = new Date();
+    // var age = today.getFullYear() - dataDate.getFullYear();
+    // if (age < 1) {
+    // 	var m = today.getMonth() - dataDate.getMonth();
 
-	// var today = new Date();
-	// var age = today.getFullYear() - dataDate.getFullYear();
-	// if (age < 1) {
-	// 	var m = today.getMonth() - dataDate.getMonth();
+    // 	age = parseFloat("0." + m);
 
-	// 	age = parseFloat("0." + m);
-
-	// 	// if (m < 0 || (m === 0 && today.getDate() < dataDate.getDate())) {
-	// 	// 	age--;
-	// 	// }
-	// }
-	// return age;
+    // 	// if (m < 0 || (m === 0 && today.getDate() < dataDate.getDate())) {
+    // 	// 	age--;
+    // 	// }
+    // }
+    // return age;
 }
 
 function YEAR(dateString) {
+    // validate
+    if (!dateString) return 0;
+    var dataDate = new Date(dateString);
+    if (!dataDate) return 0;
 
-	// validate
-	if (!dateString) return 0
-	var dataDate = new Date(dateString);
-	if (!dataDate) return 0
-
-	return dataDate.getFullYear();
+    return dataDate.getFullYear();
 }
 
 function MONTH(dateString) {
+    // validate
+    if (!dateString) return 0;
+    var dataDate = new Date(dateString);
+    if (!dataDate) return 0;
 
-	// validate
-	if (!dateString) return 0
-	var dataDate = new Date(dateString);
-	if (!dataDate) return 0
-
-	return dataDate.getMonth();
+    return dataDate.getMonth();
 }
 
 function DATE(dateString) {
+    // validate
+    if (!dateString) return 0;
+    var dataDate = new Date(dateString);
+    if (!dataDate) return 0;
 
-	// validate
-	if (!dateString) return 0
-	var dataDate = new Date(dateString);
-	if (!dataDate) return 0
-
-	return dataDate.getDate();
+    return dataDate.getDate();
 }
 
 var ABFieldCalculateDefaults = {
-	key: 'calculate',	// unique key to reference this specific DataField
+    key: "calculate", // unique key to reference this specific DataField
 
-	icon: 'calculator',	// font-awesome icon reference.  (without the 'fa-').  so 'user'  to reference 'fa-user'
+    icon: "calculator", // font-awesome icon reference.  (without the 'fa-').  so 'user'  to reference 'fa-user'
 
-	// menuName: what gets displayed in the Editor drop list
-	menuName: L('ab.dataField.calculate.menuName', '*Calculate'),
+    // menuName: what gets displayed in the Editor drop list
+    menuName: L("ab.dataField.calculate.menuName", "*Calculate"),
 
-	// description: what gets displayed in the Editor description.
-	description: L('ab.dataField.calculate.description', '*'),
+    // description: what gets displayed in the Editor description.
+    description: L("ab.dataField.calculate.description", "*"),
 
-	isSortable: false,
-	isFilterable: false,  // this field does not support filter on server side
-
+    isSortable: false,
+    isFilterable: false // this field does not support filter on server side
 };
 
 var delimiterList = [
-	{ id: 'none', value: L('ab.dataField.number.none', "*None") },
-	{ id: 'comma', value: L('ab.dataField.number.comma', "*Comma"), sign: ',' },
-	{ id: 'period', value: L('ab.dataField.number.period', "*Period"), sign: '.' },
-	{ id: 'space', value: L('ab.dataField.number.space', "*Space"), sign: ' ' }
+    { id: "none", value: L("ab.dataField.number.none", "*None") },
+    { id: "comma", value: L("ab.dataField.number.comma", "*Comma"), sign: "," },
+    {
+        id: "period",
+        value: L("ab.dataField.number.period", "*Period"),
+        sign: "."
+    },
+    { id: "space", value: L("ab.dataField.number.space", "*Space"), sign: " " }
 ];
 
 var defaultValues = {
-	formula: "",
-	decimalSign: "none", // "none", "comma", "period", "space"
-	decimalPlaces: "none", // "none", 1, 2, 3, 4, 5, 6, 7, 8, 9, 10
+    formula: "",
+    decimalSign: "none", // "none", "comma", "period", "space"
+    decimalPlaces: "none" // "none", 1, 2, 3, 4, 5, 6, 7, 8, 9, 10
 };
 
 var ids = {
+    formula: "ab-field-calculate-field-formula",
 
-	formula: 'ab-field-calculate-field-formula',
+    fieldPopup: "ab-field-calculate-field-popup",
+    fieldList: "ab-field-calculate-field-list",
 
-	fieldPopup: 'ab-field-calculate-field-popup',
-	fieldList: 'ab-field-calculate-field-list',
+    numberOperatorPopup: "ab-field-calculate-number-popup",
 
-	numberOperatorPopup: 'ab-field-calculate-number-popup',
+    dateOperatorPopup: "ab-field-calculate-date-popup",
+    dateFieldList: "ab-field-calculate-date-list",
 
-	dateOperatorPopup: 'ab-field-calculate-date-popup',
-	dateFieldList: 'ab-field-calculate-date-list',
-
-	decimalPlaces: 'ab-field-calculate-decimal-places'
-
+    decimalPlaces: "ab-field-calculate-decimal-places"
 };
 
 /**
@@ -313,7 +322,6 @@ var ids = {
 // 							}
 // 						]
 // 					},
-
 
 // 					{
 // 						cols: [
@@ -509,127 +517,117 @@ var ids = {
 
 // });
 
-
-
 module.exports = class ABFieldCalculateCore extends ABField {
-	constructor(values, object) {
-		super(values, object, ABFieldCalculateDefaults);
+    constructor(values, object) {
+        super(values, object, ABFieldCalculateDefaults);
 
-		// we're responsible for setting up our specific settings:
-		for (var dv in defaultValues) {
-			this.settings[dv] = values.settings[dv] || defaultValues[dv];
-		}
-	}
+        // we're responsible for setting up our specific settings:
+        for (var dv in defaultValues) {
+            this.settings[dv] = values.settings[dv] || defaultValues[dv];
+        }
+    }
 
-	// return the default values for this DataField
-	static defaults() {
-		return ABFieldCalculateDefaults;
-	}
+    // return the default values for this DataField
+    static defaults() {
+        return ABFieldCalculateDefaults;
+    }
 
-	/*
-	* @function propertiesComponent
-	*
-	* return a UI Component that contains the property definitions for this Field.
-	*
-	* @param {App} App the UI App instance passed around the Components.
-	* @param {stirng} idBase
-	* @return {Component}
-	*/
-	// static propertiesComponent(App, idBase) {
-	// 	return ABFieldCalculateComponent.component(App, idBase);
-	// }
+    /*
+     * @function propertiesComponent
+     *
+     * return a UI Component that contains the property definitions for this Field.
+     *
+     * @param {App} App the UI App instance passed around the Components.
+     * @param {stirng} idBase
+     * @return {Component}
+     */
+    // static propertiesComponent(App, idBase) {
+    // 	return ABFieldCalculateComponent.component(App, idBase);
+    // }
 
-	///
-	/// Instance Methods
-	///
+    ///
+    /// Instance Methods
+    ///
 
+    isValid() {
+        var validator = super.isValid();
 
-	isValid() {
+        // validator.addError('columnName', L('ab.validation.object.name.unique', 'Field columnName must be unique (#name# already used in this Application)').replace('#name#', this.name) );
 
-		var validator = super.isValid();
+        return validator;
+    }
 
-		// validator.addError('columnName', L('ab.validation.object.name.unique', 'Field columnName must be unique (#name# already used in this Application)').replace('#name#', this.name) );
+    ///
+    /// Working with Actual Object Values:
+    ///
 
-		return validator;
-	}
+    // return the grid column header definition for this instance of ABFieldCalculate
+    // columnHeader(isObjectWorkspace) {
+    // 	var config = super.columnHeader(isObjectWorkspace);
 
+    // 	config.editor = null; // read only
+    // 	config.css = 'textCell';
+    // 	config.template = (rowData) => {
+    // 		return this.format(rowData);
+    // 	};
 
-	///
-	/// Working with Actual Object Values:
-	///
+    // 	return config;
+    // }
 
-	// return the grid column header definition for this instance of ABFieldCalculate
-	// columnHeader(isObjectWorkspace) {
-	// 	var config = super.columnHeader(isObjectWorkspace);
+    /**
+     * @method defaultValue
+     * insert a key=>value pair that represent the default value
+     * for this field.
+     * @param {obj} values a key=>value hash of the current values.
+     */
+    defaultValue(values) {
+        // this field is read only
+        delete values[this.columnName];
+    }
 
-	// 	config.editor = null; // read only
-	// 	config.css = 'textCell';
-	// 	config.template = (rowData) => {
-	// 		return this.format(rowData);
-	// 	};
+    format(rowData) {
+        let place = 0;
+        if (this.settings.decimalSign != "none") {
+            place = this.settings.decimalPlaces;
+        }
 
-	// 	return config;
-	// }
+        try {
+            return convertToJs(
+                this.object,
+                this.settings.formula,
+                rowData,
+                place
+            );
+        } catch (err) {
+            return "";
+        }
+    }
 
+    /*
+     * @funciton formComponent
+     * returns a drag and droppable component that is used on the UI
+     * interface builder to place form components related to this ABField.
+     *
+     * an ABField defines which form component is used to edit it's contents.
+     * However, what is returned here, needs to be able to create an instance of
+     * the component that will be stored with the ABViewForm.
+     */
+    // formComponent() {
 
-	/**
-	 * @method defaultValue
-	 * insert a key=>value pair that represent the default value
-	 * for this field.
-	 * @param {obj} values a key=>value hash of the current values.
-	 */
-	defaultValue(values) {
+    // 	// not support in the form widget
+    // 	return null;
+    // }
 
-		// this field is read only
-		delete values[this.columnName];
+    // detailComponent() {
 
-	}
+    // 	var detailComponentSetting = super.detailComponent();
 
-	format(rowData) {
+    // 	detailComponentSetting.common = () => {
+    // 		return {
+    // 			key: 'detailtext'
+    // 		}
+    // 	};
 
-		let place = 0;
-		if (this.settings.decimalSign != "none") {
-			place = this.settings.decimalPlaces;
-		}
-
-		try {
-			return convertToJs(this.object, this.settings.formula, rowData, place);
-		}
-		catch (err) {
-			return "";
-		}
-
-	}
-
-
-	/*
-	* @funciton formComponent
-	* returns a drag and droppable component that is used on the UI
-	* interface builder to place form components related to this ABField.
-	* 
-	* an ABField defines which form component is used to edit it's contents.
-	* However, what is returned here, needs to be able to create an instance of
-	* the component that will be stored with the ABViewForm.
-	*/
-	// formComponent() {
-
-	// 	// not support in the form widget
-	// 	return null;
-	// }
-
-
-	// detailComponent() {
-
-	// 	var detailComponentSetting = super.detailComponent();
-
-	// 	detailComponentSetting.common = () => {
-	// 		return {
-	// 			key: 'detailtext'
-	// 		}
-	// 	};
-
-	// 	return detailComponentSetting;
-	// }
-
-
-}
+    // 	return detailComponentSetting;
+    // }
+};

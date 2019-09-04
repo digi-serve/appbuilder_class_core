@@ -13,73 +13,63 @@ var ABView = require("../../platform/views/ABView");
 // 	return AD.lang.label.getLabel(key) || altText;
 // }
 
-
 var ABViewDefaults = {
-	key: 'viewcontainer',	// {string} unique key for this view
-	icon: 'braille',		// {string} fa-[icon] reference for this view
-	labelKey: 'ab.components.container' // {string} the multilingual label key for the class label
-}
+    key: "viewcontainer", // {string} unique key for this view
+    icon: "braille", // {string} fa-[icon] reference for this view
+    labelKey: "ab.components.container" // {string} the multilingual label key for the class label
+};
 
+module.exports = class ABViewContainerCore extends ABView {
+    /**
+     * @param {obj} values  key=>value hash of ABView values
+     * @param {ABApplication} application the application object this view is under
+     * @param {ABView} parent the ABView this view is a child of. (can be null)
+     * @param {obj} defaultValues special sub class defined default values.
+     */
+    constructor(values, application, parent, defaultValues) {
+        super(values, application, parent, defaultValues || ABViewDefaults);
+    }
 
+    static common() {
+        return ABViewDefaults;
+    }
 
-module.exports =  class ABViewContainerCore extends ABView {
+    /**
+     * @method toObj()
+     *
+     * properly compile the current state of this ABView instance
+     * into the values needed for saving to the DB.
+     *
+     * @return {json}
+     */
+    // toObj() {
 
-	/**
-	 * @param {obj} values  key=>value hash of ABView values
-	 * @param {ABApplication} application the application object this view is under
-	 * @param {ABView} parent the ABView this view is a child of. (can be null)
-	 * @param {obj} defaultValues special sub class defined default values.
-	 */
-	constructor(values, application, parent, defaultValues) {
+    // 	var obj = super.toObj();
 
-		super(values, application, parent, (defaultValues || ABViewDefaults));
+    // 	return obj;
 
-	}
+    // }
 
+    /**
+     * @method fromValues()
+     *
+     * initialze this object with the given set of values.
+     * @param {obj} values
+     */
+    fromValues(values) {
+        super.fromValues(values);
 
-	static common() {
-		return ABViewDefaults;
-	}
+        // convert from "0" => 0
+        this.settings.columns = parseInt(
+            this.settings.columns || ABPropertyComponentDefaults.columns
+        );
 
-
-	/**
-	 * @method toObj()
-	 *
-	 * properly compile the current state of this ABView instance
-	 * into the values needed for saving to the DB.
-	 *
-	 * @return {json}
-	 */
-	// toObj() {
-
-	// 	var obj = super.toObj();
-
-	// 	return obj;
-
-	// }
-
-
-
-	/**
-	 * @method fromValues()
-	 *
-	 * initialze this object with the given set of values.
-	 * @param {obj} values
-	 */
-	fromValues(values) {
-
-		super.fromValues(values);
-
-		// convert from "0" => 0
-		this.settings.columns = parseInt(this.settings.columns || ABPropertyComponentDefaults.columns);
-
-		if (typeof this.settings.gravity != "undefined") {
-			this.settings.gravity = this.settings.gravity.map(function(gravity) {
-				return parseInt(gravity);
-			});
-		}
-
-	}
-
-
-}
+        if (typeof this.settings.gravity != "undefined") {
+            this.settings.gravity = this.settings.gravity.map(function(
+                gravity
+            ) {
+                return parseInt(gravity);
+            });
+        }
+    }
+};

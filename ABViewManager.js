@@ -1,19 +1,19 @@
-/* 
+/*
  * ABViewManager
- * 
+ *
  * An interface for managing the different ABViews available in our AppBuilder.
  *
  */
 
-var ABView = require( "../platform/views/ABView" );
+var ABView = require("../platform/views/ABView");
 // import ABViewChart from "./views/ABViewChart"
 // import ABViewChartPie from "./views/ABViewChartPie"
 // import ABViewChartBar from "./views/ABViewChartBar"
 // import ABViewChartLine from "./views/ABViewChartLine"
 // import ABViewChartArea from "./views/ABViewChartArea"
-var ABViewContainer = require( "../platform/views/ABViewContainer" );
-var ABViewDataCollection = require( "../platform/views/ABViewDataCollection" );
-var ABViewPage = require( "../platform/views/ABViewPage" );
+var ABViewContainer = require("../platform/views/ABViewContainer");
+var ABViewDataCollection = require("../platform/views/ABViewDataCollection");
+var ABViewPage = require("../platform/views/ABViewPage");
 // import ABViewLabel from "./views/ABViewLabel"
 // import ABViewLayout from "./views/ABViewLayout"
 // import ABViewMenu from "./views/ABViewMenu"
@@ -41,7 +41,7 @@ var ABViewPage = require( "../platform/views/ABViewPage" );
 
 // import ABViewFormText from "./views/ABViewFormText"
 
-/* 
+/*
  * Views
  * A name => ABView  hash of the different ABViews available.
  */
@@ -83,53 +83,57 @@ Views[ABViewPage.common().key] = ABViewPage;
 // Views[ABViewFormTree.common().key] = ABViewFormTree;
 // // // Views[ABViewFormText.common().key] = ABViewFormText;
 
+module.exports = {
+    /*
+     * @function allViews
+     * return all the currently defined ABViews in an array.
+     * @return [{ABView},...]
+     */
+    allViews: function(fn) {
+        fn =
+            fn ||
+            function() {
+                return true;
+            };
 
-module.exports =  {
+        var views = [];
+        for (var v in Views) {
+            var V = Views[v];
+            if (fn(V)) {
+                views.push(V);
+            }
+        }
+        return views;
+    },
 
+    /*
+     * @function newView
+     * return an instance of an ABView based upon the values.key value.
+     * @return {ABView}
+     */
+    newView: function(values, application, parent) {
+        parent = parent || null;
 
-	/*
-	 * @function allViews
-	 * return all the currently defined ABViews in an array.
-	 * @return [{ABView},...]
-	 */
-	allViews: function(fn) {
-		fn = fn || function() { return true; }
+        //		if ((values.key) && (Views[values.key])) {
+        if (values.key) {
+            if (!Views[values.key]) {
+                console.error(
+                    "!! View[" +
+                        values.key +
+                        "] not yet defined.  Have an ABView instead:"
+                );
+                return new Views["view"](values, application, parent);
+            }
 
-		var views = [];
-		for (var v in Views) {
-			var V = Views[v];
-			if (fn(V)) {
-				views.push(V);
-			}
-		}
-		return views;
-	},
-
-
-	/*
-	 * @function newView
-	 * return an instance of an ABView based upon the values.key value.
-	 * @return {ABView}
-	 */
-	newView: function (values, application, parent) {
-
-		parent = parent || null;
-		
-//		if ((values.key) && (Views[values.key])) {
-if ((values.key)) {
-if(!Views[values.key]) {
-console.error('!! View['+values.key+'] not yet defined.  Have an ABView instead:');
-return new Views['view'](values, application, parent);
-}
-
-			return new Views[values.key](values, application, parent);
-		} else {
-			var err = new Error('unknown view key');
-			OP.Error.log('Unknown view key ['+values.key+']:', {error:err, values:values, application: application });
-			return null;
-		}
-
-	}
-
-
-}
+            return new Views[values.key](values, application, parent);
+        } else {
+            var err = new Error("unknown view key");
+            OP.Error.log("Unknown view key [" + values.key + "]:", {
+                error: err,
+                values: values,
+                application: application
+            });
+            return null;
+        }
+    }
+};
