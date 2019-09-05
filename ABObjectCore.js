@@ -357,17 +357,19 @@ module.exports = class ABObjectCore extends ABEmitter {
 
         // if (!this._model) {
 
-        if (this.isImported) {
-            //// TODO:
-            var obj = ABApplication.objectFromRef(this.importFromObject);
-            this._model = new ABModel(obj);
-        } else {
-            this._model = new ABModel(this);
-        }
+        //// TODO: what do we do with imported Objects?
+        // if (this.isImported) {
+        //     //// TODO:
+        //     var obj = ABApplication.objectFromRef(this.importFromObject);
+        //     this._model = new ABModel(obj);
+        // } else {
+        this._model = new ABModel(this);
+        // }
 
         // default the context of this model's operations to this object
         this._model.contextKey(ABObjectCore.contextKey());
         this._model.contextValues({ id: this.id }); // the datacollection.id
+
         // }
 
         return this._model;
