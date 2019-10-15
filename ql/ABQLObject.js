@@ -124,8 +124,14 @@ module.exports = class ABQLObject extends ABQL {
         // we are a single object Query Element, so make sure we are
         // not returning an Array
         if (Array.isArray(val)) {
-            // if we did get an array, then default to 1st element.
-            val = val[0];
+            if (val.length == 0) {
+                // if the data collection is empty it returns an empty Array
+                // lets just return null since we are asking for a value
+                val = null;
+            } else {
+                // if we did get an array, then default to 1st element.
+                val = val[0];
+            }
         }
 
         return val || null;
