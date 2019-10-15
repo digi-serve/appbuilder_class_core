@@ -37,7 +37,51 @@ module.exports = class ABObjectCore extends ABEmitter {
         // link me to my parent ABApplication
         this.application = application;
 
-        // ABApplication Attributes (or is it ABObject attributes?)
+        this.fromValues(attributes);
+    }
+
+    ///
+    /// Static Methods
+    ///
+    /// Available to the Class level object. These methods are not dependent
+    /// on the instance values of the Application.
+    ///
+
+    static contextKey() {
+        return "object";
+    }
+
+    ///
+    /// Instance Methods
+    ///
+
+
+    fromValues (attributes) {
+
+        /*
+        {
+            id: uuid(),
+            connName: 'string', // Sails DB connection name: 'appdev_default', 'legacy_hris', etc. Default is 'appBuilder'.
+            name: 'name',
+            labelFormat: 'xxxxx',
+            isImported: 1/0,
+            isExternal: 1/0,
+            tableName:'string',  // NOTE: store table name of import object to ignore async
+            primaryColumnName: 'string', // NOTE: store column name of PK
+            transColumnName: 'string', // NOTE: store column name of translations table
+            urlPath:'string',
+            importFromObject: 'string', // JSON Schema style reference:  '#[ABApplication.id]/objects/[ABObject.id]'
+                                        // to get other object:  ABApplication.objectFromRef(obj.importFromObject);
+            translations:[
+                {}
+            ],
+            fields:[
+                {ABDataField}
+            ]
+        }
+        */
+
+                // ABApplication Attributes (or is it ABObject attributes?)
         this.id = attributes.id;
         this.connName = attributes.connName || undefined; // undefined == 'appBuilder'
         this.name = attributes.name || "";
@@ -79,22 +123,10 @@ module.exports = class ABObjectCore extends ABEmitter {
         this.isImported = parseInt(this.isImported || 0);
 
         this.createdInAppID = attributes.createdInAppID;
+
     }
 
-    ///
-    /// Static Methods
-    ///
-    /// Available to the Class level object. These methods are not dependent
-    /// on the instance values of the Application.
-    ///
 
-    static contextKey() {
-        return "object";
-    }
-
-    ///
-    /// Instance Methods
-    ///
 
     /**
      * @method importFields
@@ -160,24 +192,7 @@ module.exports = class ABObjectCore extends ABEmitter {
         };
     }
 
-    /**
-     * @method columnResize()
-     *
-     * save the new width of a column
-     *
-     * @param {} id The instance of the field to save.
-     * @param {int} newWidth the new width of the field
-     * @param {int} oldWidth the old width of the field
-     * @return {Promise}
-     */
-    // columnResize( columnName, newWidth, oldWidth ) {
-    // 	for(var i=0; i<this._fields.length; i++) {
-    // 		if (this._fields[i].columnName == columnName) {
-    // 			this._fields[i].settings.width = newWidth;
-    // 		}
-    // 	}
-    // 	return this.save();
-    // }
+
 
     ///
     /// Objects
@@ -206,16 +221,38 @@ module.exports = class ABObjectCore extends ABEmitter {
      *
      * return an array of all the ABFields for this ABObject.
      *
+     * @param filter {Object}
+     * @param getAll {Boolean} - [Optional]
+     *
      * @return {array}
      */
-    fields(filter) {
-        filter =
-            filter ||
-            function() {
-                return true;
+    fields(filter, getAll = false) {
+        filter = filter || function() { return true; };
+
+        let result = this._fields.filter(filter);
+
+        if (this.application) {
+
+            let availableConnectFn = (f) => {
+                if (f.key == 'connectObject' &&
+                    this.application &&
+                    this.application.objects(obj => obj.id == f.settings.linkObject).length < 1) {
+
+                    return false
+
+                }
+                else {
+                    return true;
+                }
             };
 
-        return this._fields.filter(filter);
+            if (!getAll) {
+                result = result.filter(availableConnectFn);
+            }
+
+        }
+
+        return result;
     }
 
     /**
@@ -225,10 +262,9 @@ module.exports = class ABObjectCore extends ABEmitter {
      *
      * @return {array}
      */
-    connectFields() {
-        return this.fields(function(f) {
-            return f.key == "connectObject";
-        });
+    connectFields (getAll = false) {
+
+        return this.fields(f => f.key == 'connectObject', getAll);
     }
 
     /**
@@ -255,11 +291,11 @@ module.exports = class ABObjectCore extends ABEmitter {
      * @param {ABField} field The instance of the field to remove.
      * @return {Promise}
      */
-    // fieldRemove( field ) {
-    // 	this._fields = this.fields(function(o){ return o.id != field.id });
+    fieldRemove( field ) {
+    	this._fields = this.fields(function(o){ return o.id != field.id });
 
-    // 	return this.save();
-    // }
+    	return this.save();
+    }
 
     /**
      * @method fieldReorder()
@@ -269,38 +305,38 @@ module.exports = class ABObjectCore extends ABEmitter {
      * @param {ABField} field The instance of the field to remove.
      * @return {Promise}
      */
-    // fieldReorder( sourceId, targetId ) {
-    // 	// We know what was moved and what item it has replaced/pushed forward
-    // 	// so first we want to splice the item moved out of the array of fields
-    // 	// and store it so we can put it somewhere else
-    // 	let itemMoved = null;
-    // 	let oPos = 0; // original position
-    // 	for(var i=0; i<this._fields.length; i++) {
-    // 		if (this._fields[i].columnName == sourceId) {
-    // 			itemMoved = this._fields[i];
-    // 			this._fields.splice(i, 1);
-    // 			oPos = i;
-    // 			break;
-    // 		}
-    // 	}
-    // 	// once we have removed/stored it we can find where its new position
-    // 	// will be by looping back through the array and finding the item it
-    // 	// is going to push forward
-    // 	for(var j=0; j<this._fields.length; j++) {
-    // 		if (this._fields[j].columnName == targetId) {
-    // 			// if the original position was before the new position we will
-    // 			// follow webix's logic that the drop should go after the item
-    // 			// it was placed on
-    // 			if (oPos <= j) {
-    // 				j++;
-    // 			}
-    // 			this._fields.splice(j, 0, itemMoved);
-    // 			break;
-    // 		}
-    // 	}
+    fieldReorder( sourceId, targetId ) {
+        // We know what was moved and what item it has replaced/pushed forward
+        // so first we want to splice the item moved out of the array of fields
+        // and store it so we can put it somewhere else
+        let itemMoved = null;
+        let oPos = 0; // original position
+        for(var i=0; i<this._fields.length; i++) {
+            if (this._fields[i].columnName == sourceId) {
+                itemMoved = this._fields[i];
+                this._fields.splice(i, 1);
+                oPos = i;
+                break;
+            }
+        }
+        // once we have removed/stored it we can find where its new position
+        // will be by looping back through the array and finding the item it
+        // is going to push forward
+        for(var j=0; j<this._fields.length; j++) {
+            if (this._fields[j].columnName == targetId) {
+                // if the original position was before the new position we will 
+                // follow webix's logic that the drop should go after the item 
+                // it was placed on 
+                if (oPos <= j) {
+                    j++;
+                }
+                this._fields.splice(j, 0, itemMoved);
+                break;
+            }
+        }
 
-    // 	return this.save();
-    // }
+        return this.save();
+    }
 
     /**
      * @method fieldSave()
@@ -311,14 +347,14 @@ module.exports = class ABObjectCore extends ABEmitter {
      * @param {ABField} field The instance of the field to save.
      * @return {Promise}
      */
-    // fieldSave( field ) {
-    // 	var isIncluded = (this.fields(function(o){ return o.id == field.id }).length > 0);
-    // 	if (!isIncluded) {
-    // 		this._fields.push(field);
-    // 	}
+    fieldSave( field ) {
+    	var isIncluded = (this.fields(function(o){ return o.id == field.id }).length > 0);
+    	if (!isIncluded) {
+    		this._fields.push(field);
+    	}
 
-    // 	return this.save();
-    // }
+    	return this.save();
+    }
 
     /**
      * @method multilingualFields()
@@ -428,19 +464,67 @@ module.exports = class ABObjectCore extends ABEmitter {
     ///	Object Workspace Settings
     ///
     get workspaceSortFields() {
-        return this.objectWorkspace.sortFields;
+
+        // new version
+        if (this.workspaceViews) {
+            let currView = this.workspaceViews.getCurrentView();
+            if (currView)
+                return currView.sortFields;
+            else
+                return null;
+        }
+        // old version
+        else {
+            return this.objectWorkspace.sortFields;
+        }
+
     }
 
-    set workspaceSortFields(fields) {
-        this.objectWorkspace.sortFields = fields;
+    set workspaceSortFields( fields ) {
+
+        // new version
+        if (this.workspaceViews) {
+            let currView = this.workspaceViews.getCurrentView();
+            if (currView)
+                currView.sortFields = fields;
+        }
+        // old version
+        else {
+            this.objectWorkspace.sortFields = fields;
+        }
+
     }
 
     get workspaceFilterConditions() {
-        return this.objectWorkspace.filterConditions;
+
+        // new version
+        if (this.workspaceViews) {
+            let currView = this.workspaceViews.getCurrentView();
+            if (currView)
+                return currView.filterConditions;
+            else
+                return null;
+        }
+        // old version
+        else {
+            return this.objectWorkspace.filterConditions;
+        }
+
     }
 
-    set workspaceFilterConditions(filterConditions) {
-        this.objectWorkspace.filterConditions = filterConditions;
+    set workspaceFilterConditions( filterConditions ) {
+
+        // new version
+        if (this.workspaceViews) {
+            let currView = this.workspaceViews.getCurrentView();
+            if (currView)
+                currView.filterConditions = filterConditions;
+        }
+        // old version
+        else {
+            this.objectWorkspace.filterConditions = filterConditions;
+        }
+
     }
 
     get workspaceFrozenColumnID() {
@@ -452,12 +536,23 @@ module.exports = class ABObjectCore extends ABEmitter {
     }
 
     get workspaceHiddenFields() {
-        return this.objectWorkspace.hiddenFields;
+        return this.objectWorkspace.hiddenFields || [];
     }
 
     set workspaceHiddenFields(fields) {
         this.objectWorkspace.hiddenFields = fields;
     }
+
+    /**
+     * @method isReadOnly
+     * 
+     * @return {boolean}
+     */
+    get isReadOnly() {
+        return this.isImported || this.isExternal;
+    }
+
+
 
     /**
      * @method defaultValues
@@ -482,14 +577,11 @@ module.exports = class ABObjectCore extends ABEmitter {
      * @param {obj} data a key=>value hash of the inputs to parse.
      * @return {array}
      */
-    // isValidData(data) {
-    // 	var validator = OP.Validation.validator();
-    // 	this.fields().forEach((f) => {
-    // 		var p = f.isValidData(data, validator);
-    // 	})
-
-    // 	return validator;
-    // }
+    isValidData(data) {
+        // NOTE: the platform needs to define a way to verify the data
+        console.warn("Platform.ABObject.isValidData() missing")
+    	return true;
+    }
 
     /**
      * @method urlPointer()
@@ -502,6 +594,10 @@ module.exports = class ABObjectCore extends ABEmitter {
      * @return {string}
      */
     urlPointer(acrossApp) {
+
+        if (this.application == null)
+            return null;
+
         return this.application.urlObject(acrossApp) + this.id;
     }
 
@@ -532,5 +628,27 @@ module.exports = class ABObjectCore extends ABEmitter {
             "object[" + this.name + "] received a remoteCreate() with data:",
             data
         );
+    }
+
+
+    /**
+     * @method clone
+     * return a clone of ABObject
+     * 
+     * @return {ABObjectBase}
+     */
+    clone() {
+
+        // ignore properties who're spend much performance
+        // NOTE: do not clone them. Just copy reference
+        let ignoreProps = ['application', '_fields'];
+
+        let cloneOne = JSON.parse(JSON.stringify(this));
+
+        ignoreProps.forEach((prop)=>{
+            cloneOne[prop] = this[prop];
+        })
+
+        return cloneOne;
     }
 };
