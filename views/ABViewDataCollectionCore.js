@@ -909,8 +909,12 @@ module.exports = class ABViewDataCollectionCore extends ABView {
     get datasource() {
         if (!this.application) return null;
 
-        var obj = this.application.urlResolve(this.settings.objectUrl || "");
+        var obj = this.application.objectByID(this.settings.datasourceID || "");
 
+        // if datasourceID isn't an object, then lookup queries:
+        if (!obj) {
+            obj = this.application.queryByID(this.settings.datasourceID);
+        }
         return obj;
     }
 
@@ -921,7 +925,7 @@ module.exports = class ABViewDataCollectionCore extends ABView {
      * @param {ABObject} object
      */
     set datasource(object) {
-        this.settings.objectUrl = object.urlPointer();
+        this.settings.datasourceID = object.id;
 
         this.__filterComponent.objectLoad(this.datasource);
     }

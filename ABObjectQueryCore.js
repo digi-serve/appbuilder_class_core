@@ -132,7 +132,14 @@ module.exports = class ABObjectQuery extends ABObject {
         (fieldSettings || []).forEach((fieldInfo) => {
             if (fieldInfo == null) return;
 
-            var field = this.application.urlResolve(fieldInfo.fieldURL);
+            // fieldInfo: {alias: "BASE_OBJECT", objectID: "fe0f5a03-096e-49fd-9884-51e59e2b3955", fieldID: "bbb6f08d-a399-405f-a367-7c3b22ee22b0"}
+            // var field = this.application.urlResolve(fieldInfo.fieldURL);
+            var fieldObj = this.application.objectByID(fieldInfo.objectID);
+            if (!fieldObj) return;
+
+            var field = fieldObj.fields((f) => {
+                return f.id == fieldInfo.fieldID;
+            })[0];
 
             // should be a field of base/join objects
             if (
@@ -273,9 +280,9 @@ module.exports = class ABObjectQuery extends ABObject {
      * @return {ABObject}
      */
     objectBase() {
-        if (!this._joins.objectURL) return null;
+        if (!this._joins.objectID) return null;
 
-        return this.application.urlResolve(this._joins.objectURL) || null;
+        return this.application.objectByID(this._joins.objectID) || null;
     }
 
     /**

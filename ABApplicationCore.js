@@ -425,6 +425,18 @@ module.exports = class ABApplicationCore {
     }
 
     /**
+     * @method queryByID()
+     * return the specific query requested by the provided id.
+     * @param {string} ID
+     * @return {obj}
+     */
+    queryByID(ID) {
+        return this.queries((q) => {
+            return q.id == ID || q.name == ID || q.label == ID;
+        })[0];
+    }
+
+    /**
      * @method urlResolve()
      * given an object pointer, return the specific object referenced.
      * pointer must start with a '#', use '/' as delimiters, and either

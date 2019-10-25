@@ -146,7 +146,8 @@ module.exports = class ABViewDataCollectionCore extends ABEmitter {
      * @return ABObject
      */
     get datasource() {
-        var obj = this.application.urlResolve(this.settings.objectUrl || "");
+        // var obj = this.application.urlResolve(this.settings.objectUrl || "");
+        var obj = this.application.objectByID(this.settings.datasourceID);
 
         return obj;
     }
