@@ -1893,18 +1893,29 @@ module.exports = class ABViewDataCollectionCore extends ABView {
      */
     processIncomingData(data) {
         return Promise.resolve().then(() => {
+
+            // store total count
+            this.__totalCount = data.total_count;
+
             // load the data into our actual dataCollection
             this.__dataCollection.parse(data);
 
+            this.parseTreeCollection(data);
+
             // if we are linked, then refresh our cursor
-            var linkDc = this.dataCollectionLink;
-            if (linkDc) {
+            var linkDv = this.dataviewLink;
+            if (linkDv) {
+
                 // filter data by match link data collection
                 this.refreshLinkCursor();
-            } else {
-                // otherwise we are a static cursor
+                this.setStaticCursor();
+
+            }
+            else {
+
                 // set static cursor
                 this.setStaticCursor();
+
             }
 
             // mark initialized data
