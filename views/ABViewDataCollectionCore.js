@@ -1900,10 +1900,11 @@ module.exports = class ABViewDataCollectionCore extends ABView {
             // load the data into our actual dataCollection
             this.__dataCollection.parse(data);
 
-            this.parseTreeCollection(data);
+            // this.parseTreeCollection(data);
 
             // if we are linked, then refresh our cursor
-            var linkDv = this.dataviewLink;
+            // var linkDv = this.dataviewLink;
+            var linkDv = this.dataCollectionLink;
             if (linkDv) {
 
                 // filter data by match link data collection
