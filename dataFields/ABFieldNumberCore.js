@@ -26,7 +26,8 @@ var ABFieldNumberDefaults = {
         "*A Float or Integer Value"
     ),
 
-    supportRequire: true
+    supportRequire: true,
+    supportUnique: true,
 };
 
 var formatList = [
@@ -108,14 +109,6 @@ module.exports = class ABFieldNumberCore extends ABField {
     	}
     	*/
 
-        // we're responsible for setting up our specific settings:
-        for (var dv in defaultValues) {
-            this.settings[dv] = values.settings[dv] || defaultValues[dv];
-        }
-
-        // text to Int:
-        // this.settings.allowRequired = parseInt(this.settings.allowRequired);
-        this.settings.validation = parseInt(this.settings.validation);
     }
 
     // return the default values for this DataField
@@ -123,16 +116,22 @@ module.exports = class ABFieldNumberCore extends ABField {
         return ABFieldNumberDefaults;
     }
 
+    static defaultValues() {
+        return defaultValues;
+    }
+
     ///
     /// Instance Methods
     ///
 
-    isValid() {
-        var validator = super.isValid();
+    fromValues(values) {
 
-        // validator.addError('columnName', L('ab.validation.object.name.unique', 'Field columnName must be unique (#name# already used in this Application)').replace('#name#', this.name) );
+        super.fromValues(values);
 
-        return validator;
+        // text to Int:
+        // this.settings.allowRequired = parseInt(this.settings.allowRequired);
+        this.settings.validation = parseInt(this.settings.validation);
+
     }
 
     ///

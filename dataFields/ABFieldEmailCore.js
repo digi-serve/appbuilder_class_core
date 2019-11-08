@@ -37,12 +37,6 @@ module.exports = class ABFieldEmailCore extends ABField {
     constructor(values, object) {
         super(values, object, ABFieldEmailDefaults);
 
-        // we're responsible for setting up our specific settings:
-        for (var dv in defaultValues) {
-            this.settings[dv] = values.settings[dv] || defaultValues[dv];
-        }
-
-        this.settings.default = values.settings.default || "";
     }
 
     // return the default values for this DataField
@@ -50,17 +44,22 @@ module.exports = class ABFieldEmailCore extends ABField {
         return ABFieldEmailDefaults;
     }
 
+    static defaultValues() {
+        return defaultValues;
+    }
+
     ///
     /// Instance Methods
     ///
 
-    isValid() {
-        var validator = super.isValid();
+    fromValues(values) {
 
-        // validator.addError('columnName', L('ab.validation.object.name.unique', 'Field columnName must be unique (#name# already used in this Application)').replace('#name#', this.name) );
+        super.fromValues(values);
 
-        return validator;
+        this.settings.default = values.settings.default || "";
+
     }
+
 
     ///
     /// Working with Actual Object Values:

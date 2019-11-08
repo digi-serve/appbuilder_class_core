@@ -12,6 +12,8 @@ function L(key, altText) {
     return altText; // AD.lang.label.getLabel(key) || altText;
 }
 
+const MAX_CHAR_LENGTH = 255;
+
 var ABFieldStringDefaults = {
     key: "string", // unique key to reference this specific DataField
     // type : 'string', // http://sailsjs.org/documentation/concepts/models-and-orm/attributes#?attribute-options
@@ -26,6 +28,11 @@ var ABFieldStringDefaults = {
     supportRequire: true
 };
 
+var defaultValues = {
+	default: '',
+	supportMultilingual: 0
+};
+
 module.exports = class ABFieldStringCore extends ABField {
     constructor(values, object) {
         super(values, object, ABFieldStringDefaults);
@@ -37,17 +44,8 @@ module.exports = class ABFieldStringCore extends ABField {
 				supportMultilingual: 1/0
 			}
     	}
-    	*/
+        */
 
-        // we're responsible for setting up our specific settings:
-        this.settings.default = values.settings.default || "";
-        this.settings.supportMultilingual =
-            values.settings.supportMultilingual + "" || "0";
-
-        // text to Int:
-        this.settings.supportMultilingual = parseInt(
-            this.settings.supportMultilingual
-        );
     }
 
     // return the default values for this DataField
@@ -55,9 +53,32 @@ module.exports = class ABFieldStringCore extends ABField {
         return ABFieldStringDefaults;
     }
 
+    static defaultValues() {
+        return defaultValues;
+    }
+
     ///
     /// Instance Methods
     ///
+
+	/**
+	 * @method fromValues()
+	 *
+	 * initialze this object with the given set of values.
+	 * @param {obj} values
+	 */
+	fromValues(values) {
+
+		super.fromValues(values);
+
+		// we're responsible for setting up our specific settings:
+		this.settings.default = values.settings.default || defaultValues.default;
+		this.settings.supportMultilingual = values.settings.supportMultilingual + "" || defaultValues.supportMultilingual;
+
+		// text to Int:
+		this.settings.supportMultilingual = parseInt(this.settings.supportMultilingual);
+
+	}
 
     ///
     /// Working with Actual Object Values:
@@ -71,12 +92,18 @@ module.exports = class ABFieldStringCore extends ABField {
      */
     defaultValue(values) {
         // if no default value is set, then don't insert a value.
-        if (!values[this.columnName]) {
-            // Set default string
-            if (this.settings.default) {
-                values[this.columnName] = this.settings.default;
-            }
-        }
+		if (!values[this.columnName]) {
+
+			// Set default string
+			if (this.settings.default) {
+				if (this.settings.default.indexOf("{uuid}") >= 0) {
+					values[this.columnName] = OP.Util.uuid();
+				} else {
+					values[this.columnName] = this.settings.default;
+				}
+			}
+
+		}
     }
 
     /**
@@ -90,19 +117,14 @@ module.exports = class ABFieldStringCore extends ABField {
     isValidData(data, validator) {
         super.isValidData(data, validator);
 
-        if (data && data[this.columnName]) {
-            var max_length = 255;
-
-            if (data[this.columnName].length > max_length) {
+        if (data && 
+            data[this.columnName] &&
+            data[this.columnName].length > MAX_CHAR_LENGTH) {
                 validator.addError(
                     this.columnName,
-                    "should NOT be longer than {max} characters".replace(
-                        "{max}",
-                        max_length
-                    )
+                    `should NOT be longer than ${MAX_CHAR_LENGTH} characters`
                 );
             }
-        }
     }
 
     /*

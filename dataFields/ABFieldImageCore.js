@@ -34,11 +34,13 @@ var ABFieldImageDefaults = {
 };
 
 var defaultValues = {
-    useWidth: 0,
-    imageWidth: "",
-    useHeight: 0,
-    imageHeight: "",
-    removeExistingData: 0
+	useWidth: 0,
+	imageWidth: '',
+	useHeight: 0,
+	imageHeight: '',
+	removeExistingData: 0,
+	useDefaultImage: false,
+	defaultImageUrl: '',
 };
 
 module.exports = class ABFieldImageCore extends ABField {
@@ -57,17 +59,6 @@ module.exports = class ABFieldImageCore extends ABField {
     	}
     	*/
 
-        // we're responsible for setting up our specific settings:
-        for (var dv in defaultValues) {
-            this.settings[dv] = values.settings[dv] || defaultValues[dv];
-        }
-
-        // text to Int:
-        this.settings.useWidth = parseInt(this.settings.useWidth);
-        this.settings.useHeight = parseInt(this.settings.useHeight);
-        this.settings.removeExistingData = parseInt(
-            this.settings.removeExistingData
-        );
     }
 
     // return the default values for this DataField
@@ -75,9 +66,27 @@ module.exports = class ABFieldImageCore extends ABField {
         return ABFieldImageDefaults;
     }
 
+    static defaultValues() {
+        return defaultValues;
+    }
+
     ///
     /// Instance Methods
     ///
+
+    fromValues(values) {
+
+        super.fromValues(values);
+
+        // text to Int:
+		this.settings.useWidth = parseInt(this.settings.useWidth);
+		this.settings.useHeight = parseInt(this.settings.useHeight);
+		this.settings.imageWidth = parseInt(this.settings.imageWidth);
+		this.settings.imageHeight = parseInt(this.settings.imageHeight);
+		this.settings.useDefaultImage = parseInt(this.settings.useDefaultImage);
+		this.settings.removeExistingData = parseInt(this.settings.removeExistingData);
+
+    }
 
     /**
      * @method isValidData

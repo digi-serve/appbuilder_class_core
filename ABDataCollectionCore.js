@@ -146,8 +146,7 @@ module.exports = class ABViewDataCollectionCore extends ABEmitter {
      * @return ABObject
      */
     get datasource() {
-        // var obj = this.application.urlResolve(this.settings.objectUrl || "");
-        var obj = this.application.objectByID(this.settings.datasourceID);
+        var obj = this.application.urlResolve(this.settings.objectUrl || "");
 
         return obj;
     }
@@ -361,13 +360,13 @@ module.exports = class ABViewDataCollectionCore extends ABEmitter {
     // }
 
     /**
-     * @method dataCollectionLink
+     * @method datacollectionLink
      * return a ABDataCollection that link of this.
      *
      * @return {ABDataCollection}
      */
-    get dataCollectionLink() {
-        return this.page.dataCollections(
+    get datacollectionLink() {
+        return this.page.datacollections(
             (dc) => dc.id == this.settings.linkDataCollection
         )[0];
     }

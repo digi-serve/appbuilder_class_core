@@ -5,7 +5,7 @@
  *
  */
 
-var ABField = require("../../platform/dataFields/ABField");
+var ABFieldSelectivity = require("../../platform/dataFields/ABFieldSelectivity");
 
 function L(key, altText) {
     // TODO:
@@ -66,14 +66,9 @@ var colors = [
     ["#795548", "#9E9E9E", "#607D8B", "#000000"]
 ];
 
-module.exports = class ABFieldListCore extends ABField {
+module.exports = class ABFieldListCore extends ABFieldSelectivity {
     constructor(values, object) {
         super(values, object, ABFieldListDefaults);
-
-        // we're responsible for setting up our specific settings:
-        for (var dv in defaultValues) {
-            this.settings[dv] = values.settings[dv] || defaultValues[dv];
-        }
 
         this.pendingDeletions = [];
     }
@@ -81,6 +76,10 @@ module.exports = class ABFieldListCore extends ABField {
     // return the default values for this DataField
     static defaults() {
         return ABFieldListDefaults;
+    }
+
+    static defaultValues() {
+        return defaultValues;
     }
 
     ///
@@ -174,15 +173,35 @@ module.exports = class ABFieldListCore extends ABField {
     }
 
     format(rowData) {
-        var val = rowData[this.columnName] || [];
+		var val = this.dataValue(rowData) || [];
 
-        // Convert to array
-        if (!Array.isArray(val)) val = [val];
+		if (typeof val == "string") {
+			try {
+				val = JSON.parse(val);
+			}
+			catch (e) {
+			}
+		}
 
-        var displayOpts = this.settings.options
-            .filter((opt) => val.filter((v) => v == opt.id).length > 0)
-            .map((opt) => opt.text);
+		// Convert to array
+		if (!Array.isArray(val))
+			val = [val];
 
-        return displayOpts.join(", ");
-    }
+		var displayOpts = this.settings.options
+							.filter(opt => val.filter(v => (v.id || v) == opt.id).length > 0)
+							.map(opt => {
+
+								let text = opt.text;
+								let languageCode = options.languageCode || AD.lang.currentLanguage;
+
+								// Pull text of option with specify language code
+								let optTran = (opt.translations || []).filter(o => o.language_code == languageCode)[0];
+								if (optTran)
+									text = optTran.text;
+
+								return text;
+							});
+
+		return displayOpts.join(', ');
+	}
 };

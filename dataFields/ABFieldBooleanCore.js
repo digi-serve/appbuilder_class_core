@@ -37,13 +37,6 @@ module.exports = class ABFieldBooleanCore extends ABField {
     constructor(values, object) {
         super(values, object, ABFieldBooleanDefaults);
 
-        // we're responsible for setting up our specific settings:
-        for (var dv in defaultValues) {
-            this.settings[dv] = values.settings[dv] || defaultValues[dv];
-        }
-
-        if (this.settings.default != null)
-            this.settings.default = parseInt(this.settings.default);
     }
 
     // return the default values for this DataField
@@ -51,9 +44,28 @@ module.exports = class ABFieldBooleanCore extends ABField {
         return ABFieldBooleanDefaults;
     }
 
+    static defaultValues() {
+        return defaultValues;
+    }
+
     ///
     /// Instance Methods
     ///
+
+    /**
+	 * @method fromValues()
+	 *
+	 * initialze this object with the given set of values.
+	 * @param {obj} values
+	 */
+	fromValues(values) {
+
+		super.fromValues(values);
+
+		if (this.settings.default != null)
+			this.settings.default = parseInt(this.settings.default);
+
+	}
 
     /**
      * @method defaultValue
@@ -62,7 +74,7 @@ module.exports = class ABFieldBooleanCore extends ABField {
      * @param {obj} values a key=>value hash of the current values.
      */
     defaultValue(values) {
-        if (values[this.columnName] == null) {
+        if (values[this.columnName] == null && this.settings.default != null) {
             values[this.columnName] = this.settings.default;
         }
     }

@@ -56,6 +56,10 @@ module.exports = class ABFieldCore {
         ];
     }
 
+    static defaultValues() {
+        return {};
+    }
+
     // unique key to reference this specific DataField
     fieldKey() {
         return this.defaults.key;
@@ -153,6 +157,20 @@ module.exports = class ABFieldCore {
         else return true;
     }
 
+	fieldSupportQuery() {
+		if (this.defaults.supportQuery != null) {
+			if (typeof this.defaults.supportQuery === "function") {
+				return this.defaults.supportQuery(this);
+			}
+			else {
+				return this.defaults.supportQuery;
+			}
+		}
+
+		return true;
+	}
+
+
     ///
     /// Instance Methods
     ///
@@ -209,6 +227,13 @@ module.exports = class ABFieldCore {
         this.settings.showIcon = parseInt(this.settings.showIcon);
         this.settings.required = parseInt(this.settings.required);
         this.settings.width = parseInt(this.settings.width);
+
+		// we're responsible for setting up our specific settings:
+		let defaultValues = this.constructor.defaultValues() || {};
+		for (let dv in defaultValues) {
+			this.settings[dv] = values.settings[dv] || defaultValues[dv];
+		}
+
     }
 
     /**
@@ -255,4 +280,33 @@ module.exports = class ABFieldCore {
     get isMultilingual() {
         return false;
     }
+
+
+	dataValue(rowData) {
+
+		let propName = "{objectName}.{columnName}"
+			.replace('{objectName}', this.alias || this.object.name)
+			.replace('{columnName}', this.columnName);
+
+		return rowData[this.columnName] || rowData[propName] || "";
+
+	}
+
+
+	/**
+	 * @method format
+	 * return display text to detail comonent and define label of object
+	 * 
+	 * @param {Object} rowData - data
+	 */
+	format(rowData) {
+
+		if (rowData) {
+			return this.dataValue(rowData);
+		}
+		else
+			return "";
+
+	};
+
 };

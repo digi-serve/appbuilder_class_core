@@ -331,7 +331,7 @@ module.exports = class RowFilter extends ABComponent {
                     rowData = rowData[columnName] || {};
                 }
 
-                // var dc = this._View.pageRoot().dataCollections(dc => dc.id == compareValue)[0];
+                // var dc = this._View.pageRoot().datacollections(dc => dc.id == compareValue)[0];
                 var dc = this._View.application.datacollections(
                     (dc) => dc.id == compareValue
                 )[0];

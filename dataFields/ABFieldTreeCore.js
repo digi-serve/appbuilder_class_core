@@ -5,8 +5,7 @@
  *
  */
 
-// import ABFieldSelectivity from "./ABFieldSelectivity"
-var ABField = require("../../platform/dataFields/ABField");
+var ABFieldSelectivity = require("../../platform/dataFields/ABFieldSelectivity");
 
 function L(key, altText) {
     // TODO:
@@ -37,19 +36,19 @@ var defaultValues = {
     options: []
 };
 
-module.exports = class ABFieldTreeCore extends ABField {
+module.exports = class ABFieldTreeCore extends ABFieldSelectivity {
     constructor(values, object) {
         super(values, object, ABFieldTreeDefaults);
 
-        // we're responsible for setting up our specific settings:
-        for (var dv in defaultValues) {
-            this.settings[dv] = values.settings[dv] || defaultValues[dv];
-        }
     }
 
     // return the default values for this DataField
     static defaults() {
         return ABFieldTreeDefaults;
+    }
+
+    static defaultValues() {
+        return defaultValues;
     }
 
     ///

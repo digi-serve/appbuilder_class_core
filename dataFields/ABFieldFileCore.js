@@ -43,18 +43,6 @@ module.exports = class ABFieldFileCore extends ABField {
     constructor(values, object) {
         super(values, object, ABFieldFileDefaults);
 
-        // we're responsible for setting up our specific settings:
-        for (var dv in defaultValues) {
-            this.settings[dv] = values.settings[dv] || defaultValues[dv];
-        }
-
-        // text to Int:
-        this.settings.fileSize = parseInt(this.settings.fileSize);
-        this.settings.limitFileSize = parseInt(this.settings.limitFileSize);
-        this.settings.limitFileType = parseInt(this.settings.limitFileType);
-        this.settings.removeExistingData = parseInt(
-            this.settings.removeExistingData
-        );
     }
 
     // return the default values for this DataField
@@ -62,19 +50,63 @@ module.exports = class ABFieldFileCore extends ABField {
         return ABFieldFileDefaults;
     }
 
+    static defaultValues() {
+        return defaultValues;
+    }
+
     ///
     /// Instance Methods
     ///
 
-    /**
-     * @method isValidData
-     * Parse through the given data and return an error if this field's
-     * data seems invalid.
-     * @param {obj} data  a key=>value hash of the inputs to parse.
-     * @param {OPValidator} validator  provided Validator fn
-     * @return {array}
-     */
-    isValidData(data, validator) {
-        super.isValidData(data, validator);
+    fromValues(values) {
+
+        super.fromValues(values);
+
+        // text to Int:
+        this.settings.fileSize = parseInt(this.settings.fileSize);
+        this.settings.limitFileSize = parseInt(this.settings.limitFileSize);
+        this.settings.limitFileType = parseInt(this.settings.limitFileType);
+        this.settings.removeExistingData = parseInt(this.settings.removeExistingData);
+
     }
+
+	dataValue(rowData) {
+
+		let propName = "{objectName}.{columnName}"
+			.replace('{objectName}', this.alias || this.object.name)
+			.replace('{columnName}', this.columnName);
+
+		let result = rowData[this.columnName] || rowData[propName] || {};
+		if (typeof result == 'string') {
+			try {
+				result = JSON.parse(result);
+			}
+			catch (err) {}
+		}
+
+		return result;
+
+	}
+
+	format(rowData) {
+
+		let result = this.dataValue(rowData);
+		if (result) {
+
+			if (typeof result == 'string') {
+				try {
+					result = JSON.parse(result);
+				}
+				catch(err) {}
+			}
+
+			// return file name
+			return result ? (result.filename || "") : "";
+		}
+		else {
+			return "";
+		}
+
+	}
+
 };

@@ -5,7 +5,7 @@
  *
  */
 
-var ABField = require("../../platform/dataFields/ABField");
+var ABFieldSelectivity = require("../../platform/dataFields/ABFieldSelectivity");
 // import ABFieldSelectivity from "./ABFieldSelectivity"
 // import ABFieldComponent from "./ABFieldComponent"
 
@@ -42,23 +42,17 @@ var ABFieldUserDefaults = {
 };
 
 var defaultValues = {
-    editable: 1,
-    isMultiple: 0,
-    isCurrentUser: 0
+	editable: 1,
+	isMultiple: 0,
+	isCurrentUser: 0,
+	isShowProfileImage: 0,
+	isShowUsername: 1
 };
 
-module.exports = class ABFieldUserCore extends ABField {
+module.exports = class ABFieldUserCore extends ABFieldSelectivity {
     constructor(values, object) {
         super(values, object, ABFieldUserDefaults);
 
-        // we're responsible for setting up our specific settings:
-        for (var dv in defaultValues) {
-            this.settings[dv] = values.settings[dv] || defaultValues[dv];
-        }
-
-        this.settings.editable = parseInt(this.settings.editable);
-        this.settings.isMultiple = parseInt(this.settings.isMultiple);
-        this.settings.isCurrentUser = parseInt(this.settings.isCurrentUser);
     }
 
     // return the default values for this DataField
@@ -66,9 +60,24 @@ module.exports = class ABFieldUserCore extends ABField {
         return ABFieldUserDefaults;
     }
 
+    static defaultValues() {
+        return defaultValues;
+    }
+
     ///
     /// Instance Methods
     ///
+
+    fromValues(values) {
+
+        super.fromValues(values);
+
+		this.settings.editable = parseInt(this.settings.editable);
+		this.settings.isMultiple = parseInt(this.settings.isMultiple);
+		this.settings.isCurrentUser = parseInt(this.settings.isCurrentUser);
+		this.settings.isShowProfileImage = parseInt(this.settings.isShowProfileImage);
+		this.settings.isShowUsername = parseInt(this.settings.isShowUsername);
+    }
 
     ///
     /// Working with Actual Object Values:
@@ -95,23 +104,15 @@ module.exports = class ABFieldUserCore extends ABField {
         }
     }
 
-    /**
-     * @method isValidData
-     * Parse through the given data and return an error if this field's
-     * data seems invalid.
-     * @param {obj} data  a key=>value hash of the inputs to parse.
-     * @param {OPValidator} validator  provided Validator fn
-     * @return {array}
-     */
-    isValidData(data, validator) {
-        super.isValidData(data, validator);
-    }
+	format(rowData) {
 
-    format(rowData) {
-        var val = rowData[this.columnName] || [];
+		var val = this.dataValue(rowData) || [];
 
-        if (!Array.isArray(val) || val) val = [val];
+		if (!Array.isArray(val) || val)
+			val = [val];
 
-        return val.map((v) => v.text || v).join(", ");
-    }
+		return val.map(v => (v.text || v)).join(', ');
+
+	}
+
 };

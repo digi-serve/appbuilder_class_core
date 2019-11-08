@@ -782,9 +782,9 @@ module.exports = class ABViewDataCollectionCore extends ABView {
     // 	var linkFieldOptions = [];
 
     // 	// get fields that link to our ABObject
-    // 	if (view.dataCollectionLink) {
+    // 	if (view.datacollectionLink) {
     // 		var object = view.datasource;
-    // 		var linkObject = view.dataCollectionLink.datasource;
+    // 		var linkObject = view.datacollectionLink.datasource;
     // 		var relationFields = object.connectFields().filter((link) => link.settings.linkObject == linkObject.id);
 
     // 		// pull fields to options
@@ -1366,7 +1366,7 @@ module.exports = class ABViewDataCollectionCore extends ABView {
         });
 
         // add listeners when cursor of link data collection is changed
-        let linkDc = this.dataCollectionLink;
+        let linkDc = this.datacollectionLink;
         if (linkDc) {
             this.eventAdd({
                 emitter: linkDc,
@@ -1379,12 +1379,12 @@ module.exports = class ABViewDataCollectionCore extends ABView {
     }
 
     /**
-     * @method dataCollectionLink
+     * @method datacollectionLink
      * return a ABViewDataCollection that link of this.
      *
      * @return {ABViewDataCollection}
      */
-    get dataCollectionLink() {
+    get datacollectionLink() {
         if (!this.application) return null;
 
         return this.application.datacollectionByID(
@@ -1740,7 +1740,7 @@ module.exports = class ABViewDataCollectionCore extends ABView {
                 //
                 .then(() => {
                     // If we are linked to another datacollection then wait for it
-                    let linkDc = this.dataCollectionLink;
+                    let linkDc = this.datacollectionLink;
                     if (!linkDc) return;
 
                     return waitForDataCollectionToInitialize(linkDc);
@@ -1766,7 +1766,7 @@ module.exports = class ABViewDataCollectionCore extends ABView {
                                 rule.rule == "in_data_collection" ||
                                 rule.rule == "not_in_data_collection"
                             ) {
-                                var dc = this.application.dataCollections(
+                                var dc = this.application.datacollections(
                                     (dc) => dc.id == rule.value
                                 )[0];
                                 if (dc) {
@@ -1904,7 +1904,7 @@ module.exports = class ABViewDataCollectionCore extends ABView {
 
             // if we are linked, then refresh our cursor
             // var linkDv = this.dataviewLink;
-            var linkDv = this.dataCollectionLink;
+            var linkDv = this.datacollectionLink;
             if (linkDv) {
 
                 // filter data by match link data collection

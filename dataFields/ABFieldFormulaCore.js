@@ -25,7 +25,17 @@ var ABFieldFormulaDefaults = {
 
     isSortable: false,
     isFilterable: false,
-    useAsLabel: false
+    useAsLabel: false,
+
+	supportQuery: (field) => {
+
+		let fieldLink = field.fieldLink();
+		if (fieldLink == null) return false;
+
+		// Not support calculate field in query
+		return fieldLink.key !== "calculate";
+	}
+
 };
 
 var defaultValues = {
@@ -35,195 +45,10 @@ var defaultValues = {
     type: "sum" // "sum", "average", "max", "min", "count"
 };
 
-var ids = {
-    fieldList: "ab-field-formula-field-list"
-};
-
-/**
- * ABFieldFormulaComponent
- *
- * Defines the UI Component for this Data Field.  The ui component is responsible
- * for displaying the properties editor, populating existing data, retrieving
- * property values, etc.
- */
-// var ABFieldFormulaComponent = new ABFieldComponent({
-// 	fieldDefaults: ABFieldFormulaDefaults,
-
-// 	elements: (App, field) => {
-// 		ids = field.idsUnique(ids, App);
-
-// 		return [
-// 			{
-// 				view: "richselect",
-// 				name: 'type',
-// 				label: L('ab.dataField.formula.type', "*Type"),
-// 				labelWidth: App.config.labelWidthMedium,
-// 				value: "sum",
-// 				options: [
-// 					{ id: "sum", value: "Sum" },
-// 					{ id: "max", value: "Max" },
-// 					{ id: "min", value: "Min" },
-// 					{ id: "average", value: "Average" },
-// 					{ id: "count", value: "Count" }
-// 				]
-// 			},
-// 			{
-// 				view: "richselect",
-// 				name: 'field',
-// 				label: L('ab.dataField.formula.field', "*Field"),
-// 				labelWidth: App.config.labelWidthMedium,
-// 				options: {
-// 					view: "suggest",
-// 					body: {
-// 						id: ids.fieldList,
-// 						view: "list",
-// 						template: field.logic.itemTemplate,
-// 						data: []
-// 					}
-// 				}
-// 			}
-// 		];
-// 	},
-
-// 	// defaultValues: the keys must match a .name of your elements to set it's default value.
-// 	defaultValues: defaultValues,
-
-// 	// rules: basic form validation rules for webix form entry.
-// 	// the keys must match a .name of your .elements for it to apply
-// 	rules: {},
-
-// 	// include additional behavior on default component operations here:
-// 	// The base routines will be processed first, then these.  Any results
-// 	// from the base routine, will be passed on to these:
-// 	logic: {
-
-// 		objectLoad: (object) => {
-// 			ABFieldFormulaComponent.CurrentObject = object;
-// 		},
-
-// 		getFieldList: () => {
-
-// 			let options = [];
-
-// 			var connectFields = ABFieldFormulaComponent.CurrentObject.connectFields();
-// 			connectFields.forEach(f => {
-
-// 				var objLink = f.datasourceLink;
-
-// 				objLink.fields().forEach(fLink => {
-
-// 					// pull 'number' and 'calculate' fields from link objects
-// 					// if (fLink.key == 'number' || fLink.key == 'calculate') {
-// 					if (fLink.key == 'number') { // NOTE: calculate fields does not support in queries
-// 						options.push({
-// 							// UUID:UUID
-// 							id: "#field#:#fieldLink#".replace("#field#", f.id).replace("#fieldLink#", fLink.id),
-// 							field: f,
-// 							fieldLink: fLink
-// 						});
-// 					}
-
-// 				});
-
-// 			});
-
-// 			return options;
-
-// 		},
-
-// 		itemTemplate: (opt) => {
-
-// 			var template = '[#field#] #object# -> <i class="fa fa-#icon#" aria-hidden="true"></i><b>#fieldLink#</b>'
-// 				.replace("#field#", opt.field.label)
-// 				.replace("#object#", opt.fieldLink.object.label)
-// 				.replace("#icon#", opt.fieldLink.icon)
-// 				.replace("#fieldLink#", opt.fieldLink.label);
-
-// 			return template;
-
-// 		},
-
-// 		show: function (pass_ids) {
-
-// 			var list = this.getFieldList();
-
-// 			$$(ids.fieldList).clearAll();
-// 			$$(ids.fieldList).parse(list);
-
-// 		},
-
-// 		populate: (ids, values) => {
-
-// 			if (values.settings.field) {
-
-// 				var selectedId = "#field#:#fieldLink#"
-// 					.replace("#field#", values.settings.field)
-// 					.replace("#fieldLink#", values.settings.fieldLink);
-
-// 				$$(ids.field).setValue(selectedId || "");
-
-// 			}
-// 			else {
-// 				$$(ids.field).setValue("");
-// 			}
-
-// 		},
-
-// 		values: (ids, values) => {
-
-// 			var selectedId = $$(ids.field).getValue(); // fieldId:fieldLinkId
-
-// 			var selectedField = $$(ids.field).getList().data.find({ id: selectedId })[0];
-// 			if (selectedField) {
-// 				values.settings.field = selectedField.field.id;
-// 				values.settings.fieldLink = selectedField.fieldLink.id;
-// 				values.settings.object = selectedField.fieldLink.object.id;
-// 			}
-
-// 			return values;
-// 		}
-
-// 		// isValid: function (ids, isValid) {
-
-// 		// 	$$(ids.component).markInvalid("formula", false);
-
-// 		// 	var formula = $$(ids.formula).getValue();
-
-// 		// 	try {
-// 		// 		convertToJs(ABFieldFormulaComponent.CurrentObject, formula, {});
-
-// 		// 		// correct
-// 		// 		return true;
-// 		// 	}
-// 		// 	catch (err) {
-
-// 		// 		$$(ids.component).markInvalid("formula", "");
-
-// 		// 		// incorrect
-// 		// 		return false;
-// 		// 	}
-
-// 		// }
-
-// 	},
-
-// 	// perform any additional setup actions here.
-// 	// @param {obj} ids  the hash of id values for all the current form elements.
-// 	//					 it should have your elements + the default Header elements:
-// 	//						.label, .columnName, .fieldDescription, .showIcon
-// 	init: function (ids) {
-// 	}
-
-// });
-
-module.exports = class ABFieldFormula extends ABField {
+module.exports = class ABFieldFormulaCore extends ABField {
     constructor(values, object) {
         super(values, object, ABFieldFormulaDefaults);
 
-        // we're responsible for setting up our specific settings:
-        for (var dv in defaultValues) {
-            this.settings[dv] = values.settings[dv] || defaultValues[dv];
-        }
     }
 
     // return the default values for this DataField
@@ -231,47 +56,13 @@ module.exports = class ABFieldFormula extends ABField {
         return ABFieldFormulaDefaults;
     }
 
-    /*
-     * @function propertiesComponent
-     *
-     * return a UI Component that contains the property definitions for this Field.
-     *
-     * @param {App} App the UI App instance passed around the Components.
-     * @param {stirng} idBase
-     * @return {Component}
-     */
-    // static propertiesComponent(App, idBase) {
-    // 	return ABFieldFormulaComponent.component(App, idBase);
-    // }
+    static defaultValues() {
+        return defaultValues;
+    }
 
     ///
     /// Instance Methods
     ///
-
-    isValid() {
-        var validator = super.isValid();
-
-        // validator.addError('columnName', L('ab.validation.object.name.unique', 'Field columnName must be unique (#name# already used in this Application)').replace('#name#', this.name) );
-
-        return validator;
-    }
-
-    ///
-    /// Working with Actual Object Values:
-    ///
-
-    // return the grid column header definition for this instance of ABFieldFormula
-    // columnHeader(isObjectWorkspace) {
-    // 	var config = super.columnHeader(isObjectWorkspace);
-
-    // 	config.editor = null; // read only
-    // 	config.css = 'textCell';
-    // 	config.template = (rowData) => {
-    // 		return this.format(rowData);
-    // 	};
-
-    // 	return config;
-    // }
 
     /**
      * @method defaultValue
@@ -284,93 +75,78 @@ module.exports = class ABFieldFormula extends ABField {
         delete values[this.columnName];
     }
 
-    format(rowData) {
-        // if data exists, then will not calculate on client side
-        if (rowData[this.columnName] != null) return rowData[this.columnName];
+	format(rowData) {
 
-        var fieldBase = this.fieldBase();
-        if (!fieldBase) return 0;
+		// if data exists, then will not calculate on client side
+		if (rowData[this.columnName] != null)
+			return rowData[this.columnName];
 
-        var fieldLink = this.fieldLink();
-        if (!fieldLink) return 0;
+		var fieldBase = this.fieldBase();
+		if (!fieldBase) return 0;
 
-        var data = rowData[fieldBase.relationName()] || [];
-        if (!Array.isArray(data)) data = [data];
+		var fieldLink = this.fieldLink();
+		if (!fieldLink) return 0;
 
-        var numberList = [];
+		var data = rowData[fieldBase.relationName()] || [];
+		if (!Array.isArray(data))
+			data = [data];
 
-        // pull number from data
-        switch (fieldLink.key) {
-            case "calculate":
-                data.forEach((d) => {
-                    numberList.push(parseFloat(fieldLink.format(d) || 0));
-                });
-                break;
-            case "number":
-                numberList = data.map((d) => d[fieldLink.columnName] || 0);
-                break;
-        }
+		var numberList = [];
 
-        var result = 0;
+		// pull number from data
+		switch (fieldLink.key) {
+			case "calculate":
+				data.forEach(d => {
+					numberList.push(parseFloat(fieldLink.format(d) || 0));
+				});
+				break;
+			case "number":
+				numberList = data.map(d => d[fieldLink.columnName] || 0);
+				break;
+		}
 
-        // calculate
-        switch (this.settings.type) {
-            case "sum":
-                numberList.forEach((num) => (result += num));
-                break;
+		var result = 0;
 
-            case "average":
-                if (numberList.length > 0) {
-                    numberList.forEach((num) => (result += num)); // sum
-                    result = result / numberList.length;
-                }
-                break;
+		// calculate
+		switch (this.settings.type) {
+			case "sum":
+				if (numberList.length > 0) {
+					result = numberList.reduce((sum, val) => sum + (val || 0)); 
+				}
+				break;
 
-            case "max":
-                numberList.forEach((num) => {
-                    if (result < num) result = num;
-                });
-                break;
-            case "min":
-                numberList.forEach((num) => {
-                    if (result > num) result = num;
-                });
-                break;
-            case "count":
-                result = numberList.length;
-                break;
-        }
+			case "average":
+				if (numberList.length > 0) {
+					let sum = numberList.reduce((sum, val) => sum + (val || 0)); // sum
+					result = sum / numberList.length;
+				}
+				break;
 
-        return result;
-    }
+			case "max":
+				result = Math.max(...numberList) || 0;
+				break;
+			case "min":
+				result = Math.min(...numberList) || 0;
+				break;
+			case "count":
+				result = numberList.length;
+				break;
+		}
 
-    /*
-     * @funciton formComponent
-     * returns a drag and droppable component that is used on the UI
-     * interface builder to place form components related to this ABField.
-     *
-     * an ABField defines which form component is used to edit it's contents.
-     * However, what is returned here, needs to be able to create an instance of
-     * the component that will be stored with the ABViewForm.
-     */
-    // formComponent() {
+		var rowDataFormat = {};
+		rowDataFormat[fieldLink.columnName] = result;
 
-    // 	// not support in the form widget
-    // 	return null;
-    // }
 
-    // detailComponent() {
+		// ABFieldCalculate does not need to .format again
+		if (fieldLink.key == "calculate") {
+			return result;
+		}
+		else {
+			return fieldLink.format(rowDataFormat);
+		}
 
-    // 	var detailComponentSetting = super.detailComponent();
 
-    // 	detailComponentSetting.common = () => {
-    // 		return {
-    // 			key: 'detailtext'
-    // 		}
-    // 	};
-
-    // 	return detailComponentSetting;
-    // }
+	}
 
     fieldBase() {
         return this.object.fields((f) => f.id == this.settings.field)[0];

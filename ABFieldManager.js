@@ -20,6 +20,9 @@ var ABFieldConnect = require("../platform/dataFields/ABFieldConnect");
 var ABFieldCalculate = require("../platform/dataFields/ABFieldCalculate");
 var ABFieldTextFormula = require("../platform/dataFields/ABFieldTextFormula");
 var ABFieldFormula = require("../platform/dataFields/ABFieldFormula");
+var ABFieldAutoIndex = require("../platform/dataFields/ABFieldAutoIndex");
+var ABFieldJson = require("../platform/dataFields/ABFieldJson");
+
 
 /*
  * Fields
@@ -41,6 +44,8 @@ Fields[ABFieldConnect.defaults().key] = ABFieldConnect;
 Fields[ABFieldCalculate.defaults().key] = ABFieldCalculate;
 Fields[ABFieldTextFormula.defaults().key] = ABFieldTextFormula;
 Fields[ABFieldFormula.defaults().key] = ABFieldFormula;
+Fields[ABFieldAutoIndex.defaults().key] = ABFieldAutoIndex;
+Fields[ABFieldJson.defaults().key] = ABFieldJson;
 
 module.exports = {
     /*

@@ -5,7 +5,7 @@
  *
  */
 
-var ABField = require("../../platform/dataFields/ABField");
+var ABFieldSelectivity = require("../../platform/dataFields/ABFieldSelectivity");
 
 function L(key, altText) {
     // TODO:
@@ -32,9 +32,6 @@ var ABFieldConnectDefaults = {
     isSortable: false,
     isFilterable: true, // now we can filter using Queries
     useAsLabel: false,
-
-    // supportImport: flag to support import object across applications
-    supportImport: false,
 
     supportRequire: false
 };
@@ -63,17 +60,9 @@ var defaultValues = {
     //  	in it's connected field (linkColumn)
 };
 
-module.exports = class ABFieldConnectCore extends ABField {
+module.exports = class ABFieldConnectCore extends ABFieldSelectivity {
     constructor(values, object) {
         super(values, object, ABFieldConnectDefaults);
-
-        // we're responsible for setting up our specific settings:
-        for (var dv in defaultValues) {
-            this.settings[dv] =
-                values.settings[dv] != null
-                    ? values.settings[dv]
-                    : defaultValues[dv];
-        }
 
         // text to Int:
         this.settings.isSource = parseInt(this.settings.isSource || 0);
@@ -84,9 +73,21 @@ module.exports = class ABFieldConnectCore extends ABField {
         return ABFieldConnectDefaults;
     }
 
+    static defaultValues() {
+        return defaultValues;
+    }
+
     ///
     /// Instance Methods
     ///
+
+    fromValues(values) {
+		super.fromValues(values);
+
+		// text to Int:
+		this.settings.isSource = parseInt(this.settings.isSource || 0);
+
+    }
 
     ///
     /// Working with Actual Object Values:
@@ -154,43 +155,59 @@ module.exports = class ABFieldConnectCore extends ABField {
         return objectLink.fields((f) => f.id == this.settings.linkColumn)[0];
     }
 
-    /**
-     * @method pullRelationValues
-     *
-     *
-     * @param {*} row
-     *
-     * @return {array}
-     */
-    pullRelationValues(row) {
-        var selectedData = [];
 
-        // Get linked object
-        var linkedObject = this.datasourceLink;
+	/**
+	 * @method pullRelationValues
+	 * 
+	 * 
+	 * @param {*} row 
+	 * 
+	 * @return {array}
+	 */
+	pullRelationValues(row) {
 
-        var relationName = this.relationName();
-        if (row[relationName] && linkedObject) {
-            // convert to JSON
-            if (typeof row[relationName] == "string")
-                row[relationName] = JSON.parse(row[relationName]);
+		var selectedData = [];
 
-            // if this select value is array
-            if (row[relationName].map) {
-                selectedData = row[relationName].map(function(d) {
-                    // display label in format
-                    if (d) d.text = d.text || linkedObject.displayData(d);
+		// Get linked object
+		var linkedObject = this.datasourceLink;
 
-                    return d;
-                });
-            } else {
-                selectedData = row[relationName];
-                selectedData.text =
-                    selectedData.text || linkedObject.displayData(selectedData);
-            }
-        }
+		var data = this.dataValue(row);
+		if (data && linkedObject) {
 
-        return selectedData;
-    }
+			// convert to JSON
+			if (typeof data == "string")
+				data = JSON.parse(data);
+
+			// if this select value is array
+			if (data.map) {
+
+				selectedData = data.map(function (d) {
+					// display label in format
+					if (d)
+						d.text = d.text || linkedObject.displayData(d);
+
+					return d;
+				});
+
+			}
+			else if (data.id) {
+				selectedData = data;
+				selectedData.text = (selectedData.text || linkedObject.displayData(selectedData));
+			}
+		}
+
+		return selectedData;
+	}
+
+    dataValue(rowData) {
+
+		let propName = "{objectName}.{relationName}"
+			.replace('{objectName}', this.object.name)
+			.replace('{relationName}', this.relationName());
+
+		return rowData[this.relationName()] || rowData[propName] || "";
+
+	}
 
     format(rowData) {
         var val = this.pullRelationValues(rowData);

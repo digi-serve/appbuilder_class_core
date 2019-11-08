@@ -44,6 +44,7 @@ module.exports = class ABApplicationCore {
         if (typeof this.json == "string") this.json = JSON.parse(this.json);
         this.name = attributes.name || this.json.name || "";
         this.role = attributes.role;
+        this.isAdminApp = JSON.parse(attributes.json.isAdminApp || false);
 
         // Transition:
         // _datacollections, _objects, and _queries are now defined
@@ -80,11 +81,11 @@ module.exports = class ABApplicationCore {
         // definition:
 
         // import all our ABViews
-        // var newPages = [];
-        // (attributes.json.pages || []).forEach((page) => {
-        // 	newPages.push( this.pageNew(page) );
-        // })
-        // this._pages = [];
+		let newPages = [];
+		(attributes.json.pages || []).forEach((page) => {
+			newPages.push( this.pageNew(page) );
+		})
+		this._pages = newPages;
 
         // // Mobile Apps
         // // an Application can have one or more Mobile Apps registered.
@@ -153,11 +154,11 @@ module.exports = class ABApplicationCore {
         this.json.name = this.name;
 
         // for each Object: compile to json
-        var currObjects = [];
-        this._objects.forEach((obj) => {
-            currObjects.push(obj.toObj());
-        });
-        this.json.objects = currObjects;
+        // var currObjects = [];
+        // this._objects.forEach((obj) => {
+        //     currObjects.push(obj.toObj());
+        // });
+        // this.json.objects = currObjects;
 
         this.json.objectListSettings = this.objectListSettings;
 
@@ -179,7 +180,8 @@ module.exports = class ABApplicationCore {
             id: this.id,
             name: this.name,
             json: this.json,
-            role: this.role
+            role: this.role,
+            isAdminApp: this.isAdminApp
         };
     }
 
@@ -210,33 +212,36 @@ module.exports = class ABApplicationCore {
     /// Datacollections
     ///
 
-    /**
-     * @method datacollections()
-     *
-     * return an array of all the ABObjects for this ABApplication.
-     *
-     * @param {fn} filter  	a filter fn to return a set of ABObjects that this fn
-     *						returns true for.
-     * @return {array} 	array of ABObject
-     */
-    datacollections(filter) {
-        filter =
-            filter ||
-            function() {
-                return true;
-            };
+	///
+	/// Data collections
+	///
 
-        return this._datacollections.filter(filter);
-    }
+	/**
+	 * @method datacollections()
+	 *
+	 * return an array of all the ABDataCollection for this ABApplication.
+	 *
+	 * @param {fn} filter  	a filter fn to return a set of ABDataCollection that 
+	 *						this fn returns true for.
+	 * @return {array} 	array of ABDataCollection
+	 */
+	datacollections (filter) {
 
-    datacollectionByID(ID) {
-        // an undefined or null ID should not match any DC.
-        if (!ID) return null;
+		filter = filter || function() { return true; };
 
-        return this._datacollections.find((dc) => {
-            return dc.id == ID || dc.name == ID || dc.label == ID;
-        });
-    }
+		return (this._datacollections || []).filter(filter);
+
+	}
+
+	datacollectionByID(ID) {
+		// an undefined or null ID should not match any DC.
+		if (!ID) return null;
+
+		return this.datacollections((dc) => {
+			return dc.id == ID || dc.name == ID || dc.label == ID;
+		});
+	}
+
 
     ///
     /// Objects
@@ -258,7 +263,7 @@ module.exports = class ABApplicationCore {
                 return true;
             };
 
-        return this._objects.filter(filter);
+        return (this._objects || []).filter(filter);
     }
 
     /**
@@ -395,7 +400,7 @@ module.exports = class ABApplicationCore {
                     return true;
                 };
 
-            result = this._pages.filter(filter);
+            result = (this._pages || []).filter(filter);
         }
 
         return result;
@@ -421,19 +426,7 @@ module.exports = class ABApplicationCore {
                 return true;
             };
 
-        return this._queries.filter(filter);
-    }
-
-    /**
-     * @method queryByID()
-     * return the specific query requested by the provided id.
-     * @param {string} ID
-     * @return {obj}
-     */
-    queryByID(ID) {
-        return this.queries((q) => {
-            return q.id == ID || q.name == ID || q.label == ID;
-        })[0];
+        return (this._queries || []).filter(filter);
     }
 
     /**
@@ -614,6 +607,7 @@ module.exports = class ABApplicationCore {
      * @return {ABViewPage}
      */
     pageNew(values) {
+
         // make sure this is an ABViewPage description
         values.key = ABViewPageCore.common().key;
 

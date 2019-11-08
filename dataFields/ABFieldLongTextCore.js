@@ -12,6 +12,8 @@ function L(key, altText) {
     return altText; // AD.lang.label.getLabel(key) || altText;
 }
 
+const MAX_CHAR_LENGTH = 5000;
+
 var ABFieldLongTextDefaults = {
     key: "LongText", // unique key to reference this specific DataField
     type: "longtext",
@@ -48,15 +50,6 @@ module.exports = class ABFieldLongText extends ABField {
     	}
     	*/
 
-        // we're responsible for setting up our specific settings:
-        for (var dv in defaultValues) {
-            this.settings[dv] = values.settings[dv] || defaultValues[dv];
-        }
-
-        // // text to Int:
-        this.settings.supportMultilingual = parseInt(
-            this.settings.supportMultilingual
-        );
     }
 
     // return the default values for this DataField
@@ -64,9 +57,31 @@ module.exports = class ABFieldLongText extends ABField {
         return ABFieldLongTextDefaults;
     }
 
+    static defaultValues() {
+        return defaultValues;
+    }
+
     ///
     /// Instance Methods
     ///
+
+	/**
+	 * @method fromValues()
+	 *
+	 * initialze this object with the given set of values.
+	 * @param {obj} values
+	 */
+	fromValues(values) {
+
+		super.fromValues(values);
+
+		// we're responsible for setting up our specific settings:
+		this.settings.supportMultilingual = values.settings.supportMultilingual+"" || defaultValues.supportMultilingual;
+
+		// text to Int:
+		this.settings.supportMultilingual = parseInt(this.settings.supportMultilingual);
+
+	}
 
     /*
      * @property isMultilingual
@@ -104,18 +119,15 @@ module.exports = class ABFieldLongText extends ABField {
     isValidData(data, validator) {
         super.isValidData(data, validator);
 
-        if (data && data[this.columnName]) {
-            var max_length = 5000;
-
-            if (data[this.columnName].length > max_length) {
+        if (data &&
+            data[this.columnName] &&
+            data[this.columnName].length > MAX_CHAR_LENGTH) {
                 validator.addError(
                     this.columnName,
-                    "should NOT be longer than {max} characters".replace(
-                        "{max}",
-                        max_length
-                    )
+                    `should NOT be longer than ${MAX_CHAR_LENGTH} characters`
                 );
-            }
         }
+
     }
+
 };

@@ -30,29 +30,18 @@ var ABFieldDateDefaults = {
 };
 
 var defaultValues = {
-    includeTime: 0,
-    defaultCurrentDate: 0,
-    default: "",
-    dayFormat: "%d",
-    dayOrder: 1,
-    dayDelimiter: "slash",
-    monthFormat: "%m",
-    monthOrder: 2,
-    monthDelimiter: "slash",
-    yearFormat: "%Y",
-    yearOrder: 3,
-    yearDelimiter: "slash",
-
-    hourFormat: "%h",
-    periodFormat: "none",
-    timeDelimiter: "colon",
-
-    validateCondition: "none",
-    validateRangeUnit: "days",
-    validateRangeBefore: 0,
-    validateRangeAfter: 0,
-    validateStartDate: null,
-    validateEndDate: null
+    dateFormat: 1, // 1 (Ignore date), 2, 3, 4, 5
+	defaultDate: 1, // 1 (None), 2 (Current Date), 3 (Specific Date)
+	defaultDateValue: null, // {Date}
+	timeFormat: 1, // 1 (Ignore time), 2, 3
+	defaultTime: 1, // 1 (None), 2 (Current Time), 3 (Specific Time)
+	defaultTimeValue: null, // {Date}
+	validateCondition: "none",
+	validateRangeUnit: "days",
+	validateRangeBefore: 0,
+	validateRangeAfter: 0,
+	validateStartDate: null,
+	validateEndDate: null
 };
 
 var delimiterList = [
@@ -65,71 +54,258 @@ var delimiterList = [
 
 /** Private methods **/
 function getDelimiterSign(text) {
-    var delimiterItem = delimiterList.filter((item) => {
-        return item.id == text;
-    })[0];
+	var delimiterItem = delimiterList.filter((item) => {
+		return item.id == text;
+	})[0];
 
-    return delimiterItem ? delimiterItem.sign : "";
+	return delimiterItem ? delimiterItem.sign : '';
 }
 
 function getDateFormat(setting) {
-    var dateFormat = "";
+	var dateFormatString = "";
 
-    // Date format
-    for (var i = 1; i <= 3; i++) {
-        if (setting.dayOrder == i) {
-            dateFormat += setting.dayFormat;
-            dateFormat += i != 3 ? getDelimiterSign(setting.dayDelimiter) : "";
-        }
-        if (setting.monthOrder == i) {
-            dateFormat += setting.monthFormat;
-            dateFormat +=
-                i != 3 ? getDelimiterSign(setting.monthDelimiter) : "";
-        }
-        if (setting.yearOrder == i) {
-            dateFormat += setting.yearFormat;
-            dateFormat += i != 3 ? getDelimiterSign(setting.yearDelimiter) : "";
-        }
-    }
+	// Date format
+	// for (var i = 1; i <= 3; i++) {
+	// 	if (setting.dayOrder == i) {
+	// 		dateFormat += setting.dayFormat;
+	// 		dateFormat += (i != 3) ? getDelimiterSign(setting.dayDelimiter) : '';
+	// 	}
+	// 	if (setting.monthOrder == i) {
+	// 		dateFormat += setting.monthFormat;
+	// 		dateFormat += (i != 3) ? getDelimiterSign(setting.monthDelimiter) : '';
+	// 	}
+	// 	if (setting.yearOrder == i) {
+	// 		dateFormat += setting.yearFormat;
+	// 		dateFormat += (i != 3) ? getDelimiterSign(setting.yearDelimiter) : '';
+	// 	}
+	// }
 
-    // Time format
-    if (setting.includeTime == true) {
-        dateFormat += " {hour}{delimiter}{minute}{period}"
-            .replace("{hour}", setting.hourFormat)
-            .replace("{delimiter}", getDelimiterSign(setting.timeDelimiter))
-            .replace("{minute}", "%i")
-            .replace(
-                "{period}",
-                setting.periodFormat != "none" ? " " + setting.periodFormat : ""
-            );
-    }
+	// // Time format
+	// if (setting.includeTime == true) {
+	// 	dateFormat += (' {hour}{delimiter}{minute}{period}'
+	// 		.replace('{hour}', setting.hourFormat)
+	// 		.replace('{delimiter}', getDelimiterSign(setting.timeDelimiter))
+	// 		.replace('{minute}', '%i')
+	// 		.replace('{period}', setting.periodFormat != 'none' ? ' '+setting.periodFormat : '')
+	// 	);
+	// }
+	
+	var dateFormat = (setting && setting.dateFormat) ? setting.dateFormat : "";
+	var timeFormat = (setting && setting.timeFormat) ? setting.timeFormat : "";
 
-    return dateFormat;
+	switch (dateFormat) {
+		//Ignore Date
+		case 1, 2: {
+			dateFormatString = "%d/%m/%Y";
+		}
+			break;
+		//mm/dd/yyyy
+		case 3: {
+			dateFormatString = "%m/%d/%Y";
+		}
+			break;
+		//M D, yyyy
+		case 4: {
+			dateFormatString = "%M %d, %Y";
+		}
+			break;
+		//D M, yyyy
+		case 5: {
+			dateFormatString = "%d %M, %Y";
+		}
+			break;
+		default: {
+			dateFormatString = "%d/%m/%Y";
+		}
+			break;
+	}
+
+	switch (timeFormat) {
+		case 2: {
+			dateFormatString += " %h:%i %A";
+		}	
+			break;
+		case 3: {
+			dateFormatString += " %H:%i";
+		}
+			break;
+		default: {
+			//Do not show time in format
+		}
+			break;
+	}
+
+	return dateFormatString;
 }
 
 function getDateDisplay(dateData, settings) {
-    var dateFormat = getDateFormat(settings);
+	var dateFormat = getDateFormat(settings);
 
-    return webix.Date.dateToStr(dateFormat)(dateData);
+	return webix.Date.dateToStr(dateFormat)(dateData);
+}
+
+// function dateDisplayRefresh() {
+
+// 	if ($$(ids.includeTime).getValue()) {
+// 		//if user chooses an hour format for time that is 1-12 we need to force a "Period" format
+// 		//a lowercase letter signifies that it will be lowercase so we just need to look for lowercase letters
+// 		if ( /[a-z]/.test($$(ids.hourFormat).getValue()) ) {
+// 			//only set if one hasn't been set already
+// 			if ($$(ids.periodFormat).getValue() == "none") {
+// 				$$(ids.periodFormat).setValue("%a"); // set to the first one
+// 			}
+// 		} else {
+// 			//if user chooses an hour format for time that is 0-23 we need to remove the "Period" format
+// 			$$(ids.periodFormat).setValue("none"); 
+// 		}
+// 	}
+	
+// 	var dateFormat = getDateFormat({
+// 		dayOrder: $$(ids.dayOrder).getValue(),
+// 		monthOrder: $$(ids.monthOrder).getValue(),
+// 		yearOrder: $$(ids.yearOrder).getValue(),
+// 		dayFormat: $$(ids.dayFormat).getValue(),
+// 		monthFormat: $$(ids.monthFormat).getValue(),
+// 		yearFormat: $$(ids.yearFormat).getValue(),
+// 		dayDelimiter: $$(ids.dayDelimiter).getValue(),
+// 		monthDelimiter: $$(ids.monthDelimiter).getValue(),
+// 		yearDelimiter: $$(ids.yearDelimiter).getValue(),
+
+// 		includeTime: $$(ids.includeTime).getValue(),
+// 		hourFormat: $$(ids.hourFormat).getValue(),
+// 		timeDelimiter: $$(ids.timeDelimiter).getValue(),
+// 		periodFormat: $$(ids.periodFormat).getValue(),
+// 	});
+
+// 	var dateDisplay = webix.Date.dateToStr(dateFormat)(new Date());
+
+// 	$$(ids.dateDisplay).setValue(dateDisplay);
+// }
+
+function defaultDateChange() {
+	var defaultDateValue = $$(ids.defaultDate).getValue();
+	var defaultDate = parseInt(defaultDateValue);
+	switch (defaultDate) {
+		case 1: {
+			$$(ids.defaultDateValue).disable();
+			$$(ids.defaultDateValue).setValue();
+		}
+			break;
+		case 2: {
+			$$(ids.defaultDateValue).enable();
+			$$(ids.defaultDateValue).setValue(new Date());
+			refreshDateValue();
+		}
+			break;
+		case 3: {
+			$$(ids.defaultDateValue).enable();
+			$$(ids.defaultDateValue).setValue();
+		}
+			break;
+		default: {
+			$$(ids.defaultDateValue).disable();
+			$$(ids.defaultDateValue).setValue(new Date());
+		}
+			break;
+	}
+}
+
+function refreshDateValue() {
+	var defaultFormatValue = $$(ids.dateFormat).getValue();
+	var dateFormat = parseInt(defaultFormatValue);
+
+	var formatString = "";
+	switch (dateFormat) {
+		//Ignore Date
+		case 1, 2: {
+			formatString = "%d/%m/%Y";
+		}
+			break;
+		//mm/dd/yyyy
+		case 3: {
+			formatString = "%m/%d/%Y";
+		}
+			break;
+		//M D, yyyy
+		case 4: {
+			formatString = "%M %d, %Y";
+		}
+			break;
+		//D M, yyyy
+		case 5: {
+			formatString = "%d %M, %Y";
+		}
+			break;
+		default: {
+			formatString = "%d/%m/%Y";
+		}
+			break;
+	}
+
+	$$(ids.defaultDateValue).define("format", formatString);
+	$$(ids.defaultDateValue).refresh();
+}
+
+function defaultTimeChange() {
+	console.log("defaultTimeChange");
+	var dateFormat = parseInt($$(ids.defaultTime).getValue());
+	switch (dateFormat) {
+		case 1: {
+			$$(ids.defaultTimeValue).disable();
+			$$(ids.defaultTimeValue).setValue();
+		}
+			break;
+		case 2: {
+			$$(ids.defaultTimeValue).enable();
+			$$(ids.defaultTimeValue).setValue(new Date());
+
+		}
+			break;
+		case 3: {
+			$$(ids.defaultTimeValue).enable();
+			$$(ids.defaultTimeValue).setValue();
+		}
+			break;
+		default: {
+			$$(ids.defaultTimeValue).disable();
+			$$(ids.defaultTimeValue).setValue();
+		}
+			break;
+	}
+	refreshTimevalue();
+}
+
+function refreshTimevalue() {
+	console.log("refreshTimevalue");
+	var timeFormat = parseInt($$(ids.timeFormat).getValue());
+
+	var formatString = "";
+	switch (timeFormat) {
+		//HH:MM AM/PM
+		case 2: {
+			formatString = "%h:%i %A";
+		}
+			break;
+		//HH:MM (military)
+		case 3: {
+			formatString = "%H:%i";
+		}
+			break;
+		default: {
+			formatString = "%h:%i %A";
+		}
+			break;
+	}
+
+	$$(ids.defaultTimeValue).define("format", formatString);
+	$$(ids.defaultTimeValue).refresh();
+
 }
 
 module.exports = class ABFieldDateCore extends ABField {
     constructor(values, object) {
         super(values, object, ABFieldDateDefaults);
 
-        // we're responsible for setting up our specific settings:
-        for (var dv in defaultValues) {
-            this.settings[dv] = values.settings[dv] || defaultValues[dv];
-        }
-
-        // text to Int:
-        this.settings.includeTime = parseInt(this.settings.includeTime);
-        this.settings.defaultCurrentDate = parseInt(
-            this.settings.defaultCurrentDate
-        );
-        this.settings.dayOrder = parseInt(this.settings.dayOrder);
-        this.settings.monthOrder = parseInt(this.settings.monthOrder);
-        this.settings.yearOrder = parseInt(this.settings.yearOrder);
     }
 
     // return the default values for this DataField
@@ -137,9 +313,33 @@ module.exports = class ABFieldDateCore extends ABField {
         return ABFieldDateDefaults;
     }
 
+    static defaultValues() {
+        return defaultValues;
+    }
+    
+
     ///
     /// Instance Methods
     ///
+
+    /**
+	 * @method fromValues()
+	 *
+	 * initialze this object with the given set of values.
+	 * @param {obj} values
+	 */
+	fromValues(values) {
+
+		super.fromValues(values);
+
+		// text to Int:
+		this.settings.dateFormat = parseInt(this.settings.dateFormat);
+		this.settings.defaultDate = parseInt(this.settings.defaultDate);
+		this.settings.timeFormat = parseInt(this.settings.timeFormat);
+		this.settings.defaultTime = parseInt(this.settings.defaultTime);
+
+	}
+
 
     ///
     /// Working with Actual Object Values:
@@ -151,273 +351,212 @@ module.exports = class ABFieldDateCore extends ABField {
      * for this field.
      * @param {obj} values a key=>value hash of the current values.
      */
-    defaultValue(values) {
-        // if no default value is set, then don't insert a value.
-        if (values[this.columnName] == null) {
-            // Set current date as default
-            if (this.settings.defaultCurrentDate) {
-                values[this.columnName] = new Date().toISOString();
-            }
-            // Specfic default date
-            else if (this.settings.default) {
-                values[this.columnName] = new Date(
-                    this.settings.default
-                ).toISOString();
-            }
-        }
-    }
+	defaultValue(values) {
+		// if no default value is set, then don't insert a value.
+		if (values[this.columnName] == null) {
 
-    /**
-     * @method isValidData
-     * Parse through the given data and return an error if this field's
-     * data seems invalid.
-     * @param {obj} data  a key=>value hash of the inputs to parse.
-     * @param {OPValidator} validator  provided Validator fn
-     * @return {array}
-     */
-    isValidData(data, validator) {
-        super.isValidData(data, validator);
+			let dateResult;
 
-        if (data[this.columnName]) {
-            var value = data[this.columnName];
+			// Set current date as default
+			if (this.settings.defaultDate == 2) {
+				dateResult = new Date();
+			}
+			// Set specific date as default
+			else if (this.settings.defaultDate == 3 && this.settings.defaultDateValue) {
+				dateResult = new Date(this.settings.defaultDateValue);
+			}
 
-            if (!(value instanceof Date)) {
-                value = new Date(value);
-            }
+			// Set current time as default
+			if (this.settings.defaultTime == 2) {
 
-            // verify we didn't end up with an InValid Date result.
-            if (
-                Object.prototype.toString.call(value) === "[object Date]" &&
-                isFinite(value)
-            ) {
-                var isValid = true;
+				let currDate = new Date();
+	
+				if (dateResult == null)
+					dateResult = new Date();
 
-                // Custom vaildate is here
-                if (this.settings && this.settings.validateCondition) {
-                    var startDate = this.settings.validateStartDate
-                            ? new Date(this.settings.validateStartDate)
-                            : null,
-                        endDate = this.settings.validateEndDate
-                            ? new Date(this.settings.validateEndDate)
-                            : null,
-                        startDateDisplay = getDateDisplay(
-                            startDate,
-                            this.settings
-                        ),
-                        endDateDisplay = getDateDisplay(endDate, this.settings);
+				dateResult.setHours(currDate.getHours());
+				dateResult.setMinutes(currDate.getMinutes());
+				dateResult.setSeconds(currDate.getSeconds());
+				dateResult.setMilliseconds(currDate.getMilliseconds());
+			}
+			// Set specific time as default
+			else if (this.settings.defaultTime == 3 && this.settings.defaultTimeValue) {
 
-                    switch (this.settings.validateCondition) {
-                        case "dateRange":
-                            //// TODO: Refactor this to move moment() into a platform specific solution:
-                            // like this.minDate(), this.maxDate();
-                            var minDate = moment()
-                                .subtract(
-                                    this.settings.validateRangeBefore,
-                                    this.settings.validateRangeUnit
-                                )
-                                .toDate();
-                            var maxDate = moment()
-                                .add(
-                                    this.settings.validateRangeAfter,
-                                    this.settings.validateRangeUnit
-                                )
-                                .toDate();
+				let defaultTime =  new Date(this.settings.defaultTimeValue);
+	
+				if (dateResult == null)
+					dateResult = new Date();
 
-                            if (minDate < value && value < maxDate)
-                                isValid = true;
-                            else {
-                                isValid = false;
-                                validator.addError(
-                                    this.columnName,
-                                    L(
-                                        "ab.dataField.date.error.dateRange",
-                                        "*Should be in between {startdate} and {enddate}"
-                                    )
-                                        .replace(
-                                            "{startdate}",
-                                            getDateDisplay(
-                                                minDate,
-                                                this.settings
-                                            )
-                                        )
-                                        .replace(
-                                            "{enddate}",
-                                            getDateDisplay(
-                                                maxDate,
-                                                this.settings
-                                            )
-                                        )
-                                );
-                            }
+				dateResult.setHours(defaultTime.getHours());
+				dateResult.setMinutes(defaultTime.getMinutes());
+				dateResult.setSeconds(defaultTime.getSeconds());
+				dateResult.setMilliseconds(defaultTime.getMilliseconds());
+			}
 
-                            break;
-                        case "between":
-                            if (startDate < value && value < endDate)
-                                isValid = true;
-                            else {
-                                isValid = false;
-                                validator.addError(
-                                    this.columnName,
-                                    L(
-                                        "ab.dataField.date.error.between",
-                                        "*Should be in between {startdate} and {enddate}"
-                                    )
-                                        .replace(
-                                            "{startdate}",
-                                            startDateDisplay
-                                        )
-                                        .replace("{enddate}", endDateDisplay)
-                                );
-                            }
-                            break;
-                        case "notBetween":
-                            if (value < startDate && endDate < value)
-                                isValid = true;
-                            else {
-                                isValid = false;
-                                validator.addError(
-                                    this.columnName,
-                                    L(
-                                        "ab.dataField.date.error.notBetween",
-                                        "*Should not be in between {startdate} and {enddate}"
-                                    )
-                                        .replace(
-                                            "{startdate}",
-                                            startDateDisplay
-                                        )
-                                        .replace("{enddate}", endDateDisplay)
-                                );
-                            }
-                            break;
-                        case "=":
-                            isValid = value.getTime() == startDate.getTime();
-                            if (!isValid)
-                                validator.addError(
-                                    this.columnName,
-                                    L(
-                                        "ab.dataField.date.error.equal",
-                                        "*Should equal {startdate}"
-                                    ).replace("{startdate}", startDateDisplay)
-                                );
-                            break;
-                        case "<>":
-                            isValid = value.getTime() != startDate.getTime();
-                            if (!isValid)
-                                validator.addError(
-                                    this.columnName,
-                                    L(
-                                        "ab.dataField.date.error.notEqual",
-                                        "*Should not equal {startdate}"
-                                    ).replace("{startdate}", startDateDisplay)
-                                );
-                            break;
-                        case ">":
-                            isValid = value.getTime() > startDate.getTime();
-                            if (!isValid)
-                                validator.addError(
-                                    this.columnName,
-                                    L(
-                                        "ab.dataField.date.error.after",
-                                        "*Should after {startdate}"
-                                    ).replace("{startdate}", startDateDisplay)
-                                );
-                            break;
-                        case "<":
-                            isValid = value.getTime() < startDate.getTime();
-                            if (!isValid)
-                                validator.addError(
-                                    this.columnName,
-                                    L(
-                                        "ab.dataField.date.error.before",
-                                        "*Should before {startdate}"
-                                    ).replace("{startdate}", startDateDisplay)
-                                );
-                            break;
-                        case ">=":
-                            isValid = value.getTime() >= startDate.getTime();
-                            if (!isValid)
-                                validator.addError(
-                                    this.columnName,
-                                    L(
-                                        "ab.dataField.date.error.afterOrEqual",
-                                        "*Should after or equal {startdate}"
-                                    ).replace("{startdate}", startDateDisplay)
-                                );
-                            break;
-                        case "<=":
-                            isValid = value.getTime() <= startDate.getTime();
-                            if (!isValid)
-                                validator.addError(
-                                    this.columnName,
-                                    L(
-                                        "ab.dataField.date.error.beforeOrEqual",
-                                        "*Should before or equal {startdate}"
-                                    ).replace("{startdate}", startDateDisplay)
-                                );
-                            break;
-                    }
-                }
+			if (dateResult != null)
+				values[this.columnName] = dateResult.toISOString();
 
-                if (isValid) {
-                    // all good, so store as ISO format string.
-                    data[this.columnName] = value.toISOString();
-                }
-            } else {
-                // return a validation error
-                validator.addError(this.columnName, "Should be a Date!");
-            }
-        }
-    }
+		}
+	}
 
-    format(rowData) {
-        var d = rowData[this.columnName];
+	/**
+	 * @method isValidData
+	 * Parse through the given data and return an error if this field's
+	 * data seems invalid.
+	 * @param {obj} data  a key=>value hash of the inputs to parse.
+	 * @param {OPValidator} validator  provided Validator fn
+	 */
+	isValidData(data, validator) {
+		
+		super.isValidData(data, validator);
+		
+		if (data[this.columnName]) {
+			var value = data[this.columnName];
 
-        if (d == "" || d == null) {
-            return "";
-        }
-        // convert ISO string -> Date() -> our formatted string
+			if (!(value instanceof Date)) {
+				value = new Date(moment(value));
+			}
 
-        // pull format from settings.
-        return getDateDisplay(new Date(d), this.settings);
-    }
+			// verify we didn't end up with an InValid Date result.
+			if ((Object.prototype.toString.call(value) === '[object Date]')
+				&& (isFinite(value))) {
 
-    getDateFormat() {
-        var setting = this.settings;
-        var dateFormat = "";
+				var isValid = true;
 
-        // Date format
-        for (var i = 1; i <= 3; i++) {
-            if (setting.dayOrder == i) {
-                dateFormat += setting.dayFormat;
-                dateFormat +=
-                    i != 3 ? getDelimiterSign(setting.dayDelimiter) : "";
-            }
-            if (setting.monthOrder == i) {
-                dateFormat += setting.monthFormat;
-                dateFormat +=
-                    i != 3 ? getDelimiterSign(setting.monthDelimiter) : "";
-            }
-            if (setting.yearOrder == i) {
-                dateFormat += setting.yearFormat;
-                dateFormat +=
-                    i != 3 ? getDelimiterSign(setting.yearDelimiter) : "";
-            }
-        }
+				// Custom vaildate is here
+				if (this.settings && this.settings.validateCondition) {
+					var startDate = this.settings.validateStartDate ? new Date(this.settings.validateStartDate) : null,
+						endDate = this.settings.validateEndDate ? new Date(this.settings.validateEndDate) : null,
+						startDateDisplay = getDateDisplay(startDate, this.settings),
+						endDateDisplay = getDateDisplay(endDate, this.settings);
 
-        // Time format
-        if (setting.includeTime == true) {
-            dateFormat += " {hour}{delimiter}{minute}{period}"
-                .replace("{hour}", setting.hourFormat)
-                .replace("{delimiter}", getDelimiterSign(setting.timeDelimiter))
-                .replace("{minute}", "%i")
-                .replace(
-                    "{period}",
-                    setting.periodFormat != "none"
-                        ? " " + setting.periodFormat
-                        : ""
-                );
-        }
+					switch (this.settings.validateCondition) {
+						case 'dateRange':
+							var minDate = moment().subtract(this.settings.validateRangeBefore, this.settings.validateRangeUnit).toDate();
+							var maxDate = moment().add(this.settings.validateRangeAfter, this.settings.validateRangeUnit).toDate();
 
-        return dateFormat;
-    }
+							if (minDate < value && value < maxDate)
+								isValid = true;
+							else {
+								isValid = false;
+								validator.addError(this.columnName,
+									L('ab.dataField.date.error.dateRange', '*Should be in between {startdate} and {enddate}')
+										.replace('{startdate}', getDateDisplay(minDate, this.settings))
+										.replace('{enddate}', getDateDisplay(maxDate, this.settings))
+								);
+							}
+
+							break;
+						case 'between':
+							if (startDate < value && value < endDate)
+								isValid = true;
+							else {
+								isValid = false;
+								validator.addError(this.columnName,
+									L('ab.dataField.date.error.between', '*Should be in between {startdate} and {enddate}')
+										.replace('{startdate}', startDateDisplay)
+										.replace('{enddate}', endDateDisplay)
+								);
+							}
+							break;
+						case 'notBetween':
+							if (value < startDate && endDate < value)
+								isValid = true;
+							else {
+								isValid = false;
+								validator.addError(this.columnName,
+									L('ab.dataField.date.error.notBetween', '*Should not be in between {startdate} and {enddate}')
+										.replace('{startdate}', startDateDisplay)
+										.replace('{enddate}', endDateDisplay)
+								);
+							}
+							break;
+						case '=':
+							isValid = (value.getTime && startDate.getTime && value.getTime() == startDate.getTime());
+							if (!isValid)
+								validator.addError(this.columnName,
+									L('ab.dataField.date.error.equal', '*Should equal {startdate}')
+										.replace('{startdate}', startDateDisplay)
+								);
+							break;
+						case '<>':
+							isValid = (value.getTime && startDate.getTime && value.getTime() != startDate.getTime());
+							if (!isValid)
+								validator.addError(this.columnName,
+									L('ab.dataField.date.error.notEqual', '*Should not equal {startdate}')
+										.replace('{startdate}', startDateDisplay)
+								);
+							break;
+						case '>':
+							isValid = (value.getTime && startDate.getTime && value.getTime() > startDate.getTime());
+							if (!isValid)
+								validator.addError(this.columnName,
+									L('ab.dataField.date.error.after', '*Should after {startdate}')
+										.replace('{startdate}', startDateDisplay)
+								);
+							break;
+						case '<':
+							isValid = (value.getTime && startDate.getTime && value.getTime() < startDate.getTime());
+							if (!isValid)
+								validator.addError(this.columnName,
+									L('ab.dataField.date.error.before', '*Should before {startdate}')
+										.replace('{startdate}', startDateDisplay)
+								);
+							break;
+						case '>=':
+							isValid = (value.getTime && startDate.getTime && value.getTime() >= startDate.getTime());
+							if (!isValid)
+								validator.addError(this.columnName,
+									L('ab.dataField.date.error.afterOrEqual', '*Should after or equal {startdate}')
+										.replace('{startdate}', startDateDisplay)
+								);
+							break;
+						case '<=':
+							isValid = (value.getTime && startDate.getTime && value.getTime() <= startDate.getTime());
+							if (!isValid)
+								validator.addError(this.columnName,
+									L('ab.dataField.date.error.beforeOrEqual', '*Should before or equal {startdate}')
+										.replace('{startdate}', startDateDisplay)
+								);
+							break;
+					}
+				}
+
+				if (isValid) {
+					// all good, so store as ISO format string.
+					if (this.settings.timeFormat == 1) {
+						data[this.columnName] = moment(value).format('YYYY-MM-DD 00:00:00');
+					} else {
+						data[this.columnName] = moment(value).format('YYYY-MM-DD HH:mm:ss');
+					}
+					// console.log(data);
+				}
+
+
+			} else {
+
+				// return a validation error
+				validator.addError(this.columnName, 'Should be a Date!');
+			}
+		}
+
+	}
+
+	format(rowData) {
+
+		var d = this.dataValue(rowData);
+
+		if ((d == '') || (d == null)) {
+			return '';
+		}
+		// convert ISO string -> Date() -> our formatted string
+
+		// pull format from settings.
+		return getDateDisplay(new Date(moment(d)), this.settings);
+	}
+
+	getFormat() {
+		return getDateFormat(this.settings);
+	}
+
 };
