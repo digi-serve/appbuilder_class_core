@@ -11,9 +11,7 @@
  */
 
 var ABViewContainer = require("../../platform/views/ABViewContainer");
-var ABViewManager = require("../ABViewManager");
-
-var ABDataCollection = require("../../platform/ABDataCollection");
+// var ABViewManager = require("../ABViewManager");
 
 // function L(key, altText) {
 //     return AD.lang.label.getLabel(key) || altText;
@@ -50,6 +48,10 @@ module.exports = class ABViewPageCore extends ABViewContainer {
         return ABViewDefaults;
     }
 
+    static getPageActionKey(view) {
+        return ['opstools', "AB_" + String(view.application.name).replace(/[^a-z0-9]/gi, ''), String(view.name).replace(/[^a-z0-9]/gi, '').toLowerCase(), "view"].join('.');
+    }
+
     /**
      * @method toObj()
      *
@@ -63,6 +65,10 @@ module.exports = class ABViewPageCore extends ABViewContainer {
 
         obj.name = this.name;
 
+        // icon of popup page
+        if (this.settings.type == 'popup')
+            obj.icon = "clone";
+
         // set label of the page
         if (!this.label || this.label == "?label?") obj.label = obj.name;
 
@@ -72,13 +78,6 @@ module.exports = class ABViewPageCore extends ABViewContainer {
             pages.push(page.toObj());
         });
         obj.pages = pages;
-
-        // compile our data sources
-        var dataCollections = [];
-        this._dataCollections.forEach((data) => {
-            dataCollections.push(data.toObj());
-        });
-        obj.dataCollections = dataCollections;
 
         return obj;
     }
@@ -92,6 +91,10 @@ module.exports = class ABViewPageCore extends ABViewContainer {
     fromValues(values) {
         super.fromValues(values);
 
+        // icon of popup page
+        if (values.settings.type == 'popup')
+            this.icon = "clone";
+
         // set label of the page
         if (!this.label || this.label == "?label?") this.label = this.name;
 
@@ -102,18 +105,91 @@ module.exports = class ABViewPageCore extends ABViewContainer {
         });
         this._pages = pages;
 
-        // now properly handle our data sources.
-        var dataCollections = [];
-        (values.dataCollections || []).forEach((data) => {
-            dataCollections.push(this.dataCollectionNew(data));
-        });
-        this._dataCollections = dataCollections;
-
         // the default columns of ABView is 1
         this.settings.columns = this.settings.columns || 1;
         this.settings.gravity = this.settings.gravity || [1];
 
         // convert from "0" => 0
+    }
+
+    /**
+     * @method destroy()
+     *
+     * destroy the current instance of ABApplication
+     *
+     * also remove it from our _AllApplications
+     *
+     * @return {Promise}
+     */
+    destroy() {
+        return new Promise(
+            (resolve, reject) => {
+
+                // verify we have been .save() before:
+                if (this.id) {
+
+                    this.application.viewDestroy(this)
+                        .then(() => {
+
+                            // remove the page in list
+                            var parent = this.parent || this.application;
+                            var remainingPages = parent.pages((p) => { return p.id != this.id; })
+                            parent._pages = remainingPages;
+
+                            resolve();
+                        })
+                        .catch(reject);
+
+                } else {
+
+                    resolve();  // nothing to do really
+                }
+
+            }
+        )
+
+    }
+
+    /**
+     * @method save()
+     *
+     * persist this instance of ABViewPage with it's parent
+     *
+     * @param includeSubViews {Boolean}
+     *
+     * @return {Promise}
+     *         .resolve( {this} )
+     */
+    save(includeSubViews = false) {
+        return new Promise(
+            (resolve, reject) => {
+
+                // if this is our initial save()
+                if (!this.id) {
+                    this.id = OP.Util.uuid();   // setup default .id
+                    this.name = this.name + "_" + this.id.split("-")[1]; // add a unique string to the name so it doesnt collide with a previous page name
+                }
+
+                // if name is empty
+                if (!this.name) {
+                    this.name = this.label + "_" + this.id.split("-")[1];
+                }
+
+                this.application.viewSave(this, includeSubViews)
+                    .then(() => {
+
+                        // persist the current ABViewPage in our list of ._pages.
+                        var parent = this.parent || this.application;
+                        var isIncluded = (parent.pages((p) => { return p.id == this.id }).length > 0);
+                        if (!isIncluded) {
+                            parent._pages.push(this);
+                        }
+
+                        resolve();
+                    })
+                    .catch(reject)
+            }
+        )
     }
 
     ///
@@ -186,53 +262,19 @@ module.exports = class ABViewPageCore extends ABViewContainer {
         return page;
     }
 
-    ///
-    /// Data sources
-    ///
-
     /**
-     * @method dataCollections()
+     * @method viewDestroy()
      *
-     * return an array of all the ABViewDataCollection for this ABViewPage.
+     * remove the current ABViewPage from our list of ._pages or ._views.
      *
-     * @param {fn} filter		a filter fn to return a set of ABViewDataCollection that this fn
-     *							returns true for.
-     *
-     * @return {array}			array of ABViewDataCollection
+     * @param {ABView} view
+     * @return {Promise}
      */
-    dataCollections(filter) {
-        if (!this._dataCollections) return [];
+    viewDestroy(view) {
 
-        filter =
-            filter ||
-            function() {
-                return true;
-            };
-
-        return this._dataCollections.filter(filter);
-    }
-
-    /**
-     * @method dataCollectionNew()
-     *
-     * return an instance of a new (unsaved) ABViewDataCollection that is tied to this
-     * ABViewPage.
-     *
-     * NOTE: this new data source is not included in our this.dataCollections until a .save()
-     * is performed on the page.
-     *
-     * @return {ABViewPage}
-     */
-    dataCollectionNew(values) {
-        values = values || {};
-
-        var dataCollection = new ABDataCollection(
-            values,
-            this.application,
-            this
-        );
-
-        return dataCollection;
+        var remainingPages = this.pages(function (p) { return p.id != view.id; })
+        this._pages = remainingPages;
+        return this.save();
     }
 
     /**
@@ -258,4 +300,51 @@ module.exports = class ABViewPageCore extends ABViewContainer {
             return this.application.urlPage() + this.id;
         }
     }
+
+    updateIcon(obj) {
+        // icon of page
+        if (obj.settings.type == 'popup') {
+            obj.icon = "clone";
+        } else {
+            obj.icon = ABViewDefaults.icon;
+        }
+        return obj;
+    }
+
+    copy(lookUpIds, parent) {
+
+        // initial new ids of pages and components
+        if (lookUpIds == null) {
+            lookUpIds = {};
+
+            let mapNewIdFn = (currView) => {
+
+                if (!lookUpIds[currView.id])
+                    lookUpIds[currView.id] = OP.Util.uuid();
+
+                if (currView.pages) {
+                    currView.pages().forEach(p => mapNewIdFn(p));
+                }
+
+                if (currView.views) {
+                    currView.views().forEach(v =>  mapNewIdFn(v));
+                }
+
+            };
+
+            // start map new ids
+            mapNewIdFn(this);
+
+        }
+
+        // copy
+        let result = super.copy(lookUpIds, parent);
+
+        // page's name should not be duplicate
+        result.name = null;
+
+        return result;
+
+    }
+
 };

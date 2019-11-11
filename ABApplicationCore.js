@@ -640,6 +640,10 @@ module.exports = class ABApplicationCore {
     /// Utilities
     ///
 
+    languageDefault() {
+        return 'en';
+    }
+
     /**
      * @function OP.Multilingual.translate
      *

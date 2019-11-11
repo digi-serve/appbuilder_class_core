@@ -12,7 +12,8 @@ var ABEmitter = require("../../platform/ABEmitter");
 var ABViewDefaults = {
     key: "view", // {string} unique key for this view
     icon: "window-maximize", // {string} fa-[icon] reference for this view
-    labelKey: "ab.components.view" // {string} the multilingual label key for the class label
+    labelKey: "ab.components.view", // {string} the multilingual label key for the class label
+    tabicon: "" // no default tab icons
 };
 
 module.exports = class ABViewCore extends ABEmitter {
@@ -65,6 +66,10 @@ module.exports = class ABViewCore extends ABEmitter {
         return this.defaults.icon;
     }
 
+    tabIcon() {
+        return this.defaults.tabicon;
+    }
+
     /**
      * @method toObj()
      *
@@ -85,6 +90,7 @@ module.exports = class ABViewCore extends ABEmitter {
             id: this.id,
             key: this.key,
             icon: this.icon,
+            tabicon: this.tabicon,
 
             name: this.name,
             // parent: this.parent,
@@ -100,8 +106,6 @@ module.exports = class ABViewCore extends ABEmitter {
         });
         result.views = views;
 
-        result.position = this.position;
-
         return result;
     }
 
@@ -115,6 +119,7 @@ module.exports = class ABViewCore extends ABEmitter {
         this.id = values.id; // NOTE: only exists after .save()
         this.key = values.key || this.viewKey();
         this.icon = values.icon || this.viewIcon();
+        this.tabicon = values.tabicon || this.tabIcon();
 
         // this.parent = values.parent || null;
 
@@ -160,6 +165,19 @@ module.exports = class ABViewCore extends ABEmitter {
             views.push(this.application.viewNew(child, this.application, this));
         });
         this._views = views;
+
+		// convert from "0" => 0
+		this.position = values.position || {};
+
+		if (this.position.x != null)
+			this.position.x = parseInt(this.position.x);
+
+		if (this.position.y != null)
+			this.position.y = parseInt(this.position.y);
+
+		this.position.dx = parseInt(this.position.dx || 1);
+		this.position.dy = parseInt(this.position.dy || 1);
+
     }
 
     isRoot() {
@@ -265,24 +283,49 @@ module.exports = class ABViewCore extends ABEmitter {
     /// Views
     ///
 
-    /**
-     * @method views()
-     *
-     * return an array of all the ABViews children
-     *
-     * @param {fn} filter  	a filter fn to return a set of ABViews that this fn
-     *						returns true for.
-     * @return {array} 	array of ABViews
-     */
-    views(filter) {
-        filter =
-            filter ||
-            function() {
-                return true;
-            };
+	/**
+	 * @method views()
+	 *
+	 * return an array of all the ABViews children
+	 *
+	 * @param {fn} filter  	a filter fn to return a set of ABViews that this fn
+	 *						returns true for.
+	 * @param {boolean} deep
+	 *
+	 * @return {array} 	array of ABViews
+	 */
+	views(filter, deep) {
 
-        return this._views.filter(filter);
-    }
+		var result = [];
+
+		if (!this._views || this._views.length < 1)
+			return result;
+
+		// find into recursively
+		if (filter && deep) {
+
+			result = result.concat(this._views.filter(filter));
+
+			this._views.forEach(v => {
+				var subViews = v.views(filter, deep);
+				if (subViews && subViews.length > 0) {
+					result = result.concat(subViews);
+				}
+			});
+
+		}
+
+		else {
+
+			filter = filter || function () { return true; };
+
+			result = this._views.filter(filter);
+
+		}
+
+		return result;
+
+	}
 
     /**
      * @method viewDestroy()
@@ -320,6 +363,126 @@ module.exports = class ABViewCore extends ABEmitter {
 
         return this.save();
     }
+
+	/**
+	 * @method viewReorder()
+	 *
+	 * reorder the current ABView in our list of ._views.
+	 *
+	 * @param {string} viewId - id of the active view
+	 * @param {string} toPosition - 'to' postion
+	 * @return {Promise}
+	 */
+	viewReorder(viewId, toPosition) {
+
+		var from = this._views.findIndex((v) => v.id == viewId);
+		if (from < 0) return;
+
+		// move drag item to 'to' position
+		this._views.splice(toPosition, 0, this._views.splice(from, 1)[0]);
+
+		// save to database
+		return this.save();
+
+    }
+
+	/// ABApplication data methods
+
+
+	/**
+	 * @method destroy()
+	 *
+	 * destroy the current instance of ABApplication
+	 *
+	 * also remove it from our _AllApplications
+	 *
+	 * @return {Promise}
+	 */
+	destroy() {
+		return new Promise(
+			(resolve, reject) => {
+
+				// unsubscribe events
+				this.eventClear(true);
+
+
+				// verify we have been .save() before:
+				if (this.id) {
+
+					this.application.viewDestroy(this)
+						.then(() => {
+
+							// remove the page in list
+							let parent = this.parent;
+							if (parent) {
+								let remainingPages = parent.views(v => v.id != this.id);
+								parent._views = remainingPages;
+							}
+
+							resolve();
+						})
+						.catch(reject);
+
+				} else {
+
+					resolve();  // nothing to do really
+				}
+
+			}
+		)
+
+	}
+
+
+	/**
+	 * @method save()
+	 *
+	 * persist this instance of ABView with it's parent
+	 *
+	 * @param includeSubViews {Boolean}
+	 * 
+	 * @return {Promise}
+	 *						.resolve( {this} )
+	 */
+	save(includeSubViews = false) {
+		return new Promise(
+			(resolve, reject) => {
+
+				// // if this is our initial save()
+				// if (!this.id) {
+				// 	this.id = OP.Util.uuid();	// setup default .id
+				// }
+
+				// // if this is not a child of another view then tell it's
+  				// // application to save this view.
+				//  var parent = this.parent;
+  				// if (!parent) parent = this.application;
+
+				// parent.viewSave(this)
+				// 	.then(resolve)
+				// 	.catch(reject)
+
+				// if this is our initial save()
+				if (!this.id) {
+					this.id = OP.Util.uuid();	// setup default .id
+				}
+
+				this.application.viewSave(this, includeSubViews)
+					.then(() => {
+
+						// persist the current ABViewPage in our list of ._pages.
+						let parent = this.parent || this.application;
+						let isIncluded = (parent.views(v => v.id == this.id).length > 0);
+						if (!isIncluded) {
+							parent._views.push(this);
+						}
+
+						resolve();
+					})
+					.catch(reject)
+			}
+		)
+	}
 
     ///
     /// Events
@@ -377,4 +540,58 @@ module.exports = class ABViewCore extends ABEmitter {
             });
         }
     }
+
+
+	copy(lookUpIds, parent) {
+
+		lookUpIds = lookUpIds || {};
+
+		// get settings of the target
+		let config = this.toObj();
+
+		// remove sub-elements property
+		['pages', 'views'].forEach(prop => {
+			delete config[prop];
+		});
+
+		// update id of linked components
+		if (this.copyUpdateProperyList) {
+			(this.copyUpdateProperyList() || []).forEach(prop => {
+				if (config && config.settings)
+					config.settings[prop] = lookUpIds[config.settings[prop]];
+			});
+		}
+
+		// copy from settings
+		let result = this.application.viewNew(config, this.application, parent);
+
+		// change id
+		result.id = lookUpIds[result.id] || OP.Util.uuid();
+
+		// copy sub pages
+		if (this.pages) {
+			result._pages = [];
+			this.pages().forEach(p => {
+
+				let copiedSubPage = p.copy(lookUpIds, result);
+				copiedSubPage.parent = result;
+
+				result._pages.push(copiedSubPage);
+			});	
+		}
+
+		// copy sub views
+		if (this.views) {
+			result._views = [];
+			this.views().forEach(v => {
+
+				let copiedView = v.copy(lookUpIds, result);
+
+				result._views.push(copiedView);
+			});
+		}
+
+		return result;
+
+	}
 };

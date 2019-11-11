@@ -12,7 +12,6 @@ var ABView = require("../platform/views/ABView");
 // import ABViewChartLine from "./views/ABViewChartLine"
 // import ABViewChartArea from "./views/ABViewChartArea"
 var ABViewContainer = require("../platform/views/ABViewContainer");
-var ABViewDataCollection = require("../platform/views/ABViewDataCollection");
 var ABViewPage = require("../platform/views/ABViewPage");
 // import ABViewLabel from "./views/ABViewLabel"
 // import ABViewLayout from "./views/ABViewLayout"
@@ -55,7 +54,6 @@ Views[ABView.common().key] = ABView;
 // Views[ABViewChartArea.common().key] = ABViewChartArea;
 
 Views[ABViewContainer.common().key] = ABViewContainer;
-Views[ABViewDataCollection.common().key] = ABViewDataCollection;
 Views[ABViewPage.common().key] = ABViewPage;
 // Views[ABViewLabel.common().key] = ABViewLabel;
 // Views[ABViewLayout.common().key] = ABViewLayout;

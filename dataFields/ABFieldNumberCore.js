@@ -30,51 +30,6 @@ var ABFieldNumberDefaults = {
     supportUnique: true,
 };
 
-var formatList = [
-    { id: "none", value: L("ab.dataField.number.none", "*None") },
-    {
-        id: "dollar",
-        value: L("ab.dataField.number.format.dollar", "$"),
-        sign: "$",
-        position: "prefix"
-    },
-    {
-        id: "pound",
-        value: L("ab.dataField.number.format.pound", "£"),
-        sign: "£",
-        position: "prefix"
-    },
-    {
-        id: "euroBefore",
-        value: L("ab.dataField.number.format.euroBefore", "€ (before)"),
-        sign: "€",
-        position: "prefix"
-    },
-    {
-        id: "euroAfter",
-        value: L("ab.dataField.number.format.euroAfter", "€ (after)"),
-        sign: "€",
-        position: "postfix"
-    },
-    {
-        id: "percent",
-        value: L("ab.dataField.number.format.percent", "%"),
-        sign: "%",
-        position: "postfix"
-    }
-];
-
-var delimiterList = [
-    { id: "none", value: L("ab.dataField.number.none", "*None") },
-    { id: "comma", value: L("ab.dataField.number.comma", "*Comma"), sign: "," },
-    {
-        id: "period",
-        value: L("ab.dataField.number.period", "*Period"),
-        sign: "."
-    },
-    { id: "space", value: L("ab.dataField.number.space", "*Space"), sign: " " }
-];
-
 var defaultValues = {
     // 'allowRequired': 0,
     default: "",
@@ -118,6 +73,55 @@ module.exports = class ABFieldNumberCore extends ABField {
 
     static defaultValues() {
         return defaultValues;
+    }
+
+    static formatList() {
+        return [
+            { id: "none", value: L("ab.dataField.number.none", "*None") },
+            {
+                id: "dollar",
+                value: L("ab.dataField.number.format.dollar", "$"),
+                sign: "$",
+                position: "prefix"
+            },
+            {
+                id: "pound",
+                value: L("ab.dataField.number.format.pound", "£"),
+                sign: "£",
+                position: "prefix"
+            },
+            {
+                id: "euroBefore",
+                value: L("ab.dataField.number.format.euroBefore", "€ (before)"),
+                sign: "€",
+                position: "prefix"
+            },
+            {
+                id: "euroAfter",
+                value: L("ab.dataField.number.format.euroAfter", "€ (after)"),
+                sign: "€",
+                position: "postfix"
+            },
+            {
+                id: "percent",
+                value: L("ab.dataField.number.format.percent", "%"),
+                sign: "%",
+                position: "postfix"
+            }
+        ];
+    }
+
+    static delimiterList() {
+        return [
+            { id: "none", value: L("ab.dataField.number.none", "*None") },
+            { id: "comma", value: L("ab.dataField.number.comma", "*Comma"), sign: "," },
+            {
+                id: "period",
+                value: L("ab.dataField.number.period", "*Period"),
+                sign: "."
+            },
+            { id: "space", value: L("ab.dataField.number.space", "*Space"), sign: " " }
+        ];
     }
 
     ///
@@ -216,13 +220,13 @@ module.exports = class ABFieldNumberCore extends ABField {
         // Validate number
         if (isNaN(parseFloat(data))) data = 0;
 
-        var formatSign = formatList.filter(
+        var formatSign = this.constructor.formatList().filter(
                 (item) => item.id == this.settings.typeFormat
             )[0],
-            thousandsSign = delimiterList.filter(
+            thousandsSign = this.constructor.delimiterList.filter(
                 (item) => item.id == this.settings.typeThousands
             )[0],
-            decimalSign = delimiterList.filter(
+            decimalSign = this.constructor.delimiterList.filter(
                 (item) => item.id == this.settings.typeDecimals
             )[0],
             decimalPlaces =

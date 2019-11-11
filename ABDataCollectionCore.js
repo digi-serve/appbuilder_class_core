@@ -1532,7 +1532,7 @@ module.exports = class ABViewDataCollectionCore extends ABEmitter {
 
 		// Set filter of data source
 		if (this.__filterDatasource == null)
-			this.__filterDatasource = new ABRowFilter();
+			this.__filterDatasource = new RowFilter();
 
 		this.__filterDatasource.objectLoad(this.datasource);
 		this.__filterDatasource.viewLoad(this);
@@ -1564,7 +1564,7 @@ module.exports = class ABViewDataCollectionCore extends ABEmitter {
 
 		// Set filter of data view
 		if (this.__filterDataview == null)
-			this.__filterDataview = new ABRowFilter();
+			this.__filterDataview = new RowFilter();
 
 		this.__filterDataview.objectLoad(this.datasource);
 		this.__filterDataview.viewLoad(this);

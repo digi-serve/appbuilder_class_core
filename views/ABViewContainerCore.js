@@ -35,22 +35,6 @@ module.exports = class ABViewContainerCore extends ABView {
     }
 
     /**
-     * @method toObj()
-     *
-     * properly compile the current state of this ABView instance
-     * into the values needed for saving to the DB.
-     *
-     * @return {json}
-     */
-    // toObj() {
-
-    // 	var obj = super.toObj();
-
-    // 	return obj;
-
-    // }
-
-    /**
      * @method fromValues()
      *
      * initialze this object with the given set of values.
@@ -59,17 +43,50 @@ module.exports = class ABViewContainerCore extends ABView {
     fromValues(values) {
         super.fromValues(values);
 
-        // convert from "0" => 0
-        this.settings.columns = parseInt(
-            this.settings.columns || ABPropertyComponentDefaults.columns
-        );
+		// convert from "0" => 0
+		this.settings.columns = parseInt(this.settings.columns || ABPropertyComponentDefaults.columns);
 
-        if (typeof this.settings.gravity != "undefined") {
-            this.settings.gravity = this.settings.gravity.map(function(
-                gravity
-            ) {
-                return parseInt(gravity);
-            });
-        }
-    }
+		if (typeof this.settings.gravity != "undefined") {
+			this.settings.gravity.map(function (gravity) {
+				return parseInt(gravity);
+			});
+		}
+
+		if (this.settings.removable != null) {
+			this.settings.removable = JSON.parse(this.settings.removable); // convert to boolean
+		}
+		else {
+			this.settings.removable = true;
+		}
+
+
+		if (this.settings.movable != null) {
+			this.settings.movable = JSON.parse(this.settings.movable); // convert to boolean
+		}
+		else {
+			this.settings.movable = true;
+		}
+
+	}
+
+	viewsSortByPosition() {
+
+		// Sort views from y, x positions
+		return this.views().sort((a, b) => {
+
+			if (a.position.y == b.position.y)
+				return a.position.x - b.position.x;
+			else
+				return a.position.y - b.position.y;
+
+		});
+
+	}
+
+	saveReorder() {
+
+		return this.application.viewReorder(this);
+
+	}
+
 };
