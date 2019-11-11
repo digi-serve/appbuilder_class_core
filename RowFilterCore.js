@@ -628,10 +628,18 @@ module.exports = class RowFilter extends ABComponent {
 
         // insert our 'this object' entry if an Object was given.
         if (this._Object) {
-            this._Fields.unshift({
-                id: "this_object",
-                label: this._Object.label || this._Object.name
-            });
+
+            let thisObjOption = {
+                id: 'this_object',
+                label: _Object.label
+            };
+
+            // If object is query ,then should define default alias: "BASE_OBJECT"
+            if (_Object instanceof ABObjectQuery) {
+                thisObjOption.alias = 'BASE_OBJECT';
+            }
+
+            _Fields.unshift(thisObjOption);
         }
     }
 
