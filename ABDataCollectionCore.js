@@ -168,7 +168,7 @@ module.exports = class ABViewDataCollectionCore extends ABEmitter {
 						this.id = newDataview.id;
 
 					// update data source
-					let updateDataview = this.application.dataviews(dv => dv.id == this.id)[0];
+					let updateDataview = this.application.datacollections(dc => dc.id == this.id)[0];
 					if (updateDataview) {
 
 						if (newDataview.query && newDataview.query[0]) {
@@ -254,7 +254,7 @@ module.exports = class ABViewDataCollectionCore extends ABEmitter {
 		if (!this.application)
 			return null;
 
-		return this.application.dataviews(dv => dv.id == this.settings.linkDataviewID)[0];
+		return this.application.datacollections(dc => dc.id == this.settings.linkDataviewID)[0];
 	}
 
 	/**
@@ -1274,7 +1274,7 @@ module.exports = class ABViewDataCollectionCore extends ABEmitter {
 							rule.rule == "in_data_collection" ||
 							rule.rule == "not_in_data_collection"
 						) {
-							var dv = this.application.dataviews(
+							var dv = this.application.datacollections(
 								(dc) => dc.id == rule.value
 							)[0];
 							if (dv) {
