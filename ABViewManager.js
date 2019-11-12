@@ -5,40 +5,38 @@
  *
  */
 
-var ABView = require("../platform/views/ABView");
-// import ABViewChart from "./views/ABViewChart"
-// import ABViewChartPie from "./views/ABViewChartPie"
-// import ABViewChartBar from "./views/ABViewChartBar"
-// import ABViewChartLine from "./views/ABViewChartLine"
-// import ABViewChartArea from "./views/ABViewChartArea"
-var ABViewContainer = require("../platform/views/ABViewContainer");
-var ABViewPage = require("../platform/views/ABViewPage");
-// import ABViewLabel from "./views/ABViewLabel"
-// import ABViewLayout from "./views/ABViewLayout"
-// import ABViewMenu from "./views/ABViewMenu"
-// import ABViewGrid from "./views/ABViewGrid"
-// import ABViewTab from "./views/ABViewTab"
+const ABView = require("../platform/views/ABView");
+// const ABViewChart = require("../platform/views/ABViewChart");
+// const ABViewChartPie = require("../platform/views/ABViewChartPie");
+// const ABViewChartBar = require("../platform/views/ABViewChartBar");
+// const ABViewChartLine = require("../platform/views/ABViewChartLine");
+// const ABViewChartArea = require("../platform/views/ABViewChartArea");
+const ABViewContainer = require("../platform/views/ABViewContainer");
+const ABViewPage = require("../platform/views/ABViewPage");
+const ABViewLabel = require("../platform/views/ABViewLabel");
+const ABViewLayout = require("../platform/views/ABViewLayout");
+const ABViewMenu = require("../platform/views/ABViewMenu");
+const ABViewGrid = require("../platform/views/ABViewGrid");
+const ABViewTab = require("../platform/views/ABViewTab");
 
-// import ABViewDetail from "./views/ABViewDetail"
-// import ABViewDetailCheckbox from "./views/ABViewDetailCheckbox"
-// import ABViewDetailCustom from "./views/ABViewDetailCustom"
-// import ABViewDetailImage from "./views/ABViewDetailImage"
-// import ABViewDetailSelectivity from "./views/ABViewDetailSelectivity"
-// import ABViewDetailText from "./views/ABViewDetailText"
-// import ABViewDetailTree from "./views/ABViewDetailTree"
+const ABViewDetail = require("../platform/views/ABViewDetail");
+const ABViewDetailCheckbox = require("../platform/views/ABViewDetailCheckbox");
+const ABViewDetailCustom = require("../platform/views/ABViewDetailCustom");
+const ABViewDetailImage = require("../platform/views/ABViewDetailImage");
+const ABViewDetailSelectivity = require("../platform/views/ABViewDetailSelectivity");
+const ABViewDetailText = require("../platform/views/ABViewDetailText");
+const ABViewDetailTree = require("../platform/views/ABViewDetailTree");
 
-// import ABViewForm from "./views/ABViewForm"
-// import ABViewFormButton from "./views/ABViewFormButton"
-// import ABViewFormCheckbox from "./views/ABViewFormCheckbox"
-// import ABViewFormConnect from "./views/ABViewFormConnect"
-// import ABViewFormCustom from "./views/ABViewFormCustom"
-// import ABViewFormDatepicker from "./views/ABViewFormDatepicker"
-// import ABViewFormNumber from "./views/ABViewFormNumber"
-// import ABViewFormSelectSingle from "./views/ABViewFormSelectSingle"
-// import ABViewFormTextbox from "./views/ABViewFormTextbox"
-// import ABViewFormTree from "./views/ABViewFormTree"
-
-// import ABViewFormText from "./views/ABViewFormText"
+// const ABViewForm = require("../platform/views/ABViewForm");
+const ABViewFormButton = require("../platform/views/ABViewFormButton");
+const ABViewFormCheckbox = require("../platform/views/ABViewFormCheckbox");
+// const ABViewFormConnect = require("../platform/views/ABViewFormConnect");
+// const ABViewFormCustom = require("../platform/views/ABViewFormCustom");
+// const ABViewFormDatepicker = require("../platform/views/ABViewFormDatepicker");
+// const ABViewFormNumber = require("../platform/views/ABViewFormNumber");
+// const ABViewFormSelectSingle = require("../platform/views/ABViewFormSelectSingle");
+// const ABViewFormTextbox = require("../platform/views/ABViewFormTextbox");
+// const ABViewFormTree = require("../platform/views/ABViewFormTree");
 
 /*
  * Views
@@ -55,34 +53,33 @@ Views[ABView.common().key] = ABView;
 
 Views[ABViewContainer.common().key] = ABViewContainer;
 Views[ABViewPage.common().key] = ABViewPage;
-// Views[ABViewLabel.common().key] = ABViewLabel;
-// Views[ABViewLayout.common().key] = ABViewLayout;
-// Views[ABViewMenu.common().key] = ABViewMenu;
-// Views[ABViewGrid.common().key] = ABViewGrid;
-// Views[ABViewTab.common().key] = ABViewTab;
+Views[ABViewLabel.common().key] = ABViewLabel;
+Views[ABViewLayout.common().key] = ABViewLayout;
+Views[ABViewMenu.common().key] = ABViewMenu;
+Views[ABViewGrid.common().key] = ABViewGrid;
+Views[ABViewTab.common().key] = ABViewTab;
 
-// Views[ABViewDetail.common().key] = ABViewDetail;
-// Views[ABViewDetailCheckbox.common().key] = ABViewDetailCheckbox;
-// Views[ABViewDetailCustom.common().key] = ABViewDetailCustom;
-// Views[ABViewDetailImage.common().key] = ABViewDetailImage;
-// Views[ABViewDetailSelectivity.common().key] = ABViewDetailSelectivity;
-// Views[ABViewDetailText.common().key] = ABViewDetailText;
-// Views[ABViewDetailTree.common().key] = ABViewDetailTree;
+Views[ABViewDetail.common().key] = ABViewDetail;
+Views[ABViewDetailCheckbox.common().key] = ABViewDetailCheckbox;
+Views[ABViewDetailCustom.common().key] = ABViewDetailCustom;
+Views[ABViewDetailImage.common().key] = ABViewDetailImage;
+Views[ABViewDetailSelectivity.common().key] = ABViewDetailSelectivity;
+Views[ABViewDetailText.common().key] = ABViewDetailText;
+Views[ABViewDetailTree.common().key] = ABViewDetailTree;
 
 // Views[ABViewForm.common().key] = ABViewForm;
-// Views[ABViewFormButton.common().key] = ABViewFormButton;
-// Views[ABViewFormCheckbox.common().key] = ABViewFormCheckbox;
-// Views[ABViewFormConnect.common().key] = ABViewFormConnect;
-// Views[ABViewFormCustom.common().key] = ABViewFormCustom;
+Views[ABViewFormButton.common().key] = ABViewFormButton;
+Views[ABViewFormCheckbox.common().key] = ABViewFormCheckbox;
+Views[ABViewFormConnect.common().key] = ABViewFormConnect;
+Views[ABViewFormCustom.common().key] = ABViewFormCustom;
 // Views[ABViewFormDatepicker.common().key] = ABViewFormDatepicker;
 // Views[ABViewFormNumber.common().key] = ABViewFormNumber;
 // Views[ABViewFormSelectSingle.common().key] = ABViewFormSelectSingle;
 // Views[ABViewFormTextbox.common().key] = ABViewFormTextbox;
 // Views[ABViewFormTree.common().key] = ABViewFormTree;
-// // // Views[ABViewFormText.common().key] = ABViewFormText;
 
 module.exports = {
-    /*
+    /**
      * @function allViews
      * return all the currently defined ABViews in an array.
      * @return [{ABView},...]
@@ -104,7 +101,7 @@ module.exports = {
         return views;
     },
 
-    /*
+    /**
      * @function newView
      * return an instance of an ABView based upon the values.key value.
      * @return {ABView}

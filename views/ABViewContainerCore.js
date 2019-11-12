@@ -7,17 +7,22 @@
  *
  */
 
-var ABView = require("../../platform/views/ABView");
+const ABView = require("../../platform/views/ABView");
 
 // function L(key, altText) {
 // 	return AD.lang.label.getLabel(key) || altText;
 // }
 
-var ABViewDefaults = {
+const ABViewDefaults = {
     key: "viewcontainer", // {string} unique key for this view
     icon: "braille", // {string} fa-[icon] reference for this view
     labelKey: "ab.components.container" // {string} the multilingual label key for the class label
 };
+
+const ABPropertyComponentDefaults = {
+	columns: 1,
+	gravity: 1
+}
 
 module.exports = class ABViewContainerCore extends ABView {
     /**
@@ -32,7 +37,11 @@ module.exports = class ABViewContainerCore extends ABView {
 
     static common() {
         return ABViewDefaults;
-    }
+	}
+
+	static defaultValues() {
+		return ABPropertyComponentDefaults;
+	}
 
     /**
      * @method fromValues()

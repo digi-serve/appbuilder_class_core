@@ -10,21 +10,30 @@
  *
  */
 
-var ABViewContainer = require("../../platform/views/ABViewContainer");
+const ABViewContainer = require("../../platform/views/ABViewContainer");
 // var ABViewManager = require("../ABViewManager");
 
 // function L(key, altText) {
 //     return AD.lang.label.getLabel(key) || altText;
 // }
 
-var ABViewDefaults = {
+const ABViewDefaults = {
     key: "page", // unique key identifier for this ABView
     icon: "file" // icon reference: (without 'fa-' )
 };
 
+const ABPropertyComponentDefaults = {
+	type: 'page', // 'page', 'popup' or 'reportPage'
+	popupWidth: 700,
+	popupHeight: 450,
+	pageWidth: null,
+	fixedPageWidth: 0,
+	pageBackground: "ab-background-default"
+}
+
 module.exports = class ABViewPageCore extends ABViewContainer {
-    constructor(values, application, parent) {
-        super(values, application, parent, ABViewDefaults);
+    constructor(values, application, parent, defaultValues) {
+        super(values, application, parent, defaultValues || ABViewDefaults);
 
         // 	{
         // 		id:'uuid',					// uuid value for this obj
@@ -46,6 +55,10 @@ module.exports = class ABViewPageCore extends ABViewContainer {
 
     static common() {
         return ABViewDefaults;
+    }
+
+    static defaultValues() {
+        return ABPropertyComponentDefaults;
     }
 
     static getPageActionKey(view) {

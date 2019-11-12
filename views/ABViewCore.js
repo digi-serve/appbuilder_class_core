@@ -7,13 +7,17 @@
  *
  */
 
-var ABEmitter = require("../../platform/ABEmitter");
+const ABEmitter = require("../../platform/ABEmitter");
 
-var ABViewDefaults = {
+const ABViewDefaults = {
     key: "view", // {string} unique key for this view
     icon: "window-maximize", // {string} fa-[icon] reference for this view
     labelKey: "ab.components.view", // {string} the multilingual label key for the class label
     tabicon: "" // no default tab icons
+};
+
+const ABViewPropertyComponentDefaults = {
+	label: ''
 };
 
 module.exports = class ABViewCore extends ABEmitter {
@@ -39,6 +43,10 @@ module.exports = class ABViewCore extends ABEmitter {
 
     static common() {
         return ABViewDefaults;
+    }
+
+    static defaultValues() {
+        return ABViewPropertyComponentDefaults;
     }
 
     /**
