@@ -61,7 +61,7 @@ module.exports = class ABViewGridCore extends ABViewWidget {
 	 */
 	constructor(values, application, parent, defaultValues) {
 
-		super(values, application, parent, defaultValues || ABMenuDefaults);
+		super(values, application, parent, defaultValues || ABViewDefaults);
 
 	}
 

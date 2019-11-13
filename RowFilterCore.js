@@ -622,7 +622,7 @@ module.exports = class RowFilter extends ABComponent {
     objectLoad(object) {
         this._Object = object;
         this._Fields = this._Object
-            ? this._Object.fields((f) => f.fieldIsFilterable())
+            ? this._Object.fields((f) => f && f.fieldIsFilterable())
             : [];
         this._QueryFields = this._Object ? this._Object.connectFields() : [];
 
@@ -631,11 +631,11 @@ module.exports = class RowFilter extends ABComponent {
 
             let thisObjOption = {
                 id: 'this_object',
-                label: _Object.label
+                label: this._Object.label
             };
 
             // If object is query ,then should define default alias: "BASE_OBJECT"
-            if (_Object instanceof ABObjectQuery) {
+            if (this._Object instanceof ABObjectQuery) {
                 thisObjOption.alias = 'BASE_OBJECT';
             }
 

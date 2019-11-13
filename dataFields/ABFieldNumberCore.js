@@ -223,10 +223,10 @@ module.exports = class ABFieldNumberCore extends ABField {
         var formatSign = this.constructor.formatList().filter(
                 (item) => item.id == this.settings.typeFormat
             )[0],
-            thousandsSign = this.constructor.delimiterList.filter(
+            thousandsSign = this.constructor.delimiterList().filter(
                 (item) => item.id == this.settings.typeThousands
             )[0],
-            decimalSign = this.constructor.delimiterList.filter(
+            decimalSign = this.constructor.delimiterList().filter(
                 (item) => item.id == this.settings.typeDecimals
             )[0],
             decimalPlaces =

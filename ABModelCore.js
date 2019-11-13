@@ -54,7 +54,7 @@ module.exports = class ABModelCore {
         var shouldTranslate = false;
         if (mlFields.length) {
             mlFields.forEach(function(field) {
-                if (typeof values[field] != "undefined") {
+                if (values[field] != null) {
                     shouldTranslate = true;
                 }
             });
@@ -220,41 +220,41 @@ module.exports = class ABModelCore {
     }
 
     /**
-	 * @method findConnected
-	 * return the connected data associated with an instance of this model.
-	 *
-	 * to limit the result to only a single connected column:
-	 * 		model.findConnected( 'col1', {data})
-	 *		then ((data) => {
-	 *			// data = [{obj1}, {obj2}, ... {objN}]
-	 *		})
-	 *
-	 * To find >1 connected field data:
-	 *		model.findConnected( ['col1', 'col2'], {data} )
-	 *		.then((data) =>{
-	 *		
-	 *			// data = {
-	 *			//	   col1 : [{obj1}, {obj2}, ... {objN}],
-	 *			//     col2 : [{obj1}, {obj2}, ... {objN}]
-	 *			// }
-	 *		})
-	 *
-	 * To find all connected field data:
-	 *		model.findConnected( {data} )
-	 *		.then((data) =>{
-	 *		
-	 *			// data = {
-	 *			//	   connectedColName1 : [{obj1}, {obj2}, ... {objN}],
-	 *			//     connectedColName2 : [{obj1}, {obj2}, ... {objN}],
-	 *			//		...
-	 *			//     connectedColNameN : [{obj1}, {obj2}, ... {objN}]
-	 *			// }
-	 *		})
+     * @method findConnected
+     * return the connected data associated with an instance of this model.
+     *
+     * to limit the result to only a single connected column:
+     * 		model.findConnected( 'col1', {data})
+     *		then ((data) => {
+     *			// data = [{obj1}, {obj2}, ... {objN}]
+     *		})
+     *
+     * To find >1 connected field data:
+     *		model.findConnected( ['col1', 'col2'], {data} )
+     *		.then((data) =>{
+     *		
+     *			// data = {
+     *			//	   col1 : [{obj1}, {obj2}, ... {objN}],
+     *			//     col2 : [{obj1}, {obj2}, ... {objN}]
+     *			// }
+     *		})
+     *
+     * To find all connected field data:
+     *		model.findConnected( {data} )
+     *		.then((data) =>{
+     *		
+     *			// data = {
+     *			//	   connectedColName1 : [{obj1}, {obj2}, ... {objN}],
+     *			//     connectedColName2 : [{obj1}, {obj2}, ... {objN}],
+     *			//		...
+     *			//     connectedColNameN : [{obj1}, {obj2}, ... {objN}]
+     *			// }
+     *		})
 
-	 * @param {string/array} fields  [optional] an array of connected fields you want to return.
-	 * @param {obj} data  the current object instance (data) to lookup
-	 * @return {Promise}
-	 */
+     * @param {string/array} fields  [optional] an array of connected fields you want to return.
+     * @param {obj} data  the current object instance (data) to lookup
+     * @return {Promise}
+     */
     findConnected(fields, data) {
         if (typeof data == "undefined") {
             if (!Array.isArray(fields) && typeof fields == "object") {
@@ -544,31 +544,36 @@ module.exports = class ABModelCore {
     }
 
     normalizeData(data) {
-        // convert to array
-        if (!(data instanceof Array)) data = [data];
 
+        // convert to array
+        if (!(data instanceof Array))
+            data = [data];
+            
         // find all connected fields
         var connectedFields = this.object.connectFields();
 
         // if this object has some multilingual fields, translate the data:
         var mlFields = this.object.multilingualFields();
-
+        
         // if this object has some date fields, convert the data to date object:
-        var dateFields =
-            this.object.fields(function(f) {
-                return f.key == "date";
-            }) || [];
-
+        var dateFields = this.object.fields(function(f) { return f.key == 'date'; }) || [];
+    
         data.forEach((d) => {
             if (d == null) return;
 
             // various PK name
-            if (this.object.PK() != "id") d.id = d[this.object.PK()];
+            if (!d.id && this.object.PK() != 'id')
+                d.id = d[this.object.PK()];
 
             // loop through data's connected fields
             connectedFields.forEach((c) => {
+
                 // get the relation name so we can change the original object
                 var relationName = c.relationName();
+
+                // if (d[c.columnName] == null)
+                // 	d[c.columnName] = '';
+
                 // if there is no data we can exit now
                 if (d[relationName] == null) return;
 
@@ -582,50 +587,73 @@ module.exports = class ABModelCore {
                 if (Array.isArray(d[relationName])) {
                     d[relationName].forEach((r) => {
                         // if translations are present and they are still a string
-                        if (
-                            r.translations &&
-                            typeof r.translations == "string"
-                        ) {
+                        if (r.translations && typeof r.translations == "string") {
                             // parse the string into an object
                             r.translations = JSON.parse(r.translations);
                         }
                     });
-                } else {
-                    // if the data is not an array it is a single item...check that has translations and it is a string
-                    if (
-                        d[relationName].translations &&
-                        typeof d[relationName].translations == "string"
-                    ) {
-                        // if so parse the string into an object
-                        d[relationName].translations = JSON.parse(
-                            d[relationName].translations
-                        );
-                    }
+                // if the data is not an array it is a single item...check that has translations and it is a string
+                } 
+                else if (d[relationName].translations  && typeof d[relationName].translations == "string") {
+                    // if so parse the string into an object
+                    d[relationName].translations = JSON.parse(d[relationName].translations);
                 }
+
 
                 // set .id to relation columns
                 let objectLink = c.datasourceLink;
-                if (objectLink.PK() != "id" && d[relationName]) {
-                    // is array
-                    if (d[relationName].forEach) {
-                        d[relationName].forEach((subData) => {
-                            subData.id = subData[objectLink.PK()];
-                        });
-                    } else {
-                        d[relationName].id = d[relationName][objectLink.PK()];
+                if (objectLink &&
+                    objectLink.PK() != 'id' &&
+                    d[relationName] &&
+                    !d[relationName].id) {
+
+                        // is array
+                        if (d[relationName].forEach) {
+                            d[relationName].forEach(subData => {
+
+                                if (subData[objectLink.PK()])
+                                    subData.id = subData[objectLink.PK()];
+
+                            })
+                        }
+                        else if (d[relationName][objectLink.PK()]) {
+
+                            d[relationName].id = d[relationName][objectLink.PK()];
+
+                        }
+
                     }
-                }
+
+                // Change property name of connected field
+                if (!d[c.columnName])
+                    d[c.columnName] = d[relationName];
+
             });
+
 
             if (mlFields.length) {
                 this.object.application.translate(d, d, mlFields);
             }
 
+
             // convert the data to date object
             dateFields.forEach((date) => {
-                if (d && d[date.columnName] != null)
-                    d[date.columnName] = new Date(d[date.columnName]);
+                if (d && d[date.columnName] != null) {
+                    // check to see if data has already been converted to a date object
+                    if ( typeof d[date.columnName] == "string" ) {
+                        if (date.settings.timeFormatValue == 1) {
+                            // if we are ignoring the time it means we ignore timezone as well 
+                            // so lets trim that off when creating the date so it can be a simple date
+                            d[date.columnName] = new Date(moment(d[date.columnName].replace(/\T.*/,'')).format('MM/DD/YYYY 00:00:00'));
+                        } else {
+                            d[date.columnName] = new Date(moment(d[date.columnName].replace(/\Z.*/,'')).format('MM/DD/YYYY HH:mm:ss'));
+                        }
+                    }
+                } 
             });
+
+
         });
+
     }
 };

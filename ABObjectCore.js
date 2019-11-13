@@ -264,7 +264,7 @@ module.exports = class ABObjectCore extends ABEmitter {
      */
     connectFields (getAll = false) {
 
-        return this.fields(f => f.key == 'connectObject', getAll);
+        return this.fields(f => f && f.key == 'connectObject', getAll);
     }
 
     /**
