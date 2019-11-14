@@ -234,7 +234,8 @@ module.exports = class ABObjectCore extends ABEmitter {
         if (this.application) {
 
             let availableConnectFn = (f) => {
-                if (f.key == 'connectObject' &&
+                if (f && 
+                    f.key == 'connectObject' &&
                     this.application &&
                     this.application.objects(obj => obj.id == f.settings.linkObject).length < 1) {
 
@@ -364,16 +365,7 @@ module.exports = class ABObjectCore extends ABEmitter {
      * @return {array}
      */
     multilingualFields() {
-        var fields = [];
-
-        var found = this.fields(function(f) {
-            return f.isMultilingual;
-        });
-        found.forEach((f) => {
-            fields.push(f.columnName);
-        });
-
-        return fields;
+        return this.fields(f => f && f.isMultilingual).map(f => f.columnName);
     }
 
     ///

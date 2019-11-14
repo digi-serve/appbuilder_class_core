@@ -473,7 +473,7 @@ module.exports = class ABObjectQueryCore extends ABObject {
         this._model = new ABModel(this);
 
         // default the context of this model's operations to this object
-        this._model.contextKey(ABObjectQuery.contextKey());
+        this._model.contextKey(this.constructor.contextKey());
         this._model.contextValues({ id: this.id }); // the datacollection.id
         // }
 

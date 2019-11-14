@@ -4,7 +4,7 @@ const ABViewWidget = require("../../platform/views/ABViewWidget");
 const ABViewGridPropertyComponentDefaults = {
 	label: '',	// label is required and you can add more if the component needs them
 	// format:0  	// 0 - normal, 1 - title, 2 - description
-	dataviewID: '', // uuid of ABDataview
+	dataviewID: '', // uuid of ABDatacollection
 	isEditable: 0,
 	massUpdate: 0,
 	allowDelete: 0,

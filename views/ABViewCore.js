@@ -287,6 +287,21 @@ module.exports = class ABViewCore extends ABEmitter {
         return this.urlPointer() + "/_views/";
     }
 
+	/**
+	 * @property datacollection
+	 * return data source
+	 * 
+	 * @return {ABDataCollection}
+	 */
+	get datacollection() {
+
+		let dataviewID = (this.settings || {}).dataviewID;
+		if (!dataviewID) return null;
+
+		return this.application.datacollections(dc => dc.id == dataviewID)[0];
+	}
+
+
     ///
     /// Views
     ///

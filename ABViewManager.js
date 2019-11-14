@@ -6,27 +6,27 @@
  */
 
 const ABView = require("../platform/views/ABView");
+const ABViewCarousel = require("../platform/views/ABViewCarousel");
 const ABViewChart = require("../platform/views/ABViewChart");
 const ABViewChartPie = require("../platform/views/ABViewChartPie");
 const ABViewChartBar = require("../platform/views/ABViewChartBar");
 const ABViewChartLine = require("../platform/views/ABViewChartLine");
 const ABViewChartArea = require("../platform/views/ABViewChartArea");
-// const ABViewComment = require("./views/ABViewComment");
-// const ABViewConditionalContainer = require("./views/ABViewConditionalContainer");
+const ABViewComment = require("../platform/views/ABViewComment");
+const ABViewConditionalContainer = require("../platform/views/ABViewConditionalContainer");
 const ABViewContainer = require("../platform/views/ABViewContainer");
-// const ABViewDocxBuilder = require("./views/ABViewDocxBuilder");
-// const ABViewDataview = require("./views/ABViewDataview");
+const ABViewDocxBuilder = require("../platform/views/ABViewDocxBuilder");
 const ABViewPage = require("../platform/views/ABViewPage");
-// const ABViewPivot = require("./views/ABViewPivot");
+// const ABViewPivot = require("../platform/views/ABViewPivot");
 const ABViewLabel = require("../platform/views/ABViewLabel");
 const ABViewLayout = require("../platform/views/ABViewLayout");
-// const ABViewList = require("./views/ABViewList");
+// const ABViewList = require("../platform/views/ABViewList");
 const ABViewMenu = require("../platform/views/ABViewMenu");
 const ABViewGrid = require("../platform/views/ABViewGrid");
-// const ABViewImage = require("./views/ABViewImage");
+// const ABViewImage = require("../platform/views/ABViewImage");
 const ABViewTab = require("../platform/views/ABViewTab");
-// const ABViewText = require("./views/ABViewText");
-// const ABViewKanban = require("./views/ABViewKanban");
+// const ABViewText = require("../platform/views/ABViewText");
+// const ABViewKanban = require("../platform/views/ABViewKanban");
 
 const ABViewDetail = require("../platform/views/ABViewDetail");
 const ABViewDetailCheckbox = require("../platform/views/ABViewDetailCheckbox");
@@ -44,7 +44,7 @@ const ABViewFormCustom = require("../platform/views/ABViewFormCustom");
 const ABViewFormDatepicker = require("../platform/views/ABViewFormDatepicker");
 const ABViewFormNumber = require("../platform/views/ABViewFormNumber");
 const ABViewFormSelectSingle = require("../platform/views/ABViewFormSelectSingle");
-// const ABViewFormReadonly = require("./views/ABViewFormReadonly");
+// const ABViewFormReadonly = require("../platform/views/ABViewFormReadonly");
 const ABViewFormTextbox = require("../platform/views/ABViewFormTextbox");
 const ABViewFormTree = require("../platform/views/ABViewFormTree");
 
@@ -55,18 +55,17 @@ const ABViewFormTree = require("../platform/views/ABViewFormTree");
 var Views = {};
 Views[ABView.common().key] = ABView;
 
-// Views[ABViewCarousel.common().key] = ABViewCarousel;
+Views[ABViewCarousel.common().key] = ABViewCarousel;
 Views[ABViewChart.common().key] = ABViewChart;
 Views[ABViewChartPie.common().key] = ABViewChartPie;
 Views[ABViewChartBar.common().key] = ABViewChartBar;
 Views[ABViewChartLine.common().key] = ABViewChartLine;
 Views[ABViewChartArea.common().key] = ABViewChartArea;
 
-// Views[ABViewComment.common().key] = ABViewComment;
-// Views[ABViewConditionalContainer.common().key] = ABViewConditionalContainer;
+Views[ABViewComment.common().key] = ABViewComment;
+Views[ABViewConditionalContainer.common().key] = ABViewConditionalContainer;
 Views[ABViewContainer.common().key] = ABViewContainer;
-// Views[ABViewDataview.common().key] = ABViewDataview;
-// Views[ABViewDocxBuilder.common().key] = ABViewDocxBuilder;
+Views[ABViewDocxBuilder.common().key] = ABViewDocxBuilder;
 Views[ABViewPage.common().key] = ABViewPage;
 // Views[ABViewPivot.common().key] = ABViewPivot;
 Views[ABViewLabel.common().key] = ABViewLabel;

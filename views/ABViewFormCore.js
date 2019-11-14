@@ -181,7 +181,7 @@ module.exports = class ABViewFormCore extends ABViewContainer {
 
 	doRecordRules(rowData) {
 
-		var object = this.dataview.datasource;
+		var object = this.datacollection.datasource;
 
 		var RecordRules = new ABRecordRule();
 		RecordRules.formLoad(this);
@@ -194,7 +194,7 @@ module.exports = class ABViewFormCore extends ABViewContainer {
 
 	doSubmitRules(rowData) {
 
-		var object = this.dataview.datasource;
+		var object = this.datacollection.datasource;
 		
 		var SubmitRules = new ABSubmitRule();
 		SubmitRules.formLoad(this);

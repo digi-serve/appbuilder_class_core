@@ -80,7 +80,7 @@ module.exports = class ABViewChartCore extends ABViewContainer {
 	}
 
 	labelField() {
-		var dv = this.dataview;
+		var dv = this.datacollection;
 		if (!dv) return null;
 
 		var obj = dv.datasource;
@@ -90,7 +90,7 @@ module.exports = class ABViewChartCore extends ABViewContainer {
 	}
 
 	valueField() {
-		var dv = this.dataview;
+		var dv = this.datacollection;
 		if (!dv) return null;
 
 		var obj = dv.datasource;
@@ -100,7 +100,7 @@ module.exports = class ABViewChartCore extends ABViewContainer {
 	}
 
 	valueField2() {
-		var dv = this.dataview;
+		var dv = this.datacollection;
 		if (!dv) return null;
 
 		var obj = dv.datasource;

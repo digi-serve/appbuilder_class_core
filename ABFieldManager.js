@@ -76,6 +76,7 @@ module.exports = {
                 console.log("Requested field", values.key);
             }
         } else {
+            alert(values.key);
             //// TODO: what to do here?
         }
     }

@@ -1,3 +1,6 @@
+const ABComponent = require("../platform/ABComponent");
+const ABObjectQuery = require("../platform/ABObjectQuery");
+
 /**
  *  support get data from objects and queries
  */
@@ -11,7 +14,6 @@ function getFieldVal(rowData, columnName) {
         return rowData[columnName];
     }
 }
-var ABComponent = require("../platform/ABComponent");
 
 module.exports = class RowFilter extends ABComponent {
     constructor(App, idBase) {
@@ -639,7 +641,7 @@ module.exports = class RowFilter extends ABComponent {
                 thisObjOption.alias = 'BASE_OBJECT';
             }
 
-            _Fields.unshift(thisObjOption);
+            this._Fields.unshift(thisObjOption);
         }
     }
 

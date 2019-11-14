@@ -28,10 +28,10 @@ module.exports = class ABViewFormComponentCore extends ABView {
 		}
 		else {
 
-			let dataview = form.dataview;
-			if (dataview == null) return null;
+			let datacollection = form.datacollection;
+			if (datacollection == null) return null;
 
-			object = dataview.datasource;
+			object = datacollection.datasource;
 		}
 
 		if (object == null) return null;
