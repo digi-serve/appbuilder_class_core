@@ -98,13 +98,13 @@ Views[ABViewFormReadonly.common().key] = ABViewFormReadonly;
 Views[ABViewFormTextbox.common().key] = ABViewFormTextbox;
 Views[ABViewFormTree.common().key] = ABViewFormTree;
 
-module.exports = {
+module.exports = class ABViewManagerCore {
     /**
      * @function allViews
      * return all the currently defined ABViews in an array.
      * @return [{ABView},...]
      */
-    allViews: function(fn) {
+    static allViews(fn) {
         fn =
             fn ||
             function() {
@@ -119,14 +119,14 @@ module.exports = {
             }
         }
         return views;
-    },
+    }
 
     /**
      * @function newView
      * return an instance of an ABView based upon the values.key value.
      * @return {ABView}
      */
-    newView: function(values, application, parent) {
+    static newView(values, application, parent) {
         parent = parent || null;
 
         //		if ((values.key) && (Views[values.key])) {
@@ -151,4 +151,5 @@ module.exports = {
             return null;
         }
     }
+
 };

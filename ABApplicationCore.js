@@ -22,11 +22,11 @@
 
 // webpack can handle 'require()' statements, but node can't handle import
 // so let's use require():
-var ABObject = require("../platform/ABObject");
-var ABFieldManager = require("./ABFieldManager");
-var ABViewManager = require("./ABViewManager");
-var ABViewPageCore = require("./views/ABViewPageCore");
-var ABQLManager = require("./ABQLManager");
+const ABObject = require("../platform/ABObject");
+const ABFieldManager = require("./ABFieldManager");
+const ABViewManager = require("../platform/ABViewManager");
+// const ABViewPageCore = require("./views/ABViewPageCore");
+const ABQLManager = require("./ABQLManager");
 
 module.exports = class ABApplicationCore {
     constructor(attributes) {
@@ -609,7 +609,8 @@ module.exports = class ABApplicationCore {
     pageNew(values) {
 
         // make sure this is an ABViewPage description
-        values.key = ABViewPageCore.common().key;
+        // values.key = ABViewPageCore.common().key;
+        values.key = "page";
 
         return ABViewManager.newView(values, this, null);
     }

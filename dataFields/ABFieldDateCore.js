@@ -26,7 +26,16 @@ var ABFieldDateDefaults = {
         "*Pick one from a calendar."
     ),
 
-    supportRequire: true
+	supportRequire: true,
+	
+	// what types of Sails ORM attributes can be imported into this data type?
+	// http://sailsjs.org/documentation/concepts/models-and-orm/attributes#?attribute-options
+	compatibleOrmTypes: ['date', 'datetime'],
+
+
+	// what types of MySql column types can be imported into this data type?
+	// https://www.techonthenet.com/mysql/datatypes.php
+	compatibleMysqlTypes: ['date', 'datetime']
 };
 
 var defaultValues = {

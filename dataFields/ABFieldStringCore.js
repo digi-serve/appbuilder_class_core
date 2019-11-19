@@ -25,7 +25,15 @@ var ABFieldStringDefaults = {
     // description: what gets displayed in the Editor description.
     description: L("ab.dataField.string.description", "*short string value"),
 
-    supportRequire: true
+    supportRequire: true,
+
+	// what types of Sails ORM attributes can be imported into this data type?
+	// http://sailsjs.org/documentation/concepts/models-and-orm/attributes#?attribute-options
+	compatibleOrmTypes: ['string'],
+
+	// what types of MySql column types can be imported into this data type?
+	// https://www.techonthenet.com/mysql/datatypes.php
+	compatibleMysqlTypes: ['char', 'varchar', 'tinytext']
 };
 
 var defaultValues = {

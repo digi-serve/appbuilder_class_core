@@ -34,7 +34,15 @@ var ABFieldFormulaDefaults = {
 
 		// Not support calculate field in query
 		return fieldLink.key !== "calculate";
-	}
+	},
+
+	// what types of Sails ORM attributes can be imported into this data type?
+	// http://sailsjs.org/documentation/concepts/models-and-orm/attributes#?attribute-options
+	compatibleOrmTypes: [],
+
+	// what types of MySql column types can be imported into this data type?
+	// https://www.techonthenet.com/mysql/datatypes.php
+	compatibleMysqlTypes: []
 
 };
 

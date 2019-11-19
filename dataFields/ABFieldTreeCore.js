@@ -29,7 +29,11 @@ var ABFieldTreeDefaults = {
     isFilterable: false,
     useAsLabel: false,
 
-    supportRequire: false
+    supportRequire: false,
+
+	// what types of Sails ORM attributes can be imported into this data type?
+	// http://sailsjs.org/documentation/concepts/models-and-orm/attributes#?attribute-options
+	compatibleOrmTypes: []
 };
 
 var defaultValues = {

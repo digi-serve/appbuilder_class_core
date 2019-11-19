@@ -36,7 +36,9 @@ module.exports = class ABFieldCore {
 
         this.fromValues(values);
 
-        this.object.application.translate(this, this, ["label"]);
+        if (this.object && 
+            this.object.application)
+            this.object.application.translate(this, this, ["label"]);
     }
 
     ///
@@ -226,6 +228,7 @@ module.exports = class ABFieldCore {
         this.isImported = parseInt(this.isImported);
         this.settings.showIcon = parseInt(this.settings.showIcon);
         this.settings.required = parseInt(this.settings.required);
+        this.settings.unique = parseInt(this.settings.unique || 0);
         this.settings.width = parseInt(this.settings.width);
 
 		// we're responsible for setting up our specific settings:

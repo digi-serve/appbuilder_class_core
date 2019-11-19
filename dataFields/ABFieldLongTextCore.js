@@ -28,7 +28,16 @@ var ABFieldLongTextDefaults = {
         "*Multiple lines of text"
     ),
 
-    supportRequire: true
+    supportRequire: true,
+
+	// what types of Sails ORM attributes can be imported into this data type?
+	// http://sailsjs.org/documentation/concepts/models-and-orm/attributes#?attribute-options
+	compatibleOrmTypes: ['longtext', 'mediumtext', 'text'],
+
+	// what types of MySql column types can be imported into this data type?
+	// https://www.techonthenet.com/mysql/datatypes.php
+	compatibleMysqlTypes: ['text', 'mediumtext', 'longtext']
+
 };
 
 // defaultValues: the keys must match a .name of your elements to set it's default value.
@@ -74,6 +83,8 @@ module.exports = class ABFieldLongText extends ABField {
 	fromValues(values) {
 
 		super.fromValues(values);
+
+		this.settings.default = values.settings.default || '';
 
 		// we're responsible for setting up our specific settings:
 		this.settings.supportMultilingual = values.settings.supportMultilingual+"" || defaultValues.supportMultilingual;

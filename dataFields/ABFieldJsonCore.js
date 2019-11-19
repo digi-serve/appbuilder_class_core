@@ -20,7 +20,15 @@ var ABFieldJsonDefaults = {
 	menuName: L('ab.dataField.json.menuName', '*JSON'),
 
 	// description: what gets displayed in the Editor description.
-	description: L('ab.dataField.json.description', '*JSON value')
+	description: L('ab.dataField.json.description', '*JSON value'),
+
+	// what types of Sails ORM attributes can be imported into this data type?
+	// http://sailsjs.org/documentation/concepts/models-and-orm/attributes#?attribute-options
+	compatibleOrmTypes: ['json'],
+
+	// what types of MySql column types can be imported into this data type?
+	// https://www.techonthenet.com/mysql/datatypes.php
+	compatibleMysqlTypes: ['json']
 
 };
 

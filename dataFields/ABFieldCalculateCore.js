@@ -191,7 +191,16 @@ var ABFieldCalculateDefaults = {
     description: L("ab.dataField.calculate.description", "*"),
 
     isSortable: false,
-    isFilterable: false // this field does not support filter on server side
+	isFilterable: false, // this field does not support filter on server side
+
+	// what types of Sails ORM attributes can be imported into this data type?
+	// http://sailsjs.org/documentation/concepts/models-and-orm/attributes#?attribute-options
+	compatibleOrmTypes: [],
+
+	// what types of MySql column types can be imported into this data type?
+	// https://www.techonthenet.com/mysql/datatypes.php
+	compatibleMysqlTypes: []
+
 };
 
 var defaultValues = {
