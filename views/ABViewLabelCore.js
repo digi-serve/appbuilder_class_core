@@ -80,7 +80,7 @@ module.exports = class ABViewLabelCore extends ABViewWidget {
 		// convert from "0" => 0
 		this.settings.format = parseInt(this.settings.format);
 
-		application.translate(this, this, ['text']);
+		this.application.translate(this, this, ['text']);
 
 	}
 
