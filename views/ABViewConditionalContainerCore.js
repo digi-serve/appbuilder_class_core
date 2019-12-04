@@ -31,14 +31,14 @@ module.exports = class ABViewConditionalContainerCore extends ABViewContainer {
 			this._views.push(ifPanel);
 
 			// 'Else' panel
-			var ifPanel = application.viewNew({
+			var elsePanel = application.viewNew({
 				key: ABViewContainer.common().key,
 				label: 'Else',
 				settings: {
 					removable: false
 				}
 			}, application, this);
-			this._views.push(ifPanel);
+			this._views.push(elsePanel);
 
 		}
 

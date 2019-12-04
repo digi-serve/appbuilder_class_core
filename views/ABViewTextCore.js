@@ -97,7 +97,7 @@ module.exports = class ABViewTextCore extends ABViewWidget {
 	}
 
 
-	displayText(val) {
+	displayText(val, componentID) {
 
 		var result = this.text;
 
@@ -122,12 +122,22 @@ module.exports = class ABViewTextCore extends ABViewWidget {
 			}	
 			var data = prepend + f.format(rowData) || "???"; // "???" default value 
 
+			if (data == prepend && f.key == "image" && f.settings.defaultImageUrl && f.settings.useDefaultImage) {
+				console.log(f.settings);
+				data = prepend + f.settings.defaultImageUrl;
+				result = result.replace("img", "img onload='AD.comm.hub.publish(\"component.adjust\", {\"containerID\": \""+componentID+"\"});' ");
+			} else if (f.format(rowData) != "" && f.key == "image" && result.indexOf("onload") == -1 && componentID) {
+				result = result.replace("img", "img onload='AD.comm.hub.publish(\"component.adjust\", {\"containerID\": \""+componentID+"\"});' ");
+			} else if (f.key == "image") {
+				result = result.replace("img", "img onerror='this.parentNode.removeChild(this);' ");
+			}
+
 			result = result.replace(template, data);
 
 		});
 
 
-		return clearTemplateValue(result);
+		return result;
 	}
 
 

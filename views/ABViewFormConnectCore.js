@@ -49,7 +49,6 @@ module.exports = class ABViewFormConnectCore extends ABViewFormCustom {
 
 		super.fromValues(values);
 
-		this.settings.formView = this.settings.formView || ABViewFormConnectPropertyComponentDefaults.formView;
 		this.settings.objectWorkspace = this.settings.objectWorkspace || ABViewFormConnectPropertyComponentDefaults.objectWorkspace;
 
 	}

@@ -225,7 +225,7 @@ module.exports = class RowFilter extends ABComponent {
 
                 var value = getFieldVal(rowData, columnName);
 
-                if (Array.isArray(value)) value = [value];
+                // if (Array.isArray(value)) value = [value];
 
                 switch (rule) {
                     case "is_current_user":
@@ -233,6 +233,20 @@ module.exports = class RowFilter extends ABComponent {
                         break;
                     case "is_not_current_user":
                         result = value != this.Account.username;
+                        break;
+                    case "contain_current_user":
+
+                        if (!Array.isArray(value))
+                            value = [value];
+
+                        result = (value || []).filter(v => (v.id || v) == this.Account.username).length > 0;
+                        break;
+                    case "not_contain_current_user":
+
+                        if (!Array.isArray(value))
+                            value = [value];
+
+                        result = (value || []).filter(v => (v.id || v) == this.Account.username).length < 1;
                         break;
                     case "equals":
                         result = value.indexOf(compareValue) > -1;
@@ -402,6 +416,8 @@ module.exports = class RowFilter extends ABComponent {
                         break;
                     case "is_current_user":
                     case "is_not_current_user":
+                    case "contain_current_user":
+                    case "not_contain_current_user":
                         return _logic.userValid(
                             rowData,
                             columnName,
