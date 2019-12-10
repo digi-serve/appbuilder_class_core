@@ -1,10 +1,10 @@
-const ABViewWidget = require("../../platform/views/ABViewWidget");
+const ABViewChartComponent = require("../../platform/views/ABViewChartComponent");
 
 const ABViewChartAreaPropertyComponentDefaults = {
 	areaType: 'area',
 	isLegend: true,
 	// chartWidth: 600,
-	// chartHeight: 400,
+	chartHeight: 0,
 	labelFontSize: 12,
 	stepValue: 20,
 	maxValue: 100,
@@ -16,7 +16,7 @@ const ABViewDefaults = {
 	labelKey: 'ab.components.chart.area' // {string} the multilingual label key for the class label
 }
 
-module.exports = class ABViewChartAreaCore extends ABViewWidget {
+module.exports = class ABViewChartAreaCore extends ABViewChartComponent {
 
 	constructor(values, application, parent, defaultValues) {
 
@@ -49,7 +49,7 @@ module.exports = class ABViewChartAreaCore extends ABViewWidget {
 		this.settings.isLegend = JSON.parse(this.settings.isLegend || ABViewChartAreaPropertyComponentDefaults.isLegend);
 
 		// this.settings.chartWidth = parseInt(this.settings.chartWidth || ABViewChartAreaPropertyComponentDefaults.chartWidth);
-		// this.settings.chartHeight = parseInt(this.settings.chartHeight || ABViewChartAreaPropertyComponentDefaults.chartHeight);
+		this.settings.chartHeight = parseInt(this.settings.chartHeight || ABViewChartAreaPropertyComponentDefaults.chartHeight);
 
 		this.settings.labelFontSize = parseInt(this.settings.labelFontSize || ABViewChartAreaPropertyComponentDefaults.labelFontSize);
 		this.settings.stepValue = parseInt(this.settings.stepValue || ABViewChartAreaPropertyComponentDefaults.stepValue);

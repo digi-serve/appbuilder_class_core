@@ -50,7 +50,7 @@ module.exports = class ABViewChartCore extends ABViewContainer {
 		super.fromValues(values);
 
 		this.settings.isPercentage = JSON.parse(this.settings.isPercentage || ABViewChartPropertyComponentDefaults.isPercentage);
-
+		
 		this.settings.labelPosition = this.settings.labelPosition || ABViewChartPropertyComponentDefaults.labelPosition;
 
 		// convert from "0" => true/false
@@ -80,7 +80,7 @@ module.exports = class ABViewChartCore extends ABViewContainer {
 	}
 
 	labelField() {
-		var dv = this.datacollection;
+		var dv = this.dataview;
 		if (!dv) return null;
 
 		var obj = dv.datasource;
@@ -90,7 +90,7 @@ module.exports = class ABViewChartCore extends ABViewContainer {
 	}
 
 	valueField() {
-		var dv = this.datacollection;
+		var dv = this.dataview;
 		if (!dv) return null;
 
 		var obj = dv.datasource;
@@ -100,7 +100,7 @@ module.exports = class ABViewChartCore extends ABViewContainer {
 	}
 
 	valueField2() {
-		var dv = this.datacollection;
+		var dv = this.dataview;
 		if (!dv) return null;
 
 		var obj = dv.datasource;

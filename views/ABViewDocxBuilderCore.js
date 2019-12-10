@@ -3,10 +3,12 @@ const ABViewWidget = require("../../platform/views/ABViewWidget");
 const ABViewDocxBuilderPropertyComponentDefaults = {
 	buttonlabel: "Download DOCX",
 	dataviewID: null,
-	width: 200,
+	width: 0,
 	filename: "", // uuid
 	filelabel: "output.docx",
-	language: "en" // en
+	language: "en", // en
+	toolbarBackground: "ab-background-default",
+	buttonPosition: "left"
 }
 
 const ABViewDefaults = {

@@ -1,4 +1,4 @@
-const ABViewWidget = require("../../platform/views/ABViewWidget");
+const ABViewChartComponent = require("../../platform/views/ABViewChartComponent");
 
 const ABViewChartBarPropertyComponentDefaults = {
 	barType: 'bar',
@@ -8,9 +8,8 @@ const ABViewChartBarPropertyComponentDefaults = {
 	height: 200,
 	labelFontSize: 12,
 	stepValue: 20,
-	maxValue: 100,
-
-}
+	maxValue: 100
+};
 
 const ABViewDefaults = {
 	key: 'bar',		// {string} unique key for this view
@@ -18,7 +17,7 @@ const ABViewDefaults = {
 	labelKey: 'ab.components.chart.bar' // {string} the multilingual label key for the class label
 }
 
-module.exports = class ABViewChartBarCore extends ABViewWidget {
+module.exports = class ABViewChartBarCore extends ABViewChartComponent {
 
 	constructor(values, application, parent, defaultValues) {
 

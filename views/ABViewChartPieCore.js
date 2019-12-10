@@ -1,4 +1,4 @@
-const ABViewWidget = require("../../platform/views/ABViewWidget");
+const ABViewChartComponent = require("../../platform/views/ABViewChartComponent");
 
 const ABViewChartPiePropertyComponentDefaults = {
 	pieType: 'pie',
@@ -6,8 +6,7 @@ const ABViewChartPiePropertyComponentDefaults = {
 	// chartWidth: 600,
 	height: 200,
 	innerFontSize: 12,
-	labelFontSize: 12,
-
+	labelFontSize: 12
 }
 
 const ABViewDefaults = {
@@ -16,7 +15,7 @@ const ABViewDefaults = {
 	labelKey: 'ab.components.chart.pie' // {string} the multilingual label key for the class label
 }
 
-module.exports = class ABViewChartPieCore extends ABViewWidget {
+module.exports = class ABViewChartPieCore extends ABViewChartComponent {
 
 	constructor(values, application, parent, defaultValues) {
 
