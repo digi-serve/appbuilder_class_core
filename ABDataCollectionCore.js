@@ -258,7 +258,7 @@ module.exports = class ABViewDataCollectionCore extends ABEmitter {
 	}
 
 	/**
-	* @method fieldLink
+	* @property fieldLink
 	* return a ABFieldConnect field that link of this.
 	*
 	* @return {ABFieldConnect}

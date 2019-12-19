@@ -126,7 +126,7 @@ module.exports = class ABFieldListCore extends ABFieldSelectivity {
         var obj = super.toObj();
 
         // Un-translate options list
-        obj.settings.options.forEach(function(opt) {
+        obj.settings.options.forEach((opt) => {
             this.object.application.unTranslate(opt, opt, ["text"]);
         });
 
@@ -177,7 +177,7 @@ module.exports = class ABFieldListCore extends ABFieldSelectivity {
         });
     }
 
-    format(rowData) {
+    format(rowData, options = {}) {
 		var val = this.dataValue(rowData) || [];
 
 		if (typeof val == "string") {

@@ -87,6 +87,8 @@ module.exports = class ABApplicationCore {
         });
         this._pages = newPages;
 
+        this._scopes = [];
+
         // // Mobile Apps
         // // an Application can have one or more Mobile Apps registered.
         // var newMobileApps = [];
@@ -484,6 +486,29 @@ module.exports = class ABApplicationCore {
             };
 
         return (this._queries || []).filter(filter);
+    }
+
+    ///
+    /// Scopes
+    ///
+
+    /**
+     * @method scopes()
+     *
+     * return an array of all the ABScope for this ABApplication.
+     *
+     * @param {fn} filter  	a filter fn to return a set of ABScope that
+     *						this fn returns true for.
+     * @return {array} 	array of ABScope
+     */
+    scopes(filter) {
+        filter =
+            filter ||
+            function() {
+                return true;
+            };
+
+        return (this._scopes || []).filter(filter);
     }
 
     /**
