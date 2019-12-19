@@ -29,7 +29,7 @@ var ABFieldFormulaDefaults = {
 
 	supportQuery: (field) => {
 
-		let fieldLink = field.fieldLink();
+		let fieldLink = field.fieldLink;
 		if (fieldLink == null) return false;
 
 		// Not support calculate field in query
@@ -92,7 +92,7 @@ module.exports = class ABFieldFormulaCore extends ABField {
 		var fieldBase = this.fieldBase();
 		if (!fieldBase) return 0;
 
-		var fieldLink = this.fieldLink();
+		var fieldLink = this.fieldLink;
 		if (!fieldLink) return 0;
 
 		var data = rowData[fieldBase.relationName()] || [];
@@ -160,7 +160,7 @@ module.exports = class ABFieldFormulaCore extends ABField {
         return this.object.fields((f) => f.id == this.settings.field)[0];
     }
 
-    fieldLink() {
+    get fieldLink() {
         var obj = this.object.application.objects(
             (obj) => obj.id == this.settings.object
         )[0];
