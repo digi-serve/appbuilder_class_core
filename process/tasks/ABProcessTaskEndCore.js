@@ -37,16 +37,30 @@ module.exports = class ABProcessTaskEndCore extends ABProcessTask {
      *      resolve(true/false) : true if the task is completed.
      *                            false if task is still waiting
      */
-    do(instance) {
-        return new Promise((resolve, reject) => {
-            // An End Event doesn't perform any other actions
-            // than to signal it has successfully completed.
-            // But it provides no Additional Tasks to work on.
-            // for testing:
-            this.stateCompleted(instance);
-            this.log(instance, "End Event Reached");
-            resolve(true);
-        });
+    // do(instance) {
+    //     return new Promise((resolve, reject) => {
+    //         // An End Event doesn't perform any other actions
+    //         // than to signal it has successfully completed.
+    //         // But it provides no Additional Tasks to work on.
+    //         // for testing:
+    //         this.stateCompleted(instance);
+    //         this.log(instance, "End Event Reached");
+    //         resolve(true);
+    //     });
+    // }
+
+    /**
+     * initState()
+     * setup this task's initial state variables
+     * @param {obj} context  the context data of the process instance
+     * @param {obj} val  any values to override the default state
+     */
+    initState(context, val) {
+        var myDefaults = {
+            triggered: false
+        };
+
+        super.initState(context, myDefaults, val);
     }
 
     /**

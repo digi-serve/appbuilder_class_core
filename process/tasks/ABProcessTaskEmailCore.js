@@ -108,14 +108,10 @@ module.exports = class ABProcessTaskEmailCore extends ABProcessTask {
      */
     initState(context, val) {
         var myDefaults = {
-            to: "0",
-            from: "0",
-            subject: "",
-            message: "",
-            fromUsers: {},
-            toUsers: {},
-            toCustom: "",
-            fromCustom: ""
+            to: [],
+            from: [],
+            subject: this.subject,
+            message: this.message
         };
 
         super.initState(context, myDefaults, val);
