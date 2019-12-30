@@ -22,16 +22,20 @@ module.exports = class RowFilter extends ABComponent {
         super(App, idBase);
 
         this.Account = { username: "??" };
-        this._Object;
-        this._Fields;
-        this._QueryFields = [];
-        this._View;
         this._settings = {};
         this.config_settings = {};
         // var batchName; // we need to revert to this default when switching away from a in/by query field
 
+        this._QueryFields = [];
+        this._Fields;
+
         // internal business logic
         var _logic = (this._logic = {
+
+            callbacks: {
+                onChange: () => { }
+            },
+
             /**
              * @method getValue
              *
@@ -272,7 +276,7 @@ module.exports = class RowFilter extends ABComponent {
                     fieldId = compareValue.split(":")[1];
 
                 // if no query
-                var query = this._Object.application.queries(
+                var query = this._Application.queries(
                     (q) => q.id == queryId
                 )[0];
                 if (!query) return result;
@@ -286,7 +290,8 @@ module.exports = class RowFilter extends ABComponent {
                         .replace("{id}", query.id),
                     inQueryFieldFilter = new RowFilter(App, qIdBase);
                 inQueryFieldFilter.Account = this.Account;
-                inQueryFieldFilter.objectLoad(query);
+                inQueryFieldFilter.applicationLoad(this._Application);
+                inQueryFieldFilter.fieldsLoad(query.fields());
                 inQueryFieldFilter.setValue(query.workspaceFilterConditions);
 
                 switch (rule) {
@@ -311,7 +316,7 @@ module.exports = class RowFilter extends ABComponent {
                 if (!compareValue) return result;
 
                 // if no query
-                let query = this._Object.application.queries(
+                let query = this._Application.queries(
                     (q) => q.id == compareValue
                 )[0];
                 if (!query) return result;
@@ -321,7 +326,8 @@ module.exports = class RowFilter extends ABComponent {
                         .replace("{id}", query.id),
                     inQueryFilter = new RowFilter(App, qIdBase);
                 inQueryFilter.Account = this.Account;
-                inQueryFilter.objectLoad(query);
+                inQueryFilter.applicationLoad(this.application);
+                inQueryFilter.fieldsLoad(query.fields());
                 inQueryFilter.setValue(query.workspaceFilterConditions);
 
                 switch (rule) {
@@ -341,14 +347,11 @@ module.exports = class RowFilter extends ABComponent {
 
                 if (!compareValue) return result;
 
-                if (!this._View) return result;
-
                 if (columnName) {
                     rowData = rowData[columnName] || {};
                 }
 
-                // var dc = this._View.pageRoot().datacollections(dc => dc.id == compareValue)[0];
-                var dc = this._View.application.datacollections(
+                var dc = this._Application.datacollections(
                     (dc) => dc.id == compareValue
                 )[0];
 
@@ -444,8 +447,12 @@ module.exports = class RowFilter extends ABComponent {
                     // if in_query condition
                     case "in_query":
                     case "not_in_query":
+
+                        if (this._Object == null)
+                            return result;
+
                         // if > 1 copy of this object in query ==> Error!
-                        let query = this._Object.application.queries(
+                        let query = this._Application.queries(
                             (q) => q.id == compareValue
                         )[0];
                         if (!query) return result;
@@ -632,33 +639,50 @@ module.exports = class RowFilter extends ABComponent {
     }
 
     /**
-     * @method objectLoad
-     * set object
+     * @method applicationLoad
+     * set application
      *
-     * @param object {ABObject}
+     * @param application {ABApplication}
      */
-    objectLoad(object) {
-        this._Object = object;
-        this._Fields = this._Object
-            ? this._Object.fields((f) => f && f.fieldIsFilterable())
-            : [];
-        this._QueryFields = this._Object ? this._Object.connectFields() : [];
+    applicationLoad(application) {
+
+        this._Application = application;
+
+    }
+
+    /**
+     * @method fieldsLoad
+     * set fields
+     *
+     * @param array {ABField}
+     * @param object {ABObject} [optional]
+     */
+    fieldsLoad(fields = [], object = null) {
+
+        this._Fields = fields.filter(f => f && f.fieldIsFilterable());
+        this._QueryFields = this._Fields ? this._Fields.filter(f => f && f.key == 'connectObject') : [];
 
         // insert our 'this object' entry if an Object was given.
-        if (this._Object) {
+        if (object) {
+
+            this._Object = object;
 
             let thisObjOption = {
                 id: 'this_object',
-                label: this._Object.label
+                label: object.label
             };
 
             // If object is query ,then should define default alias: "BASE_OBJECT"
-            if (this._Object instanceof ABObjectQuery) {
+            if (object instanceof ABObjectQuery) {
                 thisObjOption.alias = 'BASE_OBJECT';
             }
 
             this._Fields.unshift(thisObjOption);
         }
+        else {
+            delete this._Object;
+        }
+
     }
 
     setValue(settings) {
@@ -667,13 +691,4 @@ module.exports = class RowFilter extends ABComponent {
         this.config_settings.rules = this.config_settings.rules || [];
     }
 
-    /**
-     * @method viewLoad
-     * set view
-     *
-     * @param view {ABView}
-     */
-    viewLoad(view) {
-        this._View = view;
-    }
 };

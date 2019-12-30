@@ -1537,10 +1537,10 @@ module.exports = class ABViewDataCollectionCore extends ABEmitter {
 		if (this.__filterDatasource == null)
 			this.__filterDatasource = new RowFilter();
 
-		this.__filterDatasource.objectLoad(this.datasource);
-		this.__filterDatasource.viewLoad(this);
-
 		if (this.datasource) {
+
+			this.__filterDatasource.applicationLoad(this.datasource.application);
+			this.__filterDatasource.fieldsLoad(this.datasource.fields());
 
 			let filterConditions;
 
@@ -1562,15 +1562,17 @@ module.exports = class ABViewDataCollectionCore extends ABEmitter {
 			else
 				this.__filterDatasource.setValue({});
 		}
-		else
+		else {
+			this.__filterDatasource.fieldsLoad([]);
 			this.__filterDatasource.setValue(DefaultValues.settings.objectWorkspace.filterConditions);
+		}
 
 		// Set filter of data view
 		if (this.__filterDatacollection == null)
 			this.__filterDatacollection = new RowFilter();
 
-		this.__filterDatacollection.objectLoad(this.datasource);
-		this.__filterDatacollection.viewLoad(this);
+		this.__filterDatacollection.applicationLoad(this.datasource ? this.datasource.application : null);
+		this.__filterDatacollection.fieldsLoad(this.datasource ? this.datasource.fields() : []);
 
 		if (wheres)
 			this.settings.objectWorkspace.filterConditions = wheres;
