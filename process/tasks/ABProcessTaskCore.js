@@ -242,9 +242,7 @@ module.exports = class ABProcessTaskCore extends ABMLClass {
      */
     onError(instance, error) {
         if (error) {
-            var text = `${
-                this.name ? "[" + this.name + "] " : ""
-            }: ${error.toString()}`;
+            var text = `${error.toString()}`;
             this.log(instance, text);
         }
         var myState = this.myState(instance);
