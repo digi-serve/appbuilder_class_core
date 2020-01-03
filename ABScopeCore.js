@@ -11,6 +11,8 @@ module.exports = class ABScopeCore {
 	fromValues(values = {}) {
 
 		this.id = values.id;
+		this.name = values.name;
+		this.description = values.description;
 		this.translations = values.translations;
 
 		// username
@@ -22,6 +24,9 @@ module.exports = class ABScopeCore {
 		// boolean
 		this.isGlobal = JSON.parse(values.isGlobal || false);
 
+		// uuid
+		this.objectId = values.objectId;
+
 	}
 
 	toObj() {
@@ -31,7 +36,8 @@ module.exports = class ABScopeCore {
 			translations: this.translations,
 			createdBy: this.createdBy,
 			filter: this.filter,
-			isGlobal: this.isGlobal
+			isGlobal: this.isGlobal,
+			objectId: this.objectId
 		};
 
 	}
