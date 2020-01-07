@@ -25,7 +25,7 @@ module.exports = class ABScopeCore {
 		this.isGlobal = JSON.parse(values.isGlobal || false);
 
 		// uuid
-		this.objectId = values.objectId;
+		this.objectIds = values.objectIds || [];
 
 	}
 
@@ -37,7 +37,7 @@ module.exports = class ABScopeCore {
 			createdBy: this.createdBy,
 			filter: this.filter,
 			isGlobal: this.isGlobal,
-			objectId: this.objectId
+			objectIds: this.objectIds
 		};
 
 	}

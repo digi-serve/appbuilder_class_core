@@ -14,7 +14,6 @@ module.exports = class ABRoleCore {
 		this.id = values.id;
 		this.name = values.name;
 		this.description = values.description;
-		this.usernames = values.usernames || [];
 		this.translations = values.translations;
 
 	}
@@ -23,7 +22,6 @@ module.exports = class ABRoleCore {
 
 		return {
 			id: this.id,
-			usernames: this.usernames || [],
 			translations: this.translations
 		};
 
