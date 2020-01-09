@@ -17,7 +17,7 @@ const ABViewDefaults = {
 };
 
 const ABViewPropertyComponentDefaults = {
-	label: ''
+    label: ""
 };
 
 module.exports = class ABViewCore extends ABEmitter {
@@ -174,18 +174,17 @@ module.exports = class ABViewCore extends ABEmitter {
         });
         this._views = views;
 
-		// convert from "0" => 0
-		this.position = values.position || {};
+        // convert from "0" => 0
+        this.position = values.position || {};
 
-		if (this.position.x != null)
-			this.position.x = parseInt(this.position.x);
+        if (this.position.x != null)
+            this.position.x = parseInt(this.position.x);
 
-		if (this.position.y != null)
-			this.position.y = parseInt(this.position.y);
+        if (this.position.y != null)
+            this.position.y = parseInt(this.position.y);
 
-		this.position.dx = parseInt(this.position.dx || 1);
-		this.position.dy = parseInt(this.position.dy || 1);
-
+        this.position.dx = parseInt(this.position.dx || 1);
+        this.position.dy = parseInt(this.position.dy || 1);
     }
 
     isRoot() {
@@ -287,68 +286,61 @@ module.exports = class ABViewCore extends ABEmitter {
         return this.urlPointer() + "/_views/";
     }
 
-	/**
-	 * @property datacollection
-	 * return data source
-	 * 
-	 * @return {ABDataCollection}
-	 */
-	get datacollection() {
+    /**
+     * @property datacollection
+     * return data source
+     *
+     * @return {ABDataCollection}
+     */
+    get datacollection() {
+        let dataviewID = (this.settings || {}).dataviewID;
+        if (!dataviewID) return null;
 
-		let dataviewID = (this.settings || {}).dataviewID;
-		if (!dataviewID) return null;
-
-		return this.application.datacollections(dc => dc.id == dataviewID)[0];
-	}
-
+        return this.application.datacollections((dc) => dc.id == dataviewID)[0];
+    }
 
     ///
     /// Views
     ///
 
-	/**
-	 * @method views()
-	 *
-	 * return an array of all the ABViews children
-	 *
-	 * @param {fn} filter  	a filter fn to return a set of ABViews that this fn
-	 *						returns true for.
-	 * @param {boolean} deep
-	 *
-	 * @return {array} 	array of ABViews
-	 */
-	views(filter, deep) {
+    /**
+     * @method views()
+     *
+     * return an array of all the ABViews children
+     *
+     * @param {fn} filter  	a filter fn to return a set of ABViews that this fn
+     *						returns true for.
+     * @param {boolean} deep
+     *
+     * @return {array} 	array of ABViews
+     */
+    views(filter, deep) {
+        var result = [];
 
-		var result = [];
+        if (!this._views || this._views.length < 1) return result;
 
-		if (!this._views || this._views.length < 1)
-			return result;
+        // find into recursively
+        if (filter && deep) {
+            result = result.concat(this._views.filter(filter));
 
-		// find into recursively
-		if (filter && deep) {
+            this._views.forEach((v) => {
+                var subViews = v.views(filter, deep);
+                if (subViews && subViews.length > 0) {
+                    result = result.concat(subViews);
+                }
+            });
+        } else {
+            filter =
+                filter ||
+                function() {
+                    return true;
+                };
 
-			result = result.concat(this._views.filter(filter));
+            result = this._views.filter(filter);
+        }
 
-			this._views.forEach(v => {
-				var subViews = v.views(filter, deep);
-				if (subViews && subViews.length > 0) {
-					result = result.concat(subViews);
-				}
-			});
-
-		}
-
-		else {
-
-			filter = filter || function () { return true; };
-
-			result = this._views.filter(filter);
-
-		}
-
-		return result;
-
-	}
+        return result;
+    }
 
     /**
      * @method viewDestroy()
@@ -387,125 +379,112 @@ module.exports = class ABViewCore extends ABEmitter {
         return this.save();
     }
 
-	/**
-	 * @method viewReorder()
-	 *
-	 * reorder the current ABView in our list of ._views.
-	 *
-	 * @param {string} viewId - id of the active view
-	 * @param {string} toPosition - 'to' postion
-	 * @return {Promise}
-	 */
-	viewReorder(viewId, toPosition) {
+    /**
+     * @method viewReorder()
+     *
+     * reorder the current ABView in our list of ._views.
+     *
+     * @param {string} viewId - id of the active view
+     * @param {string} toPosition - 'to' postion
+     * @return {Promise}
+     */
+    viewReorder(viewId, toPosition) {
+        var from = this._views.findIndex((v) => v.id == viewId);
+        if (from < 0) return;
 
-		var from = this._views.findIndex((v) => v.id == viewId);
-		if (from < 0) return;
+        // move drag item to 'to' position
+        this._views.splice(toPosition, 0, this._views.splice(from, 1)[0]);
 
-		// move drag item to 'to' position
-		this._views.splice(toPosition, 0, this._views.splice(from, 1)[0]);
-
-		// save to database
-		return this.save();
-
+        // save to database
+        return this.save();
     }
 
-	/// ABApplication data methods
+    /// ABApplication data methods
 
+    /**
+     * @method destroy()
+     *
+     * destroy the current instance of ABApplication
+     *
+     * also remove it from our _AllApplications
+     *
+     * @return {Promise}
+     */
+    destroy() {
+        return new Promise((resolve, reject) => {
+            // unsubscribe events
+            this.eventClear(true);
 
-	/**
-	 * @method destroy()
-	 *
-	 * destroy the current instance of ABApplication
-	 *
-	 * also remove it from our _AllApplications
-	 *
-	 * @return {Promise}
-	 */
-	destroy() {
-		return new Promise(
-			(resolve, reject) => {
+            // verify we have been .save() before:
+            if (this.id) {
+                this.application
+                    .viewDestroy(this)
+                    .then(() => {
+                        // remove the page in list
+                        let parent = this.parent;
+                        if (parent) {
+                            let remainingPages = parent.views(
+                                (v) => v.id != this.id
+                            );
+                            parent._views = remainingPages;
+                        }
 
-				// unsubscribe events
-				this.eventClear(true);
+                        resolve();
+                    })
+                    .catch(reject);
+            } else {
+                resolve(); // nothing to do really
+            }
+        });
+    }
 
+    /**
+     * @method save()
+     *
+     * persist this instance of ABView with it's parent
+     *
+     * @param includeSubViews {Boolean}
+     *
+     * @return {Promise}
+     *						.resolve( {this} )
+     */
+    save(includeSubViews = false) {
+        return new Promise((resolve, reject) => {
+            // // if this is our initial save()
+            // if (!this.id) {
+            // 	this.id = OP.Util.uuid();	// setup default .id
+            // }
 
-				// verify we have been .save() before:
-				if (this.id) {
+            // // if this is not a child of another view then tell it's
+            // // application to save this view.
+            //  var parent = this.parent;
+            // if (!parent) parent = this.application;
 
-					this.application.viewDestroy(this)
-						.then(() => {
+            // parent.viewSave(this)
+            // 	.then(resolve)
+            // 	.catch(reject)
 
-							// remove the page in list
-							let parent = this.parent;
-							if (parent) {
-								let remainingPages = parent.views(v => v.id != this.id);
-								parent._views = remainingPages;
-							}
+            // if this is our initial save()
+            if (!this.id) {
+                this.id = OP.Util.uuid(); // setup default .id
+            }
 
-							resolve();
-						})
-						.catch(reject);
+            this.application
+                .viewSave(this, includeSubViews)
+                .then(() => {
+                    // persist the current ABViewPage in our list of ._pages.
+                    let parent = this.parent || this.application;
+                    let isIncluded =
+                        parent.views((v) => v.id == this.id).length > 0;
+                    if (!isIncluded) {
+                        parent._views.push(this);
+                    }
 
-				} else {
-
-					resolve();  // nothing to do really
-				}
-
-			}
-		)
-
-	}
-
-
-	/**
-	 * @method save()
-	 *
-	 * persist this instance of ABView with it's parent
-	 *
-	 * @param includeSubViews {Boolean}
-	 * 
-	 * @return {Promise}
-	 *						.resolve( {this} )
-	 */
-	save(includeSubViews = false) {
-		return new Promise(
-			(resolve, reject) => {
-
-				// // if this is our initial save()
-				// if (!this.id) {
-				// 	this.id = OP.Util.uuid();	// setup default .id
-				// }
-
-				// // if this is not a child of another view then tell it's
-  				// // application to save this view.
-				//  var parent = this.parent;
-  				// if (!parent) parent = this.application;
-
-				// parent.viewSave(this)
-				// 	.then(resolve)
-				// 	.catch(reject)
-
-				// if this is our initial save()
-				if (!this.id) {
-					this.id = OP.Util.uuid();	// setup default .id
-				}
-
-				this.application.viewSave(this, includeSubViews)
-					.then(() => {
-
-						// persist the current ABViewPage in our list of ._pages.
-						let parent = this.parent || this.application;
-						let isIncluded = (parent.views(v => v.id == this.id).length > 0);
-						if (!isIncluded) {
-							parent._views.push(this);
-						}
-
-						resolve();
-					})
-					.catch(reject)
-			}
-		)
-	}
+                    resolve();
+                })
+                .catch(reject);
+        });
+    }
 
     ///
     /// Events
@@ -564,57 +543,52 @@ module.exports = class ABViewCore extends ABEmitter {
         }
     }
 
+    copy(lookUpIds, parent) {
+        lookUpIds = lookUpIds || {};
 
-	copy(lookUpIds, parent) {
+        // get settings of the target
+        let config = this.toObj();
 
-		lookUpIds = lookUpIds || {};
+        // remove sub-elements property
+        ["pages", "views"].forEach((prop) => {
+            delete config[prop];
+        });
 
-		// get settings of the target
-		let config = this.toObj();
+        // update id of linked components
+        if (this.copyUpdateProperyList) {
+            (this.copyUpdateProperyList() || []).forEach((prop) => {
+                if (config && config.settings)
+                    config.settings[prop] = lookUpIds[config.settings[prop]];
+            });
+        }
 
-		// remove sub-elements property
-		['pages', 'views'].forEach(prop => {
-			delete config[prop];
-		});
+        // copy from settings
+        let result = this.application.viewNew(config, this.application, parent);
 
-		// update id of linked components
-		if (this.copyUpdateProperyList) {
-			(this.copyUpdateProperyList() || []).forEach(prop => {
-				if (config && config.settings)
-					config.settings[prop] = lookUpIds[config.settings[prop]];
-			});
-		}
+        // change id
+        result.id = lookUpIds[result.id] || OP.Util.uuid();
 
-		// copy from settings
-		let result = this.application.viewNew(config, this.application, parent);
+        // copy sub pages
+        if (this.pages) {
+            result._pages = [];
+            this.pages().forEach((p) => {
+                let copiedSubPage = p.copy(lookUpIds, result);
+                copiedSubPage.parent = result;
 
-		// change id
-		result.id = lookUpIds[result.id] || OP.Util.uuid();
+                result._pages.push(copiedSubPage);
+            });
+        }
 
-		// copy sub pages
-		if (this.pages) {
-			result._pages = [];
-			this.pages().forEach(p => {
+        // copy sub views
+        if (this.views) {
+            result._views = [];
+            this.views().forEach((v) => {
+                let copiedView = v.copy(lookUpIds, result);
 
-				let copiedSubPage = p.copy(lookUpIds, result);
-				copiedSubPage.parent = result;
+                result._views.push(copiedView);
+            });
+        }
 
-				result._pages.push(copiedSubPage);
-			});	
-		}
-
-		// copy sub views
-		if (this.views) {
-			result._views = [];
-			this.views().forEach(v => {
-
-				let copiedView = v.copy(lookUpIds, result);
-
-				result._views.push(copiedView);
-			});
-		}
-
-		return result;
-
-	}
+        return result;
+    }
 };
