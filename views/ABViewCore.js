@@ -59,7 +59,7 @@ module.exports = class ABViewCore extends ABEmitter {
     static newInstance(application, parent) {
         console.error("!!! where is this being called???");
         // return a new instance from ABViewManager:
-        return application.viewNew(
+        return ABViewCore.viewNew(
             { key: this.common().key },
             application,
             parent
@@ -113,6 +113,9 @@ module.exports = class ABViewCore extends ABEmitter {
             views.push(view.toObj());
         });
         result.views = views;
+
+        if (this.position)
+            result.position = this.position;
 
         return result;
     }
@@ -170,7 +173,7 @@ module.exports = class ABViewCore extends ABEmitter {
 
         var views = [];
         (values.views || []).forEach((child) => {
-            views.push(this.application.viewNew(child, this.application, this));
+            views.push(this.viewNew(child, this.application, this));
         });
         this._views = views;
 
@@ -340,6 +343,16 @@ module.exports = class ABViewCore extends ABEmitter {
         }
 
         return result;
+    }
+
+    /**
+     * @method viewNew()
+     *
+     *
+     * @return {ABView}
+     */
+    viewNew(values) {
+        return this.application.viewNew(values, this.application, this);
     }
 
     /**
@@ -563,7 +576,7 @@ module.exports = class ABViewCore extends ABEmitter {
         }
 
         // copy from settings
-        let result = this.application.viewNew(config, this.application, parent);
+        let result = this.viewNew(config, this.application, parent);
 
         // change id
         result.id = lookUpIds[result.id] || OP.Util.uuid();

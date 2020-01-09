@@ -854,4 +854,8 @@ module.exports = class ABApplicationCore {
             }
         }
     }
+
+    cloneDeep(object) {
+        return JSON.parse(JSON.stringify(object));
+    }
 };
