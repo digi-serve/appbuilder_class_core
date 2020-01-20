@@ -59,7 +59,7 @@ module.exports = class ABViewCore extends ABEmitter {
     static newInstance(application, parent) {
         console.error("!!! where is this being called???");
         // return a new instance from ABViewManager:
-        return ABViewCore.viewNew(
+        return application.viewNew(
             { key: this.common().key },
             application,
             parent

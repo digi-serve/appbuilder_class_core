@@ -27,8 +27,8 @@ const ABFieldManager = require("./ABFieldManager");
 const ABViewManager = require("../platform/ABViewManager");
 // const ABViewPageCore = require("./views/ABViewPageCore");
 const ABQLManager = require("./ABQLManager");
-const ABRole = require("../platform/ABRole");
-const ABScope = require("../platform/ABScope");
+// const ABRole = require("../platform/ABRole");
+// const ABScope = require("../platform/ABScope");
 
 module.exports = class ABApplicationCore {
     constructor(attributes) {
