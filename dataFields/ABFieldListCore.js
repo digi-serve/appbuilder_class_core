@@ -49,10 +49,9 @@ var ABFieldListDefaults = {
 
     supportRequire: true,
 
-	// what types of Sails ORM attributes can be imported into this data type?
-	// http://sailsjs.org/documentation/concepts/models-and-orm/attributes#?attribute-options
-	compatibleOrmTypes: []
-
+    // what types of Sails ORM attributes can be imported into this data type?
+    // http://sailsjs.org/documentation/concepts/models-and-orm/attributes#?attribute-options
+    compatibleOrmTypes: []
 };
 
 var defaultValues = {
@@ -170,35 +169,35 @@ module.exports = class ABFieldListCore extends ABFieldSelectivity {
     }
 
     format(rowData, options = {}) {
-		var val = this.dataValue(rowData) || [];
+        var val = this.dataValue(rowData) || [];
 
-		if (typeof val == "string") {
-			try {
-				val = JSON.parse(val);
-			}
-			catch (e) {
-			}
-		}
+        if (typeof val == "string") {
+            try {
+                val = JSON.parse(val);
+            } catch (e) {}
+        }
 
-		// Convert to array
-		if (!Array.isArray(val))
-			val = [val];
+        // Convert to array
+        if (!Array.isArray(val)) val = [val];
 
-		var displayOpts = this.settings.options
-							.filter(opt => val.filter(v => (v.id || v) == opt.id).length > 0)
-							.map(opt => {
+        var displayOpts = this.settings.options
+            .filter(
+                (opt) => val.filter((v) => (v.id || v) == opt.id).length > 0
+            )
+            .map((opt) => {
+                let text = opt.text;
+                let languageCode =
+                    options.languageCode || AD.lang.currentLanguage;
 
-								let text = opt.text;
-								let languageCode = options.languageCode || AD.lang.currentLanguage;
+                // Pull text of option with specify language code
+                let optTran = (opt.translations || []).filter(
+                    (o) => o.language_code == languageCode
+                )[0];
+                if (optTran) text = optTran.text;
 
-								// Pull text of option with specify language code
-								let optTran = (opt.translations || []).filter(o => o.language_code == languageCode)[0];
-								if (optTran)
-									text = optTran.text;
+                return text;
+            });
 
-								return text;
-							});
-
-		return displayOpts.join(', ');
-	}
+        return displayOpts.join(", ");
+    }
 };

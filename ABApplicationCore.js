@@ -83,10 +83,10 @@ module.exports = class ABApplicationCore {
         // definition:
 
         // import all our ABViews
-		let newPages = [];
-		(attributes.json.pages || []).forEach((page) => {
-			newPages.push( this.pageNew(page) );
-		})
+        let newPages = [];
+        (attributes.json.pages || []).forEach((page) => {
+            newPages.push(this.pageNew(page));
+        });
         this._pages = newPages;
 
         this._roles = [];
@@ -101,6 +101,31 @@ module.exports = class ABApplicationCore {
         //   	}
         //  	})
         // this._mobileApps = [newMobileApps];
+
+        var newProcesses = [];
+        var removePIDs = [];
+        (attributes.json.processIDs || []).forEach((pID) => {
+            if (pID) {
+                var p = this.processNew(pID);
+                if (p) {
+                    newProcesses.push(p);
+                } else {
+                    // remove pID from list
+                    removePIDs.push(pID);
+                }
+            }
+        });
+        if (attributes.json.processIDs) {
+            // remove those missing pIDs.
+            attributes.json.processIDs = attributes.json.processIDs.filter(
+                (pr) => {
+                    return removePIDs.indexOf(pr) == -1;
+                }
+            );
+        }
+
+        this._processes = newProcesses;
+        this.processIDs = attributes.json.processIDs || [];
 
         // Object List Settings
         attributes.json.objectListSettings =
@@ -216,36 +241,37 @@ module.exports = class ABApplicationCore {
     /// Datacollections
     ///
 
-	///
-	/// Data collections
-	///
+    ///
+    /// Data collections
+    ///
 
-	/**
-	 * @method datacollections()
-	 *
-	 * return an array of all the ABDataCollection for this ABApplication.
-	 *
-	 * @param {fn} filter  	a filter fn to return a set of ABDataCollection that 
-	 *						this fn returns true for.
-	 * @return {array} 	array of ABDataCollection
-	 */
-	datacollections (filter) {
+    /**
+     * @method datacollections()
+     *
+     * return an array of all the ABDataCollection for this ABApplication.
+     *
+     * @param {fn} filter  	a filter fn to return a set of ABDataCollection that
+     *						this fn returns true for.
+     * @return {array} 	array of ABDataCollection
+     */
+    datacollections(filter) {
+        filter =
+            filter ||
+            function() {
+                return true;
+            };
 
-		filter = filter || function() { return true; };
+        return (this._datacollections || []).filter(filter);
+    }
 
-		return (this._datacollections || []).filter(filter);
+    datacollectionByID(ID) {
+        // an undefined or null ID should not match any DC.
+        if (!ID) return null;
 
-	}
-
-	datacollectionByID(ID) {
-		// an undefined or null ID should not match any DC.
-		if (!ID) return null;
-
-		return this.datacollections((dc) => {
-			return dc.id == ID || dc.name == ID || dc.label == ID;
-		});
-	}
-
+        return this.datacollections((dc) => {
+            return dc.id == ID || dc.name == ID || dc.label == ID;
+        });
+    }
 
     ///
     /// Objects
@@ -411,6 +437,37 @@ module.exports = class ABApplicationCore {
     }
 
     ///
+    /// Processes
+    ///
+
+    /**
+     * @method processes()
+     *
+     * return an array of all the ABProcesses for this ABApplication.
+     *
+     * @param {fn} filter   a filter fn to return a set of ABProcesses that
+     *                      this fn returns true for.
+     * @return {array}  array of ABProcesses
+     */
+    processes(filter) {
+        filter =
+            filter ||
+            function() {
+                return true;
+            };
+
+        return this._processes.filter(filter);
+    }
+
+    hasProcess(process) {
+        if (process && process.id) {
+            return this.processIDs.indexOf(process.id) > -1;
+        } else {
+            return false;
+        }
+    }
+
+    ///
     /// Queries
     ///
 
@@ -433,7 +490,6 @@ module.exports = class ABApplicationCore {
         return (this._queries || []).filter(filter);
     }
 
-
     ///
     /// Roles
     ///
@@ -449,10 +505,10 @@ module.exports = class ABApplicationCore {
      */
     roles(filter) {
         filter =
-        filter ||
-        function() {
-            return true;
-        };
+            filter ||
+            function() {
+                return true;
+            };
 
         return (this._roles || []).filter(filter);
     }
@@ -636,7 +692,6 @@ module.exports = class ABApplicationCore {
      * @return {ABViewPage}
      */
     pageNew(values) {
-
         // make sure this is an ABViewPage description
         // values.key = ABViewPageCore.common().key;
         values.key = "page";
@@ -693,7 +748,7 @@ module.exports = class ABApplicationCore {
     ///
 
     languageDefault() {
-        return 'en';
+        return "en";
     }
 
     /**

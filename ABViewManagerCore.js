@@ -45,6 +45,7 @@ const ABViewFormConnect = require("../platform/views/ABViewFormConnect");
 const ABViewFormCustom = require("../platform/views/ABViewFormCustom");
 const ABViewFormDatepicker = require("../platform/views/ABViewFormDatepicker");
 const ABViewFormNumber = require("../platform/views/ABViewFormNumber");
+const ABViewFormSelectMultiple = require("../platform/views/ABViewFormSelectMultiple");
 const ABViewFormSelectSingle = require("../platform/views/ABViewFormSelectSingle");
 const ABViewFormReadonly = require("../platform/views/ABViewFormReadonly");
 const ABViewFormTextbox = require("../platform/views/ABViewFormTextbox");
@@ -97,6 +98,7 @@ Views[ABViewFormConnect.common().key] = ABViewFormConnect;
 Views[ABViewFormCustom.common().key] = ABViewFormCustom;
 Views[ABViewFormDatepicker.common().key] = ABViewFormDatepicker;
 Views[ABViewFormNumber.common().key] = ABViewFormNumber;
+Views[ABViewFormSelectMultiple.common().key] = ABViewFormSelectMultiple;
 Views[ABViewFormSelectSingle.common().key] = ABViewFormSelectSingle;
 Views[ABViewFormReadonly.common().key] = ABViewFormReadonly;
 Views[ABViewFormTextbox.common().key] = ABViewFormTextbox;
@@ -155,5 +157,4 @@ module.exports = class ABViewManagerCore {
             return null;
         }
     }
-
 };
