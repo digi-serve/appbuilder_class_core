@@ -16,12 +16,20 @@ module.exports = class ABRoleCore {
 		this.description = values.description;
 		this.translations = values.translations;
 
+		// multilingual fields: name, description
+		this.application.translate(this, this, ['name', 'description']);
+
+
 	}
 
 	toObj() {
 
+		this.application.unTranslate(this, this, ['name', 'description']);
+
 		return {
 			id: this.id,
+			name: this.name,
+			description: this.description,
 			translations: this.translations
 		};
 
