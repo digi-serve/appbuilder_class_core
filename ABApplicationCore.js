@@ -23,6 +23,7 @@
 // webpack can handle 'require()' statements, but node can't handle import
 // so let's use require():
 const ABObject = require("../platform/ABObject");
+const ABDataCollectionCore = require("./ABDataCollectionCore");
 const ABFieldManager = require("./ABFieldManager");
 const ABViewManager = require("../platform/ABViewManager");
 // const ABViewPageCore = require("./views/ABViewPageCore");
@@ -53,6 +54,9 @@ module.exports = class ABApplicationCore {
         // globally.  And not part of the internal definition of an
         // ABApplication.
         this._datacollections = [];
+        (attributes.json.datacollections || []).forEach(dc => {
+            this._datacollections.push(this.datacollectionNew(dc));
+        });
 
         // import all our ABObjects
         // NOTE: we work with ABObjects on both the client and server sides.
@@ -243,6 +247,10 @@ module.exports = class ABApplicationCore {
     ///
     /// Data collections
     ///
+
+    datacollectionNew(values) {
+        return new ABDataCollectionCore(values, this);
+    }
 
     /**
      * @method datacollections()
