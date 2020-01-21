@@ -29,19 +29,6 @@ var defaultValues = {
 	displayLength: 4
 }
 
-/**
- * 
- * Private methods 
- * 
- */
-function getDelimiterSign(text) {
-	var delimiterItem = ABFieldAutoIndexCore.delimiterList().filter((item) => {
-		return item.id == text;
-	})[0];
-
-	return delimiterItem ? delimiterItem.sign : '';
-}
-
 module.exports = class ABFieldAutoIndexCore extends ABField {
 
 	constructor(values, object) {
@@ -58,6 +45,14 @@ module.exports = class ABFieldAutoIndexCore extends ABField {
 		return defaultValues;
 	}
 
+	static getDelimiterSign(text) {
+		var delimiterItem = this.delimiterList().filter((item) => {
+			return item.id == text;
+		})[0];
+
+		return delimiterItem ? delimiterItem.sign : '';
+	}
+
 	static delimiterList() {
 		return [
 			{ id: 'comma', value: "Comma", sign: ", " },
@@ -69,7 +64,7 @@ module.exports = class ABFieldAutoIndexCore extends ABField {
 	}
 
 	static setValueToIndex(prefix, delimiter, displayLength, displayNumber) {
-		var resultIndex = prefix + getDelimiterSign(delimiter) + ("0000000000" + displayNumber).slice(-parseInt(displayLength));
+		var resultIndex = prefix + this.getDelimiterSign(delimiter) + ("0000000000" + displayNumber).slice(-parseInt(displayLength));
 
 		return resultIndex;
 	}
@@ -101,7 +96,7 @@ module.exports = class ABFieldAutoIndexCore extends ABField {
 			return "";
 
 		try {
-			var resultAutoIndex = ABFieldAutoIndexCore.setValueToIndex(this.settings.prefix, this.settings.delimiter, this.settings.displayLength, rowData[this.columnName]);
+			var resultAutoIndex = this.constructor.setValueToIndex(this.settings.prefix, this.settings.delimiter, this.settings.displayLength, rowData[this.columnName]);
 
 			return resultAutoIndex;
 		}
