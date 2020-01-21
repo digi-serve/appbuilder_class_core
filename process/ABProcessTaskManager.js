@@ -7,6 +7,7 @@
 var ABProcessTaskEmail = require("../../platform/process/tasks/ABProcessTaskEmail");
 var ABProcessTaskEnd = require("../../platform/process/tasks/ABProcessTaskEnd");
 var ABProcessTaskTrigger = require("../../platform/process/tasks/ABProcessTaskTrigger");
+var ABProcessTaskTriggerLifecycle = require("../../platform/process/tasks/ABProcessTaskTriggerLifecycle");
 
 /*
  * Tasks
@@ -16,6 +17,9 @@ var Tasks = {};
 Tasks[ABProcessTaskEmail.defaults().key] = ABProcessTaskEmail;
 Tasks[ABProcessTaskEnd.defaults().key] = ABProcessTaskEnd;
 Tasks[ABProcessTaskTrigger.defaults().key] = ABProcessTaskTrigger;
+Tasks[
+    ABProcessTaskTriggerLifecycle.defaults().key
+] = ABProcessTaskTriggerLifecycle;
 
 /*
  * StartEvents
@@ -23,6 +27,7 @@ Tasks[ABProcessTaskTrigger.defaults().key] = ABProcessTaskTrigger;
  */
 var START_EVENTS = [];
 START_EVENTS.push(ABProcessTaskTrigger.DiagramReplace());
+START_EVENTS.push(ABProcessTaskTriggerLifecycle.DiagramReplace());
 
 /*
  * Tasks
@@ -56,6 +61,9 @@ DEFINITIONTYPES[
 DEFINITIONTYPES[
     ABProcessTaskTrigger.DiagramReplace().target.eventDefinitionType
 ] = ABProcessTaskTrigger.defaults();
+DEFINITIONTYPES[
+    ABProcessTaskTriggerLifecycle.DiagramReplace().target.eventDefinitionType
+] = ABProcessTaskTriggerLifecycle.defaults();
 
 module.exports = {
     /*
