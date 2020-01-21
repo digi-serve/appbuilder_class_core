@@ -233,8 +233,7 @@ module.exports = class ABApplicationCore {
             function() {
                 return true;
             };
-
-        return this._mobileApps.filter(filter);
+        return (this._mobileApps || []).filter(filter);
     }
 
     ///
