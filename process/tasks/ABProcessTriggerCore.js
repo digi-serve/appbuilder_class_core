@@ -1,23 +1,40 @@
 // import ABApplication from "./ABApplication"
 // const ABApplication = require("./ABApplication"); // NOTE: change to require()
-const ABProcessTask = require("../../../platform/process/tasks/ABProcessTask.js");
+const ABProcessElement = require("../../../platform/process/tasks/ABProcessElement.js");
 
-var ABProcessTaskTriggerDefaults = {
-    key: "Trigger", // unique key to reference this specific Task
-    icon: "key" // font-awesome icon reference.  (without the 'fa-').  so 'user'  to reference 'fa-user'
+var ABProcessTriggerDefaults = {
+    category: "start",
+    // category: {string} | null
+    // if this Element should show up on one of the popup replace menus, then
+    // specify one of the categories of elements it should be an option for.
+    // Available choices: [ "start", "task", "end" ].
+    //
+    // if it shouldn't show up under the popup menu, then leave this null
+
+    fields: [],
+    // fields: {array}
+    // a list of internal setting values this Element tracks
+
+    icon: "key", // font-awesome icon reference.  (without the 'fa-').  so 'user'  to reference 'fa-user'
+    // icon: {string}
+    // font-awesome icon reference.  (without the 'fa-').  so 'user'  to reference 'fa-user'
+
+    key: "Trigger"
+    // key: {string}
+    // unique key to reference this specific Task
 };
 
-module.exports = class ABProcessTaskTrigger extends ABProcessTask {
+module.exports = class ABProcessTriggerCore extends ABProcessElement {
     constructor(attributes, process, application) {
         attributes.type = attributes.type || "trigger";
-        super(attributes, process, application, ABProcessTaskTriggerDefaults);
+        super(attributes, process, application, ABProcessTriggerDefaults);
 
         // listen
     }
 
     // return the default values for this DataField
     static defaults() {
-        return ABProcessTaskTriggerDefaults;
+        return ABProcessTriggerDefaults;
     }
 
     static DiagramReplace() {

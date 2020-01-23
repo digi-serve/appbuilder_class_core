@@ -1,13 +1,33 @@
 // import ABApplication from "./ABApplication"
 // const ABApplication = require("./ABApplication"); // NOTE: change to require()
-const ABProcessTaskTrigger = require("../../../platform/process/tasks/ABProcessTaskTrigger.js");
+const ABProcessTrigger = require("../../../platform/process/tasks/ABProcessTrigger.js");
 
 var ABProcessTaskTriggerLifecycleDefaults = {
-    key: "TriggerLifecycle", // unique key to reference this specific Task
-    icon: "key" // font-awesome icon reference.  (without the 'fa-').  so 'user'  to reference 'fa-user'
+    category: "start",
+    // category: {string} | null
+    // if this Element should show up on one of the popup replace menus, then
+    // specify one of the categories of elements it should be an option for.
+    // Available choices: [ "start", "task", "end" ].
+    //
+    // if it shouldn't show up under the popup menu, then leave this null
+
+    fields: [
+        "objectID",
+        "lifecycleKey" /* , "triggerKey" is tracked in ABProcessTrigger */
+    ],
+    // fields: {array}
+    // a list of internal setting values this Element tracks
+
+    icon: "key", // font-awesome icon reference.  (without the 'fa-').  so 'user'  to reference 'fa-user'
+    // icon: {string}
+    // font-awesome icon reference.  (without the 'fa-').  so 'user'  to reference 'fa-user'
+
+    key: "TriggerLifecycle"
+    // key: {string}
+    // unique key to reference this specific Task
 };
 
-module.exports = class ABProcessTaskTriggerLifecycle extends ABProcessTaskTrigger {
+module.exports = class ABProcessTriggerLifecycle extends ABProcessTrigger {
     constructor(attributes, process, application) {
         attributes.type = attributes.type || "trigger";
         super(

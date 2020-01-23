@@ -4,66 +4,51 @@
  * An interface for managing the different ABProcessTasks in AppBuilder.
  *
  */
-var ABProcessTaskEmail = require("../../platform/process/tasks/ABProcessTaskEmail");
-var ABProcessTaskEnd = require("../../platform/process/tasks/ABProcessTaskEnd");
-var ABProcessTaskTrigger = require("../../platform/process/tasks/ABProcessTaskTrigger");
-var ABProcessTaskTriggerLifecycle = require("../../platform/process/tasks/ABProcessTaskTriggerLifecycle");
 
 /*
  * Tasks
- * A name => ABProcessTask  hash of the different ABProcessTask available.
+ * A name => ABProcessElement hash of the different ABProcessElements available.
  */
 var Tasks = {};
-Tasks[ABProcessTaskEmail.defaults().key] = ABProcessTaskEmail;
-Tasks[ABProcessTaskEnd.defaults().key] = ABProcessTaskEnd;
-Tasks[ABProcessTaskTrigger.defaults().key] = ABProcessTaskTrigger;
-Tasks[
-    ABProcessTaskTriggerLifecycle.defaults().key
-] = ABProcessTaskTriggerLifecycle;
-
-/*
- * StartEvents
- * a list of Diagram Replace options for StartEvents:
- */
-var START_EVENTS = [];
-START_EVENTS.push(ABProcessTaskTrigger.DiagramReplace());
-START_EVENTS.push(ABProcessTaskTriggerLifecycle.DiagramReplace());
-
-/*
- * Tasks
- * a list of Diagram Replace options for Tasks:
- */
-var TASKS = [];
-TASKS.push(ABProcessTaskEmail.DiagramReplace());
-
-/*
- * EndEvents
- * a list of Diagram Replace options for EndEvents:
- */
-var END_EVENTS = [];
-END_EVENTS.push(ABProcessTaskEnd.DiagramReplace());
 
 /*
  * DEFINITIONTYPES
  * a hash of BPMN:Element.type to Default values
  * for each of our Process Objects.
  *
- * NOTE: the key should be the target.eventDefinitionType
- * if it exists, or the .target.type if not.
+ * NOTE: For Tasks, the key should be target.type,
+ * for Triggers or End elements, the key should be
+ * the target.eventDefinitionType
  */
 var DEFINITIONTYPES = {};
-DEFINITIONTYPES[
-    ABProcessTaskEmail.DiagramReplace().target.type
-] = ABProcessTaskEmail.defaults();
-DEFINITIONTYPES[
-    ABProcessTaskEnd.DiagramReplace().target.eventDefinitionType
-] = ABProcessTaskEnd.defaults();
-DEFINITIONTYPES[
-    ABProcessTaskTrigger.DiagramReplace().target.eventDefinitionType
-] = ABProcessTaskTrigger.defaults();
-DEFINITIONTYPES[
-    ABProcessTaskTriggerLifecycle.DiagramReplace().target.eventDefinitionType
-] = ABProcessTaskTriggerLifecycle.defaults();
+
+var AllProcessElements = [
+    require("../../platform/process/tasks/ABProcessEnd"),
+    require("../../platform/process/tasks/ABProcessTaskEmail"),
+    require("../../platform/process/tasks/ABProcessTaskUser"),
+    require("../../platform/process/tasks/ABProcessTaskUserApproval"),
+    require("../../platform/process/tasks/ABProcessTrigger"),
+    require("../../platform/process/tasks/ABProcessTriggerLifecycle")
+];
+
+AllProcessElements.forEach((ELEMENT) => {
+    Tasks[ELEMENT.defaults().key] = ELEMENT;
+
+    switch (ELEMENT.defaults().category) {
+        case "start":
+        case "end":
+            DEFINITIONTYPES[
+                ELEMENT.DiagramReplace().target.eventDefinitionType
+            ] = ELEMENT.defaults();
+            break;
+
+        case "task":
+            DEFINITIONTYPES[
+                ELEMENT.DiagramReplace().target.type
+            ] = ELEMENT.defaults();
+            break;
+    }
+});
 
 module.exports = {
     /*
@@ -92,16 +77,25 @@ module.exports = {
         }
     },
 
+    DiagramReplaceDefinitionsForType: function(type) {
+        var definitions = AllProcessElements.filter((e) => {
+            return e.defaults().category == type;
+        }).map((e) => {
+            return e.DiagramReplace();
+        });
+        return definitions;
+    },
+
     StartEvents: function() {
-        return START_EVENTS;
+        return this.DiagramReplaceDefinitionsForType("start");
     },
 
     Tasks: function() {
-        return TASKS;
+        return this.DiagramReplaceDefinitionsForType("task");
     },
 
     EndEvents: function() {
-        return END_EVENTS;
+        return this.DiagramReplaceDefinitionsForType("end");
     },
 
     definitionForElement: function(element) {

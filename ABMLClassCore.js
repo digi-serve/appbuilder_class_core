@@ -9,8 +9,10 @@
  * (this.mlFields) and auto
  */
 var ABDefinition = require("../platform/ABDefinition");
-module.exports = class ABMLClassCore {
+var ABEmitter = require("../platform/ABEmitter");
+module.exports = class ABMLClassCore extends ABEmitter {
     constructor(fieldList) {
+        super();
         this.mlFields = fieldList || ["label"];
     }
 
