@@ -5,7 +5,8 @@
  *
  */
 
-var ABFieldSelectivity = require("../../platform/dataFields/ABFieldSelectivity");
+// var ABFieldSelectivity = require("../../platform/dataFields/ABFieldSelectivity");
+var ABField = require("../../platform/dataFields/ABField");
 
 function L(key, altText) {
     // TODO:
@@ -62,7 +63,7 @@ var defaultValues = {
     multipleDefault: []
 };
 
-module.exports = class ABFieldListCore extends ABFieldSelectivity {
+module.exports = class ABFieldListCore extends ABField {
     constructor(values, object) {
         super(values, object, ABFieldListDefaults);
 
@@ -89,6 +90,7 @@ module.exports = class ABFieldListCore extends ABFieldSelectivity {
      * @param {obj} values
      */
     fromValues(values) {
+        debugger;
         super.fromValues(values);
 
         // translate options list
@@ -114,6 +116,7 @@ module.exports = class ABFieldListCore extends ABFieldSelectivity {
      * @return {json}
      */
     toObj() {
+        debugger;
         var obj = super.toObj();
 
         // Un-translate options list
@@ -169,6 +172,7 @@ module.exports = class ABFieldListCore extends ABFieldSelectivity {
     }
 
     format(rowData, options = {}) {
+        debugger;
         var val = this.dataValue(rowData) || [];
 
         if (typeof val == "string") {
