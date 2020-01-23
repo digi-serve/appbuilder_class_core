@@ -1,9 +1,7 @@
-// import ABApplication from "./ABApplication"
-// const ABApplication = require("./ABApplication"); // NOTE: change to require()
 const ABProcessElement = require("../../../platform/process/tasks/ABProcessElement.js");
 
-var ABProcessTaskEmailDefaults = {
-    category: "task",
+var ABProcessTaskApprovalDefaults = {
+    category: null,
     // category: {string} | null
     // if this Element should show up on one of the popup replace menus, then
     // specify one of the categories of elements it should be an option for.
@@ -11,50 +9,34 @@ var ABProcessTaskEmailDefaults = {
     //
     // if it shouldn't show up under the popup menu, then leave this null
 
-    fields: [
-        "to",
-        "from",
-        "subject",
-        "message",
-        "toCustom",
-        "fromCustom",
-        "toUsers",
-        "fromUsers"
-    ],
+    fields: ["roles", "ui"],
     // fields: {array}
     // a list of internal setting values this Element tracks
 
-    icon: "email", // font-awesome icon reference.  (without the 'fa-').  so 'user'  to reference 'fa-user'
+    icon: "check-circle", // font-awesome icon reference.  (without the 'fa-').  so 'user'  to reference 'fa-user'
     // icon: {string}
     // font-awesome icon reference.  (without the 'fa-').  so 'user'  to reference 'fa-user'
 
-    key: "Email"
+    key: "Approval"
     // key: {string}
     // unique key to reference this specific Task
 };
 
-module.exports = class ABProcessTaskEmailCore extends ABProcessElement {
+module.exports = class ABProcessTaskUserApprovalCore extends ABProcessElement {
     constructor(attributes, process, application) {
-        attributes.type = attributes.type || "process.task.email";
-        super(attributes, process, application, ABProcessTaskEmailDefaults);
+        attributes.type = attributes.type || "process.task.user.approval";
+        super(attributes, process, application, ABProcessTaskApprovalDefaults);
 
         // listen
     }
 
     // return the default values for this DataField
     static defaults() {
-        return ABProcessTaskEmailDefaults;
+        return ABProcessTaskApprovalDefaults;
     }
 
     static DiagramReplace() {
-        return {
-            label: "Send Task",
-            actionName: "replace-with-send-task",
-            className: "bpmn-icon-send",
-            target: {
-                type: "bpmn:SendTask"
-            }
-        };
+        return null;
     }
 
     fromValues(attributes) {
@@ -68,7 +50,7 @@ module.exports = class ABProcessTaskEmailCore extends ABProcessElement {
         */
         super.fromValues(attributes);
 
-        ABProcessTaskEmailDefaults.fields.forEach((f) => {
+        ABProcessTaskApprovalDefaults.fields.forEach((f) => {
             this[f] = attributes[f];
         });
     }
@@ -87,7 +69,7 @@ module.exports = class ABProcessTaskEmailCore extends ABProcessElement {
     toObj() {
         var data = super.toObj();
 
-        ABProcessTaskEmailDefaults.fields.forEach((f) => {
+        ABProcessTaskApprovalDefaults.fields.forEach((f) => {
             data[f] = this[f];
         });
 
@@ -99,24 +81,6 @@ module.exports = class ABProcessTaskEmailCore extends ABProcessElement {
     ////
 
     /**
-     * do()
-     * this method actually performs the action for this task.
-     * @param {obj} instance  the instance data of the running process
-     * @return {Promise}
-     *      resolve(true/false) : true if the task is completed.
-     *                            false if task is still waiting
-     */
-    // do(instance) {
-    //     return new Promise((resolve, reject) => {
-    //         // for testing:
-    //         var myState = this.myState(instance);
-    //         myState.status = "completed";
-    //         this.log(instance, "Email Sent successfully");
-    //         resolve(true);
-    //     });
-    // }
-
-    /**
      * initState()
      * setup this task's initial state variables
      * @param {obj} context  the context data of the process instance
@@ -124,10 +88,8 @@ module.exports = class ABProcessTaskEmailCore extends ABProcessElement {
      */
     initState(context, val) {
         var myDefaults = {
-            to: [],
-            from: [],
-            subject: this.subject,
-            message: this.message
+            roles: [],
+            ui: null
         };
 
         super.initState(context, myDefaults, val);

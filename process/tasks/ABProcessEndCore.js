@@ -1,11 +1,28 @@
-const ABProcessTask = require("../../../platform/process/tasks/ABProcessTask.js");
+const ABProcessElement = require("../../../platform/process/tasks/ABProcessElement.js");
 
 var ABProcessTaskEndDefaults = {
-    key: "End", // unique key to reference this specific Task
-    icon: "stop" // font-awesome icon reference.  (without the 'fa-').  so 'user'  to reference 'fa-user'
+    category: "end",
+    // category: {string} | null
+    // if this Element should show up on one of the popup replace menus, then
+    // specify one of the categories of elements it should be an option for.
+    // Available choices: [ "start", "task", "end" ].
+    //
+    // if it shouldn't show up under the popup menu, then leave this null
+
+    fields: [],
+    // fields: {array}
+    // a list of internal setting values this Element tracks
+
+    icon: "stop", // font-awesome icon reference.  (without the 'fa-').  so 'user'  to reference 'fa-user'
+    // icon: {string}
+    // font-awesome icon reference.  (without the 'fa-').  so 'user'  to reference 'fa-user'
+
+    key: "End"
+    // key: {string}
+    // unique key to reference this specific Task
 };
 
-module.exports = class ABProcessTaskEndCore extends ABProcessTask {
+module.exports = class ABProcessTaskEndCore extends ABProcessElement {
     constructor(attributes, process, application) {
         super(attributes, process, application, ABProcessTaskEndDefaults);
 

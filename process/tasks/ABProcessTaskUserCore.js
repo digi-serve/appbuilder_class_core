@@ -1,8 +1,21 @@
-// import ABApplication from "./ABApplication"
-// const ABApplication = require("./ABApplication"); // NOTE: change to require()
+/**
+ * ABProcessTaskUserCore
+ *
+ * This defines the base User Task element that can be placed on a BPMN
+ * diagram.  In our system, we will let the designer choose a sub class
+ * to make active for this element.
+ *
+ * Currently a UserTask expects a human user to perform an action.  These
+ * actions are in the possible forms:
+ *  - confirm offline action
+ *  - approve data
+ *  - fill out a form
+ *
+ */
+
 const ABProcessElement = require("../../../platform/process/tasks/ABProcessElement.js");
 
-var ABProcessTaskEmailDefaults = {
+var ABProcessTaskUserDefaults = {
     category: "task",
     // category: {string} | null
     // if this Element should show up on one of the popup replace menus, then
@@ -11,48 +24,40 @@ var ABProcessTaskEmailDefaults = {
     //
     // if it shouldn't show up under the popup menu, then leave this null
 
-    fields: [
-        "to",
-        "from",
-        "subject",
-        "message",
-        "toCustom",
-        "fromCustom",
-        "toUsers",
-        "fromUsers"
-    ],
+    fields: [],
     // fields: {array}
     // a list of internal setting values this Element tracks
 
-    icon: "email", // font-awesome icon reference.  (without the 'fa-').  so 'user'  to reference 'fa-user'
+    icon: "user", // font-awesome icon reference.  (without the 'fa-').  so 'user'  to reference 'fa-user'
     // icon: {string}
     // font-awesome icon reference.  (without the 'fa-').  so 'user'  to reference 'fa-user'
 
-    key: "Email"
+    key: "TaskUser"
     // key: {string}
     // unique key to reference this specific Task
 };
 
-module.exports = class ABProcessTaskEmailCore extends ABProcessElement {
+module.exports = class ABProcessTaskUserCore extends ABProcessElement {
     constructor(attributes, process, application) {
-        attributes.type = attributes.type || "process.task.email";
-        super(attributes, process, application, ABProcessTaskEmailDefaults);
+        attributes.type = attributes.type || "process.task.user";
+        super(attributes, process, application, ABProcessTaskUserDefaults);
 
         // listen
     }
 
     // return the default values for this DataField
     static defaults() {
-        return ABProcessTaskEmailDefaults;
+        return ABProcessTaskUserDefaults;
     }
 
     static DiagramReplace() {
+        // taken from "bpmn-js/lib/features/replace/ReplaceOptions"
         return {
-            label: "Send Task",
-            actionName: "replace-with-send-task",
-            className: "bpmn-icon-send",
+            label: "User Task",
+            actionName: "replace-with-user-task",
+            className: "bpmn-icon-user",
             target: {
-                type: "bpmn:SendTask"
+                type: "bpmn:UserTask"
             }
         };
     }
@@ -68,7 +73,7 @@ module.exports = class ABProcessTaskEmailCore extends ABProcessElement {
         */
         super.fromValues(attributes);
 
-        ABProcessTaskEmailDefaults.fields.forEach((f) => {
+        this.defaults.fields.forEach((f) => {
             this[f] = attributes[f];
         });
     }
@@ -87,7 +92,7 @@ module.exports = class ABProcessTaskEmailCore extends ABProcessElement {
     toObj() {
         var data = super.toObj();
 
-        ABProcessTaskEmailDefaults.fields.forEach((f) => {
+        this.defaults.fields.forEach((f) => {
             data[f] = this[f];
         });
 
@@ -124,10 +129,8 @@ module.exports = class ABProcessTaskEmailCore extends ABProcessElement {
      */
     initState(context, val) {
         var myDefaults = {
-            to: [],
-            from: [],
-            subject: this.subject,
-            message: this.message
+            roles: [],
+            ui: null
         };
 
         super.initState(context, myDefaults, val);

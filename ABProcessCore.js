@@ -157,6 +157,16 @@ module.exports = class ABProcessCore extends ABMLClass {
     }
 
     /**
+     * elementAdd()
+     * insert an element to be tracked by this process.
+     * @param {ABProcessElement} element
+     *        the full instance of an ABProcessElement to track.
+     */
+    elementAdd(element) {
+        this._elements[element.id || element.diagramID] = element;
+    }
+
+    /**
      * elementForDiagramID()
      * return the object that is tied to the given xml diagram ID.
      * @param {string} dID the diagram ID
@@ -168,8 +178,15 @@ module.exports = class ABProcessCore extends ABMLClass {
         })[0];
     }
 
+    /**
+     * elementRemove()
+     * remove an element from being tracked by this process.
+     * @param {obj|ABProcessElement} def
+     *        a definition of, or full Object instance of the ABProcessElement
+     *        to remove.
+     */
     elementRemove(def) {
-        delete this._elements[def.id];
+        delete this._elements[def.id || def.diagramID];
     }
 
     /**

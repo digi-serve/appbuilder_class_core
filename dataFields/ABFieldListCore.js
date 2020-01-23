@@ -90,7 +90,6 @@ module.exports = class ABFieldListCore extends ABField {
      * @param {obj} values
      */
     fromValues(values) {
-        debugger;
         super.fromValues(values);
 
         // translate options list
@@ -116,7 +115,6 @@ module.exports = class ABFieldListCore extends ABField {
      * @return {json}
      */
     toObj() {
-        debugger;
         var obj = super.toObj();
 
         // Un-translate options list
@@ -157,7 +155,6 @@ module.exports = class ABFieldListCore extends ABField {
      * @return {array}
      */
     isValidData(data, validator) {
-        debugger;
         super.isValidData(data, validator);
     }
 
@@ -173,7 +170,6 @@ module.exports = class ABFieldListCore extends ABField {
     }
 
     format(rowData, options = {}) {
-        debugger;
         var val = this.dataValue(rowData) || [];
 
         if (typeof val == "string") {
