@@ -24,6 +24,18 @@ module.exports = class ABViewFormSelectMultipleCore extends ABViewFormComponent 
         return ABSelectMultipleDefaults;
     }
 
+    /**
+     * @method toObj()
+     *
+     * properly compile the current state of this ABViewFormSelectMultiple instance
+     * into the values needed for saving.
+     *
+     * @return {json}
+     */
+    toObj() {
+        debugger;
+    }
+
     static defaultValues() {
         return ABViewFormSelectMultiplePropertyComponentDefaults;
     }

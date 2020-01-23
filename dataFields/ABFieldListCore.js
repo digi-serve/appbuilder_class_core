@@ -157,6 +157,7 @@ module.exports = class ABFieldListCore extends ABField {
      * @return {array}
      */
     isValidData(data, validator) {
+        debugger;
         super.isValidData(data, validator);
     }
 
