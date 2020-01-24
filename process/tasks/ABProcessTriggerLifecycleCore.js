@@ -85,4 +85,48 @@ module.exports = class ABProcessTriggerLifecycle extends ABProcessTrigger {
         data.lifecycleKey = this.lifecycleKey;
         return data;
     }
+
+    /**
+     * processDataFields()
+     * return an array of avaiable data fields that this element
+     * can request from other ProcessElements.
+     * Different Process Elements can make data available to other
+     * process Elements.
+     * @return {array} | null
+     */
+    processDataFields() {
+        var fields = null;
+        if (this.objectID) {
+            fields = [];
+            var object = this.application.objectByID(this.objectID);
+            object.fields().forEach((field) => {
+                fields.push({
+                    key: `${this.id}.${field.id}`,
+                    label: `${this.label}->${object.label}->${field.label}`
+                });
+            });
+        }
+        return fields;
+    }
+
+    /**
+     * processData()
+     * return the current value requested for the given data key.
+     * @param {obj} instance
+     * @return {mixed} | null
+     */
+    processData(instance, key) {
+        var parts = key.split(".");
+        if (parts[0] == this.id) {
+            var object = this.application.objectByID(this.objectID);
+            var field = object.fields((f) => {
+                return f.id == parts[1];
+            })[0];
+            if (field) {
+                // instance.context.data[field.column_name];
+                return "data";
+            }
+        }
+        return null;
+    }
 };

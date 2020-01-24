@@ -9,7 +9,7 @@ var ABProcessTaskApprovalDefaults = {
     //
     // if it shouldn't show up under the popup menu, then leave this null
 
-    fields: ["roles", "ui"],
+    fields: ["roles", "ui", "who", "toUsers"],
     // fields: {array}
     // a list of internal setting values this Element tracks
 

@@ -250,6 +250,28 @@ module.exports = class ABProcessTaskCore extends ABMLClass {
     }
 
     /**
+     * processDataFields()
+     * return an array of avaiable data fields that this element
+     * can request from other ProcessElements.
+     * Different Process Elements can make data available to other
+     * process Elements.
+     * @return {array} | null
+     */
+    processDataFields() {
+        return null;
+    }
+
+    /**
+     * processData()
+     * return the current value requested for the given data key.
+     * @param {obj} instance
+     * @return {mixed} | null
+     */
+    processData(instance, key) {
+        return null;
+    }
+
+    /**
      * reset()
      * prepare this task to run again if it was already completed.
      *
