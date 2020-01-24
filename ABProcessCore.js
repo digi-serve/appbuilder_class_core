@@ -332,14 +332,15 @@ module.exports = class ABProcessCore extends ABMLClass {
     processDataFields(currElement) {
         var tasksToAsk = this.connectionPreviousTask(currElement);
         var fields = [];
-        debugger;
-        var processTask = (list, processedIDs, cb) => {
-            if (typeof cb == "undefined") {
-                cb = processedIDs;
+
+        var processTask = (list, processedIDs) => {
+            // recursive fn() to step through our graph and compile
+            // results.
+            if (typeof processedIDs == "undefined") {
                 processedIDs = [];
             }
             if (list.length == 0) {
-                cb();
+                return;
             } else {
                 // get next task
                 var task = list.shift();
@@ -357,10 +358,10 @@ module.exports = class ABProcessCore extends ABMLClass {
                 }
 
                 // process next Task
-                processTask(list, processedIDs, cb);
+                processTask(list, processedIDs);
             }
         };
-        processTask(tasksToAsk, (err) => {});
+        processTask(tasksToAsk);
         return fields.length > 0 ? fields : null;
     }
 
