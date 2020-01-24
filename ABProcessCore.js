@@ -1,6 +1,7 @@
 // import ABApplication from "./ABApplication"
 
 var ABMLClass = require("../platform/ABMLClass");
+const _concat = require("lodash/concat");
 
 module.exports = class ABProcessCore extends ABMLClass {
     constructor(attributes, application) {
@@ -41,6 +42,8 @@ module.exports = class ABProcessCore extends ABMLClass {
             }
         });
 
+        this._connections = attributes.connections || {};
+
         super.fromValues(attributes); // perform translation on this object.
         // NOTE: keep this at the end of .fromValues();
 
@@ -78,6 +81,8 @@ module.exports = class ABProcessCore extends ABMLClass {
         for (var e in this._elements) {
             data.elementIDs.push(this._elements[e].id);
         }
+
+        data.connections = this._connections;
 
         // data.participantIDs = [];
         // for (var p in this._participants) {
@@ -134,8 +139,99 @@ module.exports = class ABProcessCore extends ABMLClass {
     }
 
     //
-    // Tasks
+    // Diagram Elements
     //
+
+    /**
+     * connections()
+     * return an array of connections that describe the relationships between
+     * our process elements.
+     * @param {fn} fn an iterator that returns true if the provided element
+     *                should be returned.
+     * @return [{SimpleConnectionObj}]
+     */
+    connections(fn) {
+        if (!fn)
+            fn = () => {
+                return true;
+            };
+        var allConnections = Object.keys(this._connections).map((e) => {
+            return this._connections[e];
+        });
+        return allConnections.filter(fn);
+    }
+
+    /**
+     * connectionForDiagramID()
+     * return the connection for the given diagram id
+     * @param {string} dID
+     *        the bpmn:Element diagram id
+     */
+    connectionForDiagramID(dID) {
+        return this.connections((t) => {
+            return t.id == dID;
+        })[0];
+    }
+
+    /**
+     * connectionRemove()
+     * remove the connection info for the given bpmn:element
+     * @param {BMPNDiagramOBJ} element
+     *        the {element} returned from the BPMN.io modeling library event.
+     */
+    connectionRemove(element) {
+        delete this._connections[element.id];
+    }
+
+    /**
+     * connectionSimplyElement()
+     * given a BPMN diagram element, return a simplified object that describes
+     * the connection between two elements.
+     * @param {BMPNDiagramOBJ} element
+     *        the {element} returned from the BPMN.io modeling library event.
+     * @return {SimpleConnectionObj}
+     *        .id : {string} diagram id of the connection element
+     *        .type : {string} the type of connection
+     *        .from : {string} the diagram id of the source element
+     *        .to : {string} the diagram id of the dest element
+     */
+    connectionSimplyElement(element) {
+        var bo = element.businessObject;
+        var from = null;
+        if (bo.sourceRef) {
+            from = bo.sourceRef.id;
+        }
+
+        var to = null;
+        if (bo.targetRef) {
+            to = bo.targetRef.id;
+        }
+
+        var connection = {
+            id: element.id,
+            type: element.type,
+            from: from,
+            to: to
+        };
+        return connection;
+    }
+
+    /**
+     * connectionUpsert()
+     * add or update the connection information for the given bpmn:element
+     * @param {BMPNDiagramOBJ} element
+     *        the {element} returned from the BPMN.io modeling library event.
+     */
+    connectionUpsert(element) {
+        var simpleConn = this.connectionSimplyElement(element);
+        if (simpleConn.from && simpleConn.to) {
+            this._connections[simpleConn.id] = simpleConn;
+        } else {
+            // this connection is no longer connecting anything thing.
+            // it is being removed.
+            this.connectionRemove(element);
+        }
+    }
 
     /**
      * elements()
@@ -198,6 +294,74 @@ module.exports = class ABProcessCore extends ABMLClass {
      */
     isTriggeredBy(key) {
         return this.taskForTriggerKey(key) != null;
+    }
+
+    /**
+     * connectionPreviousTask()
+     * return the ABProcessElement(s) that was a previous Element
+     * (eg connects to) this element.
+     * @param {ABProcessElement} currElement
+     * @return {array}
+     */
+    connectionPreviousTask(currElement) {
+        var elements = [];
+        var prevConnections = this.connections((c) => {
+            return c.to == currElement.diagramID;
+        });
+        prevConnections.forEach((c) => {
+            var element = this.elements((e) => {
+                return e.diagramID == c.from;
+            })[0];
+            if (element) {
+                elements.push(element);
+            }
+        });
+        return elements;
+    }
+
+    /**
+     * processDataFields()
+     * return an array of avaiable data fields that this element
+     * can request from other ProcessElements.
+     * Different Process Elements can make data available to other
+     * process Elements.
+     * @param {ABProcessElement} currElement
+     *        the ABProcessElement that is requesting the data.
+     * @return {array} | null
+     */
+    processDataFields(currElement) {
+        var tasksToAsk = this.connectionPreviousTask(currElement);
+        var fields = [];
+        debugger;
+        var processTask = (list, processedIDs, cb) => {
+            if (typeof cb == "undefined") {
+                cb = processedIDs;
+                processedIDs = [];
+            }
+            if (list.length == 0) {
+                cb();
+            } else {
+                // get next task
+                var task = list.shift();
+
+                // if we haven't already done task:
+                if (processedIDs.indexOf(task.diagramID) == -1) {
+                    // mark this task as having been processed
+                    processedIDs.push(task.diagramID);
+
+                    // get any field's it provides
+                    fields = _concat(fields, task.processDataFields() || []);
+
+                    // add any previous tasks to our list
+                    list = _concat(list, this.connectionPreviousTask(task));
+                }
+
+                // process next Task
+                processTask(list, processedIDs, cb);
+            }
+        };
+        processTask(tasksToAsk, (err) => {});
+        return fields.length > 0 ? fields : null;
     }
 
     /**
