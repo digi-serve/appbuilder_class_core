@@ -87,7 +87,7 @@ Views[ABViewDetailCheckbox.common().key] = ABViewDetailCheckbox;
 Views[ABViewDetailCustom.common().key] = ABViewDetailCustom;
 Views[ABViewDetailConnect.common().key] = ABViewDetailConnect;
 Views[ABViewDetailImage.common().key] = ABViewDetailImage;
-Views[ABViewDetailSelectivity.common().key] = ABViewDetailSelectivity;
+Views[ABViewDetailSelectivity.common().key] = ABViewFormSelectMultiple;
 Views[ABViewDetailText.common().key] = ABViewDetailText;
 Views[ABViewDetailTree.common().key] = ABViewDetailTree;
 
