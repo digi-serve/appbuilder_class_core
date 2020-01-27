@@ -331,37 +331,21 @@ module.exports = class ABProcessCore extends ABMLClass {
      */
     processDataFields(currElement) {
         var tasksToAsk = this.connectionPreviousTask(currElement);
-        var fields = [];
+        var fields = queryPreviousTasks(tasksToAsk, "processDataFields", this);
+        return fields.length > 0 ? fields : null;
+    }
 
-        var processTask = (list, processedIDs) => {
-            // recursive fn() to step through our graph and compile
-            // results.
-            if (typeof processedIDs == "undefined") {
-                processedIDs = [];
-            }
-            if (list.length == 0) {
-                return;
-            } else {
-                // get next task
-                var task = list.shift();
-
-                // if we haven't already done task:
-                if (processedIDs.indexOf(task.diagramID) == -1) {
-                    // mark this task as having been processed
-                    processedIDs.push(task.diagramID);
-
-                    // get any field's it provides
-                    fields = _concat(fields, task.processDataFields() || []);
-
-                    // add any previous tasks to our list
-                    list = _concat(list, this.connectionPreviousTask(task));
-                }
-
-                // process next Task
-                processTask(list, processedIDs);
-            }
-        };
-        processTask(tasksToAsk);
+    /**
+     * processDataObjects()
+     * return an array of avaiable ABObjects that are represented
+     * by the data previous ProcessElements are working with.
+     * @param {ABProcessElement} currElement
+     *        the ABProcessElement that is requesting the data.
+     * @return {array} | null
+     */
+    processDataObjects(currElement) {
+        var tasksToAsk = this.connectionPreviousTask(currElement);
+        var fields = queryPreviousTasks(tasksToAsk, "processDataObjects", this);
         return fields.length > 0 ? fields : null;
     }
 
@@ -416,4 +400,36 @@ module.exports = class ABProcessCore extends ABMLClass {
     //         return p.diagramID == dID;
     //     });
     // }
+};
+
+var queryPreviousTasks = (list, method, process, fields, processedIDs) => {
+    // recursive fn() to step through our graph and compile
+    // results.
+    if (typeof fields == "undefined") {
+        fields = [];
+    }
+    if (typeof processedIDs == "undefined") {
+        processedIDs = [];
+    }
+    if (list.length == 0) {
+        return fields;
+    } else {
+        // get next task
+        var task = list.shift();
+
+        // if we haven't already done task:
+        if (processedIDs.indexOf(task.diagramID) == -1) {
+            // mark this task as having been processed
+            processedIDs.push(task.diagramID);
+
+            // get any field's it provides
+            fields = _concat(fields, task[method]() || []);
+
+            // add any previous tasks to our list
+            list = _concat(list, process.connectionPreviousTask(task));
+        }
+
+        // process next Task
+        return queryPreviousTasks(list, method, process, fields, processedIDs);
+    }
 };

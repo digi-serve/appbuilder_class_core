@@ -272,6 +272,16 @@ module.exports = class ABProcessTaskCore extends ABMLClass {
     }
 
     /**
+     * processDataObjects()
+     * return an array of avaiable ABObjects that this element
+     * can provide to other ProcessElements.
+     * @return {array} | null
+     */
+    processDataObjects() {
+        return null;
+    }
+
+    /**
      * reset()
      * prepare this task to run again if it was already completed.
      *

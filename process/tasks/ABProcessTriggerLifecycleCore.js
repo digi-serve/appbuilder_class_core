@@ -129,4 +129,18 @@ module.exports = class ABProcessTriggerLifecycle extends ABProcessTrigger {
         }
         return null;
     }
+
+    /**
+     * processDataObjects()
+     * return an array of avaiable ABObjects that this element
+     * can provide to other ProcessElements.
+     * @return {array} | null
+     */
+    processDataObjects() {
+        var objects = null;
+        if (this.objectID) {
+            objects = [this.application.objectByID(this.objectID)];
+        }
+        return objects;
+    }
 };
