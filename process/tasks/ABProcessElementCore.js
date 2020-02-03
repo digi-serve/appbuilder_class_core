@@ -148,6 +148,16 @@ module.exports = class ABProcessTaskCore extends ABMLClass {
     }
 
     /**
+     * myLane()
+     * return the ABProcessParticipant | ABProcessLane element we are
+     * in.
+     * @return {ABProcessParticipant|ABProcessLane}
+     */
+    myLane() {
+        return this.process.elementForDiagramID(this.laneDiagramID);
+    }
+
+    /**
      * myState()
      * return the current state values for this ABProcessTask
      * @param {obj} instance  the current ABProcessInstance

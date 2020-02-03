@@ -9,7 +9,7 @@ var ABProcessTaskApprovalDefaults = {
     //
     // if it shouldn't show up under the popup menu, then leave this null
 
-    fields: ["roles", "ui", "who", "toUsers"],
+    fields: ["who", "toUsers", "userFormID", "userFormResponse"],
     // fields: {array}
     // a list of internal setting values this Element tracks
 
@@ -88,10 +88,43 @@ module.exports = class ABProcessTaskUserApprovalCore extends ABProcessElement {
      */
     initState(context, val) {
         var myDefaults = {
-            roles: [],
-            ui: null
+            userFormID: null,
+            userFormResponse: null
         };
 
         super.initState(context, myDefaults, val);
+    }
+
+    /**
+     * processDataFields()
+     * return an array of avaiable data fields that this element
+     * can provide to other ProcessElements.
+     * Different Process Elements can make data available to other
+     * process Elements.
+     * @return {array} | null
+     */
+    processDataFields() {
+        // in this Task, we can return the Response to the UserForm
+        return [
+            {
+                key: `${this.id}.userFormResponse`,
+                label: `${this.label}->Response`
+            }
+        ];
+    }
+
+    /**
+     * processData()
+     * return the current value requested for the given data key.
+     * @param {obj} instance
+     * @return {mixed} | null
+     */
+    processData(instance, key) {
+        var parts = key.split(".");
+        if (parts[0] == this.id) {
+            var myState = this.myState(instance);
+            return myState[parts[1]];
+        }
+        return null;
     }
 };

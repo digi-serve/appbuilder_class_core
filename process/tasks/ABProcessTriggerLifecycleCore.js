@@ -89,7 +89,7 @@ module.exports = class ABProcessTriggerLifecycle extends ABProcessTrigger {
     /**
      * processDataFields()
      * return an array of avaiable data fields that this element
-     * can request from other ProcessElements.
+     * can provide to other ProcessElements.
      * Different Process Elements can make data available to other
      * process Elements.
      * @return {array} | null
