@@ -107,7 +107,7 @@ module.exports = class ABViewCore extends ABEmitter {
             translations: this.translations || []
         };
 
-        // // for each Object: compile to json
+        // for each Object: compile to json
         var views = [];
         this._views.forEach((view) => {
             views.push(view.toObj());

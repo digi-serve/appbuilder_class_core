@@ -536,11 +536,7 @@ module.exports = class ABModelCore {
         var params = {
             url: this.object.urlRestRefresh()
         };
-        return this.request("put", params)
-            .then(() => {
-                resolve();
-            })
-            .catch(reject);
+        return this.request("put", params);
     }
 
     normalizeData(data) {

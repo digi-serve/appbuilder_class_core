@@ -23,6 +23,7 @@
 // webpack can handle 'require()' statements, but node can't handle import
 // so let's use require():
 const ABObject = require("../platform/ABObject");
+const ABDataCollectionCore = require("./ABDataCollectionCore");
 const ABFieldManager = require("./ABFieldManager");
 const ABViewManager = require("../platform/ABViewManager");
 // const ABViewPageCore = require("./views/ABViewPageCore");
@@ -51,6 +52,9 @@ module.exports = class ABApplicationCore {
         // globally.  And not part of the internal definition of an
         // ABApplication.
         this._datacollections = [];
+        (attributes.json.datacollections || []).forEach(dc => {
+            this._datacollections.push(this.datacollectionNew(dc));
+        });
 
         // import all our ABObjects
         // NOTE: we work with ABObjects on both the client and server sides.
@@ -87,7 +91,7 @@ module.exports = class ABApplicationCore {
         });
         this._pages = newPages;
 
-        this._scopes = [];
+        this._roles = [];
 
         // // Mobile Apps
         // // an Application can have one or more Mobile Apps registered.
@@ -231,8 +235,7 @@ module.exports = class ABApplicationCore {
             function() {
                 return true;
             };
-
-        return this._mobileApps.filter(filter);
+        return (this._mobileApps || []).filter(filter);
     }
 
     ///
@@ -242,6 +245,10 @@ module.exports = class ABApplicationCore {
     ///
     /// Data collections
     ///
+
+    datacollectionNew(values) {
+        return new ABDataCollectionCore(values, this);
+    }
 
     /**
      * @method datacollections()
@@ -489,27 +496,28 @@ module.exports = class ABApplicationCore {
     }
 
     ///
-    /// Scopes
+    /// Roles
     ///
 
     /**
-     * @method scopes()
+     * @method roles()
      *
-     * return an array of all the ABScope for this ABApplication.
+     * return an array of all the ABRole for this ABApplication.
      *
-     * @param {fn} filter  	a filter fn to return a set of ABScope that
+     * @param {fn} filter  	a filter fn to return a set of ABRole that
      *						this fn returns true for.
-     * @return {array} 	array of ABScope
+     * @return {array} 	array of ABRole
      */
-    scopes(filter) {
+    roles(filter) {
         filter =
             filter ||
             function() {
                 return true;
             };
 
-        return (this._scopes || []).filter(filter);
+        return (this._roles || []).filter(filter);
     }
+
 
     /**
      * @method urlResolve()
