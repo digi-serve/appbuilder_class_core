@@ -1,8 +1,8 @@
 module.exports = class ABRoleCore {
 
-	constructor(values, application) {
+	constructor(values) {
 
-		this.application = application;
+		// this.application = application;
 		this._scopes = [];
 
 		this.fromValues(values);
@@ -17,14 +17,14 @@ module.exports = class ABRoleCore {
 		this.translations = values.translations;
 
 		// multilingual fields: name, description
-		this.application.translate(this, this, ['name', 'description']);
+		// this.application.translate(this, this, ['name', 'description']);
 
 
 	}
 
 	toObj() {
 
-		this.application.unTranslate(this, this, ['name', 'description']);
+		// this.application.unTranslate(this, this, ['name', 'description']);
 
 		return {
 			id: this.id,

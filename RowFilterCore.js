@@ -124,15 +124,8 @@ module.exports = class RowFilter extends ABComponent {
                 var value = getFieldVal(rowData, columnName);
                 if (!(value instanceof Date)) value = new Date(value);
 
-                if (!(compareValue instanceof Date) && (
-					rule == "less" ||
-					rule == "greater" ||
-					rule == "less_or_equal" ||
-					rule == "greater_or_equal"
-				))
+                if (!(compareValue instanceof Date))
                     compareValue = new Date(compareValue);
-
-                let now = new Date();
 
                 switch (rule) {
                     case "less":
@@ -146,34 +139,6 @@ module.exports = class RowFilter extends ABComponent {
                         break;
                     case "greater_or_equal":
                         result = value >= compareValue;
-                        break;
-                    case "less_current":
-                        result = value < now;
-                        break;
-                    case "greater_current":
-                        result = value > now;
-                        break;
-                    case "less_or_equal_current":
-                        result = value <= now;
-                        break;
-                    case "greater_or_equal_current":
-                        result = value >= now;
-                        break;
-                    case "last_days":
-                        if (value <= now) {
-                            let startDate = now.setDate(now.getDate() - compareValue); // Minus days
-                            result = value > startDate;
-                        }
-                        else
-                            result = false;
-                        break;
-                    case "next_days":
-                        if (value >= now) {
-                            let endDate = now.setDate(now.getDate() + compareValue); // Add days
-                            result = value < endDate;
-                        }
-                        else
-                            result = false;
                         break;
                     default:
                         result = _logic.queryValid(rowData, rule, compareValue);
@@ -304,7 +269,7 @@ module.exports = class RowFilter extends ABComponent {
             queryValid: (rowData, rule, compareValue) => {
                 var result = false;
 
-                if (!compareValue) return result;
+                if (!this._Application || !compareValue) return result;
 
                 // queryId:fieldId
                 var queryId = compareValue.split(":")[0],
@@ -348,7 +313,7 @@ module.exports = class RowFilter extends ABComponent {
                     rowData = rowData[columnName] || {};
                 }
 
-                if (!compareValue) return result;
+                if (!compareValue || !this._Application) return result;
 
                 // if no query
                 let query = this._Application.queries(
@@ -380,15 +345,13 @@ module.exports = class RowFilter extends ABComponent {
             dataCollectionValid: (rowData, columnName, rule, compareValue) => {
                 var result = false;
 
-                if (!compareValue) return result;
+                if (!compareValue || !this._Application) return result;
 
                 if (columnName) {
                     rowData = rowData[columnName] || {};
                 }
 
-                var dc = this._Application.datacollections(
-                    (dc) => dc.id == compareValue
-                )[0];
+                let dc = this._Application.datacollections(d => d.id == compareValue)[0];
 
                 switch (rule) {
                     case "in_data_collection":
@@ -483,7 +446,7 @@ module.exports = class RowFilter extends ABComponent {
                     case "in_query":
                     case "not_in_query":
 
-                        if (this._Object == null)
+                        if (!this._Application || !this._Object)
                             return result;
 
                         // if > 1 copy of this object in query ==> Error!

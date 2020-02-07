@@ -28,8 +28,6 @@ const ABFieldManager = require("./ABFieldManager");
 const ABViewManager = require("../platform/ABViewManager");
 // const ABViewPageCore = require("./views/ABViewPageCore");
 const ABQLManager = require("./ABQLManager");
-// const ABRole = require("../platform/ABRole");
-// const ABScope = require("../platform/ABScope");
 
 module.exports = class ABApplicationCore {
     constructor(attributes) {
@@ -727,28 +725,6 @@ module.exports = class ABApplicationCore {
     qlopNew(values, application, parent) {
         return ABQLManager.newOP(values, application || this, parent);
     }
-
-	/**
-	 * @method roleNew()
-	 *
-	 * return an instance of a new (unsaved) ABRole.
-	 *
-	 * @return {ABRole}
-	 */
-	roleNew(values = {}, application) {
-		return new ABRole(values, application || this);
-	}
-
-	/**
-	 * @method scopeNew()
-	 *
-	 * return an instance of a new (unsaved) ABScope.
-	 *
-	 * @return {ABScope}
-	 */
-	scopeNew(values = {}, application) {
-		return new ABScope(values, application || this);
-	}
 
     ///
     /// Utilities

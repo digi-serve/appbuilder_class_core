@@ -1,8 +1,10 @@
+const ABApplication = require("../platform/ABApplication");
+
 module.exports = class ABScopeCore {
 
-	constructor(values, application) {
+	constructor(values) {
 
-		this.application = application;
+		// this.application = application;
 
 		this.fromValues(values);
 
@@ -21,32 +23,29 @@ module.exports = class ABScopeCore {
 		// json
 		this.filter = values.filter;
 
-		// boolean
-		this.isGlobal = JSON.parse(values.isGlobal || false);
-
 		this._objects = [];
 		if (values.objects) {
+			let mockApp = new ABApplication({});
 			(values.objects || []).forEach(o => {
-				let obj = this.application.objectNew(o);
+				let obj = mockApp.objectNew(o);
 				this._objects.push(obj);
 			})
 		}
 
 		// multilingual fields: name, description
-		this.application.translate(this, this, ['name', 'description']);
+		// this.application.translate(this, this, ['name', 'description']);
 
 	}
 
 	toObj() {
 
-		this.application.unTranslate(this, this, ['name', 'description']);
+		// this.application.unTranslate(this, this, ['name', 'description']);
 
 		return {
 			id: this.id,
 			translations: this.translations,
 			createdBy: this.createdBy,
 			filter: this.filter,
-			isGlobal: this.isGlobal,
 			objectIds: this.objects().map(o => o.id)
 		};
 
