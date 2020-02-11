@@ -24,6 +24,7 @@ var DEFINITIONTYPES = {};
 
 var AllProcessElements = [
     require("../../platform/process/tasks/ABProcessEnd"),
+    require("../../platform/process/tasks/ABProcessGatewayExclusive"),
     require("../../platform/process/tasks/ABProcessTaskEmail"),
     require("../../platform/process/tasks/ABProcessTaskUser"),
     require("../../platform/process/tasks/ABProcessTaskUserApproval"),
@@ -42,6 +43,7 @@ AllProcessElements.forEach((ELEMENT) => {
             ] = ELEMENT.defaults();
             break;
 
+        case "gateway":
         case "task":
             DEFINITIONTYPES[
                 ELEMENT.DiagramReplace().target.type
@@ -88,6 +90,10 @@ module.exports = {
 
     StartEvents: function() {
         return this.DiagramReplaceDefinitionsForType("start");
+    },
+
+    Gateways: function() {
+        return this.DiagramReplaceDefinitionsForType("gateway");
     },
 
     Tasks: function() {

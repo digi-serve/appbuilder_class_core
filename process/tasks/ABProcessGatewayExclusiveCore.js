@@ -1,9 +1,7 @@
 const ABProcessElement = require("../../../platform/process/tasks/ABProcessElement.js");
 
-const ABFieldList = require("../../../platform/dataFields/ABFieldList.js");
-
-var ABProcessTaskApprovalDefaults = {
-    category: null,
+var ABProcessGatewayExclusiveDefaults = {
+    category: "gateway",
     // category: {string} | null
     // if this Element should show up on one of the popup replace menus, then
     // specify one of the categories of elements it should be an option for.
@@ -15,36 +13,49 @@ var ABProcessTaskApprovalDefaults = {
     // icon: {string}
     // font-awesome icon reference.  (without the 'fa-').  so 'user'  to reference 'fa-user'
 
-    instanceValues: ["userFormID", "userFormResponse"],
+    instanceValues: [],
     // instanceValues: {array}
     // a list of values this element tracks as it is operating in a process.
 
-    key: "Approval",
+    key: "GatewayExclusive",
     // key: {string}
     // unique key to reference this specific Task
 
-    settings: ["who", "toUsers"]
+    settings: ["conditions"]
     // settings: {array}
     // a list of internal setting values this Element tracks. These are the
     // values set by the platform .propertiesStash()
 };
 
-module.exports = class ABProcessTaskUserApprovalCore extends ABProcessElement {
+module.exports = class ABProcessGatewayExclusiveCore extends ABProcessElement {
     constructor(attributes, process, application) {
-        attributes.type = attributes.type || "process.task.user.approval";
-        super(attributes, process, application, ABProcessTaskApprovalDefaults);
+        attributes.type = attributes.type || "process.gateway.exclusive";
+        super(
+            attributes,
+            process,
+            application,
+            ABProcessGatewayExclusiveDefaults
+        );
 
         // listen
     }
 
     // return the default values for this DataField
     static defaults() {
-        return ABProcessTaskApprovalDefaults;
+        return ABProcessGatewayExclusiveDefaults;
     }
 
     static DiagramReplace() {
-        return null;
+        return {
+            label: "Exclusive Gateway",
+            actionName: "replace-with-exclusive-gateway",
+            className: "bpmn-icon-gateway-xor",
+            target: {
+                type: "bpmn:ExclusiveGateway"
+            }
+        };
     }
+
     /*
     fromValues(attributes) {
         /*
@@ -57,11 +68,12 @@ module.exports = class ABProcessTaskUserApprovalCore extends ABProcessElement {
         * /
         super.fromValues(attributes);
 
-        ABProcessTaskApprovalDefaults.fields.forEach((f) => {
+        ABProcessGatewayExclusiveDefaults.fields.forEach((f) => {
             this[f] = attributes[f];
         });
     }
-*/
+    */
+
     /**
      * @method toObj()
      *
@@ -73,17 +85,18 @@ module.exports = class ABProcessTaskUserApprovalCore extends ABProcessElement {
      *
      * @return {json}
      */
-    /*     
+    /*
     toObj() {
         var data = super.toObj();
 
-        ABProcessTaskApprovalDefaults.fields.forEach((f) => {
+        ABProcessGatewayExclusiveDefaults.fields.forEach((f) => {
             data[f] = this[f];
         });
 
         return data;
     }
-*/
+    */
+
     ////
     //// Process Instance Methods
     ////
@@ -96,14 +109,14 @@ module.exports = class ABProcessTaskUserApprovalCore extends ABProcessElement {
      */
     /*
     initState(context, val) {
-        var myDefaults = {};
-        ABProcessTaskApprovalDefaults.instanceValues.forEach((v) => {
-            myDefaults[v] = null;
-        });
+        var myDefaults = {
+            userFormID: null,
+            userFormResponse: null
+        };
 
         super.initState(context, myDefaults, val);
     }
-*/
+    */
 
     /**
      * processDataFields()
@@ -113,48 +126,17 @@ module.exports = class ABProcessTaskUserApprovalCore extends ABProcessElement {
      * process Elements.
      * @return {array} | null
      */
+    /*
     processDataFields() {
         // in this Task, we can return the Response to the UserForm
-        // The Response can be in the form of a List Field, with one or more
-        // return options.
-
-        // create an ABFieldList object:
-        // make sure the options follow what is currently defined for our
-        // responses:
-        var myObj = this.application.objectNew({});
-        var listField = new ABFieldList(
-            {
-                id: `${this.id}.userFormResponse`,
-                label: `${this.label}->Response`,
-                settings: {
-                    options: [
-                        // TODO: insert form Responses here:
-                        {
-                            id: "aaa",
-                            text: "Yes"
-                        },
-                        {
-                            id: "aab",
-                            text: "No"
-                        },
-                        {
-                            id: "aac",
-                            text: "Maybe"
-                        }
-                    ]
-                }
-            },
-            myObj
-        );
-
         return [
             {
                 key: `${this.id}.userFormResponse`,
-                label: `${this.label}->Response`,
-                field: listField
+                label: `${this.label}->Response`
             }
         ];
     }
+    */
 
     /**
      * processData()
@@ -162,6 +144,7 @@ module.exports = class ABProcessTaskUserApprovalCore extends ABProcessElement {
      * @param {obj} instance
      * @return {mixed} | null
      */
+    /*
     processData(instance, key) {
         var parts = key.split(".");
         if (parts[0] == this.id) {
@@ -170,4 +153,5 @@ module.exports = class ABProcessTaskUserApprovalCore extends ABProcessElement {
         }
         return null;
     }
+    */
 };

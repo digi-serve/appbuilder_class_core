@@ -7,7 +7,7 @@ var ABProcessTaskTriggerLifecycleDefaults = {
     // category: {string} | null
     // if this Element should show up on one of the popup replace menus, then
     // specify one of the categories of elements it should be an option for.
-    // Available choices: [ "start", "task", "end" ].
+    // Available choices: [ "start", "gateway", "task", "end" ].
     //
     // if it shouldn't show up under the popup menu, then leave this null
 
@@ -102,7 +102,8 @@ module.exports = class ABProcessTriggerLifecycle extends ABProcessTrigger {
             object.fields().forEach((field) => {
                 fields.push({
                     key: `${this.id}.${field.id}`,
-                    label: `${this.label}->${object.label}->${field.label}`
+                    label: `${this.label}->${object.label}->${field.label}`,
+                    field: field
                 });
             });
         }

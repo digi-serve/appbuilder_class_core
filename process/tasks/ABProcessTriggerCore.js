@@ -7,7 +7,7 @@ var ABProcessTriggerDefaults = {
     // category: {string} | null
     // if this Element should show up on one of the popup replace menus, then
     // specify one of the categories of elements it should be an option for.
-    // Available choices: [ "start", "task", "end" ].
+    // Available choices: [ "start", "gateway", "task", "end" ].
     //
     // if it shouldn't show up under the popup menu, then leave this null
 

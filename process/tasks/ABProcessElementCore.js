@@ -55,6 +55,14 @@ module.exports = class ABProcessTaskCore extends ABMLClass {
         //      is added, however, an object is assigned to it, and the
         //      Lane will provide that info.
 
+        // initialize any defined settings
+        if (this.defaults && this.defaults.settings) {
+            this.defaults.settings.forEach((s) => {
+                if (typeof attributes[s] == "undefined") this[s] = null;
+                else this[s] = attributes[s];
+            });
+        }
+
         super.fromValues(attributes); // perform translation on this object.
         // NOTE: keep this at the end of .fromValues();
 
@@ -96,6 +104,13 @@ module.exports = class ABProcessTaskCore extends ABMLClass {
             data[f] = this[f];
         });
 
+        // save any defined settings
+        if (this.defaults && this.defaults.settings) {
+            this.defaults.settings.forEach((s) => {
+                data[s] = this[s];
+            });
+        }
+
         return data;
     }
 
@@ -115,6 +130,13 @@ module.exports = class ABProcessTaskCore extends ABMLClass {
         if (!val) {
             val = defaults;
             defaults = {};
+
+            // in this case, then auto initi blank instanceValues:
+            if (this.defaults && this.defaults.instanceValues) {
+                this.defaults.instanceValues.forEach((v) => {
+                    defaults[v] = null;
+                });
+            }
         }
 
         context.taskState = context.taskState || {};

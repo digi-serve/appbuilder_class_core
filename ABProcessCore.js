@@ -174,6 +174,30 @@ module.exports = class ABProcessCore extends ABMLClass {
     }
 
     /**
+     * connectionsIncoming()
+     * return the connections that are entering this Element
+     * @param {string} dID
+     *        the bpmn:Element diagram id
+     */
+    connectionsIncoming(dID) {
+        return this.connections((c) => {
+            return c.to == dID;
+        });
+    }
+
+    /**
+     * connectionsOutgoing()
+     * return the connections that are leaving this Element
+     * @param {string} dID
+     *        the bpmn:Element diagram id
+     */
+    connectionsOutgoing(dID) {
+        return this.connections((c) => {
+            return c.from == dID;
+        });
+    }
+
+    /**
      * connectionRemove()
      * remove the connection info for the given bpmn:element
      * @param {BMPNDiagramOBJ} element
