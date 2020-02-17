@@ -344,6 +344,25 @@ module.exports = class ABProcessCore extends ABMLClass {
     }
 
     /**
+     * processData()
+     * return an array of avaiable ABObjects that are represented
+     * by the data previous ProcessElements are working with.
+     * @param {ABProcessElement} currElement
+     *        the ABProcessElement that is requesting the data.
+     * @return {array} | null
+     */
+    processData(currElement, params) {
+        var tasksToAsk = this.connectionPreviousTask(currElement);
+        var values = queryPreviousTasks(
+            tasksToAsk,
+            "processData",
+            params,
+            this
+        );
+        return values.length > 0 ? values[0] : null;
+    }
+
+    /**
      * processDataFields()
      * return an array of avaiable data fields that this element
      * can request from other ProcessElements.
@@ -355,7 +374,12 @@ module.exports = class ABProcessCore extends ABMLClass {
      */
     processDataFields(currElement) {
         var tasksToAsk = this.connectionPreviousTask(currElement);
-        var fields = queryPreviousTasks(tasksToAsk, "processDataFields", this);
+        var fields = queryPreviousTasks(
+            tasksToAsk,
+            "processDataFields",
+            null,
+            this
+        );
         return fields.length > 0 ? fields : null;
     }
 
@@ -369,7 +393,12 @@ module.exports = class ABProcessCore extends ABMLClass {
      */
     processDataObjects(currElement) {
         var tasksToAsk = this.connectionPreviousTask(currElement);
-        var fields = queryPreviousTasks(tasksToAsk, "processDataObjects", this);
+        var fields = queryPreviousTasks(
+            tasksToAsk,
+            "processDataObjects",
+            null,
+            this
+        );
         return fields.length > 0 ? fields : null;
     }
 
@@ -426,17 +455,24 @@ module.exports = class ABProcessCore extends ABMLClass {
     // }
 };
 
-var queryPreviousTasks = (list, method, process, fields, processedIDs) => {
+var queryPreviousTasks = (
+    list,
+    method,
+    param,
+    process,
+    responses,
+    processedIDs
+) => {
     // recursive fn() to step through our graph and compile
     // results.
-    if (typeof fields == "undefined") {
-        fields = [];
+    if (typeof responses == "undefined") {
+        responses = [];
     }
     if (typeof processedIDs == "undefined") {
         processedIDs = [];
     }
     if (list.length == 0) {
-        return fields;
+        return responses;
     } else {
         // get next task
         var task = list.shift();
@@ -447,13 +483,23 @@ var queryPreviousTasks = (list, method, process, fields, processedIDs) => {
             processedIDs.push(task.diagramID);
 
             // get any field's it provides
-            fields = _concat(fields, task[method]() || []);
+            responses = _concat(
+                responses,
+                task[method].apply(task, param) || []
+            );
 
             // add any previous tasks to our list
             list = _concat(list, process.connectionPreviousTask(task));
         }
 
         // process next Task
-        return queryPreviousTasks(list, method, process, fields, processedIDs);
+        return queryPreviousTasks(
+            list,
+            method,
+            param,
+            process,
+            responses,
+            processedIDs
+        );
     }
 };
