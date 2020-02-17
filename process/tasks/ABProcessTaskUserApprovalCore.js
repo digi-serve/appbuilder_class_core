@@ -126,6 +126,7 @@ module.exports = class ABProcessTaskUserApprovalCore extends ABProcessElement {
             {
                 id: `${this.id}.userFormResponse`,
                 label: `${this.label}->Response`,
+                columnName: `${this.id}.userFormResponse`,
                 settings: {
                     options: [
                         // TODO: insert form Responses here:
@@ -163,10 +164,12 @@ module.exports = class ABProcessTaskUserApprovalCore extends ABProcessElement {
      * @return {mixed} | null
      */
     processData(instance, key) {
-        var parts = key.split(".");
-        if (parts[0] == this.id) {
-            var myState = this.myState(instance);
-            return myState[parts[1]];
+        if (key) {
+            var parts = key.split(".");
+            if (parts[0] == this.id) {
+                var myState = this.myState(instance);
+                return myState[parts[1]];
+            }
         }
         return null;
     }
