@@ -23,7 +23,7 @@ var ABProcessTaskApprovalDefaults = {
     // key: {string}
     // unique key to reference this specific Task
 
-    settings: ["who", "toUsers"]
+    settings: ["who", "toUsers", "formBuilder"]
     // settings: {array}
     // a list of internal setting values this Element tracks. These are the
     // values set by the platform .propertiesStash()
@@ -45,7 +45,7 @@ module.exports = class ABProcessTaskUserApprovalCore extends ABProcessElement {
     static DiagramReplace() {
         return null;
     }
-    /*
+
     fromValues(attributes) {
         /*
         {
@@ -54,14 +54,25 @@ module.exports = class ABProcessTaskUserApprovalCore extends ABProcessElement {
             type: 'xxxxx',
             json: "{json}"
         }
-        * /
+        */
         super.fromValues(attributes);
 
-        ABProcessTaskApprovalDefaults.fields.forEach((f) => {
-            this[f] = attributes[f];
-        });
+        function fixBoolean(obj) {
+            if (obj) {
+                Object.keys(obj).forEach((k) => {
+                    if (obj[k] == "false") {
+                        obj[k] = false;
+                    } else if (obj[k] == "true") {
+                        obj[k] = true;
+                    } else if (typeof obj[k] == "object") {
+                        fixBoolean(obj[k]);
+                    }
+                });
+            }
+        }
+        fixBoolean(this.formBuilder);
     }
-*/
+
     /**
      * @method toObj()
      *
@@ -104,6 +115,47 @@ module.exports = class ABProcessTaskUserApprovalCore extends ABProcessElement {
         super.initState(context, myDefaults, val);
     }
 */
+
+    /*
+     * preProcessFormIOComponents()
+     * we need to parse the form.io components to ensure the proper columnName
+     * and labels are being used. We also will translate the columnNames at this
+     * point in the code
+     */
+    preProcessFormIOComponents() {
+        var dataObjs = this.process.processDataObjects(this);
+        var fields = [];
+        dataObjs.forEach((obj) => {
+            fields = fields.concat(obj.fields());
+        });
+        if (this.formBuilder && this.formBuilder.components) {
+            this.formBuilder.components.forEach((c) => {
+                if (c.abFieldID) {
+                    fields.filter((field) => {
+                        if (field.id == c.abFieldID) {
+                            c.label = field.label;
+                            c.key = field.columnName;
+                            if (
+                                c.data &&
+                                c.data.values &&
+                                field.settings.options
+                            ) {
+                                var vals = [];
+                                field.settings.options.forEach((opt) => {
+                                    vals.push({
+                                        label: opt.text,
+                                        value: opt.id
+                                    });
+                                });
+                                c.data.values = vals;
+                            }
+                        }
+                    });
+                }
+            });
+        }
+        return this.formBuilder;
+    }
 
     /**
      * processDataFields()
