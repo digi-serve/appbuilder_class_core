@@ -667,10 +667,12 @@ module.exports = class ABViewDataCollectionCore extends ABEmitter {
                                 let updateItemData = {};
 
                                 connectedFields.forEach((f) => {
-                                    var updateRelateVal =
-                                        updatedVals[
-                                            f.fieldLink.relationName()
-                                        ] || {};
+
+                                    var updateRelateVal = {};
+                                    if (f && f.fieldLink) {
+                                        updateRelateVal = updatedVals[f.fieldLink.relationName()] || {};
+                                    }
+
                                     let rowRelateVal =
                                         d[f.relationName()] || {};
 
@@ -891,9 +893,14 @@ module.exports = class ABViewDataCollectionCore extends ABEmitter {
                     let updateItemData = {};
 
                     connectedFields.forEach((f) => {
-                        let updateRelateVal =
-                            values[f.fieldLink.relationName()] || {};
+
+                        if (!f) return;
+
+                        let updateRelateVal = {};
                         let rowRelateVal = d[f.relationName()] || {};
+
+                        if (f.fieldLink)
+                            updateRelateVal = values[f.fieldLink.relationName()] || {};
 
                         // Unrelate data
                         if (
@@ -1746,55 +1753,55 @@ module.exports = class ABViewDataCollectionCore extends ABEmitter {
     // 	})
     // }
 
-    // /**
-    //  * @method _queryUpdateData
-    //  *
-    //  * @param {Array} objList - List of ABObject
-    //  * @param {Object} values
-    //  */
-    // _queryUpdateData(objList, values) {
+    /**
+     * @method _queryUpdateData
+     *
+     * @param {Array} objList - List of ABObject
+     * @param {Object} values
+     */
+    _queryUpdateData(objList, values) {
 
-    // 	let updatedVals = {};
+    	let updatedVals = {};
 
-    // 	// Add alias to properties of update data
-    // 	Object.keys(values).forEach(key => {
-    // 		objList.forEach(oItem => {
+    	// Add alias to properties of update data
+    	Object.keys(values).forEach(key => {
+    		objList.forEach(oItem => {
 
-    // 			let alias = oItem.alias;
+    			let alias = oItem.alias;
 
-    // 			updatedVals[`${alias}.${key}`] = values[key];
+    			updatedVals[`${alias}.${key}`] = values[key];
 
-    // 			// Add alias to properties of .translations
-    // 			if (key == 'translations' &&
-    // 				values['translations'] &&
-    // 				values['translations'].length) {
+    			// Add alias to properties of .translations
+    			if (key == 'translations' &&
+    				values['translations'] &&
+    				values['translations'].length) {
 
-    // 				updatedVals.translations = [];
+    				updatedVals.translations = [];
 
-    // 				values['translations'].forEach(tran => {
+    				values['translations'].forEach(tran => {
 
-    // 					let updatedTran = {};
+    					let updatedTran = {};
 
-    // 					Object.keys(tran).forEach(tranKey => {
+    					Object.keys(tran).forEach(tranKey => {
 
-    // 						if (tranKey == "language_code")
-    // 							updatedTran["language_code"] = tran["language_code"];
-    // 						else
-    // 							updatedTran[`${alias}.${tranKey}`] = tran[tranKey];
+    						if (tranKey == "language_code")
+    							updatedTran["language_code"] = tran["language_code"];
+    						else
+    							updatedTran[`${alias}.${tranKey}`] = tran[tranKey];
 
-    // 					});
+    					});
 
-    // 					updatedVals.translations.push(updatedTran);
+    					updatedVals.translations.push(updatedTran);
 
-    // 				});
-    // 			}
+    				});
+    			}
 
-    // 		});
-    // 	});
+    		});
+    	});
 
-    // 	return updatedVals;
+    	return updatedVals;
 
-    // }
+    }
 
     isValidData(rowData) {
         let result = true;
@@ -1812,7 +1819,7 @@ module.exports = class ABViewDataCollectionCore extends ABEmitter {
 
     clone(settings) {
         settings = settings || this.toObj();
-        var clonedDatacollection = new ABDatacollection(
+        var clonedDatacollection = new this.constructor(
             settings,
             this.application
         );
