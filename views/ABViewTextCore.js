@@ -89,7 +89,7 @@ module.exports = class ABViewTextCore extends ABViewWidget {
 	 * @return {ABDatacollection}
 	 */
 	get datacollection() {
-		if (this.parent.key == "datacollection") {
+		if (this.parent.key == "dataview") {
 			return this.application.datacollections(dv => dv.id == this.parent.settings.dataviewID)[0];
 		} else {
 			return this.application.datacollections(dv => dv.id == this.settings.dataviewID)[0];
