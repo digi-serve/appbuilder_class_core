@@ -81,7 +81,7 @@ function setBuildinValueToFormula(formulaString) {
 	var buildInRegExp = /\w+\(.*?\)/gm;
 	var matches_buildin_array = formulaString.match(buildInRegExp);
 	if (matches_buildin_array) {
-		var buildinList = ABFieldTextFormulaCore.getBuildInFunction();
+		var buildinList = getBuildInFunction();
 		matches_buildin_array.forEach(element => {
 			var formula_array =  element.split(/\(|\)/);
 			var isBracketInBracket = formula_array.length > 2 && formula_array[2] != "";
@@ -169,6 +169,30 @@ function setBuildinValueToFormula(formulaString) {
 		});
 	}
 	return formulaString;
+}
+
+function getBuildInFunction() {
+	var functionList = [
+		{ id: "left", value: "left({COLUMN_NAME}, 1)", type: "build-in", parameter_size: 2 }, 
+		{ id: "right", value: "right({COLUMN_NAME}, 1)", type: "build-in", parameter_size: 2 }, 
+		{ id: "mid", value: "mid({COLUMN_NAME}, 1, 1)", type: "build-in", parameter_size: 3 }, 
+		{ id: "trim", value: "trim({COLUMN_NAME})", type: "build-in", parameter_size: 1 }, 
+		{ id: "trimLeft", value: "trimLeft({COLUMN_NAME})", type: "build-in", parameter_size: 1}, 
+		{ id: "trimRight", value: "trimRight({COLUMN_NAME})",  type: "build-in", parameter_size: 1},
+		{ id: "length", value: "length({COLUMN_NAME})", type: "build-in", parameter_size: 1},
+		{ id: "regexReplace", value: "regexReplace({COLUMN_NAME}, [*], REPLACE_VALUE)", type: "build-in", parameter_size: 3},
+		{ id: "extractRegex", value: "extractRegex({COLUMN_NAME}, [*])", type: "build-in", parameter_size: 2},
+		{ id: "replace", value: "replace({COLUMN_NAME}, SEARCH_VALUE, REPLACE_VALUE)", type: "build-in", parameter_size: 3},
+		{ id: "lower", value: "lower({COLUMN_NAME})", type: "build-in", parameter_size: 1},
+		{ id: "upper", value: "upper({COLUMN_NAME})", type: "build-in", parameter_size: 1},
+		{ id: "capitalize", value: "capitalize({COLUMN_NAME})", type: "build-in", parameter_size: 1},
+		{ id: "random", value: "random(1)", type: "build-in", parameter_size: 1},
+		{ id: "numberToWords", value: "numberToWords({NUMBER_COLUMN} or 012...)", type: "build-in", parameter_size: 1},
+		{ id: "getDateDayOfWeekName", value: "getDateDayOfWeekName({DATE_COLUMN})", type: "build-in", parameter_size: 1},
+		{ id: "getDateMonthOfYearName", value: "getDateMonthOfYearName({DATE_COLUMN})", type: "build-in", parameter_size: 1},
+		{ id: "formatDate", value: "formatDate({DATE_COLUMN}, OUTPUT_FORMAT)", type: "build-in", parameter_size: 1},
+	];
+	return functionList;
 }
 
 function getLeft(string, endPosition) {
@@ -381,27 +405,7 @@ module.exports = class ABFieldTextFormulaCore extends ABField {
     }
 
 	static getBuildInFunction() {
-		var functionList = [
-			{ id: "left", value: "left({COLUMN_NAME}, 1)", type: "build-in", parameter_size: 2 }, 
-			{ id: "right", value: "right({COLUMN_NAME}, 1)", type: "build-in", parameter_size: 2 }, 
-			{ id: "mid", value: "mid({COLUMN_NAME}, 1, 1)", type: "build-in", parameter_size: 3 }, 
-			{ id: "trim", value: "trim({COLUMN_NAME})", type: "build-in", parameter_size: 1 }, 
-			{ id: "trimLeft", value: "trimLeft({COLUMN_NAME})", type: "build-in", parameter_size: 1}, 
-			{ id: "trimRight", value: "trimRight({COLUMN_NAME})",  type: "build-in", parameter_size: 1},
-			{ id: "length", value: "length({COLUMN_NAME})", type: "build-in", parameter_size: 1},
-			{ id: "regexReplace", value: "regexReplace({COLUMN_NAME}, [*], REPLACE_VALUE)", type: "build-in", parameter_size: 3},
-			{ id: "extractRegex", value: "extractRegex({COLUMN_NAME}, [*])", type: "build-in", parameter_size: 2},
-			{ id: "replace", value: "replace({COLUMN_NAME}, SEARCH_VALUE, REPLACE_VALUE)", type: "build-in", parameter_size: 3},
-			{ id: "lower", value: "lower({COLUMN_NAME})", type: "build-in", parameter_size: 1},
-			{ id: "upper", value: "upper({COLUMN_NAME})", type: "build-in", parameter_size: 1},
-			{ id: "capitalize", value: "capitalize({COLUMN_NAME})", type: "build-in", parameter_size: 1},
-			{ id: "random", value: "random(1)", type: "build-in", parameter_size: 1},
-			{ id: "numberToWords", value: "numberToWords({NUMBER_COLUMN} or 012...)", type: "build-in", parameter_size: 1},
-			{ id: "getDateDayOfWeekName", value: "getDateDayOfWeekName({DATE_COLUMN})", type: "build-in", parameter_size: 1},
-			{ id: "getDateMonthOfYearName", value: "getDateMonthOfYearName({DATE_COLUMN})", type: "build-in", parameter_size: 1},
-			{ id: "formatDate", value: "formatDate({DATE_COLUMN}, OUTPUT_FORMAT)", type: "build-in", parameter_size: 1},
-		];
-		return functionList;
+		return getBuildInFunction();
 	}
 
 
@@ -486,3 +490,4 @@ module.exports = class ABFieldTextFormulaCore extends ABField {
 // webix.DataStore.prototype.sorting.as.[sort_type] = function(a,b){
 //     return a > b ? 1 : -1;
 // }
+
