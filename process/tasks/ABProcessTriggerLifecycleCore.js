@@ -106,6 +106,11 @@ module.exports = class ABProcessTriggerLifecycle extends ABProcessTrigger {
                     field: field
                 });
             });
+            fields.push({
+                key: `${this.id}.uuid`,
+                label: `${this.label}->${object.label} `, // note the extra " "
+                field: null
+            });
         }
         return fields;
     }
@@ -119,13 +124,16 @@ module.exports = class ABProcessTriggerLifecycle extends ABProcessTrigger {
     processData(instance, key) {
         var parts = key.split(".");
         if (parts[0] == this.id) {
+            var myState = this.myState(instance);
             var object = this.application.objectByID(this.objectID);
             var field = object.fields((f) => {
                 return f.id == parts[1];
             })[0];
             if (field) {
                 // instance.context.data[field.column_name];
-                return "data";
+                return myState["data"][field.column_name];
+            } else if (parts[1] == "uuid") {
+                return myState["data"]["uuid"];
             }
         }
         return null;
