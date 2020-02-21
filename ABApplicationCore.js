@@ -66,6 +66,9 @@ module.exports = class ABApplicationCore {
         //  		newObjects.push( this.objectNew(obj) );
         //  	})
         this._objects = [];
+        (attributes.json.objects || []).forEach(obj => {
+            this._objects.push(this.objectNew(obj));
+        });
 
         // // NOTE: keep this after ABObjects are loaded
         // // import our ABObjectQueries
@@ -79,6 +82,9 @@ module.exports = class ABApplicationCore {
         //   	}
         //  	})
         this._queries = [];
+        (attributes.json.queries || []).forEach(q => {
+            this._queries.push(this.queryNew(q));
+        });
 
         // Transition:
         // _pages, and _mobileApps, are still included in the ABApplication
