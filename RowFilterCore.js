@@ -276,7 +276,7 @@ module.exports = class RowFilter extends ABComponent {
                     fieldId = compareValue.split(":")[1];
 
                 // if no query
-                var query = this._Application.queries(
+                var query = this.queries(
                     (q) => q.id == queryId
                 )[0];
                 if (!query) return result;
@@ -316,7 +316,7 @@ module.exports = class RowFilter extends ABComponent {
                 if (!compareValue || !this._Application) return result;
 
                 // if no query
-                let query = this._Application.queries(
+                let query = this.queries(
                     (q) => q.id == compareValue
                 )[0];
                 if (!query) return result;
@@ -450,7 +450,7 @@ module.exports = class RowFilter extends ABComponent {
                             return result;
 
                         // if > 1 copy of this object in query ==> Error!
-                        let query = this._Application.queries(
+                        let query = this.queries(
                             (q) => q.id == compareValue
                         )[0];
                         if (!query) return result;
@@ -683,6 +683,39 @@ module.exports = class RowFilter extends ABComponent {
 
     }
 
+    queriesLoad(queries = []) {
+        this._Queries = queries;
+    }
+
+
+    /**
+     * @method queries()
+     *
+     * return an array of all the ABObjectQuery.
+     *
+     * @param filter {Object}
+     *
+     * @return {array}
+     */
+    queries(filter) {
+
+        filter = filter || function() { return true; };
+
+        let result = [];
+
+        if (this._Application) {
+            result = result.concat(this._Application.queries(filter));
+        }
+
+        if (this._Queries) {
+            result = result.concat((this._Queries || []).filter(q => 
+                filter(q) && result.filter(r => r.id == q.id).length < 1
+            ));
+        }
+
+        return result;
+    }
+
     setValue(settings) {
         this.config_settings = settings || {};
 
@@ -690,3 +723,4 @@ module.exports = class RowFilter extends ABComponent {
     }
 
 };
+
