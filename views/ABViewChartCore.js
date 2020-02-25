@@ -80,30 +80,30 @@ module.exports = class ABViewChartCore extends ABViewContainer {
 	}
 
 	labelField() {
-		var dv = this.dataview;
-		if (!dv) return null;
+		var dc = this.datacollection;
+		if (!dc) return null;
 
-		var obj = dv.datasource;
+		var obj = dc.datasource;
 		if (!obj) return null;
 
 		return obj.fields((f) => f.id == this.settings.columnLabel)[0]
 	}
 
 	valueField() {
-		var dv = this.dataview;
-		if (!dv) return null;
+		var dc = this.datacollection;
+		if (!dc) return null;
 
-		var obj = dv.datasource;
+		var obj = dc.datasource;
 		if (!obj) return null;
 		
 		return obj.fields((f) => f.id == this.settings.columnValue)[0]
 	}
 
 	valueField2() {
-		var dv = this.dataview;
-		if (!dv) return null;
+		var dc = this.datacollection;
+		if (!dc) return null;
 
-		var obj = dv.datasource;
+		var obj = dc.datasource;
 		if (!obj) return null;
 		
 		return obj.fields((f) => f.id == this.settings.columnValue2)[0]
