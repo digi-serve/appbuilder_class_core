@@ -615,6 +615,15 @@ module.exports = class ABModelCore {
                         d[relationName].id = d[relationName][objectLink.PK()];
                     }
                 }
+
+                var relatedMlFields = objectLink.multilingualFields();
+                if (relatedMlFields.length) {
+                    objectLink.application.translate(
+                        d[relationName],
+                        d[relationName],
+                        relatedMlFields
+                    );
+                }
             });
 
             if (mlFields.length) {

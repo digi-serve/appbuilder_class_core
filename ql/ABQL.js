@@ -151,6 +151,8 @@ module.exports = class ABQL {
         if (this.data) {
             return this.data;
         }
-        return this.datacollection.getData();
+        var records = this.datacollection.getData();
+        this.datacollection.datasource.model().normalizeData(records);
+        return records;
     }
 };
