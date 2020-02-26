@@ -204,7 +204,8 @@ module.exports = class ABProcessTaskUserApprovalCore extends ABProcessElement {
             {
                 key: `${this.id}.userFormResponse`,
                 label: `${this.label}->Response`,
-                field: listField
+                field: listField,
+                object: null
             }
         ];
     }

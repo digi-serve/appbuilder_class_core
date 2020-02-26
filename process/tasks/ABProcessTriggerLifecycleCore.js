@@ -103,13 +103,15 @@ module.exports = class ABProcessTriggerLifecycle extends ABProcessTrigger {
                 fields.push({
                     key: `${this.id}.${field.id}`,
                     label: `${this.label}->${object.label}->${field.label}`,
-                    field: field
+                    field,
+                    object
                 });
             });
             fields.push({
                 key: `${this.id}.uuid`,
-                label: `${this.label}->${object.label} `, // note the extra " "
-                field: null
+                label: `${this.label}->${object.label}`,
+                field: null,
+                object
             });
         }
         return fields;
