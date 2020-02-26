@@ -23,6 +23,9 @@ module.exports = class ABScopeCore {
 		// json
 		this.filter = values.filter;
 
+		// boolean
+		this.allowAll = JSON.parse(values.allowAll || false);
+
 		this._objects = [];
 		if (values.objects) {
 			let mockApp = new ABApplication({});
@@ -46,6 +49,7 @@ module.exports = class ABScopeCore {
 			translations: this.translations,
 			createdBy: this.createdBy,
 			filter: this.filter,
+			allowAll: this.allowAll || false,
 			objectIds: this.objects().map(o => o.id)
 		};
 
