@@ -6,9 +6,12 @@
  * how it is related to the ABObject classes.
  *
  */
+const ABEmitter = require("../../platform/ABEmitter");
 
-module.exports = class ABFieldCore {
+module.exports = class ABFieldCore extends ABEmitter {
     constructor(values, object, fieldDefaults) {
+        super();
+
         // NOTE: setup this first so later we can use .fieldType(), .fieldIcon()
         this.defaults = fieldDefaults;
 

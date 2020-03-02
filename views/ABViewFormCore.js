@@ -20,6 +20,7 @@ const ABViewFormPropertyComponentDefaults = {
 	clearOnLoad: false,
 	clearOnSave: false,
 	displayRules: [],
+	editForm: 'none', // The url pointer of ABViewForm
 
 	//	[{
 	//		action: {string},
