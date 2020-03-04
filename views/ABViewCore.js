@@ -350,8 +350,8 @@ module.exports = class ABViewCore extends ABEmitter {
      *
      * @return {ABView}
      */
-    viewNew(values) {
-        return this.application.viewNew(values, this.application, this);
+    viewNew(values, application, parent) {
+        return this.application.viewNew(values, application || this.application, parent || this);
     }
 
     /**
@@ -555,7 +555,7 @@ module.exports = class ABViewCore extends ABEmitter {
         }
     }
 
-    copy(lookUpIds, parent) {
+    copy(lookUpIds, parent, options = {}) {
         lookUpIds = lookUpIds || {};
 
         // get settings of the target
@@ -581,10 +581,10 @@ module.exports = class ABViewCore extends ABEmitter {
         result.id = lookUpIds[result.id] || OP.Util.uuid();
 
         // copy sub pages
-        if (this.pages) {
+        if (this.pages && !options.ignoreSubPages) {
             result._pages = [];
             this.pages().forEach((p) => {
-                let copiedSubPage = p.copy(lookUpIds, result);
+                let copiedSubPage = p.copy(lookUpIds, result, options);
                 copiedSubPage.parent = result;
 
                 result._pages.push(copiedSubPage);
@@ -592,10 +592,10 @@ module.exports = class ABViewCore extends ABEmitter {
         }
 
         // copy sub views
-        if (this.views) {
+        if (this.views && !options.ignoreSubViews) {
             result._views = [];
             this.views().forEach((v) => {
-                let copiedView = v.copy(lookUpIds, result);
+                let copiedView = v.copy(lookUpIds, result, options);
 
                 result._views.push(copiedView);
             });
@@ -604,3 +604,4 @@ module.exports = class ABViewCore extends ABEmitter {
         return result;
     }
 };
+
