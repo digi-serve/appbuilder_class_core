@@ -13,7 +13,7 @@ module.exports = class ABFieldCore extends ABEmitter {
         super();
 
         // NOTE: setup this first so later we can use .fieldType(), .fieldIcon()
-        this.defaults = fieldDefaults;
+        this.defaults = fieldDefaults || {};
 
         /*
   		{

@@ -205,7 +205,7 @@ module.exports = class ABFieldConnectCore extends ABFieldSelectivity {
 			.replace('{objectName}', this.object.name)
 			.replace('{relationName}', this.relationName());
 
-		return rowData[this.relationName()] || rowData[propName] || "";
+		return rowData[this.relationName()] || rowData[propName] || rowData[this.columnName] || "";
 
 	}
 

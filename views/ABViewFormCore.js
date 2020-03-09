@@ -93,8 +93,8 @@ module.exports = class ABViewFormCore extends ABViewContainer {
 		this.settings.clearOnSave = JSON.parse(this.settings.clearOnSave != null ? this.settings.clearOnSave : ABViewFormPropertyComponentDefaults.clearOnSave);
 
 		// convert from "0" => 0
-		this.settings.labelWidth = parseInt(this.settings.labelWidth || ABViewFormPropertyComponentDefaults.labelWidth);
-		this.settings.height = parseInt(this.settings.height || ABViewFormPropertyComponentDefaults.height);
+		this.settings.labelWidth = parseInt(this.settings.labelWidth == null ? ABViewFormPropertyComponentDefaults.labelWidth : this.settings.labelWidth);
+		this.settings.height = parseInt(this.settings.height == null ? ABViewFormPropertyComponentDefaults.height : this.settings.height);
 
 	}
 
