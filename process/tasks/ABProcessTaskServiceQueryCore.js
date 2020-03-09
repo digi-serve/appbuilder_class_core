@@ -13,7 +13,7 @@ var ABProcessTaskServiceQueryDefaults = {
     // icon: {string}
     // font-awesome icon reference.  (without the 'fa-').  so 'user'  to reference 'fa-user'
 
-    instanceValues: ["qlObj"],
+    instanceValues: [],
     // instanceValues: {array}
     // a list of values this element tracks as it is operating in a process.
 
@@ -21,7 +21,7 @@ var ABProcessTaskServiceQueryDefaults = {
     // key: {string}
     // unique key to reference this specific Task
 
-    settings: []
+    settings: ["qlObj"]
     // settings: {array}
     // a list of internal setting values this Element tracks. These are the
     // values set by the platform .propertiesStash()
