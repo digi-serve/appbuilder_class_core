@@ -27,7 +27,7 @@ const ABDataCollectionCore = require("./ABDataCollectionCore");
 const ABFieldManager = require("./ABFieldManager");
 const ABViewManager = require("../platform/ABViewManager");
 // const ABViewPageCore = require("./views/ABViewPageCore");
-const ABQLManager = require("./ABQLManager");
+// const ABQLManager = require("./ABQLManager");
 
 module.exports = class ABApplicationCore {
     constructor(attributes) {
@@ -52,7 +52,7 @@ module.exports = class ABApplicationCore {
         // globally.  And not part of the internal definition of an
         // ABApplication.
         this._datacollections = [];
-        (attributes.json.datacollections || []).forEach(dc => {
+        (attributes.json.datacollections || []).forEach((dc) => {
             this._datacollections.push(this.datacollectionNew(dc));
         });
 
@@ -66,7 +66,7 @@ module.exports = class ABApplicationCore {
         //  		newObjects.push( this.objectNew(obj) );
         //  	})
         this._objects = [];
-        (attributes.json.objects || []).forEach(obj => {
+        (attributes.json.objects || []).forEach((obj) => {
             this._objects.push(this.objectNew(obj));
         });
 
@@ -82,7 +82,7 @@ module.exports = class ABApplicationCore {
         //   	}
         //  	})
         this._queries = [];
-        (attributes.json.queries || []).forEach(q => {
+        (attributes.json.queries || []).forEach((q) => {
             this._queries.push(this.queryNew(q));
         });
 
@@ -524,7 +524,6 @@ module.exports = class ABApplicationCore {
         return (this._roles || []).filter(filter);
     }
 
-
     /**
      * @method urlResolve()
      * given an object pointer, return the specific object referenced.
@@ -729,6 +728,7 @@ module.exports = class ABApplicationCore {
      * @return {ABView}
      */
     qlopNew(values, application, parent) {
+        console.error("!!!Where is this called?!!!");
         return ABQLManager.newOP(values, application || this, parent);
     }
 
