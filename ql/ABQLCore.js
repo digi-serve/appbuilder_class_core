@@ -30,6 +30,8 @@ class ABQLCore {
     /// Instance Methods
     ///
 
+    initObject(attributes) {}
+
     fromAttributes(attributes) {
         /*
         {
@@ -51,6 +53,8 @@ class ABQLCore {
         if (this.objectID) {
             this.object = this.objectLookup(this.objectID);
         }
+
+        this.initObject(attributes);
 
         if (attributes.next) {
             var nextOP = null;

@@ -32,9 +32,7 @@ class ABQLObjectCore extends ABQL {
     ///
     /// Instance Methods
     ///
-    fromAttributes(attributes) {
-        super.fromAttributes(attributes);
-
+    initObject(attributes) {
         if (!this.object && this.params) {
             var objNameDef = this.parameterDefinitions.find((pDef) => {
                 return pDef.type == "objectName";

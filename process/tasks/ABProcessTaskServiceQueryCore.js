@@ -1,5 +1,7 @@
 const ABProcessElement = require("../../../platform/process/tasks/ABProcessElement.js");
 
+const ABQLManager = require("../../../platform/ql/ABQLManager.js");
+
 var ABProcessTaskServiceQueryDefaults = {
     category: null,
     // category: {string} | null
@@ -49,23 +51,18 @@ module.exports = class ABProcessTaskServiceQueryCore extends ABProcessElement {
         return null;
     }
 
-    /*
     fromValues(attributes) {
-        /*
-        {
-            id: uuid(),
-            name: 'name',
-            type: 'xxxxx',
-            json: "{json}"
-        }
-        * /
         super.fromValues(attributes);
 
-        ABProcessTaskServiceQueryDefaults.settings.forEach((f) => {
-            this[f] = attributes[f];
-        });
+        // comvert our qlObj into an ABQLxxx instance.
+        if (this.qlObj) {
+            this.qlObj = ABQLManager.fromAttributes(
+                this.qlObj,
+                this,
+                this.application
+            );
+        }
     }
-    */
 
     /**
      * @method toObj()
@@ -78,17 +75,16 @@ module.exports = class ABProcessTaskServiceQueryCore extends ABProcessElement {
      *
      * @return {json}
      */
-    /*
     toObj() {
         var data = super.toObj();
 
-        ABProcessTaskServiceQueryDefaults.settings.forEach((f) => {
-            data[f] = this[f];
-        });
+        // convert qlObj into obj format:
+        if (this.qlObj) {
+            data.qlObj = this.qlObj.toObj();
+        }
 
         return data;
     }
-    */
 
     ////
     //// Process Instance Methods

@@ -215,8 +215,8 @@ module.exports = class FilterComplexCore extends ABComponent {
                     var filter = this._Filters.find((f) => {
                         return f.id == cond.rule;
                     });
-                    var option = filter.type[field.type].options[1];
                     if (filter) {
+                        var option = filter.type[field.type].options[1];
                         return `${field.label} ${filter.name} ${option.value}`;
                     } else {
                         // nope: just return our cond view:

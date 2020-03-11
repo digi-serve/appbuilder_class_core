@@ -66,7 +66,11 @@ module.exports = class ABApplicationCore {
         //  		newObjects.push( this.objectNew(obj) );
         //  	})
         this._objects = [];
-        (attributes.json.objects || []).forEach((obj) => {
+        (
+            webix.storage.local.get("_ABObjects") ||
+            attributes.json.objects ||
+            []
+        ).forEach((obj) => {
             this._objects.push(this.objectNew(obj));
         });
 
