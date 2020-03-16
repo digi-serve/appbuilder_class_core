@@ -1766,7 +1766,7 @@ module.exports = class ABViewDataCollectionCore extends ABView {
                                 rule.rule == "in_data_collection" ||
                                 rule.rule == "not_in_data_collection"
                             ) {
-                                var dc = this.application.dataCollections(
+                                var dc = this.application.datacollections(
                                     (dc) => dc.id == rule.value
                                 )[0];
                                 if (dc) {
@@ -1893,7 +1893,6 @@ module.exports = class ABViewDataCollectionCore extends ABView {
      */
     processIncomingData(data) {
         return Promise.resolve().then(() => {
-
             // store total count
             this.__totalCount = data.total_count;
 
@@ -1906,17 +1905,12 @@ module.exports = class ABViewDataCollectionCore extends ABView {
             // var linkDv = this.dataviewLink;
             var linkDv = this.dataCollectionLink;
             if (linkDv) {
-
                 // filter data by match link data collection
                 this.refreshLinkCursor();
                 this.setStaticCursor();
-
-            }
-            else {
-
+            } else {
                 // set static cursor
                 this.setStaticCursor();
-
             }
 
             // mark initialized data
