@@ -109,7 +109,7 @@ module.exports = class ABViewCore extends ABEmitter {
 
         // for each Object: compile to json
         var views = [];
-        this._views.forEach((view) => {
+        (this._views || []).forEach((view) => {
             views.push(view.toObj());
         });
         result.views = views;
