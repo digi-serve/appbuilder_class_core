@@ -23,7 +23,6 @@ var ABFieldFormula = require("../platform/dataFields/ABFieldFormula");
 var ABFieldAutoIndex = require("../platform/dataFields/ABFieldAutoIndex");
 var ABFieldJson = require("../platform/dataFields/ABFieldJson");
 
-
 /*
  * Fields
  * A name => ABField  hash of the different ABFields available.
@@ -76,7 +75,10 @@ module.exports = {
                 console.log("Requested field", values.key);
             }
         } else {
-            alert(values.key);
+            console.error(values, object);
+            throw new Error(
+                `ABFieldManager.newField(): Unknown Field Key [${values.key}]`
+            );
             //// TODO: what to do here?
         }
     }
