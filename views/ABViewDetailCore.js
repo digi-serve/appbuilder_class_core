@@ -52,8 +52,8 @@ module.exports = class ABViewDetailCore extends ABViewContainer {
 		this.settings.showLabel = JSON.parse(this.settings.showLabel != null ? this.settings.showLabel : ABViewDetailPropertyComponentDefaults.showLabel);
 
 		// convert from "0" => 0
-		this.settings.labelWidth = parseInt(this.settings.labelWidth);
-		this.settings.height = parseInt(this.settings.height);
+		this.settings.labelWidth = parseInt(this.settings.labelWidth || ABViewDetailPropertyComponentDefaults.labelWidth);
+		this.settings.height = parseInt(this.settings.height || ABViewDetailPropertyComponentDefaults.height);
 
 	}
 
