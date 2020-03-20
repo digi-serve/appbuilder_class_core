@@ -55,9 +55,7 @@ module.exports = class ABObjectCore extends ABEmitter {
     /// Instance Methods
     ///
 
-
-    fromValues (attributes) {
-
+    fromValues(attributes) {
         /*
         {
             id: uuid(),
@@ -81,7 +79,7 @@ module.exports = class ABObjectCore extends ABEmitter {
         }
         */
 
-                // ABApplication Attributes (or is it ABObject attributes?)
+        // ABApplication Attributes (or is it ABObject attributes?)
         this.id = attributes.id;
         this.connName = attributes.connName || undefined; // undefined == 'appBuilder'
         this.name = attributes.name || "";
@@ -123,10 +121,7 @@ module.exports = class ABObjectCore extends ABEmitter {
         this.isImported = parseInt(this.isImported || 0);
 
         this.createdInAppID = attributes.createdInAppID;
-
     }
-
-
 
     /**
      * @method importFields
@@ -136,6 +131,11 @@ module.exports = class ABObjectCore extends ABEmitter {
      */
     importFields(fieldSettings) {
         var newFields = [];
+
+        if (fieldSettings && !Array.isArray(fieldSettings)) {
+            console.error("fieldSettings is not an Array!", fieldSettings);
+            fieldSettings = [fieldSettings];
+        }
 
         fieldSettings.forEach((field) => {
             newFields.push(this.application.fieldNew(field, this));
@@ -192,8 +192,6 @@ module.exports = class ABObjectCore extends ABEmitter {
         };
     }
 
-
-
     ///
     /// Objects
     ///
@@ -227,22 +225,26 @@ module.exports = class ABObjectCore extends ABEmitter {
      * @return {array}
      */
     fields(filter, getAll = false) {
-        filter = filter || function() { return true; };
+        filter =
+            filter ||
+            function() {
+                return true;
+            };
 
         let result = this._fields.filter(filter);
 
         if (this.application) {
-
             let availableConnectFn = (f) => {
-                if (f && 
-                    f.key == 'connectObject' &&
+                if (
+                    f &&
+                    f.key == "connectObject" &&
                     this.application &&
-                    this.application.objects(obj => obj.id == f.settings.linkObject).length < 1) {
-
-                    return false
-
-                }
-                else {
+                    this.application.objects(
+                        (obj) => obj.id == f.settings.linkObject
+                    ).length < 1
+                ) {
+                    return false;
+                } else {
                     return true;
                 }
             };
@@ -250,7 +252,6 @@ module.exports = class ABObjectCore extends ABEmitter {
             if (!getAll) {
                 result = result.filter(availableConnectFn);
             }
-
         }
 
         return result;
@@ -263,9 +264,8 @@ module.exports = class ABObjectCore extends ABEmitter {
      *
      * @return {array}
      */
-    connectFields (getAll = false) {
-
-        return this.fields(f => f && f.key == 'connectObject', getAll);
+    connectFields(getAll = false) {
+        return this.fields((f) => f && f.key == "connectObject", getAll);
     }
 
     /**
@@ -292,10 +292,12 @@ module.exports = class ABObjectCore extends ABEmitter {
      * @param {ABField} field The instance of the field to remove.
      * @return {Promise}
      */
-    fieldRemove( field ) {
-    	this._fields = this.fields(function(o){ return o.id != field.id });
+    fieldRemove(field) {
+        this._fields = this.fields(function(o) {
+            return o.id != field.id;
+        });
 
-    	return this.save();
+        return this.save();
     }
 
     /**
@@ -306,13 +308,13 @@ module.exports = class ABObjectCore extends ABEmitter {
      * @param {ABField} field The instance of the field to remove.
      * @return {Promise}
      */
-    fieldReorder( sourceId, targetId ) {
+    fieldReorder(sourceId, targetId) {
         // We know what was moved and what item it has replaced/pushed forward
         // so first we want to splice the item moved out of the array of fields
         // and store it so we can put it somewhere else
         let itemMoved = null;
         let oPos = 0; // original position
-        for(var i=0; i<this._fields.length; i++) {
+        for (var i = 0; i < this._fields.length; i++) {
             if (this._fields[i].columnName == sourceId) {
                 itemMoved = this._fields[i];
                 this._fields.splice(i, 1);
@@ -323,11 +325,11 @@ module.exports = class ABObjectCore extends ABEmitter {
         // once we have removed/stored it we can find where its new position
         // will be by looping back through the array and finding the item it
         // is going to push forward
-        for(var j=0; j<this._fields.length; j++) {
+        for (var j = 0; j < this._fields.length; j++) {
             if (this._fields[j].columnName == targetId) {
-                // if the original position was before the new position we will 
-                // follow webix's logic that the drop should go after the item 
-                // it was placed on 
+                // if the original position was before the new position we will
+                // follow webix's logic that the drop should go after the item
+                // it was placed on
                 if (oPos <= j) {
                     j++;
                 }
@@ -348,13 +350,16 @@ module.exports = class ABObjectCore extends ABEmitter {
      * @param {ABField} field The instance of the field to save.
      * @return {Promise}
      */
-    fieldSave( field ) {
-    	var isIncluded = (this.fields(function(o){ return o.id == field.id }).length > 0);
-    	if (!isIncluded) {
-    		this._fields.push(field);
-    	}
+    fieldSave(field) {
+        var isIncluded =
+            this.fields(function(o) {
+                return o.id == field.id;
+            }).length > 0;
+        if (!isIncluded) {
+            this._fields.push(field);
+        }
 
-    	return this.save();
+        return this.save();
     }
 
     /**
@@ -365,7 +370,9 @@ module.exports = class ABObjectCore extends ABEmitter {
      * @return {array}
      */
     multilingualFields() {
-        return this.fields(f => f && f.isMultilingual).map(f => f.columnName);
+        return this.fields((f) => f && f.isMultilingual).map(
+            (f) => f.columnName
+        );
     }
 
     ///
@@ -456,67 +463,53 @@ module.exports = class ABObjectCore extends ABEmitter {
     ///	Object Workspace Settings
     ///
     get workspaceSortFields() {
-
         // new version
         if (this.workspaceViews) {
             let currView = this.workspaceViews.getCurrentView();
-            if (currView)
-                return currView.sortFields;
-            else
-                return null;
+            if (currView) return currView.sortFields;
+            else return null;
         }
         // old version
         else {
             return this.objectWorkspace.sortFields;
         }
-
     }
 
-    set workspaceSortFields( fields ) {
-
+    set workspaceSortFields(fields) {
         // new version
         if (this.workspaceViews) {
             let currView = this.workspaceViews.getCurrentView();
-            if (currView)
-                currView.sortFields = fields;
+            if (currView) currView.sortFields = fields;
         }
         // old version
         else {
             this.objectWorkspace.sortFields = fields;
         }
-
     }
 
     get workspaceFilterConditions() {
-
         // new version
         if (this.workspaceViews) {
             let currView = this.workspaceViews.getCurrentView();
-            if (currView)
-                return currView.filterConditions;
-            else
-                return null;
+            if (currView) return currView.filterConditions;
+            else return null;
         }
         // old version
         else {
             return this.objectWorkspace.filterConditions;
         }
-
     }
 
-    set workspaceFilterConditions( filterConditions ) {
-
+    set workspaceFilterConditions(filterConditions) {
         // new version
         if (this.workspaceViews) {
             let currView = this.workspaceViews.getCurrentView();
-            if (currView)
-                currView.filterConditions = filterConditions;
+            if (currView) currView.filterConditions = filterConditions;
         }
         // old version
         else {
             this.objectWorkspace.filterConditions = filterConditions;
         }
-
     }
 
     get workspaceFrozenColumnID() {
@@ -537,14 +530,12 @@ module.exports = class ABObjectCore extends ABEmitter {
 
     /**
      * @method isReadOnly
-     * 
+     *
      * @return {boolean}
      */
     get isReadOnly() {
         return this.isImported || this.isExternal;
     }
-
-
 
     /**
      * @method defaultValues
@@ -571,8 +562,8 @@ module.exports = class ABObjectCore extends ABEmitter {
      */
     isValidData(data) {
         // NOTE: the platform needs to define a way to verify the data
-        console.warn("Platform.ABObject.isValidData() missing")
-    	return true;
+        console.warn("Platform.ABObject.isValidData() missing");
+        return true;
     }
 
     /**
@@ -586,9 +577,7 @@ module.exports = class ABObjectCore extends ABEmitter {
      * @return {string}
      */
     urlPointer(acrossApp) {
-
-        if (this.application == null)
-            return null;
+        if (this.application == null) return null;
 
         return this.application.urlObject(acrossApp) + this.id;
     }
@@ -622,24 +611,22 @@ module.exports = class ABObjectCore extends ABEmitter {
         );
     }
 
-
     /**
      * @method clone
      * return a clone of ABObject
-     * 
+     *
      * @return {ABObjectBase}
      */
     clone() {
-
         // ignore properties who're spend much performance
         // NOTE: do not clone them. Just copy reference
-        let ignoreProps = ['application', '_fields'];
+        let ignoreProps = ["application", "_fields"];
 
         let cloneOne = JSON.parse(JSON.stringify(this));
 
-        ignoreProps.forEach((prop)=>{
+        ignoreProps.forEach((prop) => {
             cloneOne[prop] = this[prop];
-        })
+        });
 
         return cloneOne;
     }

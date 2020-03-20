@@ -44,6 +44,7 @@ module.exports = class ABProcessEngineCore {
                 { xmlRef: "bpmn2:startEvent", type: "start" },
                 { xmlRef: "bpmn2:task", type: "task" },
                 { xmlRef: "bpmn2:sendTask", type: "sendTask" },
+                { xmlRef: "bpmn2:serviceTask", type: "serviceTask" },
                 { xmlRef: "bpmn2:userTask", type: "userTask" },
                 { xmlRef: "bpmn2:endEvent", type: "end" },
                 { xmlRef: "bpmn2:parallelGateway", type: "parallelGateway" }
