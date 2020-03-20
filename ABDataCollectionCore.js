@@ -1432,12 +1432,12 @@ module.exports = class ABViewDataCollectionCore extends ABEmitter {
         });
     }
 
-    reloadData() {
+    reloadData(start, limit) {
         this.__dataCollection.clearAll();
 
         if (this.__treeCollection) this.__treeCollection.clearAll();
 
-        return this.loadData(null, null, null);
+        return this.loadData(start, limit);
     }
 
     getData(filter) {
