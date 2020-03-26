@@ -90,8 +90,41 @@ module.exports = class ABFieldLongText extends ABField {
 		this.settings.supportMultilingual = values.settings.supportMultilingual+"" || defaultValues.supportMultilingual;
 
 		// text to Int:
-		this.settings.supportMultilingual = parseInt(this.settings.supportMultilingual);
+        this.settings.supportMultilingual = parseInt(this.settings.supportMultilingual);
+        
+        if (this.settings.supportMultilingual) {
+            if (this.object &&
+                this.object.application)
+                this.object.application.translate(this.settings, this.settings, ["default"]);
+        }
+        else
+            this.settings.default = values.settings.default || '';
 
+    }
+
+	/**
+	 * @method toObj()
+	 *
+	 * properly compile the current state of this ABApplication instance
+	 * into the values needed for saving to the DB.
+	 *
+	 * Most of the instance data is stored in .json field, so be sure to
+	 * update that from all the current values of our child fields.
+	 *
+	 * @return {json}
+	 */
+	toObj() {
+
+		var obj = super.toObj();
+
+        if (this.settings.supportMultilingual)
+            if (this.object &&
+                this.object.application)
+                this.object.application.unTranslate(obj.settings, obj.settings, ["default"]);
+		else
+			obj.settings.default = this.settings.default;
+
+		return obj;
 	}
 
     /*

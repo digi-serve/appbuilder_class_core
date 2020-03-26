@@ -192,6 +192,9 @@ module.exports = class ABApplicationCore {
      * @return {json}
      */
     toObj() {
+
+        this.unTranslate(this, this.json, this.constructor.fieldsMultilingual());
+
         this.json.name = this.name;
 
         // for each Object: compile to json
@@ -762,7 +765,7 @@ module.exports = class ABApplicationCore {
      *						 the obj[field] value.
      *
      */
-    translate(obj, json, fields) {
+    translate(obj, json, fields, languageCode = null) {
         json = json || {};
         fields = fields || [];
 
@@ -774,7 +777,7 @@ module.exports = class ABApplicationCore {
             json.translations = JSON.parse(json.translations);
         }
 
-        var currLanguage = this.languageDefault();
+        var currLanguage = languageCode || this.languageDefault();
 
         if (fields && fields.length > 0) {
             // [fix] if no matching translation is in our json.translations
@@ -791,6 +794,10 @@ module.exports = class ABApplicationCore {
 
                     // copy each field to the root object
                     fields.forEach(function(f) {
+
+                        if (t[f] != null)
+                            obj[f] = t[f];
+
                         obj[f] = t[f] || ""; // default to '' if not found.
                     });
                 }
@@ -801,7 +808,11 @@ module.exports = class ABApplicationCore {
             if (!found && first) {
                 // copy each field to the root object
                 fields.forEach(function(f) {
-                    obj[f] = "[" + currLanguage + "]" + (first[f] || ""); // default to '' if not found.
+                    if (first[f] != null &&
+                        first[f] != "")
+                        obj[f] = `[${currLanguage}]${first[f]}`;
+                    else
+                        obj[f] = ''; // default to '' if not found.
                 });
             }
         }
@@ -845,7 +856,7 @@ module.exports = class ABApplicationCore {
                     fields.forEach(function(f) {
                         // verify obj[f] is defined
                         // --> DONT erase the existing translation
-                        if (typeof obj[f] != "undefined") {
+                        if (obj[f] != null) {
                             t[f] = obj[f];
                         }
                     });

@@ -168,7 +168,8 @@ module.exports = class ABObjectCore extends ABEmitter {
      * @return {json}
      */
     toObj() {
-        // OP.Multilingual.unTranslate(this, this, ["label"]);
+
+        this.application.unTranslate(this, this, ["label"]);
 
         // // for each Field: compile to json
         var currFields = this.exportFields();

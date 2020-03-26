@@ -39,9 +39,6 @@ module.exports = class ABFieldCore extends ABEmitter {
 
         this.fromValues(values);
 
-        if (this.object && 
-            this.object.application)
-            this.object.application.translate(this, this, ["label"]);
     }
 
     ///
@@ -191,6 +188,12 @@ module.exports = class ABFieldCore extends ABEmitter {
      * @return {json}
      */
     toObj() {
+
+        // store "label" in our translations
+        if (this.object && 
+            this.object.application)
+            this.object.application.unTranslate(this, this, ["label"]);
+
         return {
             id: this.id,
             key: this.key,
@@ -222,7 +225,8 @@ module.exports = class ABFieldCore extends ABEmitter {
 
         this.isImported = values.isImported || 0;
 
-        this.settings = values.settings || {};
+        values.settings = values.settings || {};
+        this.settings = values.settings;
         this.settings.showIcon = values.settings.showIcon + "" || "1";
         this.settings.required = values.settings.required + "" || "1";
         this.settings.width = values.settings.width + "" || "0";
@@ -238,7 +242,11 @@ module.exports = class ABFieldCore extends ABEmitter {
 		let defaultValues = this.constructor.defaultValues() || {};
 		for (let dv in defaultValues) {
 			this.settings[dv] = values.settings[dv] || defaultValues[dv];
-		}
+        }
+
+        if (this.object && 
+            this.object.application)
+            this.object.application.translate(this, this, ["label"]);
 
     }
 

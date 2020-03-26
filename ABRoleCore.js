@@ -11,7 +11,8 @@ module.exports = class ABRoleCore {
 
 	fromValues(values = {}) {
 
-		this.id = values.id;
+		this.id = values.uuid || values.id;
+		this.uuid = values.uuid || values.id;
 		this.name = values.name;
 		this.description = values.description;
 		this.translations = values.translations;
@@ -27,7 +28,8 @@ module.exports = class ABRoleCore {
 		// this.application.unTranslate(this, this, ['name', 'description']);
 
 		return {
-			id: this.id,
+			id: this.uuid || this.id,
+			uuid: this.uuid || this.id,
 			name: this.name,
 			description: this.description,
 			translations: this.translations

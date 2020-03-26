@@ -35,7 +35,7 @@ var ABFieldJsonDefaults = {
 var defaultValues = {
 };
 
-module.exports = class ABFieldBooleanCore extends ABField {
+module.exports = class ABFieldJsonCore extends ABField {
 	constructor(values, object) {
 		super(values, object, ABFieldJsonDefaults);
 

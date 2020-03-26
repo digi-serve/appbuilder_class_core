@@ -128,6 +128,10 @@ module.exports = class ABViewDataCollectionCore extends ABEmitter {
             );
             this.settings.isQuery = false;
         }
+
+        if (this.application)
+            this.application.translate(this, this, ["label"]);
+
     }
 
     /**
@@ -142,7 +146,9 @@ module.exports = class ABViewDataCollectionCore extends ABEmitter {
      * @return {json}
      */
     toObj() {
-        // OP.Multilingual.unTranslate(this, this, ["label"]);
+
+        this.application.unTranslate(this, this, ["label"]);
+
         return {
             id: this.id,
             settings: _.cloneDeep(this.settings || {}),
