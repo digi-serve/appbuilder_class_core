@@ -121,6 +121,9 @@ module.exports = class ABObjectCore extends ABEmitter {
         this.isImported = parseInt(this.isImported || 0);
 
         this.createdInAppID = attributes.createdInAppID;
+
+        // multilingual fields: label, description
+        this.application.translate(this, this, ['label']);
     }
 
     /**
