@@ -27,12 +27,18 @@ module.exports = class ABRoleCore {
 
 		// this.application.unTranslate(this, this, ['name', 'description']);
 
+		let scopes = [];
+		(this._scopes || []).forEach(s => {
+			scopes.push(s.toObj());
+		});
+
 		return {
 			id: this.uuid || this.id,
 			uuid: this.uuid || this.id,
 			name: this.name,
 			description: this.description,
-			translations: this.translations
+			translations: this.translations,
+			scopes: scopes
 		};
 
 	}
