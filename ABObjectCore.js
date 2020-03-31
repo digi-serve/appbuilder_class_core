@@ -93,6 +93,11 @@ module.exports = class ABObjectCore extends ABEmitter {
         this.importFromObject = attributes.importFromObject || "";
         this.translations = attributes.translations;
 
+        if (attributes.isSystemObject)
+            this.isSystemObject = attributes.isSystemObject;
+        else
+            delete this.isSystemObject;
+
         if (typeof attributes.objectWorkspace != "undefined") {
             if (typeof attributes.objectWorkspace.sortFields == "undefined")
                 attributes.objectWorkspace.sortFields = [];
@@ -190,6 +195,7 @@ module.exports = class ABObjectCore extends ABEmitter {
             urlPath: this.urlPath,
             importFromObject: this.importFromObject,
             objectWorkspace: this.objectWorkspace,
+            isSystemObject: this.isSystemObject,
             translations: this.translations,
             fields: currFields,
             createdInAppID: this.createdInAppID
