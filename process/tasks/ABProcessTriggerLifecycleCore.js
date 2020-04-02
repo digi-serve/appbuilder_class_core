@@ -133,7 +133,7 @@ module.exports = class ABProcessTriggerLifecycle extends ABProcessTrigger {
             })[0];
             if (field) {
                 // instance.context.data[field.column_name];
-                return myState["data"][field.column_name];
+                return myState["data"][field.columnName];
             } else if (parts[1] == "uuid") {
                 return myState["data"]["uuid"];
             }
