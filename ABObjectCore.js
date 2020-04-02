@@ -6,11 +6,12 @@
  */
 
 var ABModel = require("../platform/ABModel");
-var ABEmitter = require("../platform/ABEmitter");
+var ABDefinition = require("../platform/ABDefinition");
+var ABMLClass = require("../platform/ABMLClass");
 
-module.exports = class ABObjectCore extends ABEmitter {
+module.exports = class ABObjectCore extends ABMLClass {
     constructor(attributes, application) {
-        super();
+        super(["label"]);
 
         /*
 {
@@ -81,6 +82,7 @@ module.exports = class ABObjectCore extends ABEmitter {
 
         // ABApplication Attributes (or is it ABObject attributes?)
         this.id = attributes.id;
+        this.type = attributes.type || "object";
         this.connName = attributes.connName || undefined; // undefined == 'appBuilder'
         this.name = attributes.name || "";
         this.labelFormat = attributes.labelFormat || "";
@@ -91,7 +93,7 @@ module.exports = class ABObjectCore extends ABEmitter {
         this.transColumnName = attributes.transColumnName || ""; // NOTE: store column name of translations table
         this.urlPath = attributes.urlPath || "";
         this.importFromObject = attributes.importFromObject || "";
-        this.translations = attributes.translations;
+        // this.translations = attributes.translations;
 
         if (attributes.isSystemObject)
             this.isSystemObject = attributes.isSystemObject;
@@ -119,16 +121,32 @@ module.exports = class ABObjectCore extends ABEmitter {
             hiddenFields: [] // array of [ids] to add hidden:true to
         };
 
-        // import all our ABField
-        this.importFields(attributes.fields || []);
+        // pull in field definitions:
+        var fields = [];
+        (attributes.fieldIDs || []).forEach((id)=>{ 
+            var def = ABDefinition.definition(id);
+            if (def) {
+                fields.push(this.application.fieldNew(def, this));
+            } else {
+                console.error("Object ["+this.id+"] referenced an unknown field id ["+id+"]");
+            }
+        })
+        this._fields = fields;
+
+        // //// TODO: old Arango method: remove this
+        // if (this._fields.length == 0) {
+        //     // import all our ABField
+        //     this.importFields(attributes.fields || []);
+        // }
+        
 
         // convert '0' to 0
         this.isImported = parseInt(this.isImported || 0);
 
         this.createdInAppID = attributes.createdInAppID;
 
-        // multilingual fields: label, description
-        this.application.translate(this, this, ['label']);
+        // let the MLClass now process the translations:
+        super.fromValues(attributes);
     }
 
     /**
@@ -137,32 +155,32 @@ module.exports = class ABObjectCore extends ABEmitter {
      * @param {array} fieldSettings The different settings for each field to create.
      *							[ { fieldURL: 'xxxxx' }, ... ]
      */
-    importFields(fieldSettings) {
-        var newFields = [];
+    // importFields(fieldSettings) {
+    //     var newFields = [];
 
-        if (fieldSettings && !Array.isArray(fieldSettings)) {
-            console.error("fieldSettings is not an Array!", fieldSettings);
-            fieldSettings = [fieldSettings];
-        }
+    //     if (fieldSettings && !Array.isArray(fieldSettings)) {
+    //         console.error("fieldSettings is not an Array!", fieldSettings);
+    //         fieldSettings = [fieldSettings];
+    //     }
 
-        fieldSettings.forEach((field) => {
-            newFields.push(this.application.fieldNew(field, this));
-        });
-        this._fields = newFields;
-    }
+    //     fieldSettings.forEach((field) => {
+    //         newFields.push(this.application.fieldNew(field, this));
+    //     });
+    //     this._fields = newFields;
+    // }
 
     /**
      * @method exportFields
      * convert our array of fields into a settings object for saving to disk.
      * @return {array}
      */
-    exportFields() {
-        var currFields = [];
-        this._fields.forEach((obj) => {
-            currFields.push(obj.toObj());
-        });
-        return currFields;
-    }
+    // exportFields() {
+    //     var currFields = [];
+    //     this._fields.forEach((obj) => {
+    //         currFields.push(obj.toObj());
+    //     });
+    //     return currFields;
+    // }
 
     /**
      * @method toObj()
@@ -177,13 +195,15 @@ module.exports = class ABObjectCore extends ABEmitter {
      */
     toObj() {
 
-        this.application.unTranslate(this, this, ["label"]);
+        // MLClass translation
+        var obj = super.toObj();
 
-        // // for each Field: compile to json
-        var currFields = this.exportFields();
+        // track the field .ids of our fields
+        var fieldIDs = this.fields().map((f)=>{ return f.id; })
 
         return {
             id: this.id,
+            type: this.type || "object",
             connName: this.connName,
             name: this.name,
             labelFormat: this.labelFormat,
@@ -196,8 +216,8 @@ module.exports = class ABObjectCore extends ABEmitter {
             importFromObject: this.importFromObject,
             objectWorkspace: this.objectWorkspace,
             isSystemObject: this.isSystemObject,
-            translations: this.translations,
-            fields: currFields,
+            translations: obj.translations,
+            fieldIDs: fieldIDs,
             createdInAppID: this.createdInAppID
         };
     }
@@ -243,6 +263,8 @@ module.exports = class ABObjectCore extends ABEmitter {
 
         let result = this._fields.filter(filter);
 
+        // limit connectObject fields to only fields that connect to other
+        // objects this application currently references ... 
         if (this.application) {
             let availableConnectFn = (f) => {
                 if (
@@ -303,11 +325,17 @@ module.exports = class ABObjectCore extends ABEmitter {
      * @return {Promise}
      */
     fieldRemove(field) {
+        var origLen = this._fields.length;
         this._fields = this.fields(function(o) {
             return o.id != field.id;
         });
 
-        return this.save();
+        if (this._fields.length < origLen) {
+            return this.save();
+        }
+
+        // if we get here, then nothing changed so nothing to do.
+        return Promise.resolve();
     }
 
     /**
@@ -370,6 +398,30 @@ module.exports = class ABObjectCore extends ABEmitter {
         }
 
         return this.save();
+    }
+
+    /**
+     * @method fieldAdd()
+     *
+     * save the given ABField in our ._fields array and persist the current
+     * values if they changed.
+     *
+     * @param {ABField} field The instance of the field to save.
+     * @return {Promise}
+     */
+    fieldAdd(field) {
+        var isIncluded =
+            this.fields(function(o) {
+                return o.id == field.id;
+            }).length > 0;
+        if (!isIncluded) {
+            // if not already included, then add and save the Obj definition:
+            this._fields.push(field);
+            return this.save();
+        }
+
+        // Nothing was required so return
+        return Promise.resolve();
     }
 
     /**

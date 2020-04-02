@@ -6,11 +6,12 @@
  * how it is related to the ABObject classes.
  *
  */
-const ABEmitter = require("../../platform/ABEmitter");
+// const ABEmitter = require("../../platform/ABEmitter");
+const ABMLClass = require("../../platform/ABMLClass");
 
-module.exports = class ABFieldCore extends ABEmitter {
+module.exports = class ABFieldCore extends ABMLClass {
     constructor(values, object, fieldDefaults) {
-        super();
+        super(["label"]);
 
         // NOTE: setup this first so later we can use .fieldType(), .fieldIcon()
         this.defaults = fieldDefaults || {};
@@ -159,19 +160,17 @@ module.exports = class ABFieldCore extends ABEmitter {
         else return true;
     }
 
-	fieldSupportQuery() {
-		if (this.defaults.supportQuery != null) {
-			if (typeof this.defaults.supportQuery === "function") {
-				return this.defaults.supportQuery(this);
-			}
-			else {
-				return this.defaults.supportQuery;
-			}
-		}
+    fieldSupportQuery() {
+        if (this.defaults.supportQuery != null) {
+            if (typeof this.defaults.supportQuery === "function") {
+                return this.defaults.supportQuery(this);
+            } else {
+                return this.defaults.supportQuery;
+            }
+        }
 
-		return true;
-	}
-
+        return true;
+    }
 
     ///
     /// Instance Methods
@@ -189,19 +188,17 @@ module.exports = class ABFieldCore extends ABEmitter {
      */
     toObj() {
 
-        // store "label" in our translations
-        if (this.object && 
-            this.object.application)
-            this.object.application.unTranslate(this, this, ["label"]);
+        var obj = super.toObj();
 
         return {
             id: this.id,
+            type: this.type || "field",
             key: this.key,
             icon: this.icon,
             isImported: this.isImported,
             columnName: this.columnName,
             settings: this.settings,
-            translations: this.translations
+            translations: obj.translations
         };
     }
 
@@ -213,6 +210,7 @@ module.exports = class ABFieldCore extends ABEmitter {
      */
     fromValues(values) {
         if (!this.id) this.id = values.id; // NOTE: only exists after .save()
+        this.type == values.type || "field";
         this.key = values.key || this.fieldKey();
         this.icon = values.icon || this.fieldIcon();
 
@@ -221,7 +219,7 @@ module.exports = class ABFieldCore extends ABEmitter {
         this.label = values.label || values.settings.label || "?label?";
 
         this.columnName = values.columnName || "";
-        this.translations = values.translations || [];
+        // this.translations = values.translations || [];
 
         this.isImported = values.isImported || 0;
 
@@ -238,16 +236,14 @@ module.exports = class ABFieldCore extends ABEmitter {
         this.settings.unique = parseInt(this.settings.unique || 0);
         this.settings.width = parseInt(this.settings.width);
 
-		// we're responsible for setting up our specific settings:
-		let defaultValues = this.constructor.defaultValues() || {};
-		for (let dv in defaultValues) {
-			this.settings[dv] = values.settings[dv] || defaultValues[dv];
+        // we're responsible for setting up our specific settings:
+        let defaultValues = this.constructor.defaultValues() || {};
+        for (let dv in defaultValues) {
+            this.settings[dv] = values.settings[dv] || defaultValues[dv];
         }
 
-        if (this.object && 
-            this.object.application)
-            this.object.application.translate(this, this, ["label"]);
-
+        // let the MLClass now process the Translations
+        super.fromValues(values);
     }
 
     /**
@@ -295,32 +291,23 @@ module.exports = class ABFieldCore extends ABEmitter {
         return false;
     }
 
+    dataValue(rowData) {
+        let propName = "{objectName}.{columnName}"
+            .replace("{objectName}", this.alias || this.object.name)
+            .replace("{columnName}", this.columnName);
 
-	dataValue(rowData) {
+        return rowData[this.columnName] || rowData[propName] || "";
+    }
 
-		let propName = "{objectName}.{columnName}"
-			.replace('{objectName}', this.alias || this.object.name)
-			.replace('{columnName}', this.columnName);
-
-		return rowData[this.columnName] || rowData[propName] || "";
-
-	}
-
-
-	/**
-	 * @method format
-	 * return display text to detail comonent and define label of object
-	 * 
-	 * @param {Object} rowData - data
-	 */
-	format(rowData) {
-
-		if (rowData) {
-			return this.dataValue(rowData);
-		}
-		else
-			return "";
-
-	};
-
+    /**
+     * @method format
+     * return display text to detail comonent and define label of object
+     *
+     * @param {Object} rowData - data
+     */
+    format(rowData) {
+        if (rowData) {
+            return this.dataValue(rowData);
+        } else return "";
+    }
 };
