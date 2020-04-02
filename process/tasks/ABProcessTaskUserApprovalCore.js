@@ -162,6 +162,16 @@ module.exports = class ABProcessTaskUserApprovalCore extends ABProcessElement {
      * @return {array} | null
      */
     processDataFields() {
+        // we need to get the button events defined by the form.io formBuilder
+        var options = [];
+        this.formBuilder.components.forEach((comp) => {
+            if (comp.type == "button" && comp.action == "event" && comp.event) {
+                options.push({
+                    id: comp.event,
+                    text: comp.label
+                });
+            }
+        });
         // in this Task, we can return the Response to the UserForm
         // The Response can be in the form of a List Field, with one or more
         // return options.
@@ -176,21 +186,7 @@ module.exports = class ABProcessTaskUserApprovalCore extends ABProcessElement {
                 label: `${this.label}->Response`,
                 columnName: `${this.id}.userFormResponse`,
                 settings: {
-                    options: [
-                        // TODO: insert form Responses here:
-                        {
-                            id: "aaa",
-                            text: "Yes"
-                        },
-                        {
-                            id: "aab",
-                            text: "No"
-                        },
-                        {
-                            id: "aac",
-                            text: "Maybe"
-                        }
-                    ]
+                    options: options
                 }
             },
             myObj
