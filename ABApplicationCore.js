@@ -192,8 +192,11 @@ module.exports = class ABApplicationCore {
      * @return {json}
      */
     toObj() {
-
-        this.unTranslate(this, this.json, this.constructor.fieldsMultilingual());
+        this.unTranslate(
+            this,
+            this.json,
+            this.constructor.fieldsMultilingual()
+        );
 
         this.json.name = this.name;
 
@@ -205,6 +208,11 @@ module.exports = class ABApplicationCore {
         // this.json.objects = currObjects;
 
         this.json.objectListSettings = this.objectListSettings;
+
+        // Save our processes.
+        this.json.processIDs = (this._processes || []).map((p) => {
+            return p.id;
+        });
 
         // for each View: compile to json
         var currPages = [];
@@ -794,9 +802,7 @@ module.exports = class ABApplicationCore {
 
                     // copy each field to the root object
                     fields.forEach(function(f) {
-
-                        if (t[f] != null)
-                            obj[f] = t[f];
+                        if (t[f] != null) obj[f] = t[f];
 
                         obj[f] = t[f] || ""; // default to '' if not found.
                     });
@@ -808,11 +814,9 @@ module.exports = class ABApplicationCore {
             if (!found && first) {
                 // copy each field to the root object
                 fields.forEach(function(f) {
-                    if (first[f] != null &&
-                        first[f] != "")
+                    if (first[f] != null && first[f] != "")
                         obj[f] = `[${currLanguage}]${first[f]}`;
-                    else
-                        obj[f] = ''; // default to '' if not found.
+                    else obj[f] = ""; // default to '' if not found.
                 });
             }
         }
