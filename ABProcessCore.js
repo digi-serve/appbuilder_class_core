@@ -359,7 +359,11 @@ module.exports = class ABProcessCore extends ABMLClass {
             params,
             this
         );
-        return values.length > 0 ? values[0] : null;
+        return values.length > 0
+            ? values.length > 1
+                ? values
+                : values[0]
+            : null;
     }
 
     /**
