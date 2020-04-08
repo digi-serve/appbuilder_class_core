@@ -339,13 +339,20 @@ module.exports = class ABViewDataCollectionCore extends ABEmitter {
 
         let dc = this.__dataCollection;
         if (dc) {
-            if (dc.getCursor() != itemId) {
-                if (dc.exists(itemId) || itemId == null) dc.setCursor(itemId);
+
+            // clear cursor
+            if (itemId == null) {
+                dc.setCursor(null);
             }
             // If set rowId equal current cursor, it will not trigger .onAfterCursorChange event
-            else {
+            else if (dc.getCursor() == itemId) {
                 this.emit("changeCursor", this.getCursor());
             }
+            // set new cursor
+            else if (dc.exists(itemId)) {
+                dc.setCursor(itemId);
+            }
+
         }
     }
 
