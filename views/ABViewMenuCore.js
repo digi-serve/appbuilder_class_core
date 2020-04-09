@@ -163,7 +163,9 @@ module.exports = class ABViewMenuCore extends ABViewWidget {
                         value: label,
                         type: displayPage.type,
                         pageId: displayPage.pageId,
-                        icon: "fa fa-fw fa-" + displayPage.icon
+                        icon: displayPage.icon
+                            ? "fa fa-fw fa-" + displayPage.icon
+                            : ""
                     },
                     displayPage.position ? parseInt(displayPage.position) : 0
                 );
