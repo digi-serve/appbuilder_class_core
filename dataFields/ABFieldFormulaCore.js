@@ -24,7 +24,7 @@ var ABFieldFormulaDefaults = {
     description: L("ab.dataField.formula.description", "*"),
 
     isSortable: false,
-    isFilterable: false,
+    isFilterable: true,
     useAsLabel: false,
 
 	supportQuery: (field) => {
