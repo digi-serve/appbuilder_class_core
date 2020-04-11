@@ -128,7 +128,7 @@ module.exports = class ABObjectCore extends ABMLClass {
             if (def) {
                 fields.push(this.application.fieldNew(def, this));
             } else {
-                console.error("Object ["+this.id+"] referenced an unknown field id ["+id+"]");
+                console.error("Object ["+this.name+"]["+this.id+"] referenced an unknown field id ["+id+"]");
             }
         })
         this._fields = fields;
@@ -271,7 +271,7 @@ module.exports = class ABObjectCore extends ABMLClass {
                     f &&
                     f.key == "connectObject" &&
                     this.application &&
-                    this.application.objects(
+                    this.application.objectsIncluded(
                         (obj) => obj.id == f.settings.linkObject
                     ).length < 1
                 ) {

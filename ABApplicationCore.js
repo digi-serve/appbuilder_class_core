@@ -28,9 +28,12 @@ const ABFieldManager = require("./ABFieldManager");
 const ABViewManager = require("../platform/ABViewManager");
 // const ABViewPageCore = require("./views/ABViewPageCore");
 // const ABQLManager = require("./ABQLManager");
+var ABMLClass = require("../platform/ABMLClass");
 
-module.exports = class ABApplicationCore {
+module.exports = class ABApplicationCore extends ABMLClass {
     constructor(attributes) {
+        super(ABApplicationCore.fieldsMultilingual());
+
         // attributes should be in format:
         // {
         // 	id:##,
@@ -41,6 +44,7 @@ module.exports = class ABApplicationCore {
 
         // ABApplication Attributes
         this.id = attributes.id;
+        this.type = attributes.type || "application";
         this.json = attributes.json;
         if (typeof this.json == "string") this.json = JSON.parse(this.json);
         this.name = attributes.name || this.json.name || "";
@@ -53,7 +57,9 @@ module.exports = class ABApplicationCore {
         // ABApplication.
         this._datacollections = [];
         (attributes.json.datacollections || []).forEach((dc) => {
-            this._datacollections.push(this.datacollectionNew(dc));
+            if (dc) {
+                this._datacollections.push(this.datacollectionNew(dc));
+            }
         });
 
         // import all our ABObjects
@@ -66,6 +72,7 @@ module.exports = class ABApplicationCore {
         //  		newObjects.push( this.objectNew(obj) );
         //  	})
         this._objects = [];
+        this.objectIDs = attributes.json.objectIDs || [];
         (this.objectsAll() || attributes.json.objects || []).forEach((obj) => {
             if (obj instanceof ABObject) {
                 this._objects.push(obj);
@@ -153,6 +160,9 @@ module.exports = class ABApplicationCore {
         this.objectListSettings.isGroup = JSON.parse(
             attributes.json.objectListSettings.isGroup || false
         );
+
+        // let the MLClass now process the translations:
+        super.fromValues(attributes);
     }
 
     ///
@@ -192,11 +202,8 @@ module.exports = class ABApplicationCore {
      * @return {json}
      */
     toObj() {
-        this.unTranslate(
-            this,
-            this.json,
-            this.constructor.fieldsMultilingual()
-        );
+        // MLClass translation
+        this.json = super.toObj();
 
         this.json.name = this.name;
 
@@ -206,6 +213,7 @@ module.exports = class ABApplicationCore {
         //     currObjects.push(obj.toObj());
         // });
         // this.json.objects = currObjects;
+        this.json.objectIDs = this.objectIDs;
 
         this.json.objectListSettings = this.objectListSettings;
 
@@ -230,6 +238,7 @@ module.exports = class ABApplicationCore {
 
         return {
             id: this.id,
+            type: this.type || "application",
             name: this.name,
             json: this.json,
             role: this.role,
@@ -320,6 +329,11 @@ module.exports = class ABApplicationCore {
             };
 
         return (this._objects || []).filter(filter);
+    }
+
+    objectsIncluded(filter) {
+        filter = filter || function() { return true };
+        return this.objects((o)=>{ return this.objectIDs.indexOf(o.id) > -1; }).filter(filter);
     }
 
     /**
@@ -751,9 +765,9 @@ module.exports = class ABApplicationCore {
     /// Utilities
     ///
 
-    languageDefault() {
-        return "en";
-    }
+    // languageDefault() {
+    //     return "en";
+    // }
 
     /**
      * @function OP.Multilingual.translate
@@ -773,6 +787,7 @@ module.exports = class ABApplicationCore {
      *						 the obj[field] value.
      *
      */
+     /*
     translate(obj, json, fields, languageCode = null) {
         json = json || {};
         fields = fields || [];
@@ -821,6 +836,7 @@ module.exports = class ABApplicationCore {
             }
         }
     }
+    */
 
     /**
      * @function OP.Multilingual.unTranslate
@@ -840,6 +856,7 @@ module.exports = class ABApplicationCore {
      *						 the obj[field] value.
      *
      */
+/*
     unTranslate(obj, json, fields) {
         json = json || {};
         fields = fields || [];
@@ -887,6 +904,7 @@ module.exports = class ABApplicationCore {
             }
         }
     }
+*/
 
     cloneDeep(object) {
         return JSON.parse(JSON.stringify(object));

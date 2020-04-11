@@ -168,6 +168,12 @@ module.exports = class ABFieldConnectCore extends ABFieldSelectivity {
 
 		var selectedData = [];
 
+
+/// LEFT OFF HERE:
+/// debug invalid data for JSON.parse() on line 183
+
+debugger;
+
 		// Get linked object
 		var linkedObject = this.datasourceLink;
 
@@ -175,8 +181,16 @@ module.exports = class ABFieldConnectCore extends ABFieldSelectivity {
 		if (data && linkedObject) {
 
 			// convert to JSON
-			if (typeof data == "string")
-				data = JSON.parse(data);
+			if (typeof data == "string") {
+                try {
+                    data = JSON.parse(data);
+                } catch(e) {
+                    // must be a UUID
+                    // so just set that to selectedData:
+                    selectedData = data;
+                }
+				
+            }
 
 			// if this select value is array
 			if (data.map) {

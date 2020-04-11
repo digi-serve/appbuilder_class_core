@@ -118,6 +118,7 @@ module.exports = class FilterComplexCore extends ABComponent {
         if (object) {
             var fields = object.fields();
 
+            // insert our uuid in addition to the rest of our fields
             let thisObjOption = {
                 id: "uuid",
                 label: object.label,
