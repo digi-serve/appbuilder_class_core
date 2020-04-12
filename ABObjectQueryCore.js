@@ -17,9 +17,9 @@ var ABObject = require("../platform/ABObject");
 var ABModel = require("../platform/ABModel");
 
 module.exports = class ABObjectQueryCore extends ABObject {
-    constructor(attributes, application) {
-        super(attributes, application);
-        /*
+   constructor(attributes, application) {
+      super(attributes, application);
+      /*
 {
 	id: uuid(),
 	name: 'name',
@@ -67,494 +67,489 @@ module.exports = class ABObjectQueryCore extends ABObject {
 }
 */
 
-		this.fromValues(attributes);
+      this.fromValues(attributes);
+   }
 
-    }
+   ///
+   /// Static Methods
+   ///
+   /// Available to the Class level object.  These methods are not dependent
+   /// on the instance values of the Application.
+   ///
 
-    ///
-    /// Static Methods
-    ///
-    /// Available to the Class level object.  These methods are not dependent
-    /// on the instance values of the Application.
-    ///
+   /**
+    * contextKey()
+    * returns a unique key that represents a query in
+    * our networking job resolutions.
+    * @return {string}
+    */
+   static contextKey() {
+      return "query";
+   }
 
-    /**
-     * contextKey()
-     * returns a unique key that represents a query in
-     * our networking job resolutions.
-     * @return {string}
-     */
-    static contextKey() {
-        return "query";
-    }
+   ///
+   /// Instance Methods
+   ///
 
-    ///
-    /// Instance Methods
-    ///
+   /// ABApplication data methods
 
-    /// ABApplication data methods
+   fromValues(attributes) {
+      super.fromValues(attributes);
 
+      // populate connection objects
+      this._objects = {};
 
-	fromValues (attributes) {
+      (attributes.objects || []).forEach((obj) => {
+         this._objects[obj.alias] = new ABObject(obj, this.application);
+      });
 
-		super.fromValues(attributes);
+      // import all our ABObjects
+      this.importJoins(attributes.joins || {});
+      this.importFields(attributes.fields || []); // import after joins are imported
+      this.where = attributes.where || {}; // .workspaceFilterConditions
 
-		// populate connection objects
-		this._objects = {};
+      this.settings = this.settings || {};
 
-		(attributes.objects || []).forEach(obj => {
-			this._objects[obj.alias] = new ABObject(obj, this.application);
-		});
+      if (attributes.settings) {
+         // convert from "0" => true/false
+         this.settings.grouping = JSON.parse(
+            attributes.settings.grouping || false
+         );
+         this.settings.hidePrefix = JSON.parse(
+            attributes.settings.hidePrefix || false
+         );
+      }
+   }
 
-		// import all our ABObjects
-		this.importJoins(attributes.joins || {});
-		this.importFields(attributes.fields || []); // import after joins are imported
-		this.where = attributes.where || {}; // .workspaceFilterConditions
+   /**
+    * @method toObj()
+    *
+    * properly compile the current state of this ABObjectQuery instance
+    * into the values needed for saving to the DB.
+    *
+    * @return {json}
+    */
+   toObj() {
+      var result = super.toObj();
 
-		this.settings = this.settings || {};
+      /// include our additional objects and where settings:
 
-		if (attributes.settings) {
+      result.joins = this.exportJoins(); //objects;
+      result.where = this.where; // .workspaceFilterConditions
 
-			// convert from "0" => true/false
-			this.settings.grouping = JSON.parse(attributes.settings.grouping || false);
-			this.settings.hidePrefix = JSON.parse(attributes.settings.hidePrefix || false);
-		}
+      result.settings = this.settings;
 
-    }
+      return result;
+   }
 
-    /**
-     * @method toObj()
-     *
-     * properly compile the current state of this ABObjectQuery instance
-     * into the values needed for saving to the DB.
-     *
-     * @return {json}
-     */
-    toObj() {
+   ///
+   /// Fields
+   ///
 
-		var result = super.toObj();
+   /**
+    * @method importFields
+    * instantiate a set of fields from the given attributes.
+    * Our attributes are a set of field URLs That should already be created in their respective
+    * ABObjects.
+    * @param {array} fieldSettings The different field urls for each field
+    *					{ }
+    */
+   importFields(fieldSettings) {
+      var newFields = [];
+      (fieldSettings || []).forEach((fieldInfo) => {
+         if (fieldInfo == null) return;
 
-		/// include our additional objects and where settings:
+         // pull object by alias name
+         let object = this.objectByAlias(fieldInfo.alias);
+         if (!object) return;
 
-		result.joins = this.exportJoins();  //objects;
-		result.where  = this.where; // .workspaceFilterConditions
+         let field = object.fields((f) => f.id == fieldInfo.fieldID, true)[0];
 
-		result.settings = this.settings;
+         // should be a field of base/join objects
+         if (
+            field &&
+            this.canFilterField(field) &&
+            // check duplicate
+            newFields.filter(
+               (f) =>
+                  f.alias == fieldInfo.alias && f.field.id == fieldInfo.fieldID
+            ).length < 1
+         ) {
+            let clonedField = _.clone(field, false);
 
-		return result;
-	}
+            clonedField.alias = fieldInfo.alias;
 
-    ///
-    /// Fields
-    ///
-
-    /**
-     * @method importFields
-     * instantiate a set of fields from the given attributes.
-     * Our attributes are a set of field URLs That should already be created in their respective
-     * ABObjects.
-     * @param {array} fieldSettings The different field urls for each field
-     *					{ }
-     */
-    importFields(fieldSettings) {
-		var newFields = [];
-	  	(fieldSettings || []).forEach((fieldInfo) => {
-
-			if (fieldInfo == null) return;
-
-			// pull object by alias name
-			let object = this.objectByAlias(fieldInfo.alias);
-			if (!object) return;
-
-			let field = object.fields(f => f.id == fieldInfo.fieldID, true)[0];
-
-			// should be a field of base/join objects
-			if (field && this.canFilterField(field) &&
-				// check duplicate
-				newFields.filter(f => f.alias == fieldInfo.alias && f.field.id == fieldInfo.fieldID).length < 1) { 
-
-				let clonedField = _.clone(field, false);
-		
-				clonedField.alias = fieldInfo.alias;
-	
-				// NOTE: query v1
-				let alias = "";
-				if (Array.isArray(this.joins())) {
-					alias = field.object.name;
-				}
-				else {
-					alias = fieldInfo.alias;
-				}
-	
-				// include object name {aliasName}.{columnName}
-				// to use it in grid headers & hidden fields
-				clonedField.columnName = '{aliasName}.{columnName}'
-								.replace('{aliasName}', alias)
-								.replace('{columnName}', clonedField.columnName);
-
-
-				newFields.push({
-					alias: fieldInfo.alias,
-					field: clonedField
-				});
-			}
-
-		})
-		this._fields = newFields;
-	}
-
-	/**
-	 * @method exportFields
-	 * convert our array of fields into a settings object for saving to disk.
-	 * @return {array}
-	 */
-	exportFields() {
-		var currFields = [];
-		this._fields.forEach((fieldInfo) => {
-			currFields.push( {
-				alias: fieldInfo.alias,
-				objectID: fieldInfo.field.object.id,
-				fieldID: fieldInfo.field.id
-			})
-		})
-		return currFields;
-	}
-
-
-    /**
-     * @method fields()
-     *
-     * return an array of all the ABFields for this ABObject.
-     *
-     * @return {array}
-     */
-    fields(filter) {
-        filter =
-            filter ||
-            function() {
-                return true;
-            };
-
-        return this._fields
-            .map((f) => f.field)
-            .filter((result) => filter(result));
-    }
-
-    ///
-    /// Joins & Objects
-    ///
-
-    /**
-     * @method joins()
-     *
-     * return an object of joins for this Query.
-     *
-     * @return {Object}
-     */
-    joins() {
-        return this._joins || {};
-    }
-
-    /**
-     * @method objects()
-     *
-     * return an array of all the ABObjects for this Query.
-     *
-     * @return {array}
-     */
-	objects (filter) {
-
-		if (!this._objects) return [];
-
-		filter = filter || function(){ return true; };
-
-		// get all objects (values of a object)
-		let objects = Object.keys(this._objects).map(key => { 
-			let obj = this._objects[key];
-			obj.alias = key;
-
-			return obj;
-		});
-
-		return (objects || []).filter(filter);
-	}
-
-    /**
-     * @method objectAlias()
-     *
-     * return alias of of ABObjects.
-     *
-     * @return {string}
-     */
-    objectAlias(objectId) {
-        let result = null;
-
-        Object.keys(this._objects || {}).forEach((alias) => {
-            let obj = this._objects[alias];
-            if (obj.id == objectId && !result) {
-                result = alias;
+            // NOTE: query v1
+            let alias = "";
+            if (Array.isArray(this.joins())) {
+               alias = field.object.name;
+            } else {
+               alias = fieldInfo.alias;
             }
-        });
 
-        return result;
-    }
+            // include object name {aliasName}.{columnName}
+            // to use it in grid headers & hidden fields
+            clonedField.columnName = "{aliasName}.{columnName}"
+               .replace("{aliasName}", alias)
+               .replace("{columnName}", clonedField.columnName);
 
-    /**
-     * @method objectBase
-     * return the origin object
-     *
-     * @return {ABObject}
-     */
-    objectBase() {
+            newFields.push({
+               alias: fieldInfo.alias,
+               field: clonedField
+            });
+         }
+      });
+      this._fields = newFields;
+   }
 
-		if (!this._joins.objectID)
-			return null;
+   /**
+    * @method exportFields
+    * convert our array of fields into a settings object for saving to disk.
+    * @return {array}
+    */
+   exportFields() {
+      var currFields = [];
+      this._fields.forEach((fieldInfo) => {
+         currFields.push({
+            alias: fieldInfo.alias,
+            objectID: fieldInfo.field.object.id,
+            fieldID: fieldInfo.field.id
+         });
+      });
+      return currFields;
+   }
 
-		return this.objects(obj => obj.id == this._joins.objectID)[0] || null;
-	}
+   /**
+    * @method fields()
+    *
+    * return an array of all the ABFields for this ABObject.
+    *
+    * @return {array}
+    */
+   fields(filter) {
+      filter =
+         filter ||
+         function() {
+            return true;
+         };
 
-	/**
-	 * @method objectByAlias()
-	 * return ABObject search by alias name
-	 *
-	 * @param {string} - alias name
-	 * @return {ABClassObject}
-	 */
-	objectByAlias(alias) {
+      return this._fields
+         .map((f) => f.field)
+         .filter((result) => filter(result));
+   }
 
-		return (this._objects || {})[alias];
+   ///
+   /// Joins & Objects
+   ///
 
-	}
+   /**
+    * @method joins()
+    *
+    * return an object of joins for this Query.
+    *
+    * @return {Object}
+    */
+   joins() {
+      return this._joins || {};
+   }
 
-    /**
-     * @method links()
-     *
-     * return an array of links for this Query.
-     *
-     * @return {array}
-     */
-    links(filter) {
-        filter =
-            filter ||
-            function() {
-                return true;
-            };
+   /**
+    * @method objects()
+    *
+    * return an array of all the ABObjects for this Query.
+    *
+    * @return {array}
+    */
+   objects(filter) {
+      if (!this._objects) return [];
 
-        return (this._links || []).filter(filter);
-    }
+      filter =
+         filter ||
+         function() {
+            return true;
+         };
 
-    /**
-     * @method importJoins
-     * instantiate a set of joins from the given attributes.
-     * Our joins contain a set of ABObject URLs that should already be created in our Application.
-     * @param {Object} settings The different field urls for each field
-     *					{ }
-     */
-    importJoins(settings) {
-		// copy join settings
-		this._joins = _.cloneDeep(settings);
+      // get all objects (values of a object)
+      let objects = Object.keys(this._objects).map((key) => {
+         let obj = this._objects[key];
+         obj.alias = key;
 
-		var newObjects = {};
-		var newLinks = [];
+         return obj;
+      });
 
-		let storeObject = (object, alias) => {
-			if (!object) return;
+      return (objects || []).filter(filter);
+   }
 
-			// var inThere = newObjects.filter(obj => obj.id == object.id && obj.alias == alias ).length > 0;
-			// if (!inThere) {
-			newObjects[alias] = object;
-			// newObjects.push({
-			// 	alias: alias,
-			// 	object: object
-			// });
-			// }
-		}
+   /**
+    * @method objectAlias()
+    *
+    * return alias of of ABObjects.
+    *
+    * @return {string}
+    */
+   objectAlias(objectId) {
+      let result = null;
 
-		let storeLinks = (links) => {
+      Object.keys(this._objects || {}).forEach((alias) => {
+         let obj = this._objects[alias];
+         if (obj.id == objectId && !result) {
+            result = alias;
+         }
+      });
 
-			(links || []).forEach(link => {
+      return result;
+   }
 
-				// var inThere = newLinks.filter(l => l.fieldID == link.fieldID).length > 0;
-				// if (!inThere) {
-				newLinks.push(link);
-				// }
-	
-			});
+   /**
+    * @method objectBase
+    * return the origin object
+    *
+    * @return {ABObject}
+    */
+   objectBase() {
+      if (!this._joins.objectID) return null;
 
-		}
+      return this.objects((obj) => obj.id == this._joins.objectID)[0] || null;
+   }
 
-		let processJoin = (baseObject, joins) => {
+   /**
+    * @method objectByAlias()
+    * return ABObject search by alias name
+    *
+    * @param {string} - alias name
+    * @return {ABClassObject}
+    */
+   objectByAlias(alias) {
+      return (this._objects || {})[alias];
+   }
 
-			if (!baseObject) return;
+   /**
+    * @method links()
+    *
+    * return an array of links for this Query.
+    *
+    * @return {array}
+    */
+   links(filter) {
+      filter =
+         filter ||
+         function() {
+            return true;
+         };
 
-			(joins || []).forEach((link) => {
+      return (this._links || []).filter(filter);
+   }
 
-				// Convert our saved settings:
-				//	{
-				//		alias: "",							// the alias name of table - use in SQL command
-				//		objectID: "uuid",					// id of the connection object
-				//		links: [
-				//			{
-				//				alias: "",							// the alias name of table - use in SQL command
-				//				fieldID: "uuid",					// uhe connection field of the object we are joining with.
-				//				type:[left, right, inner, outer]	// join type: these should match the names of the knex methods
-				//						=> innerJoin, leftJoin, leftOuterJoin, rightJoin, rightOuterJoin, fullOuterJoin
-				//				links: [
-				//					...
-				//				]
-				//			}
-				//		]
-				//	},
+   /**
+    * @method importJoins
+    * instantiate a set of joins from the given attributes.
+    * Our joins contain a set of ABObject URLs that should already be created in our Application.
+    * @param {Object} settings The different field urls for each field
+    *					{ }
+    */
+   importJoins(settings) {
+      // copy join settings
+      this._joins = _.cloneDeep(settings);
 
-				var linkField = baseObject.fields(f => f.id == link.fieldID, true)[0];
-				if (!linkField) return;
+      var newObjects = {};
+      var newLinks = [];
 
-				// track our linked object
-				var linkObject = this.objects(obj => obj.id == linkField.settings.linkObject)[0];
-				if (!linkObject) return;
+      let storeObject = (object, alias) => {
+         if (!object) return;
 
-				storeObject(linkObject, link.alias);
+         // var inThere = newObjects.filter(obj => obj.id == object.id && obj.alias == alias ).length > 0;
+         // if (!inThere) {
+         newObjects[alias] = object;
+         // newObjects.push({
+         // 	alias: alias,
+         // 	object: object
+         // });
+         // }
+      };
 
-				storeLinks(link.links);
+      let storeLinks = (links) => {
+         (links || []).forEach((link) => {
+            // var inThere = newLinks.filter(l => l.fieldID == link.fieldID).length > 0;
+            // if (!inThere) {
+            newLinks.push(link);
+            // }
+         });
+      };
 
-				processJoin(linkObject, link.links);
+      let processJoin = (baseObject, joins) => {
+         if (!baseObject) return;
 
-			});
+         (joins || []).forEach((link) => {
+            // Convert our saved settings:
+            //	{
+            //		alias: "",							// the alias name of table - use in SQL command
+            //		objectID: "uuid",					// id of the connection object
+            //		links: [
+            //			{
+            //				alias: "",							// the alias name of table - use in SQL command
+            //				fieldID: "uuid",					// uhe connection field of the object we are joining with.
+            //				type:[left, right, inner, outer]	// join type: these should match the names of the knex methods
+            //						=> innerJoin, leftJoin, leftOuterJoin, rightJoin, rightOuterJoin, fullOuterJoin
+            //				links: [
+            //					...
+            //				]
+            //			}
+            //		]
+            //	},
 
-		}
+            var linkField = baseObject.fields(
+               (f) => f.id == link.fieldID,
+               true
+            )[0];
+            if (!linkField) return;
 
-		// if (!this._joins.objectURL)
-		// 	// TODO: this is old query version
-		// 	return;
+            // track our linked object
+            var linkObject = this.objects(
+               (obj) => obj.id == linkField.settings.linkObject
+            )[0];
+            if (!linkObject) return;
 
-		// store the root object
-		var rootObject = this.objectBase();
-		if (!rootObject) {
-			this._objects = newObjects;
-			return;
-		}
+            storeObject(linkObject, link.alias);
 
-		storeObject(rootObject, "BASE_OBJECT");
+            storeLinks(link.links);
 
-		storeLinks(settings.links);
+            processJoin(linkObject, link.links);
+         });
+      };
 
-		processJoin(rootObject, settings.links);
+      // if (!this._joins.objectURL)
+      // 	// TODO: this is old query version
+      // 	return;
 
-		this._objects = newObjects;
-		this._links = newLinks;
-	}
+      // store the root object
+      var rootObject = this.objectBase();
+      if (!rootObject) {
+         this._objects = newObjects;
+         return;
+      }
 
-    /**
-     * @method exportJoins
-     * save our list of objects into our format for persisting on the server
-     * @param {array} settings
-     */
-    exportJoins() {
-        return _.cloneDeep(this._joins || {});
-    }
+      storeObject(rootObject, "BASE_OBJECT");
 
-    ///
-    /// Working with Client Components:
-    ///
+      storeLinks(settings.links);
 
-    /**
-     * @method model
-     * return a Model object that will allow you to interact with the data for
-     * this ABObjectQuery.
-     */
-    model() {
-        // NOTE: now that a DataCollection overwrites the context of it's
-        // object's model, it is no longer a good idea to only have a single
-        // instance of this._model per ABObject.  We should provide a new
-        // instance each time.
+      processJoin(rootObject, settings.links);
 
-        // if (!this._model) {
+      this._objects = newObjects;
+      this._links = newLinks;
+   }
 
-        this._model = new ABModel(this);
+   /**
+    * @method exportJoins
+    * save our list of objects into our format for persisting on the server
+    * @param {array} settings
+    */
+   exportJoins() {
+      return _.cloneDeep(this._joins || {});
+   }
 
-        // default the context of this model's operations to this object
-        this._model.contextKey(this.constructor.contextKey());
-        this._model.contextValues({ id: this.id }); // the datacollection.id
-        // }
+   ///
+   /// Working with Client Components:
+   ///
 
-        return this._model;
-    }
+   /**
+    * @method model
+    * return a Model object that will allow you to interact with the data for
+    * this ABObjectQuery.
+    */
+   model() {
+      // NOTE: now that a DataCollection overwrites the context of it's
+      // object's model, it is no longer a good idea to only have a single
+      // instance of this._model per ABObject.  We should provide a new
+      // instance each time.
 
-    /**
-     * @method canFilterObject
-     * evaluate the provided object to see if it can directly be filtered by this
-     * query.
-     * @param {ABObject} object
-     * @return {bool}
-     */
-    canFilterObject(object) {
-        if (!object) return false;
+      // if (!this._model) {
 
-        // I can filter this object if it is one of the objects in my joins
-        return (
-            this.objects((obj) => {
-                return obj.id == object.id;
-            }).length > 0
-        );
-	}
-	
-	/**
-	 * @method canFilterField
-	 * evaluate the provided field to see if it can be filtered by this
-	 * query.
-	 * @param {ABObject} object
-	 * @return {bool} 
-	 */
-	canFilterField(field) {
+      this._model = new ABModel(this);
 
-		if (!field) return false;
+      // default the context of this model's operations to this object
+      this._model.contextKey(this.constructor.contextKey());
+      this._model.contextValues({ id: this.id }); // the datacollection.id
+      // }
 
-		// I can filter a field if it's object OR the object it links to can be filtered:
-		let object = field.object;
-		let linkedObject = this.objects(obj => obj.id == field.settings.linkObject)[0];
+      return this._model;
+   }
 
-		return this.canFilterObject(object) || this.canFilterObject(linkedObject);
-	}
+   /**
+    * @method canFilterObject
+    * evaluate the provided object to see if it can directly be filtered by this
+    * query.
+    * @param {ABObject} object
+    * @return {bool}
+    */
+   canFilterObject(object) {
+      if (!object) return false;
 
-    /**
-     * @method urlPointer()
-     * return the url pointer that references this object. This url pointer
-     * should be able to be used by this.application.urlResolve() to return
-     * this object.
-     *
-     * @param {boolean} acrossApp - flag to include application id to url
-     *
-     * @return {string}
-     */
-    urlPointer(acrossApp) {
-        return this.application.urlQuery(acrossApp) + this.id;
-    }
+      // I can filter this object if it is one of the objects in my joins
+      return (
+         this.objects((obj) => {
+            return obj.id == object.id;
+         }).length > 0
+      );
+   }
 
-    /**
-     * @method isGroup
-     *
-     * @return {boolean}
-     */
-	get isGroup() {
-		return this.settings.grouping || false;
-	}
+   /**
+    * @method canFilterField
+    * evaluate the provided field to see if it can be filtered by this
+    * query.
+    * @param {ABObject} object
+    * @return {bool}
+    */
+   canFilterField(field) {
+      if (!field) return false;
 
-    /**
-     * @method isReadOnly
-     *
-     * @return {boolean}
-     */
-    get isReadOnly() {
-        return true;
-    }
+      // I can filter a field if it's object OR the object it links to can be filtered:
+      let object = field.object;
+      let linkedObject = this.objects(
+         (obj) => obj.id == field.settings.linkObject
+      )[0];
 
-    /**
-     * @method isDisabled()
-     * check this contains removed objects or fields
-     *
-     * @return {boolean}
-     */
-    isDisabled() {
-        return this.disabled || false;
-    }
+      return this.canFilterObject(object) || this.canFilterObject(linkedObject);
+   }
+
+   /**
+    * @method urlPointer()
+    * return the url pointer that references this object. This url pointer
+    * should be able to be used by this.application.urlResolve() to return
+    * this object.
+    *
+    * @param {boolean} acrossApp - flag to include application id to url
+    *
+    * @return {string}
+    */
+   urlPointer(acrossApp) {
+      return this.application.urlQuery(acrossApp) + this.id;
+   }
+
+   /**
+    * @method isGroup
+    *
+    * @return {boolean}
+    */
+   get isGroup() {
+      return this.settings.grouping || false;
+   }
+
+   /**
+    * @method isReadOnly
+    *
+    * @return {boolean}
+    */
+   get isReadOnly() {
+      return true;
+   }
+
+   /**
+    * @method isDisabled()
+    * check this contains removed objects or fields
+    *
+    * @return {boolean}
+    */
+   isDisabled() {
+      return this.disabled || false;
+   }
 };

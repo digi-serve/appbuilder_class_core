@@ -10,25 +10,25 @@ const ABQL = require("../../platform/ql/ABQL.js");
 // const ABQLRow = require("./ABQLRow.js");
 
 var ParameterDefinitions = [
-    {
-        type: "objectValues",
-        name: "values"
-    }
+   {
+      type: "objectValues",
+      name: "values"
+   }
 ];
 
 class ABQLRowUpdateCore extends ABQL {
-    constructor(attributes, prevOP, task, application) {
-        super(attributes, ParameterDefinitions, prevOP, task, application);
+   constructor(attributes, prevOP, task, application) {
+      super(attributes, ParameterDefinitions, prevOP, task, application);
 
-        // #Hack! : when an Operation provides the same .NextQlOps that it
-        // was defined in, we can't require it again ==> circular dependency.
-        // so we manually set it here from the operation that created us:
-        this.constructor.NextQLOps = prevOP.constructor.NextQLOps;
-    }
+      // #Hack! : when an Operation provides the same .NextQlOps that it
+      // was defined in, we can't require it again ==> circular dependency.
+      // so we manually set it here from the operation that created us:
+      this.constructor.NextQLOps = prevOP.constructor.NextQLOps;
+   }
 
-    ///
-    /// Instance Methods
-    ///
+   ///
+   /// Instance Methods
+   ///
 }
 
 ABQLRowUpdateCore.key = "update";

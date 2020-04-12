@@ -1,70 +1,63 @@
 const ABViewWidget = require("../../platform/views/ABViewWidget");
 
 module.exports = class ABViewDetailComponentCore extends ABViewWidget {
+   constructor(values, application, parent, defaultValues) {
+      super(values, application, parent, defaultValues);
+   }
 
-	constructor(values, application, parent, defaultValues) {
-		super(values, application, parent, defaultValues);
-	}
+   detailComponent() {
+      var detailView = null;
 
-	detailComponent() {
-		var detailView = null;
+      var curr = this;
+      while (
+         !curr.isRoot() &&
+         curr.parent &&
+         curr.key != "detail" &&
+         curr.key != "dataview"
+      ) {
+         curr = curr.parent;
+      }
 
-		var curr = this;
-		while (!curr.isRoot() &&
-			curr.parent &&
-			curr.key != 'detail' &&
-			curr.key != 'dataview') {
+      if (curr.key == "detail" || curr.key == "dataview") {
+         detailView = curr;
+      }
 
-			curr = curr.parent;
-		}
+      return detailView;
+   }
 
-		if (curr.key == 'detail' || curr.key == 'dataview') {
-			detailView = curr;
-		}
+   field() {
+      let detailComponent = this.detailComponent();
+      if (detailComponent == null) return null;
 
-		return detailView;
-	}
+      let datacollection = detailComponent.datacollection;
+      if (datacollection == null) return null;
 
-	field() {
+      let object = datacollection.datasource;
+      if (object == null) return null;
 
-		let detailComponent = this.detailComponent();
-		if (detailComponent == null) return null;
+      let field = object.fields((v) => v.id == this.settings.fieldId, true)[0];
 
-		let datacollection = detailComponent.datacollection;
-		if (datacollection == null) return null;
+      // set .alias to support queries that contains alias name
+      // [aliasName].[columnName]
+      if (field && this.settings.alias) {
+         field.alias = this.settings.alias;
+      }
 
-		let object = datacollection.datasource;
-		if (object == null) return null;
+      return field;
+   }
 
-		let field = object.fields((v) => v.id == this.settings.fieldId, true)[0];
+   getCurrentData() {
+      var detailCom = this.detailComponent();
+      if (!detailCom) return null;
 
-		// set .alias to support queries that contains alias name
-		// [aliasName].[columnName]
-		if (field && this.settings.alias) {
-			field.alias = this.settings.alias;
-		}
+      var dv = detailCom.datacollection;
+      if (!dv) return null;
 
-		return field;
-	}
+      var field = this.field();
+      if (!field) return null;
 
-
-	getCurrentData() {
-
-		var detailCom = this.detailComponent();
-		if (!detailCom) return null;
-
-		var dv = detailCom.datacollection;
-		if (!dv) return null;
-
-		var field = this.field();
-		if (!field) return null;
-
-		var currData = dv.getCursor();
-		if (currData)
-			return currData[field.columnName];
-		else
-			return null;
-
-	}
-
-}
+      var currData = dv.getCursor();
+      if (currData) return currData[field.columnName];
+      else return null;
+   }
+};

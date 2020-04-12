@@ -1,70 +1,73 @@
 const ABViewChartComponent = require("../../platform/views/ABViewChartComponent");
 
 const ABViewChartPiePropertyComponentDefaults = {
-	pieType: 'pie',
-	isLegend: true,
-	// chartWidth: 600,
-	height: 200,
-	innerFontSize: 12,
-	labelFontSize: 12
-}
+   pieType: "pie",
+   isLegend: true,
+   // chartWidth: 600,
+   height: 200,
+   innerFontSize: 12,
+   labelFontSize: 12
+};
 
 const ABViewDefaults = {
-	key: 'pie',		// {string} unique key for this view
-	icon: 'pie-chart',		// {string} fa-[icon] reference for this view
-	labelKey: 'ab.components.chart.pie' // {string} the multilingual label key for the class label
-}
+   key: "pie", // {string} unique key for this view
+   icon: "pie-chart", // {string} fa-[icon] reference for this view
+   labelKey: "ab.components.chart.pie" // {string} the multilingual label key for the class label
+};
 
 module.exports = class ABViewChartPieCore extends ABViewChartComponent {
+   constructor(values, application, parent, defaultValues) {
+      super(values, application, parent, defaultValues || ABViewDefaults);
+   }
 
-	constructor(values, application, parent, defaultValues) {
+   static common() {
+      return ABViewDefaults;
+   }
 
-		super(values, application, parent, defaultValues || ABViewDefaults);
+   static defaultValues() {
+      return ABViewChartPiePropertyComponentDefaults;
+   }
 
-	}
+   ///
+   /// Instance Methods
+   ///
 
-	static common() {
-		return ABViewDefaults;
-	}
+   /**
+    * @method fromValues()
+    *
+    * initialze this object with the given set of values.
+    * @param {obj} values
+    */
+   fromValues(values) {
+      super.fromValues(values);
 
-	static defaultValues() {
-		return ABViewChartPiePropertyComponentDefaults;
-	}
+      this.settings.isLegend = JSON.parse(
+         this.settings.isLegend ||
+            ABViewChartPiePropertyComponentDefaults.isLegend
+      );
 
+      // this.settings.chartWidth = parseInt(this.settings.chartWidth || ABViewChartPiePropertyComponentDefaults.chartWidth);
+      this.settings.height = parseInt(
+         this.settings.height || ABViewChartPiePropertyComponentDefaults.height
+      );
 
-	///
-	/// Instance Methods
-	///
+      this.settings.innerFontSize = parseInt(
+         this.settings.innerFontSize ||
+            ABViewChartPiePropertyComponentDefaults.innerFontSize
+      );
+      this.settings.labelFontSize = parseInt(
+         this.settings.labelFontSize ||
+            ABViewChartPiePropertyComponentDefaults.labelFontSize
+      );
 
-	/**
-	 * @method fromValues()
-	 *
-	 * initialze this object with the given set of values.
-	 * @param {obj} values
-	 */
-	fromValues(values) {
+      this.application.translate(this, this, ["pieLabel"]);
+   }
 
-		super.fromValues(values);
-
-		this.settings.isLegend = JSON.parse(this.settings.isLegend || ABViewChartPiePropertyComponentDefaults.isLegend);
-
-		// this.settings.chartWidth = parseInt(this.settings.chartWidth || ABViewChartPiePropertyComponentDefaults.chartWidth);
-		this.settings.height = parseInt(this.settings.height || ABViewChartPiePropertyComponentDefaults.height);
-
-		this.settings.innerFontSize = parseInt(this.settings.innerFontSize || ABViewChartPiePropertyComponentDefaults.innerFontSize);
-		this.settings.labelFontSize = parseInt(this.settings.labelFontSize || ABViewChartPiePropertyComponentDefaults.labelFontSize);
-
-		this.application.translate(this, this, ['pieLabel']);
-
-	}
-
-	/**
-	 * @method componentList
-	 * return the list of components available on this view to display in the editor.
-	 */
-	componentList() {
-		return [];
-	}
-
-
-}
+   /**
+    * @method componentList
+    * return the list of components available on this view to display in the editor.
+    */
+   componentList() {
+      return [];
+   }
+};

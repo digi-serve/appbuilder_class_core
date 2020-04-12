@@ -47,39 +47,39 @@ Fields[ABFieldAutoIndex.defaults().key] = ABFieldAutoIndex;
 Fields[ABFieldJson.defaults().key] = ABFieldJson;
 
 module.exports = {
-    /*
-     * @function allFields
-     * return all the currently defined ABFields in an array.
-     * @return [{ABField},...]
-     */
-    allFields: function() {
-        var fields = [];
-        for (var f in Fields) {
-            fields.push(Fields[f]);
-        }
-        return fields;
-    },
+   /*
+    * @function allFields
+    * return all the currently defined ABFields in an array.
+    * @return [{ABField},...]
+    */
+   allFields: function() {
+      var fields = [];
+      for (var f in Fields) {
+         fields.push(Fields[f]);
+      }
+      return fields;
+   },
 
-    /*
-     * @function newField
-     * return an instance of an ABField based upon the values.key value.
-     * @return {ABField}
-     */
-    newField: function(values, object) {
-        if (values.key) {
-            try {
-                return new Fields[values.key](values, object);
-            } catch (err) {
-                console.log("Error", err);
-                console.log("Available fields", Fields);
-                console.log("Requested field", values.key);
-            }
-        } else {
-            console.error(values, object);
-            throw new Error(
-                `ABFieldManager.newField(): Unknown Field Key [${values.key}]`
-            );
-            //// TODO: what to do here?
-        }
-    }
+   /*
+    * @function newField
+    * return an instance of an ABField based upon the values.key value.
+    * @return {ABField}
+    */
+   newField: function(values, object) {
+      if (values.key) {
+         try {
+            return new Fields[values.key](values, object);
+         } catch (err) {
+            console.log("Error", err);
+            console.log("Available fields", Fields);
+            console.log("Requested field", values.key);
+         }
+      } else {
+         console.error(values, object);
+         throw new Error(
+            `ABFieldManager.newField(): Unknown Field Key [${values.key}]`
+         );
+         //// TODO: what to do here?
+      }
+   }
 };

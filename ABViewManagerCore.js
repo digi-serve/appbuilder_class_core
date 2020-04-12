@@ -105,57 +105,56 @@ Views[ABViewFormTextbox.common().key] = ABViewFormTextbox;
 Views[ABViewFormTree.common().key] = ABViewFormTree;
 
 module.exports = class ABViewManagerCore {
-    /**
-     * @function allViews
-     * return all the currently defined ABViews in an array.
-     * @return [{ABView},...]
-     */
-    static allViews(fn) {
-        fn =
-            fn ||
-            function() {
-                return true;
-            };
+   /**
+    * @function allViews
+    * return all the currently defined ABViews in an array.
+    * @return [{ABView},...]
+    */
+   static allViews(fn) {
+      fn =
+         fn ||
+         function() {
+            return true;
+         };
 
-        var views = [];
-        for (var v in Views) {
-            var V = Views[v];
-            if (fn(V)) {
-                views.push(V);
-            }
-        }
-        return views;
-    }
+      var views = [];
+      for (var v in Views) {
+         var V = Views[v];
+         if (fn(V)) {
+            views.push(V);
+         }
+      }
+      return views;
+   }
 
-    /**
-     * @function newView
-     * return an instance of an ABView based upon the values.key value.
-     * @return {ABView}
-     */
-    static newView(values, application, parent) {
-        parent = parent || null;
+   /**
+    * @function newView
+    * return an instance of an ABView based upon the values.key value.
+    * @return {ABView}
+    */
+   static newView(values, application, parent) {
+      parent = parent || null;
 
-        //		if ((values.key) && (Views[values.key])) {
-        if (values.key) {
-            if (!Views[values.key]) {
-                console.error(
-                    "!! View[" +
-                        values.key +
-                        "] not yet defined.  Have an ABView instead:"
-                );
-                return new Views["view"](values, application, parent);
-            }
+      //		if ((values.key) && (Views[values.key])) {
+      if (values.key) {
+         if (!Views[values.key]) {
+            console.error(
+               "!! View[" +
+                  values.key +
+                  "] not yet defined.  Have an ABView instead:"
+            );
+            return new Views["view"](values, application, parent);
+         }
 
-            return new Views[values.key](values, application, parent);
-        } else {
-            var err = new Error("unknown view key");
-            OP.Error.log("Unknown view key [" + values.key + "]:", {
-                error: err,
-                values: values,
-                application: application
-            });
-            return null;
-        }
-    }
+         return new Views[values.key](values, application, parent);
+      } else {
+         var err = new Error("unknown view key");
+         OP.Error.log("Unknown view key [" + values.key + "]:", {
+            error: err,
+            values: values,
+            application: application
+         });
+         return null;
+      }
+   }
 };
-
