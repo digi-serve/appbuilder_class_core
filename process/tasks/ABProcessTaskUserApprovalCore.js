@@ -3,51 +3,51 @@ const ABProcessElement = require("../../../platform/process/tasks/ABProcessEleme
 const ABFieldList = require("../../../platform/dataFields/ABFieldList.js");
 
 var ABProcessTaskApprovalDefaults = {
-    category: null,
-    // category: {string} | null
-    // if this Element should show up on one of the popup replace menus, then
-    // specify one of the categories of elements it should be an option for.
-    // Available choices: [ "start", "gateway", "task", "end" ].
-    //
-    // if it shouldn't show up under the popup menu, then leave this null
+   category: null,
+   // category: {string} | null
+   // if this Element should show up on one of the popup replace menus, then
+   // specify one of the categories of elements it should be an option for.
+   // Available choices: [ "start", "gateway", "task", "end" ].
+   //
+   // if it shouldn't show up under the popup menu, then leave this null
 
-    icon: "check-circle", // font-awesome icon reference.  (without the 'fa-').  so 'user'  to reference 'fa-user'
-    // icon: {string}
-    // font-awesome icon reference.  (without the 'fa-').  so 'user'  to reference 'fa-user'
+   icon: "check-circle", // font-awesome icon reference.  (without the 'fa-').  so 'user'  to reference 'fa-user'
+   // icon: {string}
+   // font-awesome icon reference.  (without the 'fa-').  so 'user'  to reference 'fa-user'
 
-    instanceValues: ["userFormID", "userFormResponse"],
-    // instanceValues: {array}
-    // a list of values this element tracks as it is operating in a process.
+   instanceValues: ["userFormID", "userFormResponse"],
+   // instanceValues: {array}
+   // a list of values this element tracks as it is operating in a process.
 
-    key: "Approval",
-    // key: {string}
-    // unique key to reference this specific Task
+   key: "Approval",
+   // key: {string}
+   // unique key to reference this specific Task
 
-    settings: ["who", "toUsers", "formBuilder"]
-    // settings: {array}
-    // a list of internal setting values this Element tracks. These are the
-    // values set by the platform .propertiesStash()
+   settings: ["who", "toUsers", "formBuilder"]
+   // settings: {array}
+   // a list of internal setting values this Element tracks. These are the
+   // values set by the platform .propertiesStash()
 };
 
 module.exports = class ABProcessTaskUserApprovalCore extends ABProcessElement {
-    constructor(attributes, process, application) {
-        attributes.type = attributes.type || "process.task.user.approval";
-        super(attributes, process, application, ABProcessTaskApprovalDefaults);
+   constructor(attributes, process, application) {
+      attributes.type = attributes.type || "process.task.user.approval";
+      super(attributes, process, application, ABProcessTaskApprovalDefaults);
 
-        // listen
-    }
+      // listen
+   }
 
-    // return the default values for this DataField
-    static defaults() {
-        return ABProcessTaskApprovalDefaults;
-    }
+   // return the default values for this DataField
+   static defaults() {
+      return ABProcessTaskApprovalDefaults;
+   }
 
-    static DiagramReplace() {
-        return null;
-    }
+   static DiagramReplace() {
+      return null;
+   }
 
-    fromValues(attributes) {
-        /*
+   fromValues(attributes) {
+      /*
         {
             id: uuid(),
             name: 'name',
@@ -55,36 +55,36 @@ module.exports = class ABProcessTaskUserApprovalCore extends ABProcessElement {
             json: "{json}"
         }
         */
-        super.fromValues(attributes);
+      super.fromValues(attributes);
 
-        function fixBoolean(obj) {
-            if (obj) {
-                Object.keys(obj).forEach((k) => {
-                    if (obj[k] == "false") {
-                        obj[k] = false;
-                    } else if (obj[k] == "true") {
-                        obj[k] = true;
-                    } else if (typeof obj[k] == "object") {
-                        fixBoolean(obj[k]);
-                    }
-                });
-            }
-        }
-        fixBoolean(this.formBuilder);
-    }
+      function fixBoolean(obj) {
+         if (obj) {
+            Object.keys(obj).forEach((k) => {
+               if (obj[k] == "false") {
+                  obj[k] = false;
+               } else if (obj[k] == "true") {
+                  obj[k] = true;
+               } else if (typeof obj[k] == "object") {
+                  fixBoolean(obj[k]);
+               }
+            });
+         }
+      }
+      fixBoolean(this.formBuilder);
+   }
 
-    /**
-     * @method toObj()
-     *
-     * properly compile the current state of this ABApplication instance
-     * into the values needed for saving to the DB.
-     *
-     * Most of the instance data is stored in .json field, so be sure to
-     * update that from all the current values of our child fields.
-     *
-     * @return {json}
-     */
-    /*     
+   /**
+    * @method toObj()
+    *
+    * properly compile the current state of this ABApplication instance
+    * into the values needed for saving to the DB.
+    *
+    * Most of the instance data is stored in .json field, so be sure to
+    * update that from all the current values of our child fields.
+    *
+    * @return {json}
+    */
+   /*     
     toObj() {
         var data = super.toObj();
 
@@ -95,17 +95,17 @@ module.exports = class ABProcessTaskUserApprovalCore extends ABProcessElement {
         return data;
     }
 */
-    ////
-    //// Process Instance Methods
-    ////
+   ////
+   //// Process Instance Methods
+   ////
 
-    /**
-     * initState()
-     * setup this task's initial state variables
-     * @param {obj} context  the context data of the process instance
-     * @param {obj} val  any values to override the default state
-     */
-    /*
+   /**
+    * initState()
+    * setup this task's initial state variables
+    * @param {obj} context  the context data of the process instance
+    * @param {obj} val  any values to override the default state
+    */
+   /*
     initState(context, val) {
         var myDefaults = {};
         ABProcessTaskApprovalDefaults.instanceValues.forEach((v) => {
@@ -116,114 +116,110 @@ module.exports = class ABProcessTaskUserApprovalCore extends ABProcessElement {
     }
 */
 
-    /*
-     * preProcessFormIOComponents()
-     * we need to parse the form.io components to ensure the proper columnName
-     * and labels are being used. We also will translate the columnNames at this
-     * point in the code
-     */
-    preProcessFormIOComponents() {
-        var dataObjs = this.process.processDataObjects(this);
-        var fields = [];
-        dataObjs.forEach((obj) => {
-            fields = fields.concat(obj.fields());
-        });
-        if (this.formBuilder && this.formBuilder.components) {
-            this.formBuilder.components.forEach((c) => {
-                if (c.abFieldID) {
-                    fields.filter((field) => {
-                        if (field.id == c.abFieldID) {
-                            c.label = field.label;
-                            c.key = field.columnName;
-                            if (
-                                c.data &&
-                                c.data.values &&
-                                field.settings.options
-                            ) {
-                                var vals = [];
-                                field.settings.options.forEach((opt) => {
-                                    vals.push({
-                                        label: opt.text,
-                                        value: opt.id
-                                    });
-                                });
-                                c.data.values = vals;
-                            }
-                        }
-                    });
-                }
-            });
-        }
-        return this.formBuilder;
-    }
-
-    /**
-     * processDataFields()
-     * return an array of avaiable data fields that this element
-     * can provide to other ProcessElements.
-     * Different Process Elements can make data available to other
-     * process Elements.
-     * @return {array} | null
-     */
-    processDataFields() {
-        // in this Task, we can return the Response to the UserForm
-        // The Response can be in the form of a List Field, with one or more
-        // return options.
-
-        // create an ABFieldList object:
-        // make sure the options follow what is currently defined for our
-        // responses:
-        var myObj = this.application.objectNew({});
-        var listField = new ABFieldList(
-            {
-                id: `${this.id}.userFormResponse`,
-                label: `${this.label}->Response`,
-                columnName: `${this.id}.userFormResponse`,
-                settings: {
-                    options: [
-                        // TODO: insert form Responses here:
-                        {
-                            id: "aaa",
-                            text: "Yes"
-                        },
-                        {
-                            id: "aab",
-                            text: "No"
-                        },
-                        {
-                            id: "aac",
-                            text: "Maybe"
-                        }
-                    ]
-                }
-            },
-            myObj
-        );
-
-        return [
-            {
-                key: `${this.id}.userFormResponse`,
-                label: `${this.label}->Response`,
-                field: listField,
-                object: null
+   /*
+    * preProcessFormIOComponents()
+    * we need to parse the form.io components to ensure the proper columnName
+    * and labels are being used. We also will translate the columnNames at this
+    * point in the code
+    */
+   preProcessFormIOComponents() {
+      var dataObjs = this.process.processDataObjects(this);
+      var fields = [];
+      dataObjs.forEach((obj) => {
+         fields = fields.concat(obj.fields());
+      });
+      if (this.formBuilder && this.formBuilder.components) {
+         this.formBuilder.components.forEach((c) => {
+            if (c.abFieldID) {
+               fields.filter((field) => {
+                  if (field.id == c.abFieldID) {
+                     c.label = field.label;
+                     c.key = field.columnName;
+                     if (c.data && c.data.values && field.settings.options) {
+                        var vals = [];
+                        field.settings.options.forEach((opt) => {
+                           vals.push({
+                              label: opt.text,
+                              value: opt.id
+                           });
+                        });
+                        c.data.values = vals;
+                     }
+                  }
+               });
             }
-        ];
-    }
+         });
+      }
+      return this.formBuilder;
+   }
 
-    /**
-     * processData()
-     * return the current value requested for the given data key.
-     * @param {obj} instance
-     * @return {mixed} | null
-     */
-    processData(instance, key) {
-        if (key) {
-            var parts = key.split(".");
-            if (parts[0] == this.id) {
-                var myState = this.myState(instance);
-                return myState[parts[1]];
+   /**
+    * processDataFields()
+    * return an array of avaiable data fields that this element
+    * can provide to other ProcessElements.
+    * Different Process Elements can make data available to other
+    * process Elements.
+    * @return {array} | null
+    */
+   processDataFields() {
+      // in this Task, we can return the Response to the UserForm
+      // The Response can be in the form of a List Field, with one or more
+      // return options.
+
+      // create an ABFieldList object:
+      // make sure the options follow what is currently defined for our
+      // responses:
+      var myObj = this.application.objectNew({});
+      var listField = new ABFieldList(
+         {
+            id: `${this.id}.userFormResponse`,
+            label: `${this.label}->Response`,
+            columnName: `${this.id}.userFormResponse`,
+            settings: {
+               options: [
+                  // TODO: insert form Responses here:
+                  {
+                     id: "aaa",
+                     text: "Yes"
+                  },
+                  {
+                     id: "aab",
+                     text: "No"
+                  },
+                  {
+                     id: "aac",
+                     text: "Maybe"
+                  }
+               ]
             }
-        }
-        return null;
-    }
+         },
+         myObj
+      );
+
+      return [
+         {
+            key: `${this.id}.userFormResponse`,
+            label: `${this.label}->Response`,
+            field: listField,
+            object: null
+         }
+      ];
+   }
+
+   /**
+    * processData()
+    * return the current value requested for the given data key.
+    * @param {obj} instance
+    * @return {mixed} | null
+    */
+   processData(instance, key) {
+      if (key) {
+         var parts = key.split(".");
+         if (parts[0] == this.id) {
+            var myState = this.myState(instance);
+            return myState[parts[1]];
+         }
+      }
+      return null;
+   }
 };

@@ -11,57 +11,57 @@
 var ABDefinition = require("../platform/ABDefinition");
 var ABEmitter = require("../platform/ABEmitter");
 module.exports = class ABMLClassCore extends ABEmitter {
-    constructor(fieldList) {
-        super();
-        this.mlFields = fieldList || ["label"];
-    }
+   constructor(fieldList) {
+      super();
+      this.mlFields = fieldList || ["label"];
+   }
 
-    ///
-    /// Static Methods
-    ///
-    /// Available to the Class level object.  These methods are not dependent
-    /// on the instance values of the Application.
-    ///
+   ///
+   /// Static Methods
+   ///
+   /// Available to the Class level object.  These methods are not dependent
+   /// on the instance values of the Application.
+   ///
 
-    /**
-     * @method fromValues
-     * called during the .fromValues() work chain.  Should be called
-     * AFTER all the current data is already populated.
-     */
-    fromValues(attributes) {
-        this.translations = attributes.translations;
+   /**
+    * @method fromValues
+    * called during the .fromValues() work chain.  Should be called
+    * AFTER all the current data is already populated.
+    */
+   fromValues(attributes) {
+      this.translations = attributes.translations;
 
-        // multilingual fields: label, description
-        this.translate();
-    }
+      // multilingual fields: label, description
+      this.translate();
+   }
 
-    /**
-     * @method toObj()
-     *
-     * called during the .toObj() work chain.  Should be called
-     * BEFORE the current data is populated.
-     */
-    toObj() {
-        this.unTranslate();
+   /**
+    * @method toObj()
+    *
+    * called during the .toObj() work chain.  Should be called
+    * BEFORE the current data is populated.
+    */
+   toObj() {
+      this.unTranslate();
 
-        return {
-            translations: this.translations
-        };
-    }
+      return {
+         translations: this.translations
+      };
+   }
 
-    /**
-     * @method toDefinition()
-     *
-     * convert this instance into an ABDefinition object.
-     *
-     * @return {ABDefinition}
-     */
-    toDefinition() {
-        return new ABDefinition({
-            id: this.id,
-            name: this.name,
-            type: this.type,
-            json: this.toObj()
-        });
-    }
+   /**
+    * @method toDefinition()
+    *
+    * convert this instance into an ABDefinition object.
+    *
+    * @return {ABDefinition}
+    */
+   toDefinition() {
+      return new ABDefinition({
+         id: this.id,
+         name: this.name,
+         type: this.type,
+         json: this.toObj()
+      });
+   }
 };

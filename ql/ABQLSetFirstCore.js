@@ -10,13 +10,13 @@ const ABQL = require("../../platform/ql/ABQL.js");
 const ABQLRow = require("./ABQLRow.js");
 
 class ABQLSetFirstCore extends ABQL {
-    constructor(attributes, prevOP, task, application) {
-        super(attributes, [], prevOP, task, application);
-    }
+   constructor(attributes, prevOP, task, application) {
+      super(attributes, [], prevOP, task, application);
+   }
 
-    ///
-    /// Instance Methods
-    ///
+   ///
+   /// Instance Methods
+   ///
 }
 
 ABQLSetFirstCore.key = "first";

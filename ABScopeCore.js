@@ -1,71 +1,60 @@
 const ABApplication = require("../platform/ABApplication");
 
 module.exports = class ABScopeCore {
+   constructor(values) {
+      // this.application = application;
 
-	constructor(values) {
+      this.fromValues(values);
+   }
 
-		// this.application = application;
+   fromValues(values = {}) {
+      this.id = values.uuid || values.id;
+      this.uuid = values.uuid || values.id;
+      this.name = values.name;
+      this.description = values.description;
+      this.translations = values.translations;
 
-		this.fromValues(values);
+      // username
+      this.createdBy = values.createdBy;
 
-	}
+      // json
+      this.filter = values.filter;
 
-	fromValues(values = {}) {
+      // boolean
+      this.allowAll = JSON.parse(values.allowAll || false);
 
-		this.id = values.uuid || values.id;
-		this.uuid = values.uuid || values.id;
-		this.name = values.name;
-		this.description = values.description;
-		this.translations = values.translations;
+      // object ids
+      this.objectIds = values.objectIds;
 
-		// username
-		this.createdBy = values.createdBy;
+      this._objects = [];
+      if (values.objects) {
+         let mockApp = new ABApplication({});
+         (values.objects || []).forEach((o) => {
+            let obj = mockApp.objectNew(o);
+            this._objects.push(obj);
+         });
+      }
 
-		// json
-		this.filter = values.filter;
+      // multilingual fields: name, description
+      // this.application.translate(this, this, ['name', 'description']);
+   }
 
-		// boolean
-		this.allowAll = JSON.parse(values.allowAll || false);
+   toObj() {
+      // this.application.unTranslate(this, this, ['name', 'description']);
 
-		// object ids
-		this.objectIds = values.objectIds;
+      return {
+         id: this.uuid || this.id,
+         uuid: this.uuid || this.id,
+         translations: this.translations,
+         createdBy: this.createdBy,
+         filter: this.filter,
+         allowAll: this.allowAll || false,
+         objectIds: this.objects().map((o) => o.id)
+      };
+   }
 
-		this._objects = [];
-		if (values.objects) {
-			let mockApp = new ABApplication({});
-			(values.objects || []).forEach(o => {
-				let obj = mockApp.objectNew(o);
-				this._objects.push(obj);
-			});
-		}
-
-		// multilingual fields: name, description
-		// this.application.translate(this, this, ['name', 'description']);
-
-	}
-
-	toObj() {
-
-		// this.application.unTranslate(this, this, ['name', 'description']);
-
-		return {
-			id: this.uuid || this.id,
-			uuid: this.uuid || this.id,
-			translations: this.translations,
-			createdBy: this.createdBy,
-			filter: this.filter,
-			allowAll: this.allowAll || false,
-			objectIds: this.objects().map(o => o.id)
-		};
-
-	}
-
-	objects(filterFn) {
-
-		if (filterFn == null)
-			return (this._objects || []);
-		else
-			return (this._objects || []).filter(filterFn);
-	}
-
+   objects(filterFn) {
+      if (filterFn == null) return this._objects || [];
+      else return (this._objects || []).filter(filterFn);
+   }
 };
