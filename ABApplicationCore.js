@@ -31,763 +31,768 @@ const ABViewManager = require("../platform/ABViewManager");
 var ABMLClass = require("../platform/ABMLClass");
 
 module.exports = class ABApplicationCore extends ABMLClass {
-    constructor(attributes) {
-        super(ABApplicationCore.fieldsMultilingual());
+   constructor(attributes) {
+      super(ABApplicationCore.fieldsMultilingual());
 
-        // attributes should be in format:
-        // {
-        // 	id:##,
-        // 	json:{},
-        // 	name:"XYZ"
-        // }
-        attributes.json = attributes.json || {};
+      // attributes should be in format:
+      // {
+      // 	id:##,
+      // 	json:{},
+      // 	name:"XYZ"
+      // }
+      attributes.json = attributes.json || {};
 
-        // ABApplication Attributes
-        this.id = attributes.id;
-        this.type = attributes.type || "application";
-        this.json = attributes.json;
-        if (typeof this.json == "string") this.json = JSON.parse(this.json);
-        this.name = attributes.name || this.json.name || "";
-        this.role = attributes.role;
-        this.isAdminApp = JSON.parse(attributes.json.isAdminApp || false);
+      // ABApplication Attributes
+      this.id = attributes.id;
+      this.type = attributes.type || "application";
+      this.json = attributes.json;
+      if (typeof this.json == "string") this.json = JSON.parse(this.json);
+      this.name = attributes.name || this.json.name || "";
+      this.role = attributes.role;
+      this.isAdminApp = JSON.parse(attributes.json.isAdminApp || false);
 
-        // Transition:
-        // _datacollections, _objects, and _queries are now defined
-        // globally.  And not part of the internal definition of an
-        // ABApplication.
-        this._datacollections = [];
-        (attributes.json.datacollections || []).forEach((dc) => {
-            if (dc) {
-                this._datacollections.push(this.datacollectionNew(dc));
-            }
-        });
+      // Transition:
+      // _datacollections, _objects, and _queries are now defined
+      // globally.  And not part of the internal definition of an
+      // ABApplication.
+      this._datacollections = [];
+      (attributes.json.datacollections || []).forEach((dc) => {
+         if (dc) {
+            this._datacollections.push(this.datacollectionNew(dc));
+         }
+      });
 
-        // import all our ABObjects
-        // NOTE: we work with ABObjects on both the client and server sides.
-        // So we provide object methods in the base class.  However, each
-        // ABObject sub class (client and server) needs to implement it's own
-        // .objectNew() method.
-        //  	var newObjects = [];
-        //  	(attributes.json.objects || []).forEach((obj) => {
-        //  		newObjects.push( this.objectNew(obj) );
-        //  	})
-        this._objects = [];
-        this.objectIDs = attributes.json.objectIDs || [];
-        (this.objectsAll() || attributes.json.objects || []).forEach((obj) => {
-            if (obj instanceof ABObject) {
-                this._objects.push(obj);
+      // import all our ABObjects
+      // NOTE: we work with ABObjects on both the client and server sides.
+      // So we provide object methods in the base class.  However, each
+      // ABObject sub class (client and server) needs to implement it's own
+      // .objectNew() method.
+      //  	var newObjects = [];
+      //  	(attributes.json.objects || []).forEach((obj) => {
+      //  		newObjects.push( this.objectNew(obj) );
+      //  	})
+      this._objects = [];
+      this.objectIDs = attributes.json.objectIDs || [];
+      (this.objectsAll() || attributes.json.objects || []).forEach((obj) => {
+         if (obj instanceof ABObject) {
+            this._objects.push(obj);
+         } else {
+            this._objects.push(this.objectNew(obj));
+         }
+      });
+
+      // // NOTE: keep this after ABObjects are loaded
+      // // import our ABObjectQueries
+      // // just like the .objectNew() both ABApplication.js (client and server) need to
+      // // implement .queryNew()
+      // var newQueries = [];
+      // (attributes.json.queries || []).forEach((query) => {
+      // 	// prevent processing of null values.
+      // 	if (query) {
+      //   		newQueries.push( this.queryNew(query) );
+      //   	}
+      //  	})
+      this._queries = [];
+      (attributes.json.queries || []).forEach((q) => {
+         this._queries.push(this.queryNew(q));
+      });
+
+      // Transition:
+      // _pages, and _mobileApps, are still included in the ABApplication
+      // definition:
+
+      // import all our ABViews
+      let newPages = [];
+      (attributes.json.pages || []).forEach((page) => {
+         newPages.push(this.pageNew(page));
+      });
+      this._pages = newPages;
+
+      this._roles = [];
+
+      // // Mobile Apps
+      // // an Application can have one or more Mobile Apps registered.
+      // var newMobileApps = [];
+      // (attributes.json.mobileApps || []).forEach((ma) => {
+      // 	// prevent processing of null values.
+      // 	if (ma) {
+      //   		newMobileApps.push( this.mobileAppNew(ma) );
+      //   	}
+      //  	})
+      // this._mobileApps = [newMobileApps];
+
+      var newProcesses = [];
+      var removePIDs = [];
+      (attributes.json.processIDs || []).forEach((pID) => {
+         if (pID) {
+            var p = this.processNew(pID);
+            if (p) {
+               newProcesses.push(p);
             } else {
-                this._objects.push(this.objectNew(obj));
+               // remove pID from list
+               removePIDs.push(pID);
             }
-        });
-
-        // // NOTE: keep this after ABObjects are loaded
-        // // import our ABObjectQueries
-        // // just like the .objectNew() both ABApplication.js (client and server) need to
-        // // implement .queryNew()
-        // var newQueries = [];
-        // (attributes.json.queries || []).forEach((query) => {
-        // 	// prevent processing of null values.
-        // 	if (query) {
-        //   		newQueries.push( this.queryNew(query) );
-        //   	}
-        //  	})
-        this._queries = [];
-        (attributes.json.queries || []).forEach((q) => {
-            this._queries.push(this.queryNew(q));
-        });
-
-        // Transition:
-        // _pages, and _mobileApps, are still included in the ABApplication
-        // definition:
-
-        // import all our ABViews
-        let newPages = [];
-        (attributes.json.pages || []).forEach((page) => {
-            newPages.push(this.pageNew(page));
-        });
-        this._pages = newPages;
-
-        this._roles = [];
-
-        // // Mobile Apps
-        // // an Application can have one or more Mobile Apps registered.
-        // var newMobileApps = [];
-        // (attributes.json.mobileApps || []).forEach((ma) => {
-        // 	// prevent processing of null values.
-        // 	if (ma) {
-        //   		newMobileApps.push( this.mobileAppNew(ma) );
-        //   	}
-        //  	})
-        // this._mobileApps = [newMobileApps];
-
-        var newProcesses = [];
-        var removePIDs = [];
-        (attributes.json.processIDs || []).forEach((pID) => {
-            if (pID) {
-                var p = this.processNew(pID);
-                if (p) {
-                    newProcesses.push(p);
-                } else {
-                    // remove pID from list
-                    removePIDs.push(pID);
-                }
+         }
+      });
+      if (attributes.json.processIDs) {
+         // remove those missing pIDs.
+         attributes.json.processIDs = attributes.json.processIDs.filter(
+            (pr) => {
+               return removePIDs.indexOf(pr) == -1;
             }
-        });
-        if (attributes.json.processIDs) {
-            // remove those missing pIDs.
-            attributes.json.processIDs = attributes.json.processIDs.filter(
-                (pr) => {
-                    return removePIDs.indexOf(pr) == -1;
-                }
-            );
-        }
+         );
+      }
 
-        this._processes = newProcesses;
-        this.processIDs = attributes.json.processIDs || [];
+      this._processes = newProcesses;
+      this.processIDs = attributes.json.processIDs || [];
 
-        // Object List Settings
-        attributes.json.objectListSettings =
-            attributes.json.objectListSettings || {};
-        this.objectListSettings = this.objectListSettings || {};
-        this.objectListSettings.isOpen = JSON.parse(
-            attributes.json.objectListSettings.isOpen || false
-        );
-        this.objectListSettings.searchText =
-            attributes.json.objectListSettings.searchText || "";
-        this.objectListSettings.sortDirection =
-            attributes.json.objectListSettings.sortDirection || "asc";
-        this.objectListSettings.isGroup = JSON.parse(
-            attributes.json.objectListSettings.isGroup || false
-        );
+      // Object List Settings
+      attributes.json.objectListSettings =
+         attributes.json.objectListSettings || {};
+      this.objectListSettings = this.objectListSettings || {};
+      this.objectListSettings.isOpen = JSON.parse(
+         attributes.json.objectListSettings.isOpen || false
+      );
+      this.objectListSettings.searchText =
+         attributes.json.objectListSettings.searchText || "";
+      this.objectListSettings.sortDirection =
+         attributes.json.objectListSettings.sortDirection || "asc";
+      this.objectListSettings.isGroup = JSON.parse(
+         attributes.json.objectListSettings.isGroup || false
+      );
 
-        // let the MLClass now process the translations:
-        super.fromValues(attributes);
-    }
+      // let the MLClass now process the translations:
+      super.fromValues(attributes);
+   }
 
-    ///
-    /// Static Methods
-    ///
-    /// Available to the Class level object.  These methods are not dependent
-    /// on the instance values of the Application.
-    ///
+   ///
+   /// Static Methods
+   ///
+   /// Available to the Class level object.  These methods are not dependent
+   /// on the instance values of the Application.
+   ///
 
-    /**
-     * @method fieldsMultilingual()
-     *
-     * return an array of fields that are considered Multilingual labels for
-     * an ABApplication
-     *
-     * @return {array}
-     */
-    static fieldsMultilingual() {
-        return ["label", "description"];
-    }
+   /**
+    * @method fieldsMultilingual()
+    *
+    * return an array of fields that are considered Multilingual labels for
+    * an ABApplication
+    *
+    * @return {array}
+    */
+   static fieldsMultilingual() {
+      return ["label", "description"];
+   }
 
-    ///
-    /// Instance Methods
-    ///
+   ///
+   /// Instance Methods
+   ///
 
-    /// ABApplication data methods
+   /// ABApplication data methods
 
-    /**
-     * @method toObj()
-     *
-     * properly compile the current state of this ABApplication instance
-     * into the values needed for saving to the DB.
-     *
-     * Most of the instance data is stored in .json field, so be sure to
-     * update that from all the current values of our child fields.
-     *
-     * @return {json}
-     */
-    toObj() {
-        // MLClass translation
-        this.json = super.toObj();
+   /**
+    * @method toObj()
+    *
+    * properly compile the current state of this ABApplication instance
+    * into the values needed for saving to the DB.
+    *
+    * Most of the instance data is stored in .json field, so be sure to
+    * update that from all the current values of our child fields.
+    *
+    * @return {json}
+    */
+   toObj() {
+      // MLClass translation
+      this.json = super.toObj();
 
-        this.json.name = this.name;
+      this.json.name = this.name;
 
-        // for each Object: compile to json
-        // var currObjects = [];
-        // this._objects.forEach((obj) => {
-        //     currObjects.push(obj.toObj());
-        // });
-        // this.json.objects = currObjects;
-        this.json.objectIDs = this.objectIDs;
+      // for each Object: compile to json
+      // var currObjects = [];
+      // this._objects.forEach((obj) => {
+      //     currObjects.push(obj.toObj());
+      // });
+      // this.json.objects = currObjects;
+      this.json.objectIDs = this.objectIDs;
 
-        this.json.objectListSettings = this.objectListSettings;
+      this.json.objectListSettings = this.objectListSettings;
 
-        // Save our processes.
-        this.json.processIDs = (this._processes || []).map((p) => {
-            return p.id;
-        });
+      // Save our processes.
+      this.json.processIDs = (this._processes || []).map((p) => {
+         return p.id;
+      });
 
-        // for each View: compile to json
-        var currPages = [];
-        this._pages.forEach((page) => {
-            currPages.push(page.toObj());
-        });
-        this.json.pages = currPages;
+      // for each View: compile to json
+      var currPages = [];
+      this._pages.forEach((page) => {
+         currPages.push(page.toObj());
+      });
+      this.json.pages = currPages;
 
-        // // for each MobileApp: compile to json
-        // var currApps = [];
-        // this._mobileApps.forEach((app) => {
-        // 	currApps.push(app.toObj())
-        // })
-        // this.json.mobileApps = currApps;
+      // // for each MobileApp: compile to json
+      // var currApps = [];
+      // this._mobileApps.forEach((app) => {
+      // 	currApps.push(app.toObj())
+      // })
+      // this.json.mobileApps = currApps;
 
-        return {
-            id: this.id,
-            type: this.type || "application",
-            name: this.name,
-            json: this.json,
-            role: this.role,
-            isAdminApp: this.isAdminApp
-        };
-    }
+      return {
+         id: this.id,
+         type: this.type || "application",
+         name: this.name,
+         json: this.json,
+         role: this.role,
+         isAdminApp: this.isAdminApp
+      };
+   }
 
-    ///
-    /// Mobile Apps
-    ///
+   ///
+   /// Mobile Apps
+   ///
 
-    /**
-     * @method mobileApps()
-     *
-     * return an array of all the ABObjectQueries for this ABApplication.
-     *
-     * @param {fn} filter  	a filter fn to return a set of ABObjectQueries that
-     *						this fn returns true for.
-     * @return {array} 	array of ABObjectQueries
-     */
-    mobileApps(filter) {
-        filter =
-            filter ||
-            function() {
-                return true;
-            };
-        return (this._mobileApps || []).filter(filter);
-    }
+   /**
+    * @method mobileApps()
+    *
+    * return an array of all the ABObjectQueries for this ABApplication.
+    *
+    * @param {fn} filter  	a filter fn to return a set of ABObjectQueries that
+    *						this fn returns true for.
+    * @return {array} 	array of ABObjectQueries
+    */
+   mobileApps(filter) {
+      filter =
+         filter ||
+         function() {
+            return true;
+         };
+      return (this._mobileApps || []).filter(filter);
+   }
 
-    ///
-    /// Datacollections
-    ///
+   ///
+   /// Datacollections
+   ///
 
-    ///
-    /// Data collections
-    ///
+   ///
+   /// Data collections
+   ///
 
-    datacollectionNew(values) {
-        return new ABDataCollectionCore(values, this);
-    }
+   datacollectionNew(values) {
+      return new ABDataCollectionCore(values, this);
+   }
 
-    /**
-     * @method datacollections()
-     *
-     * return an array of all the ABDataCollection for this ABApplication.
-     *
-     * @param {fn} filter  	a filter fn to return a set of ABDataCollection that
-     *						this fn returns true for.
-     * @return {array} 	array of ABDataCollection
-     */
-    datacollections(filter) {
-        filter =
-            filter ||
-            function() {
-                return true;
-            };
+   /**
+    * @method datacollections()
+    *
+    * return an array of all the ABDataCollection for this ABApplication.
+    *
+    * @param {fn} filter  	a filter fn to return a set of ABDataCollection that
+    *						this fn returns true for.
+    * @return {array} 	array of ABDataCollection
+    */
+   datacollections(filter) {
+      filter =
+         filter ||
+         function() {
+            return true;
+         };
 
-        return (this._datacollections || []).filter(filter);
-    }
+      return (this._datacollections || []).filter(filter);
+   }
 
-    datacollectionByID(ID) {
-        // an undefined or null ID should not match any DC.
-        if (!ID) return null;
+   datacollectionByID(ID) {
+      // an undefined or null ID should not match any DC.
+      if (!ID) return null;
 
-        return this.datacollections((dc) => {
-            return dc.id == ID || dc.name == ID || dc.label == ID;
-        });
-    }
+      return this.datacollections((dc) => {
+         return dc.id == ID || dc.name == ID || dc.label == ID;
+      });
+   }
 
-    ///
-    /// Objects
-    ///
+   ///
+   /// Objects
+   ///
 
-    /**
-     * @method objects()
-     *
-     * return an array of all the ABObjects for this ABApplication.
-     *
-     * @param {fn} filter  	a filter fn to return a set of ABObjects that this fn
-     *						returns true for.
-     * @return {array} 	array of ABObject
-     */
-    objects(filter) {
-        filter =
-            filter ||
-            function() {
-                return true;
-            };
+   /**
+    * @method objects()
+    *
+    * return an array of all the ABObjects for this ABApplication.
+    *
+    * @param {fn} filter  	a filter fn to return a set of ABObjects that this fn
+    *						returns true for.
+    * @return {array} 	array of ABObject
+    */
+   objects(filter) {
+      filter =
+         filter ||
+         function() {
+            return true;
+         };
 
-        return (this._objects || []).filter(filter);
-    }
+      return (this._objects || []).filter(filter);
+   }
 
-    objectsIncluded(filter) {
-        filter = filter || function() { return true };
-        return this.objects((o)=>{ return this.objectIDs.indexOf(o.id) > -1; }).filter(filter);
-    }
+   objectsIncluded(filter) {
+      filter =
+         filter ||
+         function() {
+            return true;
+         };
+      return this.objects((o) => {
+         return this.objectIDs.indexOf(o.id) > -1;
+      }).filter(filter);
+   }
 
-    /**
-     * @method connectedObjects()
-     *
-     * return an array of all the connected ABObjects for this ABApplication.
-     *
-     * @param {id} id  	an ID of an ABObject
-     *
-     * @return {array} 	array of options for webix select
-     */
-    connectedObjects(obj) {
-        if (obj == "") return [];
+   /**
+    * @method connectedObjects()
+    *
+    * return an array of all the connected ABObjects for this ABApplication.
+    *
+    * @param {id} id  	an ID of an ABObject
+    *
+    * @return {array} 	array of options for webix select
+    */
+   connectedObjects(obj) {
+      if (obj == "") return [];
 
-        // Determine the object from the ID
-        var myObj = this.objects((o) => o.id == obj);
+      // Determine the object from the ID
+      var myObj = this.objects((o) => o.id == obj);
 
-        // Get all the connected Fields for that object
-        var connectedFields = myObj[0].fields((f) => f.key == "connectObject");
-        // Store the related fields associatively inside their related Objects ID
-        var connectedObj = [];
-        connectedFields.forEach((f) => {
-            connectedObj[f.settings.linkObject] = this.objects(
-                (co) => co.id == f.settings.linkObject
-            );
-        });
-        // Look up the objects by their ID and push them in an options array
-        var linkedObjects = [];
-        Object.keys(connectedObj).forEach(function(key, index) {
-            linkedObjects.push({
-                id: this[key][0].id,
-                value: this[key][0].label
+      // Get all the connected Fields for that object
+      var connectedFields = myObj[0].fields((f) => f.key == "connectObject");
+      // Store the related fields associatively inside their related Objects ID
+      var connectedObj = [];
+      connectedFields.forEach((f) => {
+         connectedObj[f.settings.linkObject] = this.objects(
+            (co) => co.id == f.settings.linkObject
+         );
+      });
+      // Look up the objects by their ID and push them in an options array
+      var linkedObjects = [];
+      Object.keys(connectedObj).forEach(function(key, index) {
+         linkedObjects.push({
+            id: this[key][0].id,
+            value: this[key][0].label
+         });
+      }, connectedObj);
+
+      return linkedObjects;
+   }
+
+   /**
+    * @method connectedFields()
+    *
+    * return an array of all the connected ABFields for a given ABObject
+    *
+    * @param {currObj} id		an ID of the current ABObject
+    *
+    * @param {linkedObject} id	an ID of the linked ABObject
+    *
+    * @return {array}			array of options for webix select
+    */
+   connectedFields(currObj, linkedObject) {
+      // Determine the object from the currObj
+      var myObj = this.objects((o) => o.id == currObj);
+
+      // Get all the connected Fields for our object that match the linkedObject
+      var connectedFields = myObj[0].fields(
+         (f) =>
+            f.key == "connectObject" && f.settings.linkObject == linkedObject
+      );
+      // Build an arry of options for the webix select
+      var linkedFields = [];
+      connectedFields.forEach((f) => {
+         linkedFields.push({ id: f.columnName, value: f.label });
+      });
+
+      return linkedFields;
+   }
+
+   /**
+    * @method objectByID()
+    * return the specific object requested by the provided id.
+    * @param {string} ID
+    * @return {obj}
+    */
+   objectByID(ID) {
+      return this.objects((o) => {
+         return o.id == ID || o.name == ID || o.label == ID;
+      })[0];
+   }
+
+   /**
+    * @method objectNew()
+    *
+    * return an instance of a new (unsaved) ABObject that is tied to this
+    * ABApplication.
+    *
+    * NOTE: this new object is not included in our this.objects until a .save()
+    * is performed on the object.
+    *
+    * @return {ABObject}
+    */
+   objectNew(values) {
+      return new ABObject(values, this);
+   }
+
+   ///
+   /// Pages
+   ///
+
+   /**
+    * @method pages()
+    *
+    * return an array of all the ABViewPages for this ABApplication.
+    *
+    * @param {fn} filter		a filter fn to return a set of ABViewPages that this fn
+    *							returns true for.
+    * @param {boolean} deep	flag to find in sub pages
+    *
+    * @return {array}			array of ABViewPages
+    */
+   pages(filter, deep) {
+      var result = [];
+
+      if (!this._pages || this._pages.length < 1) return result;
+
+      // find into sub-pages recursively
+      if (filter && deep) {
+         result = this._pages.filter(filter);
+
+         if (result.length < 1) {
+            this._pages.forEach((p) => {
+               var subPages = p.pages(filter, deep);
+               if (subPages && subPages.length > 0) {
+                  result = subPages;
+               }
             });
-        }, connectedObj);
-
-        return linkedObjects;
-    }
-
-    /**
-     * @method connectedFields()
-     *
-     * return an array of all the connected ABFields for a given ABObject
-     *
-     * @param {currObj} id		an ID of the current ABObject
-     *
-     * @param {linkedObject} id	an ID of the linked ABObject
-     *
-     * @return {array}			array of options for webix select
-     */
-    connectedFields(currObj, linkedObject) {
-        // Determine the object from the currObj
-        var myObj = this.objects((o) => o.id == currObj);
-
-        // Get all the connected Fields for our object that match the linkedObject
-        var connectedFields = myObj[0].fields(
-            (f) =>
-                f.key == "connectObject" &&
-                f.settings.linkObject == linkedObject
-        );
-        // Build an arry of options for the webix select
-        var linkedFields = [];
-        connectedFields.forEach((f) => {
-            linkedFields.push({ id: f.columnName, value: f.label });
-        });
-
-        return linkedFields;
-    }
-
-    /**
-     * @method objectByID()
-     * return the specific object requested by the provided id.
-     * @param {string} ID
-     * @return {obj}
-     */
-    objectByID(ID) {
-        return this.objects((o) => {
-            return o.id == ID || o.name == ID || o.label == ID;
-        })[0];
-    }
-
-    /**
-     * @method objectNew()
-     *
-     * return an instance of a new (unsaved) ABObject that is tied to this
-     * ABApplication.
-     *
-     * NOTE: this new object is not included in our this.objects until a .save()
-     * is performed on the object.
-     *
-     * @return {ABObject}
-     */
-    objectNew(values) {
-        return new ABObject(values, this);
-    }
-
-    ///
-    /// Pages
-    ///
-
-    /**
-     * @method pages()
-     *
-     * return an array of all the ABViewPages for this ABApplication.
-     *
-     * @param {fn} filter		a filter fn to return a set of ABViewPages that this fn
-     *							returns true for.
-     * @param {boolean} deep	flag to find in sub pages
-     *
-     * @return {array}			array of ABViewPages
-     */
-    pages(filter, deep) {
-        var result = [];
-
-        if (!this._pages || this._pages.length < 1) return result;
-
-        // find into sub-pages recursively
-        if (filter && deep) {
-            result = this._pages.filter(filter);
-
-            if (result.length < 1) {
-                this._pages.forEach((p) => {
-                    var subPages = p.pages(filter, deep);
-                    if (subPages && subPages.length > 0) {
-                        result = subPages;
-                    }
-                });
-            }
-        }
-        // find root pages
-        else {
-            filter =
-                filter ||
-                function() {
-                    return true;
-                };
-
-            result = (this._pages || []).filter(filter);
-        }
-
-        return result;
-    }
-
-    ///
-    /// Processes
-    ///
-
-    /**
-     * @method processes()
-     *
-     * return an array of all the ABProcesses for this ABApplication.
-     *
-     * @param {fn} filter   a filter fn to return a set of ABProcesses that
-     *                      this fn returns true for.
-     * @return {array}  array of ABProcesses
-     */
-    processes(filter) {
-        filter =
+         }
+      }
+      // find root pages
+      else {
+         filter =
             filter ||
             function() {
-                return true;
+               return true;
             };
 
-        return this._processes.filter(filter);
-    }
+         result = (this._pages || []).filter(filter);
+      }
 
-    hasProcess(process) {
-        if (process && process.id) {
-            return this.processIDs.indexOf(process.id) > -1;
-        } else {
-            return false;
-        }
-    }
+      return result;
+   }
 
-    ///
-    /// Queries
-    ///
+   ///
+   /// Processes
+   ///
 
-    /**
-     * @method queries()
-     *
-     * return an array of all the ABObjectQueries for this ABApplication.
-     *
-     * @param {fn} filter  	a filter fn to return a set of ABObjectQueries that
-     *						this fn returns true for.
-     * @return {array} 	array of ABObjectQueries
-     */
-    queries(filter) {
-        filter =
-            filter ||
-            function() {
-                return true;
-            };
+   /**
+    * @method processes()
+    *
+    * return an array of all the ABProcesses for this ABApplication.
+    *
+    * @param {fn} filter   a filter fn to return a set of ABProcesses that
+    *                      this fn returns true for.
+    * @return {array}  array of ABProcesses
+    */
+   processes(filter) {
+      filter =
+         filter ||
+         function() {
+            return true;
+         };
 
-        return (this._queries || []).filter(filter);
-    }
+      return this._processes.filter(filter);
+   }
 
-    ///
-    /// Roles
-    ///
+   hasProcess(process) {
+      if (process && process.id) {
+         return this.processIDs.indexOf(process.id) > -1;
+      } else {
+         return false;
+      }
+   }
 
-    /**
-     * @method roles()
-     *
-     * return an array of all the ABRole for this ABApplication.
-     *
-     * @param {fn} filter  	a filter fn to return a set of ABRole that
-     *						this fn returns true for.
-     * @return {array} 	array of ABRole
-     */
-    roles(filter) {
-        filter =
-            filter ||
-            function() {
-                return true;
-            };
+   ///
+   /// Queries
+   ///
 
-        return (this._roles || []).filter(filter);
-    }
+   /**
+    * @method queries()
+    *
+    * return an array of all the ABObjectQueries for this ABApplication.
+    *
+    * @param {fn} filter  	a filter fn to return a set of ABObjectQueries that
+    *						this fn returns true for.
+    * @return {array} 	array of ABObjectQueries
+    */
+   queries(filter) {
+      filter =
+         filter ||
+         function() {
+            return true;
+         };
 
-    /**
-     * @method urlResolve()
-     * given an object pointer, return the specific object referenced.
-     * pointer must start with a '#', use '/' as delimiters, and either
-     * reference an object's .id, or an object's .property.
-     * for example:
-     * #/_objects   : resolves to the array of ._objects pointed to by this
-     * 				  application.
-     * #/_objects/[object.id] : reolved to a specific object
-     * #/_objects/[object.id]/_fields/[field.id] : resolves to a specific data field
-     * 				  refereced by object.id.
-     *
-     * @param {string} pointer : the string url referencing the object you want
-     * 							 to retrieve.
-     * @return {obj}
-     */
-    urlResolve(pointer) {
-        var parts = pointer.split("/");
+      return (this._queries || []).filter(filter);
+   }
 
-        var parseStep = (obj, steps) => {
-            // we're done.  obj is what we are looking for:
-            if (steps.length == 0) {
-                return obj;
-            }
+   ///
+   /// Roles
+   ///
 
-            // pull the next step key:
-            var key = steps.shift();
+   /**
+    * @method roles()
+    *
+    * return an array of all the ABRole for this ABApplication.
+    *
+    * @param {fn} filter  	a filter fn to return a set of ABRole that
+    *						this fn returns true for.
+    * @return {array} 	array of ABRole
+    */
+   roles(filter) {
+      filter =
+         filter ||
+         function() {
+            return true;
+         };
 
-            // special case, "#" makes sure we are talking about the
-            // Application object
-            if (key == "#") {
-                return parseStep(this, steps);
-            }
+      return (this._roles || []).filter(filter);
+   }
 
-            // if obj is an [], then key should be an .id reference to
-            // lookup:
-            if (Array.isArray(obj)) {
-                obj = obj.filter(function(o) {
-                    return o.id == key;
-                })[0];
-                return parseStep(obj, steps);
-            }
+   /**
+    * @method urlResolve()
+    * given an object pointer, return the specific object referenced.
+    * pointer must start with a '#', use '/' as delimiters, and either
+    * reference an object's .id, or an object's .property.
+    * for example:
+    * #/_objects   : resolves to the array of ._objects pointed to by this
+    * 				  application.
+    * #/_objects/[object.id] : reolved to a specific object
+    * #/_objects/[object.id]/_fields/[field.id] : resolves to a specific data field
+    * 				  refereced by object.id.
+    *
+    * @param {string} pointer : the string url referencing the object you want
+    * 							 to retrieve.
+    * @return {obj}
+    */
+   urlResolve(pointer) {
+      var parts = pointer.split("/");
 
-            // otherwise obj should be an {} and key a property:
-            if (obj && obj[key]) {
-                return parseStep(obj[key], steps);
-            }
+      var parseStep = (obj, steps) => {
+         // we're done.  obj is what we are looking for:
+         if (steps.length == 0) {
+            return obj;
+         }
 
-            // if we got here, there is an error!
-            // console.error('!!! failed to lookup url:'+pointer);
-            console.warn("!!! failed to lookup url:" + pointer);
-            return null;
-        };
+         // pull the next step key:
+         var key = steps.shift();
 
-        return parseStep(this, parts);
-    }
+         // special case, "#" makes sure we are talking about the
+         // Application object
+         if (key == "#") {
+            return parseStep(this, steps);
+         }
 
-    /**
-     * @method urlPointer()
-     * return the url pointer for this application.
-     *
-     * @param {boolean} acrossApp - flag to include application id to url
-     *
-     * @return {string}
-     */
-    urlPointer(acrossApp) {
-        // NOTE: if we need to expand this to search across
-        // applications, then add in this application.id here:
-        if (acrossApp) return "#/" + this.id + "/";
-        else return "#/";
-    }
+         // if obj is an [], then key should be an .id reference to
+         // lookup:
+         if (Array.isArray(obj)) {
+            obj = obj.filter(function(o) {
+               return o.id == key;
+            })[0];
+            return parseStep(obj, steps);
+         }
 
-    /**
-     * @method urlObject()
-     * return the url pointer for objects in this application.
-     *
-     * @param {boolean} acrossApp - flag to include application id to url
-     *
-     * @return {string}
-     */
-    urlObject(acrossApp) {
-        return this.urlPointer(acrossApp) + "_objects/";
-    }
+         // otherwise obj should be an {} and key a property:
+         if (obj && obj[key]) {
+            return parseStep(obj[key], steps);
+         }
 
-    /**
-     * @method urlView()
-     * return the url pointer for pages in this application.
-     *
-     * @param {boolean} acrossApp - flag to include application id to url
-     *
-     * @return {string}
-     */
-    urlPage(acrossApp) {
-        return this.urlPointer(acrossApp) + "_pages/";
-    }
+         // if we got here, there is an error!
+         // console.error('!!! failed to lookup url:'+pointer);
+         console.warn("!!! failed to lookup url:" + pointer);
+         return null;
+      };
 
-    /**
-     * @method urlQuery()
-     * return the url pointer for queries in this application.
-     *
-     * @param {boolean} acrossApp - flag to include application id to url
-     *
-     * @return {string}
-     */
-    urlQuery(acrossApp) {
-        return this.urlPointer(acrossApp) + "_queries/";
-    }
+      return parseStep(this, parts);
+   }
 
-    ///
-    ///	Object List Settings
-    ///
-    get objectlistIsOpen() {
-        return this.objectListSettings.isOpen;
-    }
+   /**
+    * @method urlPointer()
+    * return the url pointer for this application.
+    *
+    * @param {boolean} acrossApp - flag to include application id to url
+    *
+    * @return {string}
+    */
+   urlPointer(acrossApp) {
+      // NOTE: if we need to expand this to search across
+      // applications, then add in this application.id here:
+      if (acrossApp) return "#/" + this.id + "/";
+      else return "#/";
+   }
 
-    set objectlistIsOpen(isOpen) {
-        this.objectListSettings.isOpen = isOpen;
-    }
+   /**
+    * @method urlObject()
+    * return the url pointer for objects in this application.
+    *
+    * @param {boolean} acrossApp - flag to include application id to url
+    *
+    * @return {string}
+    */
+   urlObject(acrossApp) {
+      return this.urlPointer(acrossApp) + "_objects/";
+   }
 
-    get objectlistSearchText() {
-        return this.objectListSettings.searchText;
-    }
+   /**
+    * @method urlView()
+    * return the url pointer for pages in this application.
+    *
+    * @param {boolean} acrossApp - flag to include application id to url
+    *
+    * @return {string}
+    */
+   urlPage(acrossApp) {
+      return this.urlPointer(acrossApp) + "_pages/";
+   }
 
-    set objectlistSearchText(searchText) {
-        this.objectListSettings.searchText = searchText;
-    }
+   /**
+    * @method urlQuery()
+    * return the url pointer for queries in this application.
+    *
+    * @param {boolean} acrossApp - flag to include application id to url
+    *
+    * @return {string}
+    */
+   urlQuery(acrossApp) {
+      return this.urlPointer(acrossApp) + "_queries/";
+   }
 
-    get objectlistSortDirection() {
-        return this.objectListSettings.sortDirection;
-    }
+   ///
+   ///	Object List Settings
+   ///
+   get objectlistIsOpen() {
+      return this.objectListSettings.isOpen;
+   }
 
-    set objectlistSortDirection(sortDirection) {
-        this.objectListSettings.sortDirection = sortDirection;
-    }
+   set objectlistIsOpen(isOpen) {
+      this.objectListSettings.isOpen = isOpen;
+   }
 
-    get objectlistIsGroup() {
-        return this.objectListSettings.isGroup;
-    }
+   get objectlistSearchText() {
+      return this.objectListSettings.searchText;
+   }
 
-    set objectlistIsGroup(isGroup) {
-        this.objectListSettings.isGroup = isGroup;
-    }
+   set objectlistSearchText(searchText) {
+      this.objectListSettings.searchText = searchText;
+   }
 
-    ///
-    /// Instance generators
-    ///
+   get objectlistSortDirection() {
+      return this.objectListSettings.sortDirection;
+   }
 
-    /**
-     * @method fieldNew()
-     *
-     * return an instance of a new (unsaved) ABField that is tied to a given
-     * ABObject.
-     *
-     * NOTE: this new field is not included in our this.fields until a .save()
-     * is performed on the field.
-     *
-     * @param {obj} values  the initial values for this field.
-     *						{ key:'{string}'} is required
-     * @param {ABObject} object  the parent object this field belongs to.
-     * @return {ABField}
-     */
-    fieldNew(values, object) {
-        // NOTE: ABFieldManager returns the proper ABFieldXXXX instance.
-        return ABFieldManager.newField(values, object);
-    }
+   set objectlistSortDirection(sortDirection) {
+      this.objectListSettings.sortDirection = sortDirection;
+   }
 
-    /**
-     * @method pageNew()
-     *
-     * return an instance of a new (unsaved) ABViewPage that is tied to this
-     * ABApplication.
-     *
-     * NOTE: this new page is not included in our this.pages until a .save()
-     * is performed on the page.
-     *
-     * @return {ABViewPage}
-     */
-    pageNew(values) {
-        // make sure this is an ABViewPage description
-        // values.key = ABViewPageCore.common().key;
-        values.key = "page";
+   get objectlistIsGroup() {
+      return this.objectListSettings.isGroup;
+   }
 
-        return ABViewManager.newView(values, this, null);
-    }
+   set objectlistIsGroup(isGroup) {
+      this.objectListSettings.isGroup = isGroup;
+   }
 
-    /**
-     * @method viewNew()
-     *
-     * return an instance of a new (unsaved) ABView.
-     *
-     * @return {ABView}
-     */
-    viewNew(values, application, parent) {
-        return ABViewManager.newView(values, application, parent);
-    }
+   ///
+   /// Instance generators
+   ///
 
-    /**
-     * @method viewNew()
-     *
-     * return an instance of a new (unsaved) ABView.
-     *
-     * @return {ABView}
-     */
-    qlopNew(values, application, parent) {
-        console.error("!!!Where is this called?!!!");
-        return ABQLManager.newOP(values, application || this, parent);
-    }
+   /**
+    * @method fieldNew()
+    *
+    * return an instance of a new (unsaved) ABField that is tied to a given
+    * ABObject.
+    *
+    * NOTE: this new field is not included in our this.fields until a .save()
+    * is performed on the field.
+    *
+    * @param {obj} values  the initial values for this field.
+    *						{ key:'{string}'} is required
+    * @param {ABObject} object  the parent object this field belongs to.
+    * @return {ABField}
+    */
+   fieldNew(values, object) {
+      // NOTE: ABFieldManager returns the proper ABFieldXXXX instance.
+      return ABFieldManager.newField(values, object);
+   }
 
-    ///
-    /// Utilities
-    ///
+   /**
+    * @method pageNew()
+    *
+    * return an instance of a new (unsaved) ABViewPage that is tied to this
+    * ABApplication.
+    *
+    * NOTE: this new page is not included in our this.pages until a .save()
+    * is performed on the page.
+    *
+    * @return {ABViewPage}
+    */
+   pageNew(values) {
+      // make sure this is an ABViewPage description
+      // values.key = ABViewPageCore.common().key;
+      values.key = "page";
 
-    // languageDefault() {
-    //     return "en";
-    // }
+      return ABViewManager.newView(values, this, null);
+   }
 
-    /**
-     * @function OP.Multilingual.translate
-     *
-     * Given a set of json data, pull out any multilingual translations
-     * and flatten those values to the base object.
-     *
-     * @param {obj} obj  The instance of the object being translated
-     * @param {json} json The json data being used for translation.
-     *						There should be json.translations = [ {transEntry}, ...]
-     *						where transEntry = {
-     *							language_code:'en',
-     *							field1:'value',
-     *							...
-     *						}
-     * @param {array} fields an Array of multilingual fields to pull to
-     *						 the obj[field] value.
-     *
-     */
-     /*
+   /**
+    * @method viewNew()
+    *
+    * return an instance of a new (unsaved) ABView.
+    *
+    * @return {ABView}
+    */
+   viewNew(values, application, parent) {
+      return ABViewManager.newView(values, application, parent);
+   }
+
+   /**
+    * @method viewNew()
+    *
+    * return an instance of a new (unsaved) ABView.
+    *
+    * @return {ABView}
+    */
+   qlopNew(values, application, parent) {
+      console.error("!!!Where is this called?!!!");
+      return ABQLManager.newOP(values, application || this, parent);
+   }
+
+   ///
+   /// Utilities
+   ///
+
+   // languageDefault() {
+   //     return "en";
+   // }
+
+   /**
+    * @function OP.Multilingual.translate
+    *
+    * Given a set of json data, pull out any multilingual translations
+    * and flatten those values to the base object.
+    *
+    * @param {obj} obj  The instance of the object being translated
+    * @param {json} json The json data being used for translation.
+    *						There should be json.translations = [ {transEntry}, ...]
+    *						where transEntry = {
+    *							language_code:'en',
+    *							field1:'value',
+    *							...
+    *						}
+    * @param {array} fields an Array of multilingual fields to pull to
+    *						 the obj[field] value.
+    *
+    */
+   /*
     translate(obj, json, fields, languageCode = null) {
         json = json || {};
         fields = fields || [];
@@ -838,25 +843,25 @@ module.exports = class ABApplicationCore extends ABMLClass {
     }
     */
 
-    /**
-     * @function OP.Multilingual.unTranslate
-     *
-     * Take the multilingual information in the base obj, and push that
-     * down into the json.translations data.
-     *
-     * @param {obj} obj  The instance of the object with the translation
-     * @param {json} json The json data being used for translation.
-     *						There should be json.translations = [ {transEntry}, ...]
-     *						where transEntry = {
-     *							language_code:'en',
-     *							field1:'value',
-     *							...
-     *						}
-     * @param {array} fields an Array of multilingual fields to pull from
-     *						 the obj[field] value.
-     *
-     */
-/*
+   /**
+    * @function OP.Multilingual.unTranslate
+    *
+    * Take the multilingual information in the base obj, and push that
+    * down into the json.translations data.
+    *
+    * @param {obj} obj  The instance of the object with the translation
+    * @param {json} json The json data being used for translation.
+    *						There should be json.translations = [ {transEntry}, ...]
+    *						where transEntry = {
+    *							language_code:'en',
+    *							field1:'value',
+    *							...
+    *						}
+    * @param {array} fields an Array of multilingual fields to pull from
+    *						 the obj[field] value.
+    *
+    */
+   /*
     unTranslate(obj, json, fields) {
         json = json || {};
         fields = fields || [];
@@ -906,7 +911,7 @@ module.exports = class ABApplicationCore extends ABMLClass {
     }
 */
 
-    cloneDeep(object) {
-        return JSON.parse(JSON.stringify(object));
-    }
+   cloneDeep(object) {
+      return JSON.parse(JSON.stringify(object));
+   }
 };
