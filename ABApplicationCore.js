@@ -443,11 +443,11 @@ module.exports = class ABApplicationCore extends ABMLClass {
     *
     * return an array of all the ABViewPages for this ABApplication.
     *
-    * @param {fn} filter		a filter fn to return a set of ABViewPages that this fn
-    *							returns true for.
-    * @param {boolean} deep	flag to find in sub pages
+    * @param {fn} filter   a filter fn to return a set of ABViewPages that this fn
+    *              returns true for.
+    * @param {boolean} deep  flag to find in sub pages
     *
-    * @return {array}			array of ABViewPages
+    * @return {array}      array of ABViewPages
     */
    pages(filter, deep) {
       var result = [];
@@ -770,10 +770,6 @@ module.exports = class ABApplicationCore extends ABMLClass {
    /// Utilities
    ///
 
-   // languageDefault() {
-   //     return "en";
-   // }
-
    /**
     * @function OP.Multilingual.translate
     *
@@ -891,19 +887,19 @@ module.exports = class ABApplicationCore extends ABMLClass {
                 }
             });
 
-            // if we didn't update an existing translation
-            if (!foundOne) {
-                // create a translation entry:
-                var trans = {};
+         // if we didn't update an existing translation
+         if (!foundOne) {
+            // create a translation entry:
+            var trans = {};
 
-                // assume current languageCode:
-                trans.language_code = currLanguage;
+            // assume current languageCode:
+            trans.language_code = currLanguage;
 
-                fields.forEach(function(field) {
-                    if (obj[field] != null) {
-                        trans[field] = obj[field];
-                    }
-                });
+            fields.forEach(function(field) {
+               if (obj[field] != null) {
+                  trans[field] = obj[field];
+               }
+            });
 
                 json.translations.push(trans);
             }

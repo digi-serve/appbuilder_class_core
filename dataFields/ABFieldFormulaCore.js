@@ -9,166 +9,156 @@
 var ABField = require("../../platform/dataFields/ABField");
 
 function L(key, altText) {
-    return altText; // AD.lang.label.getLabel(key) || altText;
+   return altText; // AD.lang.label.getLabel(key) || altText;
 }
 
 var ABFieldFormulaDefaults = {
-    key: "formula", // unique key to reference this specific DataField
+   key: "formula", // unique key to reference this specific DataField
 
-    icon: "circle-o-notch", // font-awesome icon reference.  (without the 'fa-').  so 'user'  to reference 'fa-user'
+   icon: "circle-o-notch", // font-awesome icon reference.  (without the 'fa-').  so 'user'  to reference 'fa-user'
 
-    // menuName: what gets displayed in the Editor drop list
-    menuName: L("ab.dataField.formula.menuName", "*Formula"),
+   // menuName: what gets displayed in the Editor drop list
+   menuName: L("ab.dataField.formula.menuName", "*Formula"),
 
-    // description: what gets displayed in the Editor description.
-    description: L("ab.dataField.formula.description", "*"),
+   // description: what gets displayed in the Editor description.
+   description: L("ab.dataField.formula.description", "*"),
 
-    isSortable: false,
-    isFilterable: true,
-    useAsLabel: false,
+   isSortable: false,
+   isFilterable: true,
+   useAsLabel: false,
 
-	supportQuery: (field) => {
+   supportQuery: (field) => {
+      let fieldLink = field.fieldLink;
+      if (fieldLink == null) return false;
 
-		let fieldLink = field.fieldLink;
-		if (fieldLink == null) return false;
+      // Not support calculate field in query
+      return fieldLink.key !== "calculate";
+   },
 
-		// Not support calculate field in query
-		return fieldLink.key !== "calculate";
-	},
+   // what types of Sails ORM attributes can be imported into this data type?
+   // http://sailsjs.org/documentation/concepts/models-and-orm/attributes#?attribute-options
+   compatibleOrmTypes: [],
 
-	// what types of Sails ORM attributes can be imported into this data type?
-	// http://sailsjs.org/documentation/concepts/models-and-orm/attributes#?attribute-options
-	compatibleOrmTypes: [],
-
-	// what types of MySql column types can be imported into this data type?
-	// https://www.techonthenet.com/mysql/datatypes.php
-	compatibleMysqlTypes: []
-
+   // what types of MySql column types can be imported into this data type?
+   // https://www.techonthenet.com/mysql/datatypes.php
+   compatibleMysqlTypes: []
 };
 
 var defaultValues = {
-    field: "", // id of ABField : NOTE - store our connect field to support when there are multi - linked columns
-    objectLink: "", // id of ABObject
-    fieldLink: "", // id of ABField
-    type: "sum" // "sum", "average", "max", "min", "count"
+   field: "", // id of ABField : NOTE - store our connect field to support when there are multi - linked columns
+   objectLink: "", // id of ABObject
+   fieldLink: "", // id of ABField
+   type: "sum" // "sum", "average", "max", "min", "count"
 };
 
 module.exports = class ABFieldFormulaCore extends ABField {
-    constructor(values, object) {
-        super(values, object, ABFieldFormulaDefaults);
+   constructor(values, object) {
+      super(values, object, ABFieldFormulaDefaults);
+   }
 
-    }
+   // return the default values for this DataField
+   static defaults() {
+      return ABFieldFormulaDefaults;
+   }
 
-    // return the default values for this DataField
-    static defaults() {
-        return ABFieldFormulaDefaults;
-    }
+   static defaultValues() {
+      return defaultValues;
+   }
 
-    static defaultValues() {
-        return defaultValues;
-    }
+   ///
+   /// Instance Methods
+   ///
 
-    ///
-    /// Instance Methods
-    ///
+   /**
+    * @method defaultValue
+    * insert a key=>value pair that represent the default value
+    * for this field.
+    * @param {obj} values a key=>value hash of the current values.
+    */
+   defaultValue(values) {
+      // this field is read only
+      delete values[this.columnName];
+   }
 
-    /**
-     * @method defaultValue
-     * insert a key=>value pair that represent the default value
-     * for this field.
-     * @param {obj} values a key=>value hash of the current values.
-     */
-    defaultValue(values) {
-        // this field is read only
-        delete values[this.columnName];
-    }
+   format(rowData) {
+      // if data exists, then will not calculate on client side
+      if (rowData[this.columnName] != null) return rowData[this.columnName];
 
-	format(rowData) {
+      var fieldBase = this.fieldBase();
+      if (!fieldBase) return 0;
 
-		// if data exists, then will not calculate on client side
-		if (rowData[this.columnName] != null)
-			return rowData[this.columnName];
+      var fieldLink = this.fieldLink;
+      if (!fieldLink) return 0;
 
-		var fieldBase = this.fieldBase();
-		if (!fieldBase) return 0;
+      var data = rowData[fieldBase.relationName()] || [];
+      if (!Array.isArray(data)) data = [data];
 
-		var fieldLink = this.fieldLink;
-		if (!fieldLink) return 0;
+      var numberList = [];
 
-		var data = rowData[fieldBase.relationName()] || [];
-		if (!Array.isArray(data))
-			data = [data];
+      // pull number from data
+      switch (fieldLink.key) {
+         case "calculate":
+            data.forEach((d) => {
+               numberList.push(parseFloat(fieldLink.format(d) || 0));
+            });
+            break;
+         case "number":
+            numberList = data.map((d) => d[fieldLink.columnName] || 0);
+            break;
+      }
 
-		var numberList = [];
+      var result = 0;
 
-		// pull number from data
-		switch (fieldLink.key) {
-			case "calculate":
-				data.forEach(d => {
-					numberList.push(parseFloat(fieldLink.format(d) || 0));
-				});
-				break;
-			case "number":
-				numberList = data.map(d => d[fieldLink.columnName] || 0);
-				break;
-		}
+      // calculate
+      switch (this.settings.type) {
+         case "sum":
+            if (numberList.length > 0) {
+               result = numberList.reduce((sum, val) => sum + (val || 0));
+            }
+            break;
 
-		var result = 0;
+         case "average":
+            if (numberList.length > 0) {
+               let sum = numberList.reduce((sum, val) => sum + (val || 0)); // sum
+               result = sum / numberList.length;
+            }
+            break;
 
-		// calculate
-		switch (this.settings.type) {
-			case "sum":
-				if (numberList.length > 0) {
-					result = numberList.reduce((sum, val) => sum + (val || 0)); 
-				}
-				break;
+         case "max":
+            result = Math.max(...numberList) || 0;
+            break;
+         case "min":
+            result = Math.min(...numberList) || 0;
+            break;
+         case "count":
+            result = numberList.length;
+            break;
+      }
 
-			case "average":
-				if (numberList.length > 0) {
-					let sum = numberList.reduce((sum, val) => sum + (val || 0)); // sum
-					result = sum / numberList.length;
-				}
-				break;
+      var rowDataFormat = {};
+      rowDataFormat[fieldLink.columnName] = result;
 
-			case "max":
-				result = Math.max(...numberList) || 0;
-				break;
-			case "min":
-				result = Math.min(...numberList) || 0;
-				break;
-			case "count":
-				result = numberList.length;
-				break;
-		}
+      // ABFieldCalculate does not need to .format again
+      if (fieldLink.key == "calculate") {
+         return result;
+      } else {
+         return fieldLink.format(rowDataFormat);
+      }
+   }
 
-		var rowDataFormat = {};
-		rowDataFormat[fieldLink.columnName] = result;
+   fieldBase() {
+      return this.object.fields((f) => f.id == this.settings.field)[0];
+   }
 
+   get fieldLink() {
+      var obj = this.object.application.objects(
+         (obj) => obj.id == this.settings.object
+      )[0];
+      if (!obj) return null;
 
-		// ABFieldCalculate does not need to .format again
-		if (fieldLink.key == "calculate") {
-			return result;
-		}
-		else {
-			return fieldLink.format(rowDataFormat);
-		}
+      var field = obj.fields((f) => f.id == this.settings.fieldLink)[0];
+      if (!field) return null;
 
-
-	}
-
-    fieldBase() {
-        return this.object.fields((f) => f.id == this.settings.field)[0];
-    }
-
-    get fieldLink() {
-        var obj = this.object.application.objects(
-            (obj) => obj.id == this.settings.object
-        )[0];
-        if (!obj) return null;
-
-        var field = obj.fields((f) => f.id == this.settings.fieldLink)[0];
-        if (!field) return null;
-
-        return field;
-    }
+      return field;
+   }
 };

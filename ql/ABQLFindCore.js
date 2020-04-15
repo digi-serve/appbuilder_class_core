@@ -10,20 +10,20 @@ const ABQL = require("../../platform/ql/ABQL.js");
 const NextQLOps = require("./ABQLSet.js");
 
 var ParameterDefinitions = [
-    {
-        type: "objectConditions",
-        name: "cond"
-    }
+   {
+      type: "objectConditions",
+      name: "cond"
+   }
 ];
 
 class ABQLFindCore extends ABQL {
-    constructor(attributes, prevOP, task, application) {
-        super(attributes, ParameterDefinitions, prevOP, task, application);
-    }
+   constructor(attributes, prevOP, task, application) {
+      super(attributes, ParameterDefinitions, prevOP, task, application);
+   }
 
-    ///
-    /// Instance Methods
-    ///
+   ///
+   /// Instance Methods
+   ///
 }
 
 ABQLFindCore.key = "find";

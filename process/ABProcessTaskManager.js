@@ -23,105 +23,105 @@ var Tasks = {};
 var DEFINITIONTYPES = {};
 
 var AllProcessElements = [
-    require("../../platform/process/tasks/ABProcessEnd"),
-    require("../../platform/process/tasks/ABProcessGatewayExclusive"),
-    require("../../platform/process/tasks/ABProcessTaskEmail"),
-    require("../../platform/process/tasks/ABProcessTaskService"),
-    require("../../platform/process/tasks/ABProcessTaskServiceQuery"),
-    require("../../platform/process/tasks/ABProcessTaskUser"),
-    require("../../platform/process/tasks/ABProcessTaskUserApproval"),
-    require("../../platform/process/tasks/ABProcessTrigger"),
-    require("../../platform/process/tasks/ABProcessTriggerLifecycle")
+   require("../../platform/process/tasks/ABProcessEnd"),
+   require("../../platform/process/tasks/ABProcessGatewayExclusive"),
+   require("../../platform/process/tasks/ABProcessTaskEmail"),
+   require("../../platform/process/tasks/ABProcessTaskService"),
+   require("../../platform/process/tasks/ABProcessTaskServiceQuery"),
+   require("../../platform/process/tasks/ABProcessTaskUser"),
+   require("../../platform/process/tasks/ABProcessTaskUserApproval"),
+   require("../../platform/process/tasks/ABProcessTrigger"),
+   require("../../platform/process/tasks/ABProcessTriggerLifecycle")
 ];
 
 AllProcessElements.forEach((ELEMENT) => {
-    Tasks[ELEMENT.defaults().key] = ELEMENT;
+   Tasks[ELEMENT.defaults().key] = ELEMENT;
 
-    switch (ELEMENT.defaults().category) {
-        case "start":
-        case "end":
-            DEFINITIONTYPES[
-                ELEMENT.DiagramReplace().target.eventDefinitionType
-            ] = ELEMENT.defaults();
-            break;
+   switch (ELEMENT.defaults().category) {
+      case "start":
+      case "end":
+         DEFINITIONTYPES[
+            ELEMENT.DiagramReplace().target.eventDefinitionType
+         ] = ELEMENT.defaults();
+         break;
 
-        case "gateway":
-        case "task":
-            DEFINITIONTYPES[
-                ELEMENT.DiagramReplace().target.type
-            ] = ELEMENT.defaults();
-            break;
-    }
+      case "gateway":
+      case "task":
+         DEFINITIONTYPES[
+            ELEMENT.DiagramReplace().target.type
+         ] = ELEMENT.defaults();
+         break;
+   }
 });
 
 module.exports = {
-    /*
-     * @function allTasks
-     * return all the currently defined ABProcessTasks in an array.
-     * @return [{ABProcessTask},...]
-     */
-    allTasks: function() {
-        var tasks = [];
-        for (var t in Tasks) {
-            tasks.push(Tasks[t]);
-        }
-        return tasks;
-    },
+   /*
+    * @function allTasks
+    * return all the currently defined ABProcessTasks in an array.
+    * @return [{ABProcessTask},...]
+    */
+   allTasks: function() {
+      var tasks = [];
+      for (var t in Tasks) {
+         tasks.push(Tasks[t]);
+      }
+      return tasks;
+   },
 
-    /*
-     * @function newTask
-     * return an instance of an ABProcessTask based upon the values.type value.
-     * @return {ABProcessTask}
-     */
-    newTask: function(values, object, application) {
-        if (values.key) {
-            return new Tasks[values.key](values, object, application);
-        } else {
-            //// TODO: what to do here?
-        }
-    },
+   /*
+    * @function newTask
+    * return an instance of an ABProcessTask based upon the values.type value.
+    * @return {ABProcessTask}
+    */
+   newTask: function(values, object, application) {
+      if (values.key) {
+         return new Tasks[values.key](values, object, application);
+      } else {
+         //// TODO: what to do here?
+      }
+   },
 
-    DiagramReplaceDefinitionsForType: function(type) {
-        var definitions = AllProcessElements.filter((e) => {
-            return e.defaults().category == type;
-        }).map((e) => {
-            return e.DiagramReplace();
-        });
-        return definitions;
-    },
+   DiagramReplaceDefinitionsForType: function(type) {
+      var definitions = AllProcessElements.filter((e) => {
+         return e.defaults().category == type;
+      }).map((e) => {
+         return e.DiagramReplace();
+      });
+      return definitions;
+   },
 
-    StartEvents: function() {
-        return this.DiagramReplaceDefinitionsForType("start");
-    },
+   StartEvents: function() {
+      return this.DiagramReplaceDefinitionsForType("start");
+   },
 
-    Gateways: function() {
-        return this.DiagramReplaceDefinitionsForType("gateway");
-    },
+   Gateways: function() {
+      return this.DiagramReplaceDefinitionsForType("gateway");
+   },
 
-    Tasks: function() {
-        return this.DiagramReplaceDefinitionsForType("task");
-    },
+   Tasks: function() {
+      return this.DiagramReplaceDefinitionsForType("task");
+   },
 
-    EndEvents: function() {
-        return this.DiagramReplaceDefinitionsForType("end");
-    },
+   EndEvents: function() {
+      return this.DiagramReplaceDefinitionsForType("end");
+   },
 
-    definitionForElement: function(element) {
-        // pull the key from the embedded .eventDefinition
-        // if there is one
-        var key = null;
-        if (element.businessObject.eventDefinitions) {
-            var def = element.businessObject.eventDefinitions[0];
-            if (def) {
-                key = def.$type;
-            }
-        }
+   definitionForElement: function(element) {
+      // pull the key from the embedded .eventDefinition
+      // if there is one
+      var key = null;
+      if (element.businessObject.eventDefinitions) {
+         var def = element.businessObject.eventDefinitions[0];
+         if (def) {
+            key = def.$type;
+         }
+      }
 
-        // if not, then just use the base .type
-        if (!key) {
-            key = element.type;
-        }
+      // if not, then just use the base .type
+      if (!key) {
+         key = element.type;
+      }
 
-        return DEFINITIONTYPES[key];
-    }
+      return DEFINITIONTYPES[key];
+   }
 };

@@ -23,11 +23,11 @@ module.exports = class ABFieldCore extends ABMLClass {
   			icon:'font',				// fa-[icon] reference for an icon for this Field Type
   			label:'',					// pulled from translation
 			columnName:'column_name',	// a valid mysql table.column name
-			isImported: 1/0,			// flag to mark is import from other object			
+			isImported: 1/0,			// flag to mark is import from other object
 			settings: {					// unique settings for the type of field
 				showIcon:true/false,	// only useful in Object Workspace DataTable
 				isImported: 1/0,		// flag to mark is import from other object
-				required: 1/0,			// field allows does not allow NULL or it does allow NULL 
+				required: 1/0,			// field allows does not allow NULL or it does allow NULL
 				width: {int}			// width of display column
 
 				// specific for dataField
@@ -217,7 +217,6 @@ module.exports = class ABFieldCore extends ABMLClass {
       this.label = values.label || values.settings.label || "?label?";
 
       this.columnName = values.columnName || "";
-      // this.translations = values.translations || [];
 
       this.isImported = values.isImported || 0;
 

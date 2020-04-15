@@ -17,58 +17,58 @@ const QLFind = require("../../platform/ql/ABQLFind.js");
 var NextQLOps = [QLFind];
 
 var ParameterDefinitions = [
-    {
-        type: "objectName",
-        name: "name"
-    }
+   {
+      type: "objectName",
+      name: "name"
+   }
 ];
 
 class ABQLObjectCore extends ABQL {
-    constructor(attributes, task, application) {
-        // NOTE: keep this so we can insert the prevOp == null
-        super(attributes, ParameterDefinitions, null, task, application);
-    }
+   constructor(attributes, task, application) {
+      // NOTE: keep this so we can insert the prevOp == null
+      super(attributes, ParameterDefinitions, null, task, application);
+   }
 
-    ///
-    /// Instance Methods
-    ///
-    initObject(attributes) {
-        if (!this.object && this.params) {
-            var objNameDef = this.parameterDefinitions.find((pDef) => {
-                return pDef.type == "objectName";
-            });
-            if (objNameDef) {
-                this.objectID = this.params[objNameDef.name];
-                this.object = this.objectLookup(this.objectID);
-            }
-        }
-    }
+   ///
+   /// Instance Methods
+   ///
+   initObject(attributes) {
+      if (!this.object && this.params) {
+         var objNameDef = this.parameterDefinitions.find((pDef) => {
+            return pDef.type == "objectName";
+         });
+         if (objNameDef) {
+            this.objectID = this.params[objNameDef.name];
+            this.object = this.objectLookup(this.objectID);
+         }
+      }
+   }
 
-    toObj() {
-        var obj = super.toObj();
+   toObj() {
+      var obj = super.toObj();
 
-        // if we don't have an objectID, but we have an objectName parameter
-        // definition then save that as our objectID
-        if (!obj.objectID && this.params) {
-            var objNameDef = this.parameterDefinitions.find((pDef) => {
-                return pDef.type == "objectName";
-            });
-            if (objNameDef) {
-                obj.objectID = this.params[objNameDef.name];
-            }
-        }
-        return obj;
-    }
+      // if we don't have an objectID, but we have an objectName parameter
+      // definition then save that as our objectID
+      if (!obj.objectID && this.params) {
+         var objNameDef = this.parameterDefinitions.find((pDef) => {
+            return pDef.type == "objectName";
+         });
+         if (objNameDef) {
+            obj.objectID = this.params[objNameDef.name];
+         }
+      }
+      return obj;
+   }
 
-    /// ABApplication data methods
+   /// ABApplication data methods
 
-    // paramsValid(queryString) {
-    //     if (super.paramsValid(queryString)) {
-    //         this.object = this.objectLookup(this.params["name"]);
-    //         return true;
-    //     }
-    //     return false;
-    // }
+   // paramsValid(queryString) {
+   //     if (super.paramsValid(queryString)) {
+   //         this.object = this.objectLookup(this.params["name"]);
+   //         return true;
+   //     }
+   //     return false;
+   // }
 }
 ABQLObjectCore.key = "object";
 ABQLObjectCore.label = "object";

@@ -93,7 +93,6 @@ module.exports = class ABObjectCore extends ABMLClass {
       this.transColumnName = attributes.transColumnName || ""; // NOTE: store column name of translations table
       this.urlPath = attributes.urlPath || "";
       this.importFromObject = attributes.importFromObject || "";
-      // this.translations = attributes.translations;
 
       if (attributes.isSystemObject)
          this.isSystemObject = attributes.isSystemObject;

@@ -36,14 +36,14 @@ module.exports = class FilterComplexCore extends ABComponent {
           *
           * @return {JSON} -
           * {
-          * 		glue: '', // 'and', 'or'
-          *		rules: [
-          *			{
-          *				key:	'column name',
-          *				rule:	'rule',
-          *				value:	'value'
-          *			}
-          *		]
+          *    glue: '', // 'and', 'or'
+          *    rules: [
+          *      {
+          *        key:  'column name',
+          *        rule: 'rule',
+          *        value:  'value'
+          *      }
+          *    ]
           * }
           */
          getValue: () => {
