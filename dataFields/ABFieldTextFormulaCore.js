@@ -65,7 +65,7 @@ function setValueToFormula(object, formulaString, rowData) {
             } else {
                formulaString = formulaString.replace(
                   element,
-                  rowData[columnName] ? field.format(rowData[columnName]) : ""
+                  rowData[columnName] ? field.format(rowData) : ""
                );
             }
          }
@@ -684,4 +684,5 @@ module.exports = class ABFieldTextFormulaCore extends ABField {
 // webix.DataStore.prototype.sorting.as.[sort_type] = function(a,b){
 //     return a > b ? 1 : -1;
 // }
+
 
