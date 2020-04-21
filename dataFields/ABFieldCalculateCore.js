@@ -182,12 +182,12 @@ module.exports = class ABFieldCalculateCore extends ABField {
          // if template does not contain, then should skip
          if (formula.indexOf("{" + colName + "}") < 0) return;
 
+         let data =
+            rowData[`${object.alias}.${f.columnName}`] || rowData[f.columnName];
+
          // number fields
          if (f.key == "number") {
-            let numberVal = "(#numberVal#)".replace(
-               "#numberVal#",
-               rowData[f.columnName] || 0
-            ); // (number) - NOTE : (-5) to support negative number
+            let numberVal = "(#numberVal#)".replace("#numberVal#", data || 0); // (number) - NOTE : (-5) to support negative number
             formula = formula.replace(
                new RegExp("{" + colName + "}", "g"),
                numberVal
@@ -206,10 +206,7 @@ module.exports = class ABFieldCalculateCore extends ABField {
          }
          // date fields
          else if (f.key == "date") {
-            let dateVal = '"#dataVal#"'.replace(
-               "#dataVal#",
-               rowData[f.columnName] ? rowData[f.columnName] : ""
-            ); // "date"
+            let dateVal = '"#dataVal#"'.replace("#dataVal#", data ? data : ""); // "date"
             formula = formula.replace(
                new RegExp("{" + colName + "}", "g"),
                dateVal
@@ -219,7 +216,7 @@ module.exports = class ABFieldCalculateCore extends ABField {
          else if (f.key == "boolean") {
             let booleanVal = "(#booleanVal#)".replace(
                "#booleanVal#",
-               rowData[f.columnName] || 0
+               data || 0
             ); // show 1 or 0 for boolean
             formula = formula.replace(
                new RegExp("{" + colName + "}", "g"),
@@ -278,3 +275,4 @@ module.exports = class ABFieldCalculateCore extends ABField {
       }
    }
 };
+
