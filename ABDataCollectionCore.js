@@ -1769,6 +1769,7 @@ module.exports = class ABViewDataCollectionCore extends ABEmitter {
          settings,
          this.application
       );
+      clonedDatacollection.__datasource = this.__datasource;
 
       return new Promise((resolve, reject) => {
          // load the data
@@ -1858,3 +1859,4 @@ module.exports = class ABViewDataCollectionCore extends ABEmitter {
       }
    }
 };
+
