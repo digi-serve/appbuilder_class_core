@@ -552,6 +552,11 @@ module.exports = class ABModelCore {
             return f.key == "date";
          }) || [];
 
+      var userFields =
+         this.object.fields(function(f) {
+            return f.key == "user";
+         }) || [];
+
       data.forEach((d) => {
          if (d == null) return;
 
@@ -645,6 +650,19 @@ module.exports = class ABModelCore {
                }
             }
          });
+
+         userFields.forEach((user) => {
+            if (
+               d &&
+               d[user.columnName] &&
+               typeof d[user.columnName] == "string"
+            ) {
+               try {
+                  d[user.columnName] = JSON.parse(d[user.columnName]);
+               } catch (err) {}
+            }
+         });
       });
    }
 };
+
