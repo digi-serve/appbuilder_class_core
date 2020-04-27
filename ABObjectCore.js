@@ -94,9 +94,10 @@ module.exports = class ABObjectCore extends ABMLClass {
       this.urlPath = attributes.urlPath || "";
       this.importFromObject = attributes.importFromObject || "";
 
-      if (attributes.isSystemObject)
-         this.isSystemObject = attributes.isSystemObject;
-      else delete this.isSystemObject;
+      this.isSystemObject = attributes.isSystemObject;
+      if (typeof this.isSystemObject == "undefined") {
+         this.isSystemObject = false;
+      }
 
       if (typeof attributes.objectWorkspace != "undefined") {
          if (typeof attributes.objectWorkspace.sortFields == "undefined")
@@ -212,9 +213,12 @@ module.exports = class ABObjectCore extends ABMLClass {
          labelFormat: this.labelFormat,
          isImported: this.isImported,
          isExternal: this.isExternal,
-         tableName: this.tableName, // NOTE: store table name of import object to ignore async
-         primaryColumnName: this.primaryColumnName, // NOTE: store column name of PK
-         transColumnName: this.transColumnName, // NOTE: store column name of translations table
+         tableName: this.tableName,
+         // NOTE: store table name of import object to ignore async
+         primaryColumnName: this.primaryColumnName,
+         // NOTE: store column name of PK
+         transColumnName: this.transColumnName,
+         // NOTE: store column name of translations table
          urlPath: this.urlPath,
          importFromObject: this.importFromObject,
          objectWorkspace: this.objectWorkspace,

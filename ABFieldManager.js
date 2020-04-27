@@ -75,9 +75,15 @@ module.exports = {
             console.log("Requested field", values.key);
          }
       } else {
-         console.error(values, object);
+         console.log("-------");
+         console.log("values:");
+         console.error(values);
+         console.log();
+         console.error("object:");
+         console.error(object);
+         console.log("-------");
          throw new Error(
-            `ABFieldManager.newField(): Unknown Field Key [${values.key}]`
+            `ABFieldManager.newField(): Unknown Field Key [${values.name}][${values.key}] for object[${object.name}]`
          );
          //// TODO: what to do here?
       }

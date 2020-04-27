@@ -89,10 +89,7 @@ module.exports = class ABFieldStringCore extends ABField {
       );
 
       if (this.settings.supportMultilingual) {
-         if (this.object && this.object.application)
-            this.object.application.translate(this.settings, this.settings, [
-               "default"
-            ]);
+         this.translate(this.settings, this.settings, ["default"]);
       } else this.settings.default = values.settings.default || "";
    }
 
@@ -111,10 +108,7 @@ module.exports = class ABFieldStringCore extends ABField {
       var obj = super.toObj();
 
       if (this.settings.supportMultilingual) {
-         if (this.object && this.object.application)
-            this.object.application.unTranslate(obj.settings, obj.settings, [
-               "default"
-            ]);
+         this.unTranslate(obj.settings, obj.settings, ["default"]);
       } else obj.settings.default = this.settings.default;
 
       return obj;

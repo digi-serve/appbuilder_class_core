@@ -22,9 +22,12 @@ module.exports = class ABDefinitionCore {
 			json: "{json}"
 		}
 		*/
-      this.id = attributes.id;
-      this.name = attributes.name || "";
-      this.type = attributes.type || "";
+      if (attributes.id) {
+         this.id = attributes.id;
+      }
+      this.name =
+         attributes.name || attributes.json.name || attributes.json.label || "";
+      this.type = attributes.type || attributes.json.type || "";
       this.json = attributes.json || null;
    }
 

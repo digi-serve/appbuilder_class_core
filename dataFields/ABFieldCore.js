@@ -222,9 +222,9 @@ module.exports = class ABFieldCore extends ABMLClass {
 
       values.settings = values.settings || {};
       this.settings = values.settings;
-      this.settings.showIcon = values.settings.showIcon + "" || "1";
-      this.settings.required = values.settings.required + "" || "1";
-      this.settings.width = values.settings.width + "" || "0";
+      this.settings.showIcon = values.settings.showIcon || "1";
+      this.settings.required = values.settings.required || "1";
+      this.settings.width = values.settings.width || "0";
 
       // convert from "0" => 0
       this.isImported = parseInt(this.isImported);
@@ -306,5 +306,27 @@ module.exports = class ABFieldCore extends ABMLClass {
       if (rowData) {
          return this.dataValue(rowData);
       } else return "";
+   }
+
+   /**
+    * @method toDefinition()
+    *
+    * convert this instance into an ABDefinition object.
+    *
+    * @return {ABDefinition}
+    */
+   toDefinition() {
+      var myDef = super.toDefinition();
+
+      // attempt to provide a more descriptive name:
+      // [obj]->[fieldName]
+      if (myDef.name == "") {
+         myDef.name =
+            myDef.json.name || myDef.json.label || myDef.json.columnName;
+      }
+      if (this.object && this.object.name) {
+         myDef.name = `${this.object.name}->${myDef.name}`;
+      }
+      return myDef;
    }
 };
