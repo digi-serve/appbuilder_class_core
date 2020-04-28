@@ -166,8 +166,7 @@ module.exports = class ABFieldConnectCore extends ABFieldSelectivity {
 
       /// LEFT OFF HERE:
       /// debug invalid data for JSON.parse() on line 183
-
-      debugger;
+      // debugger;
 
       // Get linked object
       var linkedObject = this.datasourceLink;
