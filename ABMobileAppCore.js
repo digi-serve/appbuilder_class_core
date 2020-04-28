@@ -1,6 +1,9 @@
-module.exports = class ABMobileAppCore {
+var ABMLClass = require("../platform/ABMLClass");
+
+module.exports = class ABMobileAppCore extends ABMLClass {
    constructor(attributes, application) {
-      // super(attributes, application);
+      super(["label"]);
+
       /*
 {
 	id: uuid(),
@@ -20,9 +23,12 @@ module.exports = class ABMobileAppCore {
 }
 */
       this.id = attributes.id;
+      this.type = attributes.type || "mobile.application";
+      this.name = attributes.name || "";
       this.settings = attributes.settings;
 
-      this.translations = attributes.translations;
+      // let the MLClass now process the translations:
+      super.fromValues(attributes);
    }
 
    ///
@@ -48,10 +54,15 @@ module.exports = class ABMobileAppCore {
     * @return {json}
     */
    toObj() {
+      // MLClass translation
+      var obj = super.toObj();
+
       return {
          id: this.id,
+         type: this.type || "mobile.application",
+         name: this.name,
          settings: this.settings,
-         translations: this.translations
+         translations: obj.translations
       };
    }
 };
