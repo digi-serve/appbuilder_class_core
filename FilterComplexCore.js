@@ -95,60 +95,35 @@ module.exports = class FilterComplexCore extends ABComponent {
                ruleFieldType = fieldInfo.key;
             } else ruleFieldType = "this_object";
          }
+         var value = getFieldVal(rowData, fieldInfo.columnName);
 
          switch (ruleFieldType) {
             case "string":
             case "LongText":
             case "email":
-               var value = getFieldVal(rowData, fieldInfo.columnName);
                if (value == null) value = "";
 
                condResult = this.textValid(value, filter.rule, filter.value);
                break;
             case "date":
             case "datetime":
-               condResult = _logic.dateValid(
-                  rowData,
-                  fieldInfo.columnName,
-                  filter.rule,
-                  filter.value
-               );
+               condResult = this.dateValid(value, filter.rule, filter.value);
                break;
             case "number":
-               condResult = _logic.numberValid(
-                  rowData,
-                  fieldInfo.columnName,
-                  filter.rule,
-                  filter.value
-               );
+               condResult = this.numberValid(value, filter.rule, filter.value);
                break;
             case "list":
-               condResult = _logic.listValid(
-                  rowData,
-                  fieldInfo.columnName,
-                  filter.rule,
-                  filter.value
-               );
+               condResult = this.listValid(value, filter.rule, filter.value);
                break;
             case "boolean":
-               condResult = _logic.booleanValid(
-                  rowData,
-                  fieldInfo.columnName,
-                  filter.rule,
-                  filter.value
-               );
+               condResult = this.booleanValid(value, filter.rule, filter.value);
                break;
             case "user":
-               condResult = _logic.userValid(
-                  rowData,
-                  fieldInfo.columnName,
-                  filter.rule,
-                  filter.value
-               );
+               condResult = this.userValid(value, filter.rule, filter.value);
                break;
             case "connectField":
             case "connectObject":
-               condResult = _logic.connectFieldValid(
+               condResult = this.connectFieldValid(
                   rowData,
                   fieldInfo.relationName(),
                   filter.rule,
@@ -220,7 +195,7 @@ module.exports = class FilterComplexCore extends ABComponent {
             });
             break;
          default:
-            result = this.queryValid(value, rule, compareValue);
+            result = this.queryFieldValid(value, rule, compareValue);
             break;
       }
 
@@ -249,7 +224,7 @@ module.exports = class FilterComplexCore extends ABComponent {
             result = value >= compareValue;
             break;
          default:
-            result = this.queryValid(value, rule, compareValue);
+            result = this.queryFieldValid(value, rule, compareValue);
             break;
       }
 
@@ -282,17 +257,15 @@ module.exports = class FilterComplexCore extends ABComponent {
             result = value >= compareValue;
             break;
          default:
-            result = this.queryValid(value, rule, compareValue);
+            result = this.queryFieldValid(value, rule, compareValue);
             break;
       }
 
       return result;
    }
 
-   listValid(rowData, columnName, rule, compareValue) {
+   listValid(value, rule, compareValue) {
       var result = false;
-
-      var value = getFieldVal(rowData, columnName);
 
       compareValue = compareValue.toLowerCase();
 
@@ -307,34 +280,30 @@ module.exports = class FilterComplexCore extends ABComponent {
             else result = true;
             break;
          default:
-            result = this.queryValid(rowData, rule, compareValue);
+            result = this.queryFieldValid(value, rule, compareValue);
             break;
       }
 
       return result;
    }
 
-   booleanValid(rowData, columnName, rule, compareValue) {
+   booleanValid(value, rule, compareValue) {
       var result = false;
-
-      var value = getFieldVal(rowData, columnName);
 
       switch (rule) {
          case "equals":
             result = value == compareValue;
             break;
          default:
-            result = this.queryValid(rowData, rule, compareValue);
+            result = this.queryFieldValid(value, rule, compareValue);
             break;
       }
 
       return result;
    }
 
-   userValid(rowData, columnName, rule, compareValue) {
+   userValid(value, rule, compareValue) {
       var result = false;
-
-      var value = getFieldVal(rowData, columnName);
 
       // if (Array.isArray(value)) value = [value];
 
@@ -366,14 +335,14 @@ module.exports = class FilterComplexCore extends ABComponent {
             result = value.indexOf(compareValue) < 0;
             break;
          default:
-            result = this.queryValid(rowData, rule, compareValue);
+            result = this.queryFieldValid(value, rule, compareValue);
             break;
       }
 
       return result;
    }
 
-   queryValid(rowData, rule, compareValue) {
+   queryFieldValid(rowData, rule, compareValue) {
       var result = false;
 
       if (!this._Application || !compareValue) return result;
@@ -411,12 +380,8 @@ module.exports = class FilterComplexCore extends ABComponent {
       return result;
    }
 
-   inQueryValid(rowData, columnName, rule, compareValue) {
+   inQueryValid(value, rule, compareValue) {
       let result = false;
-
-      if (columnName) {
-         rowData = rowData[columnName] || {};
-      }
 
       if (!compareValue || !this._Application) return result;
 
@@ -435,24 +400,20 @@ module.exports = class FilterComplexCore extends ABComponent {
 
       switch (rule) {
          case "in_query":
-            result = inQueryFilter.isValid(rowData);
+            result = inQueryFilter.isValid(value);
             break;
          case "not_in_query":
-            result = !inQueryFilter.isValid(rowData);
+            result = !inQueryFilter.isValid(value);
             break;
       }
 
       return result;
    }
 
-   dataCollectionValid(rowData, columnName, rule, compareValue) {
+   dataCollectionValid(value, rule, compareValue) {
       var result = false;
 
       if (!compareValue || !this._Application) return result;
-
-      if (columnName) {
-         rowData = rowData[columnName] || {};
-      }
 
       let dc = this._Application.datacollections(
          (d) => d.id == compareValue
@@ -462,58 +423,39 @@ module.exports = class FilterComplexCore extends ABComponent {
          case "in_data_collection":
             if (!dc) return false;
 
-            result = dc.getData((d) => d.id == rowData.id).length > 0;
+            result = dc.getData((d) => d.id == value.id).length > 0;
             break;
          case "not_in_data_collection":
             if (!dc) return true;
 
-            result = dc.getData((d) => d.id == rowData.id).length < 1;
+            result = dc.getData((d) => d.id == value.id).length < 1;
             break;
       }
 
       return result;
    }
 
-   connectFieldValid(rowData, columnName, rule, compareValue) {
+   connectFieldValid(value, rule, compareValue) {
       switch (rule) {
          case "contains":
-            return (
-               (rowData[columnName].id || rowData[columnName])
-                  .toString()
-                  .indexOf(compareValue) > -1
-            );
+            return (value.id || value).toString().indexOf(compareValue) > -1;
          case "not_contains":
-            return (
-               (rowData[columnName].id || rowData[columnName])
-                  .toString()
-                  .indexOf(compareValue) == -1
-            );
+            return (value.id || value).toString().indexOf(compareValue) == -1;
          case "equals":
-            return (
-               (rowData[columnName].id || rowData[columnName]).toString() ==
-               compareValue
-            );
+            return (value.id || value).toString() == compareValue;
          case "not_equal":
-            return (
-               (rowData[columnName].id || rowData[columnName]).toString() !=
-               compareValue
-            );
+            return (value.id || value).toString() != compareValue;
          case "in_query":
          case "not_in_query":
-            return this.inQueryValid(rowData, columnName, rule, compareValue);
+            return this.inQueryValid(value, rule, compareValue);
          case "is_current_user":
          case "is_not_current_user":
          case "contain_current_user":
          case "not_contain_current_user":
-            return this.userValid(rowData, columnName, rule, compareValue);
+            return this.userValid(value, rule, compareValue);
          case "in_data_collection":
          case "not_in_data_collection":
-            return this.dataCollectionValid(
-               rowData,
-               columnName,
-               rule,
-               compareValue
-            );
+            return this.dataCollectionValid(value, rule, compareValue);
       }
    }
 
@@ -554,13 +496,13 @@ module.exports = class FilterComplexCore extends ABComponent {
             });
 
             // then pass this on to the _logic.queryValid();
-            return this.inQueryValid(newRowData, null, rule, compareValue);
+            return this.inQueryValid(newRowData, rule, compareValue);
 
          // if in_datacollection condition
          case "in_data_collection":
          case "not_in_data_collection":
             // send rowData, null to datacollectionValid()
-            return this.dataCollectionValid(rowData, null, rule, compareValue);
+            return this.dataCollectionValid(rowData, rule, compareValue);
       }
    }
 
@@ -620,7 +562,7 @@ module.exports = class FilterComplexCore extends ABComponent {
       var fields = this._Fields.map((f) => {
          // Label
          let label = f.label;
-         if (this._settings.showObjectName)
+         if (this._settings.showObjectName && f.object && f.object.label)
             label = `${f.object.label}.${f.label}`;
 
          // Type
@@ -649,8 +591,11 @@ module.exports = class FilterComplexCore extends ABComponent {
       filterTypes = _.uniq(filterTypes);
       filterTypes.forEach((fType) => {
          switch (fType) {
-            case "uuid":
-               // { id:"radio", name:"One From", type:{ "rating" : ratingEditor }, fn:(a,b) => a == b }
+            // case "uuid":
+            //    { id:"radio", name:"One From", type:{ "rating" : ratingEditor }, fn:(a,b) => a == b }
+            //    break;
+            case "connectObject":
+               this.fieldsAddFiltersQuery();
                break;
             case "date":
                this.fieldsAddFiltersDate();
@@ -661,9 +606,9 @@ module.exports = class FilterComplexCore extends ABComponent {
             case "number":
                this.fieldsAddFiltersNumber();
                break;
-            // case "list":
-            //    this.fieldAddFiltersList();
-            //    break;
+            case "list":
+               this.fieldsAddFiltersList();
+               break;
             case "boolean":
                this.fieldsAddFiltersBoolean();
                break;
@@ -686,8 +631,18 @@ module.exports = class FilterComplexCore extends ABComponent {
       let dateConditions = {
          less: this.labels.component.beforeCondition,
          greater: this.labels.component.afterCondition,
-         on_or_less: this.labels.component.onOrBeforeCondition,
-         on_or_greater: this.labels.component.onOrAfterCondition
+         less_or_equal: this.labels.component.onOrBeforeCondition,
+         greater_or_equal: this.labels.component.onOrAfterCondition,
+         less_current: this.labels.component.beforeCurrentCondition,
+         greater_current: this.labels.component.afterCurrentCondition,
+         less_or_equal_current: this.labels.component
+            .onOrBeforeCurrentCondition,
+         greater_or_equal_current: this.labels.component
+            .onOrAfterCurrentCondition,
+         last_days: this.labels.component.onLastDaysCondition,
+         next_days: this.labels.component.onNextDaysCondition
+         // TODO: query field option
+         // TODO: record rule option
       };
 
       for (let condKey in dateConditions) {
@@ -710,8 +665,10 @@ module.exports = class FilterComplexCore extends ABComponent {
       let stringConditions = {
          contains: this.labels.component.containsCondition,
          not_contains: this.labels.component.notContainsCondition,
-         equals: this.labels.component.equalCondition,
-         not_equals: this.labels.component.notEqualCondition
+         equals: this.labels.component.isCondition,
+         not_equals: this.labels.component.isNotCondition
+         // TODO: query field option
+         // TODO: record rule option
       };
 
       for (let condKey in stringConditions) {
@@ -738,6 +695,8 @@ module.exports = class FilterComplexCore extends ABComponent {
          greater: this.labels.component.moreThanCondition,
          less_or_equal: this.labels.component.lessThanOrEqualCondition,
          greater_or_equal: this.labels.component.moreThanOrEqualCondition
+         // TODO : query field option
+         // TODO : record rule
       };
 
       for (let condKey in numberConditions) {
@@ -750,8 +709,31 @@ module.exports = class FilterComplexCore extends ABComponent {
       }
    }
 
-   // filterAddFiltersList() {
-   // }
+   fieldsAddFiltersList() {
+      let editor = {
+         view: "richselect",
+         options: [],
+         customEdit: true
+      };
+      let type = {};
+      type["list"] = editor;
+
+      let listConditions = {
+         equals: this.labels.component.equalListCondition,
+         not_equal: this.labels.component.notEqualListCondition
+         // TODO : query field option
+         // TODO : record rule
+      };
+
+      for (let condKey in listConditions) {
+         this._Filters.push({
+            id: condKey,
+            name: listConditions[condKey],
+            type,
+            fn: (a, b) => this.listValid(a, condKey, b)
+         });
+      }
+   }
 
    fieldsAddFiltersBoolean() {
       var textEditor = {
@@ -761,7 +743,9 @@ module.exports = class FilterComplexCore extends ABComponent {
       type["boolean"] = textEditor;
 
       let booleanConditions = {
-         equals: this.labels.component.equalCondition
+         equals: this.labels.component.equalListCondition
+         // TODO : query field option
+         // TODO : record rule
       };
 
       for (let condKey in booleanConditions) {
@@ -789,8 +773,10 @@ module.exports = class FilterComplexCore extends ABComponent {
             .containsCurrentUserCondition,
          not_contain_current_user: this.labels.component
             .notContainsCurrentUserCondition,
-         equals: this.labels.component.equalCondition,
-         not_equal: this.labels.component.notEqualCondition
+         equals: this.labels.component.equalListCondition,
+         not_equal: this.labels.component.notEqualListCondition
+         // TODO : query field option
+         // TODO : record rule
       };
 
       for (let condKey in userConditions) {
@@ -799,6 +785,40 @@ module.exports = class FilterComplexCore extends ABComponent {
             name: userConditions[condKey],
             type,
             fn: (a, b) => this.userValid(a, condKey, b)
+         });
+      }
+   }
+
+   fieldsAddFiltersQuery() {
+      var editor = {
+         view: "richselect",
+         options: [], // TODO
+         customEdit: true
+      };
+      var type = {};
+      type["connectObject"] = editor;
+
+      let connectConditions = {
+         in_query: this.labels.component.inQuery,
+         not_in_query: this.labels.component.notInQuery,
+         same_as_user: this.labels.component.sameAsUser,
+         not_same_as_user: this.labels.component.notSameAsUser,
+         in_data_collection: this.labels.component.inDataCollection,
+         not_in_data_collection: this.labels.component.notInDataCollection
+         // TODO
+         // contains: this.labels.component.containsCondition,
+         // not_contains: this.labels.component.notContainCondition,
+         // equals: this.labels.component.isCondition,
+         // not_equal: this.labels.component.isNotCondition
+         // TODO: record rule
+      };
+
+      for (let condKey in connectConditions) {
+         this._Filters.push({
+            id: condKey,
+            name: connectConditions[condKey],
+            type,
+            fn: (a, b) => this.inQueryValid(a, condKey, b)
          });
       }
    }
