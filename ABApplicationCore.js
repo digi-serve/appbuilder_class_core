@@ -259,12 +259,7 @@ module.exports = class ABApplicationCore extends ABMLClass {
     *						this fn returns true for.
     * @return {array} 	array of ABObjectQueries
     */
-   mobileApps(filter) {
-      filter =
-         filter ||
-         function() {
-            return true;
-         };
+   mobileApps(filter = () => true) {
       return (this._mobileApps || []).filter(filter);
    }
 
@@ -289,13 +284,7 @@ module.exports = class ABApplicationCore extends ABMLClass {
     *						this fn returns true for.
     * @return {array} 	array of ABDataCollection
     */
-   datacollections(filter) {
-      filter =
-         filter ||
-         function() {
-            return true;
-         };
-
+   datacollections(filter = () => true) {
       return (this._datacollections || []).filter(filter);
    }
 
@@ -321,22 +310,17 @@ module.exports = class ABApplicationCore extends ABMLClass {
     *						returns true for.
     * @return {array} 	array of ABObject
     */
-   objects(filter) {
-      filter =
-         filter ||
-         function() {
-            return true;
-         };
-
-      return (this._objects || []).filter(filter);
+   objects(filter = () => true) {
+      return (this.objectsAll() || []).filter(filter);
    }
 
-   objectsIncluded(filter) {
-      filter =
-         filter ||
-         function() {
-            return true;
-         };
+   objectsExcluded(filter = () => true) {
+      return this.objects((o) => {
+         return this.objectIDs.indexOf(o.id) == -1;
+      }).filter(filter);
+   }
+
+   objectsIncluded(filter = () => true) {
       return this.objects((o) => {
          return this.objectIDs.indexOf(o.id) > -1;
       }).filter(filter);
@@ -449,7 +433,7 @@ module.exports = class ABApplicationCore extends ABMLClass {
     *
     * @return {array}      array of ABViewPages
     */
-   pages(filter, deep) {
+   pages(filter = () => true, deep = false) {
       var result = [];
 
       if (!this._pages || this._pages.length < 1) return result;
@@ -469,12 +453,6 @@ module.exports = class ABApplicationCore extends ABMLClass {
       }
       // find root pages
       else {
-         filter =
-            filter ||
-            function() {
-               return true;
-            };
-
          result = (this._pages || []).filter(filter);
       }
 
@@ -494,13 +472,7 @@ module.exports = class ABApplicationCore extends ABMLClass {
     *                      this fn returns true for.
     * @return {array}  array of ABProcesses
     */
-   processes(filter) {
-      filter =
-         filter ||
-         function() {
-            return true;
-         };
-
+   processes(filter = () => true) {
       return this._processes.filter(filter);
    }
 
@@ -525,13 +497,7 @@ module.exports = class ABApplicationCore extends ABMLClass {
     *						this fn returns true for.
     * @return {array} 	array of ABObjectQueries
     */
-   queries(filter) {
-      filter =
-         filter ||
-         function() {
-            return true;
-         };
-
+   queries(filter = () => true) {
       return (this._queries || []).filter(filter);
    }
 
@@ -548,13 +514,7 @@ module.exports = class ABApplicationCore extends ABMLClass {
     *						this fn returns true for.
     * @return {array} 	array of ABRole
     */
-   roles(filter) {
-      filter =
-         filter ||
-         function() {
-            return true;
-         };
-
+   roles(filter = () => true) {
       return (this._roles || []).filter(filter);
    }
 

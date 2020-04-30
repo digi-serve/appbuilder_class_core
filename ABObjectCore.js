@@ -261,13 +261,7 @@ module.exports = class ABObjectCore extends ABMLClass {
     *
     * @return {array}
     */
-   fields(filter, getAll = false) {
-      filter =
-         filter ||
-         function() {
-            return true;
-         };
-
+   fields(filter = () => true, getAll = false) {
       let result = this._fields.filter(filter);
 
       // limit connectObject fields to only fields that connect to other
