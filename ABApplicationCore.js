@@ -162,6 +162,10 @@ module.exports = class ABApplicationCore extends ABMLClass {
       );
 
       // let the MLClass now process the translations:
+      // transition issues:
+      attributes.translations =
+         attributes.translations || attributes.json.translations;
+
       super.fromValues(attributes);
    }
 
@@ -242,7 +246,8 @@ module.exports = class ABApplicationCore extends ABMLClass {
          name: this.name,
          json: this.json,
          role: this.role,
-         isAdminApp: this.isAdminApp
+         isAdminApp: this.isAdminApp,
+         translations: this.json.translations
       };
    }
 
