@@ -95,7 +95,10 @@ module.exports = class ABObjectCore extends ABMLClass {
       this.importFromObject = attributes.importFromObject || "";
 
       this.isSystemObject = attributes.isSystemObject;
-      if (typeof this.isSystemObject == "undefined") {
+      if (
+         typeof this.isSystemObject == "undefined" ||
+         this.isSystemObject == "false"
+      ) {
          this.isSystemObject = false;
       }
 
