@@ -1,5 +1,5 @@
 const ABComponent = require("../platform/ABComponent");
-const ABObjectQuery = require("../platform/ABObjectQuery");
+// const ABObjectQuery = require("../platform/ABObjectQuery");
 
 /**
  *  support get data from objects and queries
@@ -539,7 +539,9 @@ module.exports = class FilterComplexCore extends ABComponent {
          };
 
          // If object is query ,then should define default alias: "BASE_OBJECT"
-         if (object instanceof ABObjectQuery) {
+         // NOTE: Could not reference ABObjectQuery because recursive looping reference
+         // if (object instanceof ABObjectQuery) {
+         if (object.viewName) {
             thisObjOption.alias = "BASE_OBJECT";
          }
 
@@ -885,4 +887,5 @@ module.exports = class FilterComplexCore extends ABComponent {
       return this.condition;
    }
 };
+
 
