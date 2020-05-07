@@ -82,19 +82,69 @@ module.exports = class ABObjectCore extends ABMLClass {
 
       // ABApplication Attributes (or is it ABObject attributes?)
       this.id = attributes.id;
+      // {string} .id
+      // the uuid of this ABObject Definition.
+
       this.type = attributes.type || "object";
+      // {string} .type
+      // the type of ABDefinition this is.
+
       this.connName = attributes.connName || undefined; // undefined == 'appBuilder'
+      // {string} .connName
+      // the sails.config.connections[connName] configuration reference.
+      // if not set ({undefined}), then our default "appBuilder" config is used
+
       this.name = attributes.name || "";
+      // {string} .name
+      // A name reference for this ABObject. This is a reference that isn't
+      // translateable and will be used for lookups across languages.
+
       this.labelFormat = attributes.labelFormat || "";
+      // {string} .labelFormat
+      // A string template for how to display an entry for this ABObject in
+      // common UI elements like grids, lists, etc...
+
       this.isImported = parseInt(attributes.isImported || 0);
+      // {depreciated}
+      // {bool} .isImported
+      // previously used to mark ABObjects that were created in other
+      // ABApplicaitons.  No longer relevant with Global ABObjects
+
       this.isExternal = parseInt(attributes.isExternal || 0);
+      // {bool} .isExternal
+      // Marks this ABObject as referencing a pre-existing table in the DB that
+      // we are treating as an ABObject.
+      // These objects are not allowed to create/update/destroy the db table
+      // nor can we add/remove fields.
+      // However we are able to customize the Field definitions to change the
+      // column names, hidden attributes, Object label, etc...
+      // We can update our Defintion attributes, but not any actual DB changes.
+
       this.tableName = attributes.tableName || ""; // NOTE: store table name of import object to ignore async
+      // {string} .tableName
+      // the `{database}.{tableName}` of the db table that this ABObject's data
+      // is stored in.
+
       this.primaryColumnName = attributes.primaryColumnName || ""; // NOTE: store column name of PK
+      // {string} .primaryColumnName
+      // is the col_name of which key is the primary key.  By default it is
+      // "uuid", but in some external objects this might be something else
+      // ("id", "ren_id", etc...).
+
       this.transColumnName = attributes.transColumnName || ""; // NOTE: store column name of translations table
+      // {string} .transColumnName
+      // this is a workaround to include hris_ren_data and hris_ren_trans data
+
       this.urlPath = attributes.urlPath || "";
-      this.importFromObject = attributes.importFromObject || "";
+
+      // this.importFromObject = attributes.importFromObject || "";
 
       this.isSystemObject = attributes.isSystemObject;
+      // {bool} .isSystemObject
+      // We are now storing some of our System Required Data as ABObjects as well.
+      // These Objects should not be allowed to be modified by typical AppBuilder
+      // designer.  However we can enable a mode for AB Designer to then expand these
+      // ABObjects, and eventually we can use the AppBuilder to Create the AppBuilder.
       if (
          typeof this.isSystemObject == "undefined" ||
          this.isSystemObject == "false"
@@ -102,6 +152,12 @@ module.exports = class ABObjectCore extends ABMLClass {
          this.isSystemObject = false;
       }
 
+      this.createdInAppID = attributes.createdInAppID;
+      // {string} .createdInAppID
+      // the .id of the ABApplication that originally created this ABObject.
+
+      // if attributes.objectWorkspace DOES exist, make sure it is fully
+      // populated.
       if (typeof attributes.objectWorkspace != "undefined") {
          if (typeof attributes.objectWorkspace.sortFields == "undefined")
             attributes.objectWorkspace.sortFields = [];
@@ -112,13 +168,16 @@ module.exports = class ABObjectCore extends ABMLClass {
          if (typeof attributes.objectWorkspace.hiddenFields == "undefined")
             attributes.objectWorkspace.hiddenFields = [];
       }
-
       this.objectWorkspace = attributes.objectWorkspace || {
          sortFields: [], // array of columns with their sort configurations
          filterConditions: [], // array of filters to apply to the data table
          frozenColumnID: "", // id of column you want to stop freezing
          hiddenFields: [] // array of [ids] to add hidden:true to
       };
+      // {obj} .objectWorkspace
+      // When in the ABObject editor in the AppBuilder Designer, different
+      // views of the information can be created.  These views are stored here
+      // and are avaiable to other users in the Designer.
 
       // pull in field definitions:
       var fields = [];
@@ -145,11 +204,6 @@ module.exports = class ABObjectCore extends ABMLClass {
       //     // import all our ABField
       //     this.importFields(attributes.fields || []);
       // }
-
-      // convert '0' to 0
-      this.isImported = parseInt(this.isImported || 0);
-
-      this.createdInAppID = attributes.createdInAppID;
 
       // let the MLClass now process the translations:
       super.fromValues(attributes);
@@ -223,7 +277,7 @@ module.exports = class ABObjectCore extends ABMLClass {
          transColumnName: this.transColumnName,
          // NOTE: store column name of translations table
          urlPath: this.urlPath,
-         importFromObject: this.importFromObject,
+         // importFromObject: this.importFromObject,
          objectWorkspace: this.objectWorkspace,
          isSystemObject: this.isSystemObject,
          translations: obj.translations,
