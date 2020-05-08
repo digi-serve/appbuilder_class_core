@@ -176,15 +176,17 @@ module.exports = class ABProcessTaskUserApprovalCore extends ABProcessElement {
       // The Response can be in the form of a List Field, with one or more
       // return options.
 
+      var myID = this.diagramID;
+
       // create an ABFieldList object:
       // make sure the options follow what is currently defined for our
       // responses:
       var myObj = this.application.objectNew({});
       var listField = new ABFieldList(
          {
-            id: `${this.id}.userFormResponse`,
+            id: `${myID}.userFormResponse`,
             label: `${this.label}->Response`,
-            columnName: `${this.id}.userFormResponse`,
+            columnName: `${myID}.userFormResponse`,
             settings: {
                options: options
             }
@@ -194,7 +196,7 @@ module.exports = class ABProcessTaskUserApprovalCore extends ABProcessElement {
 
       return [
          {
-            key: `${this.id}.userFormResponse`,
+            key: `${myID}.userFormResponse`,
             label: `${this.label}->Response`,
             field: listField,
             object: null
@@ -211,7 +213,7 @@ module.exports = class ABProcessTaskUserApprovalCore extends ABProcessElement {
    processData(instance, key) {
       if (key) {
          var parts = key.split(".");
-         if (parts[0] == this.id) {
+         if (parts[0] == this.diagramID) {
             var myState = this.myState(instance);
             return myState[parts[1]];
          }
