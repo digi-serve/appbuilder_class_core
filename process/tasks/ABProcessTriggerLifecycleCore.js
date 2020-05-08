@@ -100,16 +100,18 @@ module.exports = class ABProcessTriggerLifecycle extends ABProcessTrigger {
          fields = [];
          var object = this.application.objectByID(this.objectID);
          if (object) {
+            var myID = this.diagramID;
             object.fields().forEach((field) => {
                fields.push({
-                  key: `${this.id}.${field.id}`,
+                  key: `${myID}.${field.id}`,
+
                   label: `${this.label}->${object.label}->${field.label}`,
                   field,
                   object
                });
             });
             fields.push({
-               key: `${this.id}.uuid`,
+               key: `${myID}.uuid`,
                label: `${this.label}->${object.label}`,
                field: null,
                object
@@ -133,7 +135,7 @@ module.exports = class ABProcessTriggerLifecycle extends ABProcessTrigger {
     */
    processData(instance, key) {
       var parts = key.split(".");
-      if (parts[0] == this.id) {
+      if (parts[0] == this.diagramID) {
          var myState = this.myState(instance);
          var object = this.application.objectByID(this.objectID);
          var field = object.fields((f) => {
