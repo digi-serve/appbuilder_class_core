@@ -11,7 +11,7 @@ const ABEmitter = require("../platform/ABEmitter");
 
 const ABObject = require("../platform/ABObject");
 const ABObjectQuery = require("../platform/ABObjectQuery");
-const RowFilter = require("../platform/RowFilter");
+const RowFilter = require("../platform/FilterComplex");
 
 var DefaultValues = {
    id: "uuid",
@@ -1859,4 +1859,3 @@ module.exports = class ABViewDataCollectionCore extends ABEmitter {
       }
    }
 };
-
