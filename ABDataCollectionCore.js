@@ -157,11 +157,11 @@ module.exports = class ABViewDataCollectionCore extends ABEmitter {
     *
     *
     * @return {Promise}
-    *			.resolve( {this} )
+    *      .resolve( {this} )
     */
    save() {
       if (!this.id) {
-         // this.id = OP.Util.uuid();	// setup default .id
+         // this.id = OP.Util.uuid();  // setup default .id
          this.label = this.label || this.name;
       }
 
@@ -196,7 +196,7 @@ module.exports = class ABViewDataCollectionCore extends ABEmitter {
                }
 
                // AD.comm.hub.publish('ab.datacollection.update', {
-               // 	datacollectionId: this.id
+               //  datacollectionId: this.id
                // });
 
                resolve(this);
@@ -330,12 +330,17 @@ module.exports = class ABViewDataCollectionCore extends ABEmitter {
 
       let dc = this.__dataCollection;
       if (dc) {
-         if (dc.getCursor() != itemId) {
-            if (dc.exists(itemId) || itemId == null) dc.setCursor(itemId);
+         // clear cursor
+         if (itemId == null) {
+            dc.setCursor(null);
          }
          // If set rowId equal current cursor, it will not trigger .onAfterCursorChange event
-         else {
+         else if (dc.getCursor() == itemId) {
             this.emit("changeCursor", this.getCursor());
+         }
+         // set new cursor
+         else if (dc.exists(itemId)) {
+            dc.setCursor(itemId);
          }
       }
    }
@@ -476,17 +481,17 @@ module.exports = class ABViewDataCollectionCore extends ABEmitter {
             // // find a row that contains the current user
             // var row = this.__dataCollection.find((r) => {
 
-            // 	var found = false;
-            // 	if (!found) {
-            // 		found = true;
-            // 		return true; // just give us the first record
-            // 	}
+            //  var found = false;
+            //  if (!found) {
+            //    found = true;
+            //    return true; // just give us the first record
+            //  }
 
             // }, true);
 
             // // set a first row of current user to cursor
             // if (row)
-            // 	this.__dataCollection.setCursor(row.id);
+            //  this.__dataCollection.setCursor(row.id);
 
             let currRowId = this.__dataCollection.getCursor();
             if (
@@ -826,7 +831,7 @@ module.exports = class ABViewDataCollectionCore extends ABEmitter {
 
                   // TODO: update tree list
                   // if (this.__treeCollection) {
-                  // 	this.__treeCollection.remove(updatedVals.id);
+                  //  this.__treeCollection.remove(updatedVals.id);
                   // }
 
                   this.emit("delete", updatedVals.id);
@@ -1201,7 +1206,7 @@ module.exports = class ABViewDataCollectionCore extends ABEmitter {
        * will wait for the required datacollection to emit "initializedData"
        * before continuing on.
        * @param {ABViewDataCollection} DC
-       * 		  the DC this datacollection depends on.
+       *      the DC this datacollection depends on.
        * @returns {Promise}
        */
       var waitForDataCollectionToInitialize = (DC) => {
@@ -1613,93 +1618,93 @@ module.exports = class ABViewDataCollectionCore extends ABEmitter {
    }
    // parseTreeCollection(data = {}) {
 
-   // 	if (!(this.__datasource instanceof ABObjectQuery) ||
-   // 		!this.__datasource.isGroup ||
-   // 		!this.__treeCollection)
-   // 		return;
+   //  if (!(this.__datasource instanceof ABObjectQuery) ||
+   //    !this.__datasource.isGroup ||
+   //    !this.__treeCollection)
+   //    return;
 
-   // 	let addRowToTree = (join = {}, parentAlias = null) => {
+   //  let addRowToTree = (join = {}, parentAlias = null) => {
 
-   // 		let alias = join.alias;
+   //    let alias = join.alias;
 
-   // 		(data.data || []).forEach(row => {
+   //    (data.data || []).forEach(row => {
 
-   // 			let dataId = row[`${alias}.uuid`] || row[`${alias}.id`];
-   // 			if (!dataId) return;
+   //      let dataId = row[`${alias}.uuid`] || row[`${alias}.id`];
+   //      if (!dataId) return;
 
-   // 			// find parent nodes
-   // 			let parentItemIds = [];
-   // 			let parentId = row[`${parentAlias}.uuid`] || row[`${parentAlias}.id`];
-   // 			if (parentId) {
-   // 				parentItemIds = this.__treeCollection
-   // 					.find(item => item._alias == parentAlias && item._dataId == parentId)
-   // 					.map(item => item.id);
-   // 			}
+   //      // find parent nodes
+   //      let parentItemIds = [];
+   //      let parentId = row[`${parentAlias}.uuid`] || row[`${parentAlias}.id`];
+   //      if (parentId) {
+   //        parentItemIds = this.__treeCollection
+   //          .find(item => item._alias == parentAlias && item._dataId == parentId)
+   //          .map(item => item.id);
+   //      }
 
-   // 			// check exists
-   // 			let exists = this.__treeCollection.find(item => {
-   // 				return item._alias == alias &&
-   // 					item._dataId == dataId &&
-   // 					(parentItemIds.length == 0 || parentItemIds.indexOf(item.$parent) > -1);
-   // 			}, true);
-   // 			if (exists) return;
+   //      // check exists
+   //      let exists = this.__treeCollection.find(item => {
+   //        return item._alias == alias &&
+   //          item._dataId == dataId &&
+   //          (parentItemIds.length == 0 || parentItemIds.indexOf(item.$parent) > -1);
+   //      }, true);
+   //      if (exists) return;
 
-   // 			let treeNode = {};
-   // 			treeNode._alias = alias;
-   // 			treeNode._dataId = dataId;
-   // 			treeNode._itemId = row.id; // Keep row id for set cursor to data collection
+   //      let treeNode = {};
+   //      treeNode._alias = alias;
+   //      treeNode._dataId = dataId;
+   //      treeNode._itemId = row.id; // Keep row id for set cursor to data collection
 
-   // 			Object.keys(row).forEach(propName => {
+   //      Object.keys(row).forEach(propName => {
 
-   // 				// Pull value from alias
-   // 				if (propName.indexOf(`${alias}.`) == 0) {
-   // 					treeNode[propName] = row[propName];
-   // 				}
+   //        // Pull value from alias
+   //        if (propName.indexOf(`${alias}.`) == 0) {
+   //          treeNode[propName] = row[propName];
+   //        }
 
-   // 			});
+   //      });
 
-   // 			if (row.translations)
-   // 				treeNode.translations = row.translations;
+   //      if (row.translations)
+   //        treeNode.translations = row.translations;
 
-   // 			// child nodes
-   // 			if (parentItemIds.length > 0)
-   // 				parentItemIds.forEach(parentItemId => {
-   // 					this.__treeCollection.add(treeNode, null, parentItemId);
-   // 				});
-   // 			// root node
-   // 			else
-   // 				this.__treeCollection.add(treeNode, null);
+   //      // child nodes
+   //      if (parentItemIds.length > 0)
+   //        parentItemIds.forEach(parentItemId => {
+   //          this.__treeCollection.add(treeNode, null, parentItemId);
+   //        });
+   //      // root node
+   //      else
+   //        this.__treeCollection.add(treeNode, null);
 
-   // 		});
+   //    });
 
-   // 		// Sub-joins
-   // 		(join.links || []).forEach(link => {
-   // 			addRowToTree(link, alias);
-   // 		});
+   //    // Sub-joins
+   //    (join.links || []).forEach(link => {
+   //      addRowToTree(link, alias);
+   //    });
 
-   // 	};
+   //  };
 
-   // 	// Show loading cursor
-   // 	(this.__bindComponentIds || []).forEach(comId => {
+   //  // Show loading cursor
+   //  (this.__bindComponentIds || []).forEach(comId => {
 
-   // 		let boundComp = $$(comId);
-   // 		if (boundComp &&
-   // 			boundComp.showProgress)
-   // 			boundComp.showProgress({ type: "icon" });
+   //    let boundComp = $$(comId);
+   //    if (boundComp &&
+   //      boundComp.showProgress)
+   //      boundComp.showProgress({ type: "icon" });
 
-   // 	});
+   //  });
 
-   // 	addRowToTree(this.__datasource.joins());
+   //  addRowToTree(this.__datasource.joins());
 
-   // 	// Hide loading cursor
-   // 	(this.__bindComponentIds || []).forEach(comId => {
+   //  // Hide loading cursor
+   //  (this.__bindComponentIds || []).forEach(comId => {
 
-   // 		let boundComp = $$(comId);
-   // 		if (boundComp &&
-   // 			boundComp.hideProgress)
-   // 			boundComp.hideProgress();
+   //    let boundComp = $$(comId);
+   //    if (boundComp &&
+   //      boundComp.hideProgress)
+   //      boundComp.hideProgress();
 
-   // 	})
+   //  })
    // }
 
    /**
@@ -1764,6 +1769,7 @@ module.exports = class ABViewDataCollectionCore extends ABEmitter {
          settings,
          this.application
       );
+      clonedDatacollection.__datasource = this.__datasource;
 
       return new Promise((resolve, reject) => {
          // load the data
@@ -1811,10 +1817,10 @@ module.exports = class ABViewDataCollectionCore extends ABEmitter {
     *
     *
     * @param {object} evt - {
-    * 							emitter: object,
-    * 							eventName: string,
-    * 							listener: function
-    * 						}
+    *              emitter: object,
+    *              eventName: string,
+    *              listener: function
+    *            }
     */
    eventAdd(evt) {
       if (!evt || !evt.emitter || !evt.listener) return;
@@ -1853,3 +1859,4 @@ module.exports = class ABViewDataCollectionCore extends ABEmitter {
       }
    }
 };
+

@@ -99,20 +99,23 @@ module.exports = class ABProcessTriggerLifecycle extends ABProcessTrigger {
       if (this.objectID) {
          fields = [];
          var object = this.application.objectByID(this.objectID);
-         object.fields().forEach((field) => {
+         if (object) {
+            var myID = this.diagramID;
+            object.fields().forEach((field) => {
+               fields.push({
+                  key: `${myID}.${field.id}`,
+                  label: `${this.label}->${object.label}->${field.label}`,
+                  field,
+                  object
+               });
+            });
             fields.push({
-               key: `${this.id}.${field.id}`,
-               label: `${this.label}->${object.label}->${field.label}`,
-               field,
+               key: `${myID}.uuid`,
+               label: `${this.label}->${object.label}`,
+               field: null,
                object
             });
-         });
-         fields.push({
-            key: `${this.id}.uuid`,
-            label: `${this.label}->${object.label}`,
-            field: null,
-            object
-         });
+         }
       }
       return fields;
    }
@@ -125,7 +128,7 @@ module.exports = class ABProcessTriggerLifecycle extends ABProcessTrigger {
     */
    processData(instance, key) {
       var parts = key.split(".");
-      if (parts[0] == this.id) {
+      if (parts[0] == this.diagramID) {
          var myState = this.myState(instance);
          var object = this.application.objectByID(this.objectID);
          var field = object.fields((f) => {
@@ -133,7 +136,7 @@ module.exports = class ABProcessTriggerLifecycle extends ABProcessTrigger {
          })[0];
          if (field) {
             // instance.context.data[field.column_name];
-            return myState["data"][field.column_name];
+            return myState["data"][field.columnName];
          } else if (parts[1] == "uuid") {
             return myState["data"]["uuid"];
          }

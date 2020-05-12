@@ -205,6 +205,11 @@ module.exports = class ABApplicationCore {
 
       this.json.objectListSettings = this.objectListSettings;
 
+      // Save our processes.
+      this.json.processIDs = (this._processes || []).map((p) => {
+         return p.id;
+      });
+
       // for each View: compile to json
       var currPages = [];
       this._pages.forEach((page) => {
@@ -354,11 +359,11 @@ module.exports = class ABApplicationCore {
     *
     * return an array of all the connected ABFields for a given ABObject
     *
-    * @param {currObj} id		an ID of the current ABObject
+    * @param {currObj} id    an ID of the current ABObject
     *
-    * @param {linkedObject} id	an ID of the linked ABObject
+    * @param {linkedObject} id an ID of the linked ABObject
     *
-    * @return {array}			array of options for webix select
+    * @return {array}      array of options for webix select
     */
    connectedFields(currObj, linkedObject) {
       // Determine the object from the currObj
@@ -414,11 +419,11 @@ module.exports = class ABApplicationCore {
     *
     * return an array of all the ABViewPages for this ABApplication.
     *
-    * @param {fn} filter		a filter fn to return a set of ABViewPages that this fn
-    *							returns true for.
-    * @param {boolean} deep	flag to find in sub pages
+    * @param {fn} filter   a filter fn to return a set of ABViewPages that this fn
+    *              returns true for.
+    * @param {boolean} deep  flag to find in sub pages
     *
-    * @return {array}			array of ABViewPages
+    * @return {array}      array of ABViewPages
     */
    pages(filter, deep) {
       var result = [];
@@ -779,7 +784,7 @@ module.exports = class ABApplicationCore {
 
       if (fields && fields.length > 0) {
          // [fix] if no matching translation is in our json.translations
-         // 		 object, then just use the 1st one.
+         //     object, then just use the 1st one.
          var first = null; // the first translation entry encountered
          var found = false; // did we find a matching translation?
 
@@ -820,14 +825,14 @@ module.exports = class ABApplicationCore {
     *
     * @param {obj} obj  The instance of the object with the translation
     * @param {json} json The json data being used for translation.
-    *						There should be json.translations = [ {transEntry}, ...]
-    *						where transEntry = {
-    *							language_code:'en',
-    *							field1:'value',
-    *							...
-    *						}
+    *            There should be json.translations = [ {transEntry}, ...]
+    *            where transEntry = {
+    *              language_code:'en',
+    *              field1:'value',
+    *              ...
+    *            }
     * @param {array} fields an Array of multilingual fields to pull from
-    *						 the obj[field] value.
+    *             the obj[field] value.
     *
     */
    unTranslate(obj, json, fields) {

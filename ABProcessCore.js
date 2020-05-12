@@ -21,13 +21,13 @@ module.exports = class ABProcessCore extends ABMLClass {
 
    fromValues(attributes) {
       /*
-		{
-			id: uuid(),
-			name: 'name',
-			type: 'xxxxx',
-			json: "{json}"
-		}
-		*/
+    {
+      id: uuid(),
+      name: 'name',
+      type: 'xxxxx',
+      json: "{json}"
+    }
+    */
       this.id = attributes.id;
       this.name = attributes.name || "";
       this.type = attributes.type || "process";
@@ -354,7 +354,11 @@ module.exports = class ABProcessCore extends ABMLClass {
    processData(currElement, params) {
       var tasksToAsk = this.connectionPreviousTask(currElement);
       var values = queryPreviousTasks(tasksToAsk, "processData", params, this);
-      return values.length > 0 ? values[0] : null;
+      return values.length > 0
+         ? values.length > 1
+            ? values
+            : values[0]
+         : null;
    }
 
    /**

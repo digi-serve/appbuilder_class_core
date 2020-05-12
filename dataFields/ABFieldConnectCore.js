@@ -170,7 +170,12 @@ module.exports = class ABFieldConnectCore extends ABFieldSelectivity {
       var data = this.dataValue(row);
       if (data && linkedObject) {
          // convert to JSON
-         if (typeof data == "string") data = JSON.parse(data);
+         if (typeof data == "string") {
+            try {
+               data = JSON.parse(data);
+            }
+            catch(e) {}
+         }
 
          // if this select value is array
          if (data.map) {
@@ -241,3 +246,4 @@ module.exports = class ABFieldConnectCore extends ABFieldSelectivity {
       return this.settings.isSource;
    }
 };
+

@@ -123,21 +123,21 @@ module.exports = class ABProcessTaskUserApprovalCore extends ABProcessElement {
     * point in the code
     */
    preProcessFormIOComponents() {
-      var dataObjs = this.process.processDataObjects(this);
-      var fields = [];
-      dataObjs.forEach((obj) => {
-         fields = fields.concat(obj.fields());
-      });
+      var fields = this.process.processDataFields(this);
       if (this.formBuilder && this.formBuilder.components) {
          this.formBuilder.components.forEach((c) => {
             if (c.abFieldID) {
-               fields.filter((field) => {
-                  if (field.id == c.abFieldID) {
-                     c.label = field.label;
-                     c.key = field.columnName;
-                     if (c.data && c.data.values && field.settings.options) {
+               fields.filter((entry) => {
+                  if (entry.field && entry.field.id == c.abFieldID) {
+                     c.label = entry.field.label;
+                     c.key = entry.key;
+                     if (
+                        c.data &&
+                        c.data.values &&
+                        entry.field.settings.options
+                     ) {
                         var vals = [];
-                        field.settings.options.forEach((opt) => {
+                        entry.field.settings.options.forEach((opt) => {
                            vals.push({
                               label: opt.text,
                               value: opt.id
@@ -162,9 +162,21 @@ module.exports = class ABProcessTaskUserApprovalCore extends ABProcessElement {
     * @return {array} | null
     */
    processDataFields() {
+      // we need to get the button events defined by the form.io formBuilder
+      var options = [];
+      this.formBuilder.components.forEach((comp) => {
+         if (comp.type == "button" && comp.action == "event" && comp.event) {
+            options.push({
+               id: comp.event,
+               text: comp.label
+            });
+         }
+      });
       // in this Task, we can return the Response to the UserForm
       // The Response can be in the form of a List Field, with one or more
       // return options.
+
+      var myID = this.diagramID;
 
       // create an ABFieldList object:
       // make sure the options follow what is currently defined for our
@@ -172,25 +184,11 @@ module.exports = class ABProcessTaskUserApprovalCore extends ABProcessElement {
       var myObj = this.application.objectNew({});
       var listField = new ABFieldList(
          {
-            id: `${this.id}.userFormResponse`,
+            id: `${myID}.userFormResponse`,
             label: `${this.label}->Response`,
-            columnName: `${this.id}.userFormResponse`,
+            columnName: `${myID}.userFormResponse`,
             settings: {
-               options: [
-                  // TODO: insert form Responses here:
-                  {
-                     id: "aaa",
-                     text: "Yes"
-                  },
-                  {
-                     id: "aab",
-                     text: "No"
-                  },
-                  {
-                     id: "aac",
-                     text: "Maybe"
-                  }
-               ]
+               options: options
             }
          },
          myObj
@@ -198,7 +196,7 @@ module.exports = class ABProcessTaskUserApprovalCore extends ABProcessElement {
 
       return [
          {
-            key: `${this.id}.userFormResponse`,
+            key: `${myID}.userFormResponse`,
             label: `${this.label}->Response`,
             field: listField,
             object: null
@@ -215,7 +213,7 @@ module.exports = class ABProcessTaskUserApprovalCore extends ABProcessElement {
    processData(instance, key) {
       if (key) {
          var parts = key.split(".");
-         if (parts[0] == this.id) {
+         if (parts[0] == this.diagramID) {
             var myState = this.myState(instance);
             return myState[parts[1]];
          }

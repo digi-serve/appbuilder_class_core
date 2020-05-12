@@ -50,9 +50,9 @@ module.exports = class ABProcessParticipantCore extends ABMLClass {
       this.processID = attributes.processID || null;
       this.diagramID = attributes.diagramID || "?diagramID?";
       this.laneIDs = attributes.laneIDs || [];
-      this.where = null;
-      if (attributes.where && attributes.where != "") {
-         this.where = attributes.where;
+      this.stashed = false;
+      if (attributes.stashed && attributes.stashed != "") {
+         this.stashed = attributes.stashed;
       }
 
       this.useRole = 0;
@@ -114,7 +114,8 @@ module.exports = class ABProcessParticipantCore extends ABMLClass {
          "useRole",
          "role",
          "useAccount",
-         "account"
+         "account",
+         "stashed"
       ];
       fieldsToSave.forEach((f) => {
          data[f] = this[f];
