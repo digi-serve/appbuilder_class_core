@@ -274,6 +274,20 @@ module.exports = class ABObjectCore extends ABEmitter {
    }
 
    /**
+    * @method indexFields()
+    *
+    * return an array of the ABFieldConnect.
+    *
+    * @return {array}
+    */
+   indexFields(getAll = false) {
+      return this.fields(
+         (f) => f && (f.key == "AutoIndex" || f.key == "customIndex"),
+         getAll
+      );
+   }
+
+   /**
     * @method fieldNew()
     *
     * return an instance of a new (unsaved) ABField that is tied to this
