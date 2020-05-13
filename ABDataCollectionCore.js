@@ -11,7 +11,7 @@ const ABEmitter = require("../platform/ABEmitter");
 
 const ABObject = require("../platform/ABObject");
 const ABObjectQuery = require("../platform/ABObjectQuery");
-const RowFilter = require("../platform/FilterComplex");
+const RowFilter = require("../platform/RowFilter");
 
 var DefaultValues = {
    id: "uuid",
