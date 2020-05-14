@@ -59,7 +59,9 @@ var defaultValues = {
    // if linkType == one, and isSource = 0, then the linkObject has this obj.id
    //  	in it's connected field (linkColumn)
 
-   isCustomFK: 0
+   isCustomFK: 0,
+   indexField: "", // ABField.id
+   indexField2: "" // ABField.id
 };
 
 module.exports = class ABFieldConnectCore extends ABFieldSelectivity {
@@ -294,10 +296,47 @@ module.exports = class ABFieldConnectCore extends ABFieldSelectivity {
          this.settings.linkType == "many" &&
          this.settings.linkViaType == "many"
       ) {
-         // TODO
-         return null;
+         let indexField = this.object.fields(
+            (f) => f.id == this.settings.indexField
+         )[0];
+
+         if (indexField == null)
+            indexField = this.datasourceLink.fields(
+               (f) => f.id == this.settings.indexField
+            )[0];
+
+         return indexField;
       }
 
       return null;
+   }
+
+   /**
+    * @property indexField2
+    * @return {ABField}
+    */
+   get indexField2() {
+      if (!this.settings.isCustomFK || !this.settings.indexField2) {
+         return null;
+      }
+
+      let indexField;
+
+      // M:N only
+      if (
+         this.settings.linkType == "many" &&
+         this.settings.linkViaType == "many"
+      ) {
+         indexField = this.object.fields(
+            (f) => f.id == this.settings.indexField2
+         )[0];
+
+         if (indexField == null)
+            indexField = this.datasourceLink.fields(
+               (f) => f.id == this.settings.indexField2
+            )[0];
+      }
+
+      return indexField;
    }
 };
