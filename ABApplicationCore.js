@@ -46,6 +46,10 @@ module.exports = class ABApplicationCore {
       this.name = attributes.name || this.json.name || "";
       this.role = attributes.role;
       this.isAdminApp = JSON.parse(attributes.json.isAdminApp || false);
+      this.isAccessManaged = JSON.parse(attributes.isAccessManaged || false);
+      this.accessManagers = attributes.accessManagers;
+      if (typeof this.accessManagers == "string")
+         this.accessManagers = JSON.parse(this.accessManagers);
 
       // Transition:
       // _datacollections, _objects, and _queries are now defined
@@ -229,7 +233,9 @@ module.exports = class ABApplicationCore {
          name: this.name,
          json: this.json,
          role: this.role,
-         isAdminApp: this.isAdminApp
+         isAdminApp: this.isAdminApp,
+         isAccessManaged: this.isAccessManaged,
+         accessManagers: this.accessManagers
       };
    }
 
