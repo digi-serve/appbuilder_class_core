@@ -96,12 +96,18 @@ module.exports = class ABObjectQueryCore extends ABObject {
    fromValues(attributes) {
       super.fromValues(attributes);
 
+      this.type = "query";
+
       // populate connection objects
       this._objects = {};
-
-      (attributes.objects || []).forEach((obj) => {
-         this._objects[obj.alias] = new ABObject(obj, this.application);
+      this.obj2Alias = attributes.obj2Alias || {};
+      (attributes.objectIDs || []).forEach((id) => {
+         var object = this.application.objectByID(id);
+         this._objects[this.obj2Alias[id]] = object;
       });
+      // (attributes.objects || []).forEach((obj) => {
+      //    this._objects[obj.alias] = new ABObject(obj, this.application);
+      // });
 
       // import all our ABObjects
       this.importJoins(attributes.joins || {});
@@ -133,6 +139,10 @@ module.exports = class ABObjectQueryCore extends ABObject {
       var result = super.toObj();
 
       /// include our additional objects and where settings:
+      result.obj2Alias = this.obj2Alias;
+      result.objectIDs = Object.keys(this._objects).map(
+         (k) => this._objects[k].id
+      );
 
       result.joins = this.exportJoins(); //objects;
       result.where = this.where; // .workspaceFilterConditions
@@ -260,14 +270,8 @@ module.exports = class ABObjectQueryCore extends ABObject {
     *
     * @return {array}
     */
-   objects(filter) {
+   objects(filter = () => true) {
       if (!this._objects) return [];
-
-      filter =
-         filter ||
-         function() {
-            return true;
-         };
 
       // get all objects (values of a object)
       let objects = Object.keys(this._objects).map((key) => {
@@ -330,13 +334,7 @@ module.exports = class ABObjectQueryCore extends ABObject {
     *
     * @return {array}
     */
-   links(filter) {
-      filter =
-         filter ||
-         function() {
-            return true;
-         };
-
+   links(filter = () => true) {
       return (this._links || []).filter(filter);
    }
 

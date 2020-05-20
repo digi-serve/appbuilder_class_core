@@ -23,6 +23,7 @@
 // webpack can handle 'require()' statements, but node can't handle import
 // so let's use require():
 const ABObject = require("../platform/ABObject");
+const ABQuery = require("../platform/ABObjectQuery");
 const ABDataCollectionCore = require("./ABDataCollectionCore");
 const ABFieldManager = require("./ABFieldManager");
 const ABViewManager = require("../platform/ABViewManager");
@@ -92,9 +93,15 @@ module.exports = class ABApplicationCore extends ABMLClass {
       //   		newQueries.push( this.queryNew(query) );
       //   	}
       //  	})
+      debugger;
       this._queries = [];
-      (attributes.json.queries || []).forEach((q) => {
-         this._queries.push(this.queryNew(q));
+      this.queryIDs = attributes.json.queryIDs || [];
+      (this.queriesAll() || attributes.json.queries || []).forEach((q) => {
+         if (q instanceof ABQuery) {
+            this._queries.push(q);
+         } else {
+            this._queries.push(this.queryNew(q));
+         }
       });
 
       // Transition:
@@ -220,6 +227,8 @@ module.exports = class ABApplicationCore extends ABMLClass {
       this.json.objectIDs = this.objectIDs;
 
       this.json.objectListSettings = this.objectListSettings;
+
+      this.json.queryIDs = this.queryIDs;
 
       // Save our processes.
       this.json.processIDs = (this._processes || []).map((p) => {
@@ -498,12 +507,26 @@ module.exports = class ABApplicationCore extends ABMLClass {
     *
     * return an array of all the ABObjectQueries for this ABApplication.
     *
-    * @param {fn} filter  	a filter fn to return a set of ABObjectQueries that
-    *						this fn returns true for.
-    * @return {array} 	array of ABObjectQueries
+    * @param {fn} filter
+    *        a filter fn to return a set of ABObjectQueries that this fn
+    *        returns true for.
+    * @return {array}
+    *        array of ABObjectQueries
     */
    queries(filter = () => true) {
-      return (this._queries || []).filter(filter);
+      return (this.queriesAll() || []).filter(filter);
+   }
+
+   queriesExcluded(filter = () => true) {
+      return this.queries((q) => {
+         return this.queryIDs.indexOf(q.id) == -1;
+      }).filter(filter);
+   }
+
+   queriesIncluded(filter = () => true) {
+      return this.queries((q) => {
+         return this.queryIDs.indexOf(q.id) > -1;
+      }).filter(filter);
    }
 
    ///
