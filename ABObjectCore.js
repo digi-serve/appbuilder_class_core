@@ -209,7 +209,7 @@ module.exports = class ABObjectCore extends ABEmitter {
     * @param {object} filter
     * @return {array} - An array of ABObject
     */
-   objectLinks(filter) {
+   objectLinks(/* filter */) {
       var connectFields = this.connectFields();
 
       return connectFields.map((f) => f.datasourceLink);
@@ -577,7 +577,7 @@ module.exports = class ABObjectCore extends ABEmitter {
     * @param {obj} data a key=>value hash of the inputs to parse.
     * @return {array}
     */
-   isValidData(data) {
+   isValidData(/* data */) {
       // NOTE: the platform needs to define a way to verify the data
       console.warn("Platform.ABObject.isValidData() missing");
       return true;
