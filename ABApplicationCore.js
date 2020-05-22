@@ -26,6 +26,8 @@ const ABObject = require("../platform/ABObject");
 const ABDataCollectionCore = require("./ABDataCollectionCore");
 const ABFieldManager = require("./ABFieldManager");
 const ABViewManager = require("../platform/ABViewManager");
+const ABRole = require("../platform/ABRole.js");
+
 // const ABViewPageCore = require("./views/ABViewPageCore");
 // const ABQLManager = require("./ABQLManager");
 
@@ -45,6 +47,8 @@ module.exports = class ABApplicationCore {
       if (typeof this.json == "string") this.json = JSON.parse(this.json);
       this.name = attributes.name || this.json.name || "";
       this.role = attributes.role;
+      this.class = {};
+      this.class.ABRole = ABRole; // This is a temporary fix that we can remove when OpsPortal is removed
       this.isAdminApp = JSON.parse(attributes.json.isAdminApp || false);
       this.isAccessManaged = JSON.parse(attributes.isAccessManaged || false);
       this.accessManagers = attributes.accessManagers;

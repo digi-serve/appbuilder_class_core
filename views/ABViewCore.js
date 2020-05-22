@@ -104,6 +104,7 @@ module.exports = class ABViewCore extends ABEmitter {
          // parent: this.parent,
 
          settings: this.application.cloneDeep(this.settings || {}),
+         accessLevels: this.accessLevels,
          translations: this.translations || []
       };
 
@@ -143,6 +144,8 @@ module.exports = class ABViewCore extends ABEmitter {
       this.translations = values.translations || [];
 
       this.settings = values.settings || {};
+
+      this.accessLevels = values.accessLevels || {};
 
       // If the View / DataCollection does not have a .name already,
       // use the English label translation as the .name instead.
