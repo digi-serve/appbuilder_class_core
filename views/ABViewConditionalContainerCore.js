@@ -1,55 +1,57 @@
 const ABViewContainer = require("../../platform/views/ABViewContainer");
 
 const ABViewPropertyDefaults = {
-	dataviewID: null,
-	filterConditions: {}
-}
+   dataviewID: null,
+   filterConditions: {}
+};
 
 const ABViewDefaults = {
-	key: 'conditionalcontainer',	// unique key identifier for this ABView
-	icon: 'shield',					// icon reference: (without 'fa-' )
-	labelKey: 'ab.components.conditionalcontainer' // {string} the multilingual label key for the class label
-}
+   key: "conditionalcontainer", // unique key identifier for this ABView
+   icon: "shield", // icon reference: (without 'fa-' )
+   labelKey: "ab.components.conditionalcontainer" // {string} the multilingual label key for the class label
+};
 
 module.exports = class ABViewConditionalContainerCore extends ABViewContainer {
+   constructor(values, application, parent, defaultValues) {
+      super(values, application, parent, defaultValues || ABViewDefaults);
 
-	constructor(values, application, parent, defaultValues) {
+      // the conditional container always has 'If' and 'Else' panels
+      if (this.views((v) => v instanceof ABViewContainer).length < 2) {
+         // 'If' panel
+         var ifPanel = application.viewNew(
+            {
+               key: ABViewContainer.common().key,
+               label: "If",
+               settings: {
+                  removable: false
+               }
+            },
+            application,
+            this
+         );
+         this._views.push(ifPanel);
 
-		super(values, application, parent, (defaultValues || ABViewDefaults));
+         // 'Else' panel
+         var elsePanel = application.viewNew(
+            {
+               key: ABViewContainer.common().key,
+               label: "Else",
+               settings: {
+                  removable: false
+               }
+            },
+            application,
+            this
+         );
+         this._views.push(elsePanel);
+      }
+   }
 
-		// the conditional container always has 'If' and 'Else' panels
-		if (this.views(v => v instanceof ABViewContainer).length < 2) {
+   static common() {
+      return ABViewDefaults;
+   }
 
-			// 'If' panel
-			var ifPanel = application.viewNew({
-				key: ABViewContainer.common().key,
-				label: 'If',
-				settings: {
-					removable: false
-				}
-			}, application, this);
-			this._views.push(ifPanel);
-
-			// 'Else' panel
-			var elsePanel = application.viewNew({
-				key: ABViewContainer.common().key,
-				label: 'Else',
-				settings: {
-					removable: false
-				}
-			}, application, this);
-			this._views.push(elsePanel);
-
-		}
-
-	}
-
-	static common() {
-		return ABViewDefaults;
-	}
-
-	static defaultValues() {
-		return ABViewPropertyDefaults;
-	}
-
-}
+   static defaultValues() {
+      return ABViewPropertyDefaults;
+   }
+};

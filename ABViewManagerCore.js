@@ -15,6 +15,7 @@ const ABViewChartArea = require("../platform/views/ABViewChartArea");
 const ABViewComment = require("../platform/views/ABViewComment");
 const ABViewConditionalContainer = require("../platform/views/ABViewConditionalContainer");
 const ABViewContainer = require("../platform/views/ABViewContainer");
+const ABViewDataview = require("../platform/views/ABViewDataview");
 const ABViewDocxBuilder = require("../platform/views/ABViewDocxBuilder");
 const ABViewPage = require("../platform/views/ABViewPage");
 const ABViewPivot = require("../platform/views/ABViewPivot");
@@ -44,6 +45,7 @@ const ABViewFormConnect = require("../platform/views/ABViewFormConnect");
 const ABViewFormCustom = require("../platform/views/ABViewFormCustom");
 const ABViewFormDatepicker = require("../platform/views/ABViewFormDatepicker");
 const ABViewFormNumber = require("../platform/views/ABViewFormNumber");
+//const ABViewFormSelectMultiple = require("../platform/views/ABViewFormSelectMultiple");
 const ABViewFormSelectSingle = require("../platform/views/ABViewFormSelectSingle");
 const ABViewFormReadonly = require("../platform/views/ABViewFormReadonly");
 const ABViewFormTextbox = require("../platform/views/ABViewFormTextbox");
@@ -66,6 +68,7 @@ Views[ABViewChartArea.common().key] = ABViewChartArea;
 Views[ABViewComment.common().key] = ABViewComment;
 Views[ABViewConditionalContainer.common().key] = ABViewConditionalContainer;
 Views[ABViewContainer.common().key] = ABViewContainer;
+Views[ABViewDataview.common().key] = ABViewDataview;
 Views[ABViewDocxBuilder.common().key] = ABViewDocxBuilder;
 Views[ABViewPage.common().key] = ABViewPage;
 Views[ABViewPivot.common().key] = ABViewPivot;
@@ -95,63 +98,63 @@ Views[ABViewFormConnect.common().key] = ABViewFormConnect;
 Views[ABViewFormCustom.common().key] = ABViewFormCustom;
 Views[ABViewFormDatepicker.common().key] = ABViewFormDatepicker;
 Views[ABViewFormNumber.common().key] = ABViewFormNumber;
+//Views[ABViewFormSelectMultiple.common().key] = ABViewFormSelectMultiple;
 Views[ABViewFormSelectSingle.common().key] = ABViewFormSelectSingle;
 Views[ABViewFormReadonly.common().key] = ABViewFormReadonly;
 Views[ABViewFormTextbox.common().key] = ABViewFormTextbox;
 Views[ABViewFormTree.common().key] = ABViewFormTree;
 
 module.exports = class ABViewManagerCore {
-    /**
-     * @function allViews
-     * return all the currently defined ABViews in an array.
-     * @return [{ABView},...]
-     */
-    static allViews(fn) {
-        fn =
-            fn ||
-            function() {
-                return true;
-            };
+   /**
+    * @function allViews
+    * return all the currently defined ABViews in an array.
+    * @return [{ABView},...]
+    */
+   static allViews(fn) {
+      fn =
+         fn ||
+         function() {
+            return true;
+         };
 
-        var views = [];
-        for (var v in Views) {
-            var V = Views[v];
-            if (fn(V)) {
-                views.push(V);
-            }
-        }
-        return views;
-    }
+      var views = [];
+      for (var v in Views) {
+         var V = Views[v];
+         if (fn(V)) {
+            views.push(V);
+         }
+      }
+      return views;
+   }
 
-    /**
-     * @function newView
-     * return an instance of an ABView based upon the values.key value.
-     * @return {ABView}
-     */
-    static newView(values, application, parent) {
-        parent = parent || null;
+   /**
+    * @function newView
+    * return an instance of an ABView based upon the values.key value.
+    * @return {ABView}
+    */
+   static newView(values, application, parent) {
+      parent = parent || null;
 
-        //		if ((values.key) && (Views[values.key])) {
-        if (values.key) {
-            if (!Views[values.key]) {
-                console.error(
-                    "!! View[" +
-                        values.key +
-                        "] not yet defined.  Have an ABView instead:"
-                );
-                return new Views["view"](values, application, parent);
-            }
+      //		if ((values.key) && (Views[values.key])) {
+      if (values.key) {
+         if (!Views[values.key]) {
+            console.error(
+               "!! View[" +
+                  values.key +
+                  "] not yet defined.  Have an ABView instead:"
+            );
+            return new Views["view"](values, application, parent);
+         }
 
-            return new Views[values.key](values, application, parent);
-        } else {
-            var err = new Error("unknown view key");
-            OP.Error.log("Unknown view key [" + values.key + "]:", {
-                error: err,
-                values: values,
-                application: application
-            });
-            return null;
-        }
-    }
-
+         return new Views[values.key](values, application, parent);
+      } else {
+         var err = new Error("unknown view key");
+         OP.Error.log("Unknown view key [" + values.key + "]:", {
+            error: err,
+            values: values,
+            application: application
+         });
+         return null;
+      }
+   }
 };

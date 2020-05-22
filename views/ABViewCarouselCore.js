@@ -1,80 +1,85 @@
 const ABViewWidget = require("../../platform/views/ABViewWidget");
 
 const ABViewCarouselPropertyComponentDefaults = {
+   dataviewID: null, // uuid of ABDatacollection
+   field: null, // uuid
 
-	dataviewID: null, 	// uuid of ABDatacollection
-	field: null, 		// uuid
+   width: 460,
+   height: 275,
+   showLabel: true,
+   hideItem: false,
+   hideButton: false,
+   navigationType: "corner", // "corner" || "side"
 
-	width: 460,
-	height: 275,
-	showLabel: true,
-	hideItem: false,
-	hideButton: false,
-	navigationType: "corner", // "corner" || "side"
-
-	detailsPage: null,	// uuid
-	detailsTab: null,	// uuid
-	editPage: null,		// uuid
-	editTab: null		// uuid
+   detailsPage: null, // uuid
+   detailsTab: null, // uuid
+   editPage: null, // uuid
+   editTab: null // uuid
 };
 
-
 const ABViewDefaults = {
-	key: 'carousel',		// {string} unique key for this view
-	icon: 'clone',			// {string} fa-[icon] reference for this view
-	labelKey: 'ab.components.carousel' // {string} the multilingual label key for the class label
+   key: "carousel", // {string} unique key for this view
+   icon: "clone", // {string} fa-[icon] reference for this view
+   labelKey: "ab.components.carousel" // {string} the multilingual label key for the class label
 };
 
 module.exports = class ABViewCarouselCore extends ABViewWidget {
+   constructor(values, application, parent, defaultValues) {
+      super(values, application, parent, defaultValues || ABViewDefaults);
+   }
 
-	constructor(values, application, parent, defaultValues) {
+   static common() {
+      return ABViewDefaults;
+   }
 
-		super(values, application, parent, defaultValues || ABViewDefaults);
+   static defaultValues() {
+      return ABViewCarouselPropertyComponentDefaults;
+   }
 
-	}
+   ///
+   /// Instance Methods
+   ///
 
-	static common() {
-		return ABViewDefaults;
-	}
+   /**
+    * @method fromValues()
+    *
+    * initialze this object with the given set of values.
+    * @param {obj} values
+    */
+   fromValues(values) {
+      super.fromValues(values);
 
-	static defaultValues() {
-		return ABViewCarouselPropertyComponentDefaults;
-	}
+      // convert from "0" => 0
+      this.settings.width = parseInt(
+         this.settings.width || ABViewCarouselPropertyComponentDefaults.width
+      );
+      this.settings.height = parseInt(
+         this.settings.height || ABViewCarouselPropertyComponentDefaults.height
+      );
+      this.settings.showLabel = JSON.parse(
+         this.settings.showLabel ||
+            ABViewCarouselPropertyComponentDefaults.showLabel
+      );
+      this.settings.hideItem = JSON.parse(
+         this.settings.hideItem ||
+            ABViewCarouselPropertyComponentDefaults.hideItem
+      );
+      this.settings.hideButton = JSON.parse(
+         this.settings.hideButton ||
+            ABViewCarouselPropertyComponentDefaults.hideButton
+      );
+      this.settings.navigationType =
+         this.settings.navigationType ||
+         ABViewCarouselPropertyComponentDefaults.navigationType;
+   }
 
+   get imageField() {
+      let dc = this.datacollection;
+      if (!dc) return null;
 
-	///
-	/// Instance Methods
-	///
+      let obj = dc.datasource;
+      if (!obj) return null;
 
-	/**
-	 * @method fromValues()
-	 *
-	 * initialze this object with the given set of values.
-	 * @param {obj} values
-	 */
-	fromValues(values) {
-
-		super.fromValues(values);
-
-		// convert from "0" => 0
-		this.settings.width = parseInt(this.settings.width || ABViewCarouselPropertyComponentDefaults.width);
-		this.settings.height = parseInt(this.settings.height || ABViewCarouselPropertyComponentDefaults.height);
-		this.settings.showLabel = JSON.parse(this.settings.showLabel || ABViewCarouselPropertyComponentDefaults.showLabel);
-		this.settings.hideItem = JSON.parse(this.settings.hideItem || ABViewCarouselPropertyComponentDefaults.hideItem);
-		this.settings.hideButton = JSON.parse(this.settings.hideButton || ABViewCarouselPropertyComponentDefaults.hideButton);
-		this.settings.navigationType = this.settings.navigationType || ABViewCarouselPropertyComponentDefaults.navigationType;
-
-	}
-
-	get imageField() {
-		let dc = this.datacollection;
-		if (!dc) return null;
-
-		let obj = dc.datasource;
-		if (!obj) return null;
-
-		return obj.fields(f => f.id == this.settings.field)[0];
-
-	}
-
-}
+      return obj.fields((f) => f.id == this.settings.field)[0];
+   }
+};

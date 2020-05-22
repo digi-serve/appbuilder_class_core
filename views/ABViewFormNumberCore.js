@@ -1,77 +1,76 @@
 const ABViewFormComponent = require("../../platform/views/ABViewFormComponent");
 
 const ABViewFormNumberPropertyComponentDefaults = {
-	isStepper: 0
-}
+   isStepper: 0
+};
 
 const ABViewFormNumberDefaults = {
-	key: 'numberbox',		// {string} unique key for this view
-	icon: 'hashtag',		// {string} fa-[icon] reference for this view
-	labelKey: 'ab.components.number' // {string} the multilingual label key for the class label
-}
+   key: "numberbox", // {string} unique key for this view
+   icon: "hashtag", // {string} fa-[icon] reference for this view
+   labelKey: "ab.components.number" // {string} the multilingual label key for the class label
+};
 
 module.exports = class ABViewFormNumberCore extends ABViewFormComponent {
+   constructor(values, application, parent, defaultValues) {
+      super(
+         values,
+         application,
+         parent,
+         defaultValues || ABViewFormNumberDefaults
+      );
+   }
 
-	constructor(values, application, parent, defaultValues) {
+   static common() {
+      return ABViewFormNumberDefaults;
+   }
 
-		super(values, application, parent, defaultValues || ABViewFormNumberDefaults);
+   static defaultValues() {
+      return ABViewFormNumberPropertyComponentDefaults;
+   }
 
-	}
+   ///
+   /// Instance Methods
+   ///
 
-	static common() {
-		return ABViewFormNumberDefaults;
-	}
+   /**
+    * @method toObj()
+    *
+    * properly compile the current state of this ABViewFormText instance
+    * into the values needed for saving.
+    *
+    * @return {json}
+    */
+   toObj() {
+      this.application.unTranslate(this, this, ["label", "formLabel"]);
 
-	static defaultValues() {
-		return ABViewFormNumberPropertyComponentDefaults;
-	}
+      var obj = super.toObj();
+      obj.views = []; // no subviews
+      return obj;
+   }
 
-	///
-	/// Instance Methods
-	///
+   /**
+    * @method fromValues()
+    *
+    * initialze this object with the given set of values.
+    * @param {obj} values
+    */
+   fromValues(values) {
+      super.fromValues(values);
 
-	/**
-	 * @method toObj()
-	 *
-	 * properly compile the current state of this ABViewFormText instance
-	 * into the values needed for saving.
-	 *
-	 * @return {json}
-	 */
-	toObj() {
+      // if this is being instantiated on a read from the Property UI,
+      this.settings.isStepper =
+         this.settings.isStepper ||
+         ABViewFormNumberPropertyComponentDefaults.isStepper;
 
-		this.application.unTranslate(this, this, ['label', 'formLabel']);
+      // convert from "0" => 0
+      this.settings.isStepper = parseInt(this.settings.isStepper);
+   }
 
-		var obj = super.toObj();
-		obj.views = [];			// no subviews
-		return obj;
-	}
-
-
-	/**
-	 * @method fromValues()
-	 *
-	 * initialze this object with the given set of values.
-	 * @param {obj} values
-	 */
-	fromValues(values) {
-
-		super.fromValues(values);
-
-		// if this is being instantiated on a read from the Property UI,
-		this.settings.isStepper = this.settings.isStepper || ABViewFormNumberPropertyComponentDefaults.isStepper;
-
-		// convert from "0" => 0
-		this.settings.isStepper = parseInt(this.settings.isStepper);
-
-	}
-
-	/**
-	 * @method componentList
-	 * return the list of components available on this view to display in the editor.
-	 */
-	componentList() {
-		return [];
-	}
-
+   /**
+    * @method componentList
+    * return the list of components available on this view to display in the editor.
+    */
+   componentList() {
+      return [];
+   }
 };

@@ -1,100 +1,100 @@
 const ABView = require("../../platform/views/ABView");
 
 const ABViewFormButtonPropertyComponentDefaults = {
-	includeSave: true,
-	saveLabel: '',
-	includeCancel: false,
-	cancelLabel: '',
-	includeReset: false,
-	resetLabel: '',
-	afterCancel: null,
-	alignment: 'right',
-	isDefault: false	// mark default button of form widget
-}
+   includeSave: true,
+   saveLabel: "",
+   includeCancel: false,
+   cancelLabel: "",
+   includeReset: false,
+   resetLabel: "",
+   afterCancel: null,
+   alignment: "right",
+   isDefault: false // mark default button of form widget
+};
 
 const ABViewFormButtonDefaults = {
-	key: 'button',		// {string} unique key for this view
-	icon: 'square',		// {string} fa-[icon] reference for this view
-	labelKey: 'ab.components.button' // {string} the multilingual label key for the class label
-}
+   key: "button", // {string} unique key for this view
+   icon: "square", // {string} fa-[icon] reference for this view
+   labelKey: "ab.components.button" // {string} the multilingual label key for the class label
+};
 
 module.exports = class ABViewFormButtonCore extends ABView {
+   constructor(values, application, parent, defaultValues) {
+      super(
+         values,
+         application,
+         parent,
+         defaultValues || ABViewFormButtonDefaults
+      );
+   }
 
-	constructor(values, application, parent, defaultValues) {
+   static common() {
+      return ABViewFormButtonDefaults;
+   }
 
-		super(values, application, parent, defaultValues || ABViewFormButtonDefaults);
+   static defaultValues() {
+      return ABViewFormButtonPropertyComponentDefaults;
+   }
 
-	}
+   ///
+   /// Instance Methods
+   ///
 
-	static common() {
-		return ABViewFormButtonDefaults;
-	}
+   toObj() {
+      // labels are multilingual values:
+      let labels = [];
 
-	static defaultValues() {
-		return ABViewFormButtonPropertyComponentDefaults;
-	}
+      if (this.settings.saveLabel) labels.push("saveLabel");
 
+      if (this.settings.cancelLabel) labels.push("cancelLabel");
 
-	///
-	/// Instance Methods
-	///
+      if (this.settings.resetLabel) labels.push("resetLabel");
 
-	toObj() {
+      this.application.unTranslate(this.settings, this.settings, labels);
 
-		// labels are multilingual values:
-		let labels = [];
+      let result = super.toObj();
 
-		if (this.settings.saveLabel)
-			labels.push('saveLabel');
+      return result;
+   }
 
-		if (this.settings.cancelLabel)
-			labels.push('cancelLabel');
+   fromValues(values) {
+      super.fromValues(values);
 
-		if (this.settings.resetLabel)
-			labels.push('resetLabel');
+      // labels are multilingual values:
+      let labels = [];
 
-		this.application.unTranslate(this.settings, this.settings, labels);
+      if (this.settings.saveLabel) labels.push("saveLabel");
 
+      if (this.settings.cancelLabel) labels.push("cancelLabel");
 
-		let result = super.toObj();
+      if (this.settings.resetLabel) labels.push("resetLabel");
 
-		return result;
+      this.application.unTranslate(this.settings, this.settings, labels);
 
-	}
+      this.settings.includeSave = JSON.parse(
+         this.settings.includeSave ||
+            ABViewFormButtonPropertyComponentDefaults.includeSave
+      );
+      this.settings.includeCancel = JSON.parse(
+         this.settings.includeCancel ||
+            ABViewFormButtonPropertyComponentDefaults.includeCancel
+      );
+      this.settings.includeReset = JSON.parse(
+         this.settings.includeReset ||
+            ABViewFormButtonPropertyComponentDefaults.includeReset
+      );
 
-	fromValues(values) {
+      this.settings.isDefault = JSON.parse(
+         this.settings.isDefault ||
+            ABViewFormButtonPropertyComponentDefaults.isDefault
+      );
+   }
 
-		super.fromValues(values);
-
-		// labels are multilingual values:
-		let labels = [];
-
-		if (this.settings.saveLabel)
-			labels.push('saveLabel');
-
-		if (this.settings.cancelLabel)
-			labels.push('cancelLabel');
-
-		if (this.settings.resetLabel)
-			labels.push('resetLabel');
-
-		this.application.unTranslate(this.settings, this.settings, labels);
-
-
-		this.settings.includeSave = JSON.parse(this.settings.includeSave || ABViewFormButtonPropertyComponentDefaults.includeSave);
-		this.settings.includeCancel = JSON.parse(this.settings.includeCancel || ABViewFormButtonPropertyComponentDefaults.includeCancel);
-		this.settings.includeReset = JSON.parse(this.settings.includeReset || ABViewFormButtonPropertyComponentDefaults.includeReset);
-
-		this.settings.isDefault = JSON.parse(this.settings.isDefault || ABViewFormButtonPropertyComponentDefaults.isDefault);
-
-	}
-
-	/**
-	 * @method componentList
-	 * return the list of components available on this view to display in the editor.
-	 */
-	componentList() {
-		return [];
-	}
-
-}
+   /**
+    * @method componentList
+    * return the list of components available on this view to display in the editor.
+    */
+   componentList() {
+      return [];
+   }
+};

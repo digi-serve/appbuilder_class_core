@@ -1,75 +1,77 @@
 const ABViewContainer = require("../../platform/views/ABViewContainer");
 
 const ABViewDetailDefaults = {
-	key: 'detail',		// {string} unique key for this view
-	icon: 'file-text-o',		// {string} fa-[icon] reference for this view
-	labelKey: 'ab.components.detail' // {string} the multilingual label key for the class label
+   key: "detail", // {string} unique key for this view
+   icon: "file-text-o", // {string} fa-[icon] reference for this view
+   labelKey: "ab.components.detail" // {string} the multilingual label key for the class label
 };
 
 const ABViewDetailPropertyComponentDefaults = {
-	dataviewID: null,
-	showLabel: true,
-	labelPosition: 'left',
-	labelWidth: 120,
-	height: 0
+   dataviewID: null,
+   showLabel: true,
+   labelPosition: "left",
+   labelWidth: 120,
+   height: 0
 };
 
-
 module.exports = class ABViewDetailCore extends ABViewContainer {
+   /**
+    * @param {obj} values  key=>value hash of ABView values
+    * @param {ABApplication} application the application object this view is under
+    * @param {ABView} parent the ABView this view is a child of. (can be null)
+    */
+   constructor(values, application, parent, defaultValues) {
+      super(values, application, parent, defaultValues || ABViewDetailDefaults);
+   }
 
-	/**
-	 * @param {obj} values  key=>value hash of ABView values
-	 * @param {ABApplication} application the application object this view is under
-	 * @param {ABView} parent the ABView this view is a child of. (can be null)
-	 */
-	constructor(values, application, parent, defaultValues) {
+   static common() {
+      return ABViewDetailDefaults;
+   }
 
-		super(values, application, parent, (defaultValues || ABViewDetailDefaults));
+   static defaultValues() {
+      return ABViewDetailPropertyComponentDefaults;
+   }
 
-	}
+   /**
+    * @method fromValues()
+    *
+    * initialze this object with the given set of values.
+    * @param {obj} values
+    */
+   fromValues(values) {
+      super.fromValues(values);
 
-	static common() {
-		return ABViewDetailDefaults;
-	}
+      this.settings.labelPosition =
+         this.settings.labelPosition ||
+         ABViewDetailPropertyComponentDefaults.labelPosition;
 
-	static defaultValues() {
-		return ABViewDetailPropertyComponentDefaults;
-	}
+      // convert from "0" => true/false
+      this.settings.showLabel = JSON.parse(
+         this.settings.showLabel != null
+            ? this.settings.showLabel
+            : ABViewDetailPropertyComponentDefaults.showLabel
+      );
 
-	/**
-	 * @method fromValues()
-	 *
-	 * initialze this object with the given set of values.
-	 * @param {obj} values
-	 */
-	fromValues(values) {
+      // convert from "0" => 0
+      this.settings.labelWidth = parseInt(
+         this.settings.labelWidth ||
+            ABViewDetailPropertyComponentDefaults.labelWidth
+      );
+      this.settings.height = parseInt(
+         this.settings.height || ABViewDetailPropertyComponentDefaults.height
+      );
+   }
 
-		super.fromValues(values);
+   /**
+    * @method componentList
+    * return the list of components available on this view to display in the editor.
+    */
+   componentList() {
+      var viewsToAllow = ["label", "text"],
+         allComponents = this.application.viewAll();
 
-		this.settings.labelPosition = this.settings.labelPosition || ABViewDetailPropertyComponentDefaults.labelPosition;
-
-		// convert from "0" => true/false
-		this.settings.showLabel = JSON.parse(this.settings.showLabel != null ? this.settings.showLabel : ABViewDetailPropertyComponentDefaults.showLabel);
-
-		// convert from "0" => 0
-		this.settings.labelWidth = parseInt(this.settings.labelWidth);
-		this.settings.height = parseInt(this.settings.height);
-
-	}
-
-
-	/**
-	* @method componentList
-	* return the list of components available on this view to display in the editor.
-	*/
-	componentList() {
-		var viewsToAllow = ['label', 'text'],
-			allComponents = this.application.viewAll();
-
-		return allComponents.filter((c) => {
-			return viewsToAllow.indexOf(c.common().key) > -1;
-		});
-	}
-
-
+      return allComponents.filter((c) => {
+         return viewsToAllow.indexOf(c.common().key) > -1;
+      });
+   }
 };

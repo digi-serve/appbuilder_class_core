@@ -8,107 +8,99 @@
 var ABField = require("../../platform/dataFields/ABField");
 
 function L(key, altText) {
-	// TODO:
-	return altText; // AD.lang.label.getLabel(key) || altText;
+   // TODO:
+   return altText; // AD.lang.label.getLabel(key) || altText;
 }
 
 var ABFieldAutoIndexDefaults = {
-	key: 'AutoIndex', // unique key to reference this specific DataField
-	icon: 'key',   // font-awesome icon reference.  (without the 'fa-').  so 'user'  to reference 'fa-user'		
+   key: "AutoIndex", // unique key to reference this specific DataField
+   icon: "key", // font-awesome icon reference.  (without the 'fa-').  so 'user'  to reference 'fa-user'
 
-	// menuName: what gets displayed in the Editor drop list
-	menuName: L('ab.dataField.AutoIndex.menuName', '*Auto Index'),
+   // menuName: what gets displayed in the Editor drop list
+   menuName: L("ab.dataField.AutoIndex.menuName", "*Auto Index"),
 
-	// description: what gets displayed in the Editor description.
-	description: L('ab.dataField.AutoIndex.description', '*Auto Increment Value'),
-
+   // description: what gets displayed in the Editor description.
+   description: L("ab.dataField.AutoIndex.description", "*Auto Increment Value")
 };
 
 // defaultValues: the keys must match a .name of your elements to set it's default value.
 var defaultValues = {
-	displayLength: 4
-}
-
-/**
- * 
- * Private methods 
- * 
- */
-function getDelimiterSign(text) {
-	var delimiterItem = ABFieldAutoIndexCore.delimiterList().filter((item) => {
-		return item.id == text;
-	})[0];
-
-	return delimiterItem ? delimiterItem.sign : '';
-}
+   displayLength: 4
+};
 
 module.exports = class ABFieldAutoIndexCore extends ABField {
+   constructor(values, object) {
+      super(values, object, ABFieldAutoIndexDefaults);
+   }
 
-	constructor(values, object) {
-		super(values, object, ABFieldAutoIndexDefaults);
+   // return the default values for this DataField
+   static defaults() {
+      return ABFieldAutoIndexDefaults;
+   }
 
-	}
+   static defaultValues() {
+      return defaultValues;
+   }
 
-	// return the default values for this DataField
-	static defaults() {
-		return ABFieldAutoIndexDefaults;
-	}
+   static getDelimiterSign(text) {
+      var delimiterItem = this.delimiterList().filter((item) => {
+         return item.id == text;
+      })[0];
 
-	static defaultValues() {
-		return defaultValues;
-	}
+      return delimiterItem ? delimiterItem.sign : "";
+   }
 
-	static delimiterList() {
-		return [
-			{ id: 'comma', value: "Comma", sign: ", " },
-			{ id: 'slash', value: "Slash", sign: "/" },
-			{ id: 'space', value: "Space", sign: " " },
-			{ id: 'dash', value: "Dash", sign: "-" },
-			{ id: 'colon', value: "Colon", sign: ":" },
-		];
-	}
+   static delimiterList() {
+      return [
+         { id: "comma", value: "Comma", sign: ", " },
+         { id: "slash", value: "Slash", sign: "/" },
+         { id: "space", value: "Space", sign: " " },
+         { id: "dash", value: "Dash", sign: "-" },
+         { id: "colon", value: "Colon", sign: ":" }
+      ];
+   }
 
-	static setValueToIndex(prefix, delimiter, displayLength, displayNumber) {
-		var resultIndex = prefix + getDelimiterSign(delimiter) + ("0000000000" + displayNumber).slice(-parseInt(displayLength));
+   static setValueToIndex(prefix, delimiter, displayLength, displayNumber) {
+      var resultIndex =
+         prefix +
+         this.getDelimiterSign(delimiter) +
+         ("0000000000" + displayNumber).slice(-parseInt(displayLength));
 
-		return resultIndex;
-	}
+      return resultIndex;
+   }
 
+   fromValues(values) {
+      super.fromValues(values);
 
-	fromValues(values) {
+      // text to Int:
+      this.settings.displayLength = parseInt(this.settings.displayLength);
+   }
 
-		super.fromValues(values);
+   /**
+    * @method defaultValue
+    * insert a key=>value pair that represent the default value
+    * for this field.
+    * @param {obj} values a key=>value hash of the current values.
+    */
+   defaultValue(values) {
+      // Remove every values, then we will use AUTO_INCREMENT of MySQL
+      delete values[this.columnName];
+   }
 
-		// text to Int:
-		this.settings.displayLength = parseInt(this.settings.displayLength);
+   format(rowData) {
+      if (!rowData[this.columnName]) return "";
 
-	}
+      try {
+         var resultAutoIndex = this.constructor.setValueToIndex(
+            this.settings.prefix,
+            this.settings.delimiter,
+            this.settings.displayLength,
+            rowData[this.columnName]
+         );
 
-	/**
-	 * @method defaultValue
-	 * insert a key=>value pair that represent the default value
-	 * for this field.
-	 * @param {obj} values a key=>value hash of the current values.
-	 */
-	defaultValue(values) {
-		// Remove every values, then we will use AUTO_INCREMENT of MySQL
-		delete values[this.columnName];
-	}
-
-	format(rowData) {
-
-		if (!rowData[this.columnName])
-			return "";
-
-		try {
-			var resultAutoIndex = ABFieldAutoIndexCore.setValueToIndex(this.settings.prefix, this.settings.delimiter, this.settings.displayLength, rowData[this.columnName]);
-
-			return resultAutoIndex;
-		}
-		catch (err) {
-			return "";
-		}
-
-	}
-
-}
+         return resultAutoIndex;
+      } catch (err) {
+         return "";
+      }
+   }
+};
