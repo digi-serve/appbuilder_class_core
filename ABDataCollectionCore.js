@@ -1859,4 +1859,3 @@ module.exports = class ABViewDataCollectionCore extends ABEmitter {
       }
    }
 };
-

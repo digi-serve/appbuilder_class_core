@@ -298,7 +298,7 @@ module.exports = class ABObjectCore extends ABMLClass {
     * @param {object} filter
     * @return {array} - An array of ABObject
     */
-   objectLinks(filter) {
+   objectLinks(/* filter */) {
       var connectFields = this.connectFields();
 
       return connectFields.map((f) => f.datasourceLink);
@@ -356,6 +356,20 @@ module.exports = class ABObjectCore extends ABMLClass {
     */
    connectFields(getAll = false) {
       return this.fields((f) => f && f.key == "connectObject", getAll);
+   }
+
+   /**
+    * @method indexFields()
+    *
+    * return an array of the ABFieldConnect.
+    *
+    * @return {array}
+    */
+   indexFields(getAll = false) {
+      return this.fields(
+         (f) => f && (f.key == "AutoIndex" || f.key == "customIndex"),
+         getAll
+      );
    }
 
    /**
@@ -678,7 +692,7 @@ module.exports = class ABObjectCore extends ABMLClass {
     * @param {obj} data a key=>value hash of the inputs to parse.
     * @return {array}
     */
-   isValidData(data) {
+   isValidData(/* data */) {
       // NOTE: the platform needs to define a way to verify the data
       console.warn("Platform.ABObject.isValidData() missing");
       return true;

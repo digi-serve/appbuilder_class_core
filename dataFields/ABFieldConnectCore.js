@@ -52,12 +52,16 @@ var defaultValues = {
    // the .id of the field in the linkedObject that is our
    // connected field.
 
-   isSource: null // bit : 1,0
+   isSource: null, // bit : 1,0
    // isSource indicates that this object is the source of the connection:
    // if linkType==one, and isSource=1, then the value in this object's field
    // 		is the connected object's id
    // if linkType == one, and isSource = 0, then the linkObject has this obj.id
    //  	in it's connected field (linkColumn)
+
+   isCustomFK: 0,
+   indexField: "", // ABField.id
+   indexField2: "" // ABField.id
 };
 
 module.exports = class ABFieldConnectCore extends ABFieldSelectivity {
@@ -66,6 +70,7 @@ module.exports = class ABFieldConnectCore extends ABFieldSelectivity {
 
       // text to Int:
       this.settings.isSource = parseInt(this.settings.isSource || 0);
+      this.settings.isCustomFK = parseInt(this.settings.isCustomFK || 0);
    }
 
    // return the default values for this DataField
@@ -86,6 +91,7 @@ module.exports = class ABFieldConnectCore extends ABFieldSelectivity {
 
       // text to Int:
       this.settings.isSource = parseInt(this.settings.isSource || 0);
+      this.settings.isCustomFK = parseInt(this.settings.isCustomFK || 0);
    }
 
    ///
@@ -251,5 +257,94 @@ module.exports = class ABFieldConnectCore extends ABFieldSelectivity {
     */
    isSource() {
       return this.settings.isSource;
+   }
+
+   /**
+    * @property indexField
+    * @return {ABField}
+    */
+   get indexField() {
+      if (!this.settings.isCustomFK || !this.settings.indexField) {
+         return null;
+      }
+
+      // 1:M
+      if (
+         this.settings.linkType == "one" &&
+         this.settings.linkViaType == "many"
+      ) {
+         return this.datasourceLink.fields(
+            (f) => f.id == this.settings.indexField
+         )[0];
+      }
+      // 1:1
+      else if (
+         this.settings.linkType == "one" &&
+         this.settings.linkViaType == "one"
+      ) {
+         if (this.settings.isSource) {
+            return this.datasourceLink.fields(
+               (f) => f.id == this.settings.indexField
+            )[0];
+         } else {
+            return this.object.fields(
+               (f) => f.id == this.settings.indexField
+            )[0];
+         }
+      }
+      // M:1
+      else if (
+         this.settings.linkType == "many" &&
+         this.settings.linkViaType == "one"
+      ) {
+         return this.object.fields((f) => f.id == this.settings.indexField)[0];
+      }
+      // M:N
+      else if (
+         this.settings.linkType == "many" &&
+         this.settings.linkViaType == "many"
+      ) {
+         let indexField = this.object.fields(
+            (f) => f.id == this.settings.indexField
+         )[0];
+
+         if (indexField == null)
+            indexField = this.datasourceLink.fields(
+               (f) => f.id == this.settings.indexField
+            )[0];
+
+         return indexField;
+      }
+
+      return null;
+   }
+
+   /**
+    * @property indexField2
+    * @return {ABField}
+    */
+   get indexField2() {
+      if (!this.settings.isCustomFK || !this.settings.indexField2) {
+         return null;
+      }
+
+      let indexField;
+
+      // M:N only
+      if (
+         this.settings.linkType == "many" &&
+         this.settings.linkViaType == "many"
+      ) {
+         indexField = this.object.fields(
+            (f) => f.id == this.settings.indexField2
+         )[0];
+
+         if (indexField == null)
+            indexField = this.datasourceLink.fields(
+               (f) => f.id == this.settings.indexField2
+            )[0];
+      }
+
+      return indexField;
    }
 };
