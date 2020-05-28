@@ -93,6 +93,10 @@ module.exports = class ABObjectCore extends ABEmitter {
       this.importFromObject = attributes.importFromObject || "";
       this.translations = attributes.translations;
 
+      // knex does not like .(dot) in table and column names
+      // https://github.com/knex/knex/issues/2762
+      this.tableName = this.tableName.replace(/[^a-zA-Z0-9_ ]/gi, "");
+
       if (attributes.isSystemObject)
          this.isSystemObject = attributes.isSystemObject;
       else delete this.isSystemObject;
@@ -648,3 +652,4 @@ module.exports = class ABObjectCore extends ABEmitter {
       return cloneOne;
    }
 };
+
