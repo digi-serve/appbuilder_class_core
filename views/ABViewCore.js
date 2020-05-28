@@ -9,6 +9,30 @@
 
 const ABEmitter = require("../../platform/ABEmitter");
 
+// HACK:: this was added to enforce sequential saves to Views stored in Arango
+// once we move to ABDefinitions, this should not be necessary anymore.
+// ==> convert .updateAccessLevels() to return this.save(false, false);
+var __AccessLevelUpdates = [];
+var __statusUpdatesRunning = false;
+function processAccessLevelUpdates() {
+   // if already running, just return
+   if (__statusUpdatesRunning) return;
+   __statusUpdatesRunning = true;
+
+   // else get next entry
+   var entry = __AccessLevelUpdates.shift();
+   if (entry) {
+      // if entry
+      // entry.save() then processAccessLevelUpdates
+      entry.save(false, false).then(() => {
+         __statusUpdatesRunning = false;
+         processAccessLevelUpdates();
+      });
+   } else {
+      __statusUpdatesRunning = false;
+   }
+}
+
 const ABViewDefaults = {
    key: "view", // {string} unique key for this view
    icon: "window-maximize", // {string} fa-[icon] reference for this view
@@ -303,6 +327,34 @@ module.exports = class ABViewCore extends ABEmitter {
    }
 
    ///
+   /// Update Access accessLevels
+   ///
+
+   /**
+    * @method updateAccessLevels()
+    *
+    *
+    * @param {string} roleId
+    *
+    * @param {string} accessLevel
+    *
+    * @return {Promise}
+    *
+    */
+   updateAccessLevels(roleId, accessLevel) {
+      if (parseInt(accessLevel) == 0) {
+         if (this.accessLevels[roleId]) delete this.accessLevels[roleId];
+      } else {
+         this.accessLevels[roleId] = accessLevel;
+      }
+
+      __AccessLevelUpdates.push(this);
+      processAccessLevelUpdates();
+      // return this.save(false, false);
+      return Promise.resolve();
+   }
+
+   ///
    /// Views
    ///
 
@@ -460,10 +512,12 @@ module.exports = class ABViewCore extends ABEmitter {
     *
     * @param includeSubViews {Boolean}
     *
+    * @param ignoreUiUpdate {Boolean}
+    *
     * @return {Promise}
     *						.resolve( {this} )
     */
-   save(includeSubViews = false) {
+   save(includeSubViews = false, updateUi = true) {
       return new Promise((resolve, reject) => {
          // // if this is our initial save()
          // if (!this.id) {
@@ -485,7 +539,7 @@ module.exports = class ABViewCore extends ABEmitter {
          }
 
          this.application
-            .viewSave(this, includeSubViews)
+            .viewSave(this, includeSubViews, updateUi)
             .then(() => {
                // persist the current ABViewPage in our list of ._pages.
                let parent = this.parent || this.application;
