@@ -304,7 +304,7 @@ module.exports = class ABFieldDateCore extends ABField {
          var value = data[this.columnName];
 
          if (!(value instanceof Date)) {
-            value = new Date(moment(value));
+            value = new Date(this.convertToMoment(value));
          }
 
          // verify we didn't end up with an InValid Date result.
@@ -481,11 +481,11 @@ module.exports = class ABFieldDateCore extends ABField {
             if (isValid) {
                // all good, so store as ISO format string.
                if (this.settings.timeFormat == 1) {
-                  data[this.columnName] = moment(value).format(
+                  data[this.columnName] = this.convertToMoment(value).format(
                      "YYYY-MM-DD 00:00:00"
                   );
                } else {
-                  data[this.columnName] = moment(value).format(
+                  data[this.columnName] = this.convertToMoment(value).format(
                      "YYYY-MM-DD HH:mm:ss"
                   );
                }
@@ -507,10 +507,29 @@ module.exports = class ABFieldDateCore extends ABField {
       // convert ISO string -> Date() -> our formatted string
 
       // pull format from settings.
-      return getDateDisplay(new Date(moment(d)), this.settings);
+      let momentObj = this.convertToMoment(d);
+      return getDateDisplay(new Date(momentObj), this.settings);
    }
 
    getFormat() {
       return getDateFormat(this.settings);
    }
+
+   convertToMoment(string) {
+      let result = moment(string);
+
+      let supportFormats = [
+         "DD/MM/YYYY",
+         "MM/DD/YYYY",
+         "DD-MM-YYYY",
+         "MM-DD-YYYY"
+      ];
+
+      supportFormats.forEach((format) => {
+         if (!result || !result.isValid()) result = moment(string, format);
+      });
+
+      return result;
+   }
 };
+
