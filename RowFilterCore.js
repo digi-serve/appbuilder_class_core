@@ -4,15 +4,32 @@ const ABObjectQuery = require("../platform/ABObjectQuery");
 /**
  *  support get data from objects and queries
  */
-function getFieldVal(rowData, columnName) {
-   if (!columnName) return null;
+function getFieldVal(rowData, field) {
+   if (!field) return null;
+   if (!field.columnName) return null;
+   var columnName = field.columnName;
 
+   var value = null;
    if (columnName.indexOf(".") > -1) {
       let colName = columnName.split(".")[1];
-      return rowData[columnName] || rowData[colName];
+      value = rowData[columnName] || rowData[colName];
    } else {
-      return rowData[columnName];
+      value = rowData[columnName];
    }
+
+   if (value) {
+      return value;
+   }
+
+   // otherwise, this might be a process check where the rowData keys have
+   // '[diagramID].[field.id]'
+   for (var k in rowData) {
+      var key = k.split(".")[1];
+      if (key && key == field.id) {
+         value = rowData[k];
+      }
+   }
+   return value;
 }
 
 module.exports = class RowFilter extends ABComponent {
@@ -61,10 +78,10 @@ module.exports = class RowFilter extends ABComponent {
             return div.textContent || div.innerText || "";
          },
 
-         textValid: function(rowData, columnName, rule, compareValue) {
+         textValid: function(rowData, field, rule, compareValue) {
             var result = false;
 
-            var value = getFieldVal(rowData, columnName);
+            var value = getFieldVal(rowData, field);
             if (value == null) value = "";
 
             value = value.trim().toLowerCase();
@@ -117,10 +134,10 @@ module.exports = class RowFilter extends ABComponent {
             return result;
          },
 
-         dateValid: function(rowData, columnName, rule, compareValue) {
+         dateValid: function(rowData, field, rule, compareValue) {
             var result = false;
 
-            var value = getFieldVal(rowData, columnName);
+            var value = getFieldVal(rowData, field);
             if (!(value instanceof Date)) value = new Date(value);
 
             if (!(compareValue instanceof Date))
@@ -147,10 +164,10 @@ module.exports = class RowFilter extends ABComponent {
             return result;
          },
 
-         numberValid: function(rowData, columnName, rule, compareValue) {
+         numberValid: function(rowData, field, rule, compareValue) {
             var result = false;
 
-            var value = getFieldVal(rowData, columnName);
+            var value = getFieldVal(rowData, field);
             value = Number(value);
             compareValue = Number(compareValue);
 
@@ -181,10 +198,10 @@ module.exports = class RowFilter extends ABComponent {
             return result;
          },
 
-         listValid: function(rowData, columnName, rule, compareValue) {
+         listValid: function(rowData, field, rule, compareValue) {
             var result = false;
 
-            var value = getFieldVal(rowData, columnName);
+            var value = getFieldVal(rowData, field);
 
             compareValue = compareValue.toLowerCase();
 
@@ -206,10 +223,10 @@ module.exports = class RowFilter extends ABComponent {
             return result;
          },
 
-         booleanValid: function(rowData, columnName, rule, compareValue) {
+         booleanValid: function(rowData, field, rule, compareValue) {
             var result = false;
 
-            var value = getFieldVal(rowData, columnName);
+            var value = getFieldVal(rowData, field);
 
             switch (rule) {
                case "equals":
@@ -223,10 +240,10 @@ module.exports = class RowFilter extends ABComponent {
             return result;
          },
 
-         userValid: (rowData, columnName, rule, compareValue) => {
+         userValid: (rowData, field, rule, compareValue) => {
             var result = false;
 
-            var value = getFieldVal(rowData, columnName);
+            var value = getFieldVal(rowData, field);
 
             // if (Array.isArray(value)) value = [value];
 
@@ -368,7 +385,8 @@ module.exports = class RowFilter extends ABComponent {
             return result;
          },
 
-         connectFieldValid: function(rowData, columnName, rule, compareValue) {
+         connectFieldValid: function(rowData, field, rule, compareValue) {
+            var columnName = field.relationName();
             switch (rule) {
                case "contains":
                   return (
@@ -411,12 +429,7 @@ module.exports = class RowFilter extends ABComponent {
                case "is_not_current_user":
                case "contain_current_user":
                case "not_contain_current_user":
-                  return _logic.userValid(
-                     rowData,
-                     columnName,
-                     rule,
-                     compareValue
-                  );
+                  return _logic.userValid(rowData, field, rule, compareValue);
                   break;
                case "in_data_collection":
                case "not_in_data_collection":
@@ -550,7 +563,7 @@ module.exports = class RowFilter extends ABComponent {
             case "email":
                condResult = _logic.textValid(
                   rowData,
-                  fieldInfo.columnName,
+                  fieldInfo,
                   filter.rule,
                   filter.value
                );
@@ -559,7 +572,7 @@ module.exports = class RowFilter extends ABComponent {
             case "datetime":
                condResult = _logic.dateValid(
                   rowData,
-                  fieldInfo.columnName,
+                  fieldInfo,
                   filter.rule,
                   filter.value
                );
@@ -567,7 +580,7 @@ module.exports = class RowFilter extends ABComponent {
             case "number":
                condResult = _logic.numberValid(
                   rowData,
-                  fieldInfo.columnName,
+                  fieldInfo,
                   filter.rule,
                   filter.value
                );
@@ -575,7 +588,7 @@ module.exports = class RowFilter extends ABComponent {
             case "list":
                condResult = _logic.listValid(
                   rowData,
-                  fieldInfo.columnName,
+                  fieldInfo,
                   filter.rule,
                   filter.value
                );
@@ -583,7 +596,7 @@ module.exports = class RowFilter extends ABComponent {
             case "boolean":
                condResult = _logic.booleanValid(
                   rowData,
-                  fieldInfo.columnName,
+                  fieldInfo,
                   filter.rule,
                   filter.value
                );
@@ -591,7 +604,7 @@ module.exports = class RowFilter extends ABComponent {
             case "user":
                condResult = _logic.userValid(
                   rowData,
-                  fieldInfo.columnName,
+                  fieldInfo,
                   filter.rule,
                   filter.value
                );
@@ -600,7 +613,7 @@ module.exports = class RowFilter extends ABComponent {
             case "connectObject":
                condResult = _logic.connectFieldValid(
                   rowData,
-                  fieldInfo.relationName(),
+                  fieldInfo,
                   filter.rule,
                   filter.value
                );
