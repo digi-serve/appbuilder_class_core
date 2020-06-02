@@ -242,6 +242,27 @@ module.exports = class ABViewCore extends ABEmitter {
    }
 
    /**
+    * @method getUserAccess()
+    *
+    * return the access level of the current user on the current view
+    *
+    * @return {integer}  // 0 = No Access // 1 = Read Only // 2 = Full Access
+    */
+   getUserAccess() {
+      var accessLevel = 0;
+      if (this.accessLevels) {
+         this.application.userRoles().forEach((role) => {
+            if (
+               this.accessLevels[role.id] &&
+               parseInt(this.accessLevels[role.id]) > accessLevel
+            )
+               accessLevel = parseInt(this.accessLevels[role.id]);
+         });
+      }
+      return accessLevel;
+   }
+
+   /**
     * @method parentFormComponent
     * return the closest form object this component is on.
     */
