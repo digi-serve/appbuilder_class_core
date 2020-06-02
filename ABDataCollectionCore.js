@@ -1752,8 +1752,10 @@ module.exports = class ABViewDataCollectionCore extends ABEmitter {
    isValidData(rowData) {
       let result = true;
 
-      if (this.__filterDatasource)
-         result = result && this.__filterDatasource.isValid(rowData);
+      // NOTE: should we use filter of the current view of object to filter
+      //        if yes, update .wheres condition in .loadData too
+      // if (this.__filterDatasource)
+      //    result = result && this.__filterDatasource.isValid(rowData);
 
       if (this.__filterDatacollection)
          result = result && this.__filterDatacollection.isValid(rowData);
@@ -1859,3 +1861,4 @@ module.exports = class ABViewDataCollectionCore extends ABEmitter {
       }
    }
 };
+
