@@ -93,15 +93,14 @@ module.exports = class ABApplicationCore extends ABMLClass {
       //   		newQueries.push( this.queryNew(query) );
       //   	}
       //  	})
-      debugger;
-      this._queries = [];
+
+      // this._queries = [];
       this.queryIDs = attributes.json.queryIDs || [];
       (this.queriesAll() || attributes.json.queries || []).forEach((q) => {
-         if (q instanceof ABQuery) {
-            this._queries.push(q);
-         } else {
-            this._queries.push(this.queryNew(q));
-         }
+         // The  Platform ABApplication manages all our live Query Objects
+         // we no longer need to track them internally
+         //// TODO: consider remove this.queriesAll() during our constructor.
+         //// no need for it now since this.queries() already references it.
       });
 
       // Transition:
