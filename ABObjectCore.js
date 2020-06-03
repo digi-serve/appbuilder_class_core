@@ -124,6 +124,9 @@ module.exports = class ABObjectCore extends ABMLClass {
       // {string} .tableName
       // the `{database}.{tableName}` of the db table that this ABObject's data
       // is stored in.
+      // knex does not like .(dot) in table and column names
+      // https://github.com/knex/knex/issues/2762
+      this.tableName = this.tableName.replace(/[^a-zA-Z0-9_ ]/gi, "");
 
       this.primaryColumnName = attributes.primaryColumnName || ""; // NOTE: store column name of PK
       // {string} .primaryColumnName

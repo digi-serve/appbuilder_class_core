@@ -241,7 +241,11 @@ module.exports = class ABFieldNumberCore extends ABField {
    }
 
    format(rowData) {
-      var data = rowData[this.columnName] || 0;
+      let data = rowData[this.columnName] || 0;
+
+      if (typeof data == "string") {
+         data = data.replace(/,/g, "");
+      }
 
       // Validate number
       if (isNaN(parseFloat(data))) data = 0;
@@ -300,3 +304,4 @@ module.exports = class ABFieldNumberCore extends ABField {
          );
    }
 };
+

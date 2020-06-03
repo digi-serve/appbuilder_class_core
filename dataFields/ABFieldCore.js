@@ -218,6 +218,10 @@ module.exports = class ABFieldCore extends ABMLClass {
 
       this.columnName = values.columnName || "";
 
+      // knex does not like .(dot) in table and column names
+      // https://github.com/knex/knex/issues/2762
+      this.columnName = this.columnName.replace(/[^a-zA-Z0-9_ ]/gi, "");
+
       this.isImported = values.isImported || 0;
 
       values.settings = values.settings || {};

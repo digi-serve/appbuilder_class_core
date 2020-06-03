@@ -199,6 +199,11 @@ module.exports = class ABFieldCalculateCore extends ABField {
                "#calVal#",
                f.format(rowData) || 0
             );
+
+            // pull number only
+            if (typeof calVal == "string")
+               calVal = calVal.replace(/[^0-9.]/g, "");
+
             formula = formula.replace(
                new RegExp("{" + colName + "}", "g"),
                calVal
@@ -275,4 +280,5 @@ module.exports = class ABFieldCalculateCore extends ABField {
       }
    }
 };
+
 
