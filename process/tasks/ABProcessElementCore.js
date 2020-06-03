@@ -314,6 +314,24 @@ module.exports = class ABProcessTaskCore extends ABMLClass {
    }
 
    /**
+    * hashProcessDataValues()
+    * return a hash of live Process Data Values
+    * @param {obj} instance
+    * @return {array} | null
+    */
+   hashProcessDataValues(instance) {
+      var listDataFields = this.process.processDataFields(this);
+      var currentProcessValues = {};
+      listDataFields.forEach((f) => {
+         currentProcessValues[f.key] = this.process.processData(this, [
+            instance,
+            f.key
+         ]);
+      });
+      return currentProcessValues;
+   }
+
+   /**
     * reset()
     * prepare this task to run again if it was already completed.
     *

@@ -93,6 +93,10 @@ module.exports = class ABObjectCore extends ABEmitter {
       this.importFromObject = attributes.importFromObject || "";
       this.translations = attributes.translations;
 
+      // knex does not like .(dot) in table and column names
+      // https://github.com/knex/knex/issues/2762
+      this.tableName = this.tableName.replace(/[^a-zA-Z0-9_ ]/gi, "");
+
       if (attributes.isSystemObject)
          this.isSystemObject = attributes.isSystemObject;
       else delete this.isSystemObject;
@@ -209,7 +213,7 @@ module.exports = class ABObjectCore extends ABEmitter {
     * @param {object} filter
     * @return {array} - An array of ABObject
     */
-   objectLinks(filter) {
+   objectLinks(/* filter */) {
       var connectFields = this.connectFields();
 
       return connectFields.map((f) => f.datasourceLink);
@@ -577,7 +581,7 @@ module.exports = class ABObjectCore extends ABEmitter {
     * @param {obj} data a key=>value hash of the inputs to parse.
     * @return {array}
     */
-   isValidData(data) {
+   isValidData(/* data */) {
       // NOTE: the platform needs to define a way to verify the data
       console.warn("Platform.ABObject.isValidData() missing");
       return true;
@@ -648,3 +652,4 @@ module.exports = class ABObjectCore extends ABEmitter {
       return cloneOne;
    }
 };
+

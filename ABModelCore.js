@@ -5,11 +5,11 @@
 //
 // to use an ABModel to load a DataTable:
 // Method 1:
-// 	gather all the data externally and send to the DataTable
-//		Model.findAll()
-//		.then((data)=>{
-//			DataTable.parse(data);
-//		})
+//  gather all the data externally and send to the DataTable
+//    Model.findAll()
+//    .then((data)=>{
+//      DataTable.parse(data);
+//    })
 //
 
 module.exports = class ABModelCore {
@@ -84,25 +84,25 @@ module.exports = class ABModelCore {
    //  */
    // create(values) {
 
-   // 	this.prepareMultilingualData(values);
+   //   this.prepareMultilingualData(values);
 
-   // 	var params = {
-   // 		url: this.object.urlRest(),
-   // 		params: values
-   // 	}
-   // 	return this.request('post', params)
-   // 		.then((data) => {
+   //   var params = {
+   //     url: this.object.urlRest(),
+   //     params: values
+   //   }
+   //   return this.request('post', params)
+   //     .then((data) => {
 
-   // 			this.normalizeData(data);
+   //       this.normalizeData(data);
 
-   // 			return data;
+   //       return data;
 
-   // 			// FIX: now with sockets, the triggers are fired from socket updates.
-   // 			// trigger a create event
-   // 			// triggerEvent('create', this.object, data);
+   //       // FIX: now with sockets, the triggers are fired from socket updates.
+   //       // trigger a create event
+   //       // triggerEvent('create', this.object, data);
 
-   // 		})
-   // 		.catch(reject);
+   //     })
+   //     .catch(reject);
 
    // }
 
@@ -114,58 +114,58 @@ module.exports = class ABModelCore {
     */
    // delete(id) {
 
-   // 	var params = {
-   // 		url: this.object.urlRestItem(id)
-   // 	}
-   // 	return this.request('delete', params)
-   // 		.then((data) => {
+   //   var params = {
+   //     url: this.object.urlRestItem(id)
+   //   }
+   //   return this.request('delete', params)
+   //     .then((data) => {
 
-   // 			return data;
+   //       return data;
 
-   // 			// FIX: now with sockets, the triggers are fired from socket updates.
-   // 			// trigger a delete event
-   // 			// triggerEvent('delete', this.object, id);
+   //       // FIX: now with sockets, the triggers are fired from socket updates.
+   //       // trigger a delete event
+   //       // triggerEvent('delete', this.object, id);
 
-   // 		})
+   //     })
    // }
 
    /**
     * @method findAll
     * performs a data find with the provided condition.
     */
-   // 	findAll(cond) {
+   //   findAll(cond) {
 
-   // 		cond = cond || {};
+   //     cond = cond || {};
 
-   // 		var params = {
-   // 			url: this.object.urlRest(),
-   // 			params: cond
-   // 		}
-   // 		return this.request('get', params)
-   // 			.then((data) => {
+   //     var params = {
+   //       url: this.object.urlRest(),
+   //       params: cond
+   //     }
+   //     return this.request('get', params)
+   //       .then((data) => {
 
-   // 				this.normalizeData(data.data);
+   //         this.normalizeData(data.data);
 
-   // 				resolve(data);
-   // 			})
-   // 			.catch((err) => {
+   //         resolve(data);
+   //       })
+   //       .catch((err) => {
    // /// TODO: this should be done in platform/ABModel:
-   // 				// if (err && err.code) {
-   // 				// 	switch(err.code) {
-   // 				// 		case "ER_PARSE_ERROR":
-   // 				// 			OP.Error.log('AppBuilder:ABModel:findAll(): Parse Error with provided condition', { error: err, condition:cond })
-   // 				// 			break;
+   //         // if (err && err.code) {
+   //         //  switch(err.code) {
+   //         //    case "ER_PARSE_ERROR":
+   //         //      OP.Error.log('AppBuilder:ABModel:findAll(): Parse Error with provided condition', { error: err, condition:cond })
+   //         //      break;
 
-   // 				// 		default:
-   // 				// 			OP.Error.log('AppBuilder:ABModel:findAll(): Unknown Error with provided condition', { error: err, condition:cond })
-   // 				// 			break;
-   // 				// 	}
+   //         //    default:
+   //         //      OP.Error.log('AppBuilder:ABModel:findAll(): Unknown Error with provided condition', { error: err, condition:cond })
+   //         //      break;
+   //         //  }
 
-   // 				// }
+   //         // }
    // console.error(err);
-   // 			})
+   //       })
 
-   // 	}
+   //   }
 
    urlParamsCreate(values) {
       return {
@@ -224,32 +224,32 @@ module.exports = class ABModelCore {
      * return the connected data associated with an instance of this model.
      *
      * to limit the result to only a single connected column:
-     * 		model.findConnected( 'col1', {data})
-     *		then ((data) => {
-     *			// data = [{obj1}, {obj2}, ... {objN}]
-     *		})
+     *    model.findConnected( 'col1', {data})
+     *    then ((data) => {
+     *      // data = [{obj1}, {obj2}, ... {objN}]
+     *    })
      *
      * To find >1 connected field data:
-     *		model.findConnected( ['col1', 'col2'], {data} )
-     *		.then((data) =>{
-     *		
-     *			// data = {
-     *			//	   col1 : [{obj1}, {obj2}, ... {objN}],
-     *			//     col2 : [{obj1}, {obj2}, ... {objN}]
-     *			// }
-     *		})
+     *    model.findConnected( ['col1', 'col2'], {data} )
+     *    .then((data) =>{
+     *    
+     *      // data = {
+     *      //     col1 : [{obj1}, {obj2}, ... {objN}],
+     *      //     col2 : [{obj1}, {obj2}, ... {objN}]
+     *      // }
+     *    })
      *
      * To find all connected field data:
-     *		model.findConnected( {data} )
-     *		.then((data) =>{
-     *		
-     *			// data = {
-     *			//	   connectedColName1 : [{obj1}, {obj2}, ... {objN}],
-     *			//     connectedColName2 : [{obj1}, {obj2}, ... {objN}],
-     *			//		...
-     *			//     connectedColNameN : [{obj1}, {obj2}, ... {objN}]
-     *			// }
-     *		})
+     *    model.findConnected( {data} )
+     *    .then((data) =>{
+     *    
+     *      // data = {
+     *      //     connectedColName1 : [{obj1}, {obj2}, ... {objN}],
+     *      //     connectedColName2 : [{obj1}, {obj2}, ... {objN}],
+     *      //    ...
+     *      //     connectedColNameN : [{obj1}, {obj2}, ... {objN}]
+     *      // }
+     *    })
 
      * @param {string/array} fields  [optional] an array of connected fields you want to return.
      * @param {obj} data  the current object instance (data) to lookup
@@ -329,84 +329,84 @@ module.exports = class ABModelCore {
    //  */
    // loadInto(DT) {
 
-   // 	// if a limit was applied, then this component should be loading dynamically
-   // 	if (this._limit) {
+   //   // if a limit was applied, then this component should be loading dynamically
+   //   if (this._limit) {
 
-   // 		DT.define('datafetch', this._limit);
-   // 		DT.define('datathrottle', 250);  // 250ms???
+   //     DT.define('datafetch', this._limit);
+   //     DT.define('datathrottle', 250);  // 250ms???
 
-   // 		// catch the event where data is requested:
-   // 		// here we will do our own findAll() so we can persist
-   // 		// the provided .where condition.
+   //     // catch the event where data is requested:
+   //     // here we will do our own findAll() so we can persist
+   //     // the provided .where condition.
 
-   // 		// oh yeah, and make sure to remove any existing event handler when we
-   // 		// perform a new .loadInto()
-   // 		DT.___AD = DT.___AD || {};
-   // 		if (DT.___AD.onDataRequestEvent) {
-   // 			DT.detachEvent(DT.___AD.onDataRequestEvent);
-   // 		}
-   // 		DT.___AD.onDataRequestEvent = DT.attachEvent("onDataRequest", (start, count) => {
+   //     // oh yeah, and make sure to remove any existing event handler when we
+   //     // perform a new .loadInto()
+   //     DT.___AD = DT.___AD || {};
+   //     if (DT.___AD.onDataRequestEvent) {
+   //       DT.detachEvent(DT.___AD.onDataRequestEvent);
+   //     }
+   //     DT.___AD.onDataRequestEvent = DT.attachEvent("onDataRequest", (start, count) => {
 
-   // 			var cond = {
-   // 				where: this._where,
-   // 				sort: this._sort,
-   // 				limit: count,
-   // 				skip: start
-   // 			}
+   //       var cond = {
+   //         where: this._where,
+   //         sort: this._sort,
+   //         limit: count,
+   //         skip: start
+   //       }
 
-   // 			if (DT.showProgress)
-   // 				DT.showProgress({ type: "icon" });
+   //       if (DT.showProgress)
+   //         DT.showProgress({ type: "icon" });
 
-   // 			this.findAll(cond)
-   // 				.then((data) => {
-   // 					data.data.forEach((item) => {
-   // 						if (item.properties != null && item.properties.height != "undefined" && parseInt(item.properties.height) > 0) {
-   // 							item.$height = parseInt(item.properties.height);
-   // 						} else if (parseInt(this._where.height) > 0) {
-   // 							item.$height = parseInt(this._where.height)
-   // 						}
-   // 					});
-   // 					DT.parse(data);
+   //       this.findAll(cond)
+   //         .then((data) => {
+   //           data.data.forEach((item) => {
+   //             if (item.properties != null && item.properties.height != "undefined" && parseInt(item.properties.height) > 0) {
+   //               item.$height = parseInt(item.properties.height);
+   //             } else if (parseInt(this._where.height) > 0) {
+   //               item.$height = parseInt(this._where.height)
+   //             }
+   //           });
+   //           DT.parse(data);
 
-   // 					if (DT.hideProgress)
-   // 						DT.hideProgress();
+   //           if (DT.hideProgress)
+   //             DT.hideProgress();
 
-   // 				})
+   //         })
 
-   // 			return false;	// <-- prevent the default "onDataRequest"
-   // 		});
+   //       return false; // <-- prevent the default "onDataRequest"
+   //     });
 
-   // 		DT.refresh();
-   // 	}
+   //     DT.refresh();
+   //   }
 
-   // 	// else just load it all at once:
-   // 	var cond = {};
-   // 	if (this._where) cond.where = this._where;
-   // 	if (this._sort) cond.sort = this._sort;
-   // 	if (this._limit != null) cond.limit = this._limit;
-   // 	if (this._skip != null) cond.skip = this._skip;
+   //   // else just load it all at once:
+   //   var cond = {};
+   //   if (this._where) cond.where = this._where;
+   //   if (this._sort) cond.sort = this._sort;
+   //   if (this._limit != null) cond.limit = this._limit;
+   //   if (this._skip != null) cond.skip = this._skip;
 
-   // 	if (DT.showProgress)
-   // 		DT.showProgress({ type: "icon" });
+   //   if (DT.showProgress)
+   //     DT.showProgress({ type: "icon" });
 
-   // 	this.findAll(cond)
-   // 		.then((data) => {
-   // 			data.data.forEach((item) => {
-   // 				if (item.properties != null && item.properties.height != "undefined" && parseInt(item.properties.height) > 0) {
-   // 					item.$height = parseInt(item.properties.height);
-   // 				} else if (parseInt(this._where.height) > 0) {
-   // 					item.$height = parseInt(this._where.height)
-   // 				}
-   // 			});
-   // 			DT.parse(data);
+   //   this.findAll(cond)
+   //     .then((data) => {
+   //       data.data.forEach((item) => {
+   //         if (item.properties != null && item.properties.height != "undefined" && parseInt(item.properties.height) > 0) {
+   //           item.$height = parseInt(item.properties.height);
+   //         } else if (parseInt(this._where.height) > 0) {
+   //           item.$height = parseInt(this._where.height)
+   //         }
+   //       });
+   //       DT.parse(data);
 
-   // 			if (DT.hideProgress)
-   // 				DT.hideProgress();
+   //       if (DT.hideProgress)
+   //         DT.hideProgress();
 
-   // 		})
-   // 		.catch((err) => {
-   // 			console.error('!!!!!', err);
-   // 		})
+   //     })
+   //     .catch((err) => {
+   //       console.error('!!!!!', err);
+   //     })
 
    // }
 
@@ -417,8 +417,8 @@ module.exports = class ABModelCore {
    //  * @return {ABModel} this object that is chainable.
    //  */
    // limit(limit) {
-   // 	this._limit = limit;
-   // 	return this;
+   //   this._limit = limit;
+   //   return this;
    // }
 
    // /**
@@ -428,47 +428,47 @@ module.exports = class ABModelCore {
    //  * @return {ABModel} this object that is chainable.
    //  */
    // skip(skip) {
-   // 	this._skip = skip;
-   // 	return this;
+   //   this._skip = skip;
+   //   return this;
    // }
 
-   // 	/**
-   // 	 * @method update
-   // 	 * update model values on the server.
-   // 	 */
-   // 	update(id, values) {
+   //   /**
+   //    * @method update
+   //    * update model values on the server.
+   //    */
+   //   update(id, values) {
 
-   // 		this.prepareMultilingualData(values);
+   //     this.prepareMultilingualData(values);
 
-   // 		// remove empty properties
-   // 		for (var key in values) {
-   // 			if (values[key] == null)
-   // 				delete values[key];
-   // 		}
+   //     // remove empty properties
+   //     for (var key in values) {
+   //       if (values[key] == null)
+   //         delete values[key];
+   //     }
 
-   // 		var params = {
-   // 			url: this.object.urlRestItem(id),
-   // 			params: values
-   // 		}
-   // 		return this.request('put', params)
-   // 			.then((data) => {
+   //     var params = {
+   //       url: this.object.urlRestItem(id),
+   //       params: values
+   //     }
+   //     return this.request('put', params)
+   //       .then((data) => {
 
-   // 				// .data is an empty object ??
+   //         // .data is an empty object ??
 
-   // 				this.normalizeData(data);
+   //         this.normalizeData(data);
 
-   // 				return data;
+   //         return data;
 
-   // 				// FIX: now with sockets, the triggers are fired from socket updates.
-   // 				// trigger a update event
-   // 				// triggerEvent('update', this.object, data);
+   //         // FIX: now with sockets, the triggers are fired from socket updates.
+   //         // trigger a update event
+   //         // triggerEvent('update', this.object, data);
 
-   // 			})
-   // 			.catch((err)=>{
+   //       })
+   //       .catch((err)=>{
    // console.error(err);
-   // 			});
+   //       });
 
-   // 	}
+   //   }
 
    /**
     * @method upsert
@@ -569,7 +569,7 @@ module.exports = class ABModelCore {
             var relationName = c.relationName();
 
             // if (d[c.columnName] == null)
-            // 	d[c.columnName] = '';
+            //  d[c.columnName] = '';
 
             // if there is no data we can exit now
             if (d[relationName] == null) return;
@@ -619,6 +619,15 @@ module.exports = class ABModelCore {
                }
             }
 
+            var relatedMlFields = objectLink.multilingualFields();
+            if (relatedMlFields.length) {
+               objectLink.application.translate(
+                  d[relationName],
+                  d[relationName],
+                  relatedMlFields
+               );
+            }
+
             // Change property name of connected field
             if (!d[c.columnName]) d[c.columnName] = d[relationName];
          });
@@ -665,4 +674,3 @@ module.exports = class ABModelCore {
       });
    }
 };
-
