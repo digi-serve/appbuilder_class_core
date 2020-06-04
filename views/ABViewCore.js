@@ -281,8 +281,12 @@ module.exports = class ABViewCore extends ABEmitter {
          }
       }
 
-      // if the user is not the manager check of the page has access levels defined for roles
-      if (this.accessLevels && !isAccessManager) {
+      // if the user is not the manager check if the page has access levels defined for roles
+      if (
+         this.accessLevels &&
+         Object.keys(this.accessLevels).length > 0 &&
+         !isAccessManager
+      ) {
          // check to see if the user's roles matches one of the roles defined
          this.application.userRoles().forEach((role) => {
             if (
