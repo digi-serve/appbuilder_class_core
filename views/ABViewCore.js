@@ -252,51 +252,57 @@ module.exports = class ABViewCore extends ABEmitter {
       // by default everyone has no access
       var accessLevel = 0;
 
-      // check to see if the current users is the access manager
-      var isAccessManager = false;
-      // first check if manager is defined by their role
-      if (parseInt(this.application.accessManagers.useRole) == 1) {
-         // if so check if any of the user's role match the managers
-         this.application.userRoles().forEach((role) => {
-            if (this.application.accessManagers.role.indexOf(role.id) > -1) {
+      if (this.application.isAccessManaged) {
+         // check to see if the current users is the access manager
+         var isAccessManager = false;
+         // first check if manager is defined by their role
+         if (parseInt(this.application.accessManagers.useRole) == 1) {
+            // if so check if any of the user's role match the managers
+            this.application.userRoles().forEach((role) => {
+               if (this.application.accessManagers.role.indexOf(role.id) > -1) {
+                  // if so set the access level to full access
+                  isAccessManager = true;
+                  accessLevel = 2;
+               }
+            });
+         }
+         // if the user isn't already set as the manager and the manager is defined by their account
+         if (
+            !isAccessManager &&
+            parseInt(this.application.accessManagers.useAccount) == 1
+         ) {
+            // check if the user's account matches the managers
+            if (
+               this.application.accessManagers.account.indexOf(
+                  OP.User.id() + ""
+               ) > -1
+            ) {
                // if so set the access level to full access
                isAccessManager = true;
                accessLevel = 2;
             }
-         });
-      }
-      // if the user isn't already set as the manager and the manager is defined by their account
-      if (
-         !isAccessManager &&
-         parseInt(this.application.accessManagers.useAccount) == 1
-      ) {
-         // check if the user's account matches the managers
-         if (
-            this.application.accessManagers.account.indexOf(OP.User.id() + "") >
-            -1
-         ) {
-            // if so set the access level to full access
-            isAccessManager = true;
-            accessLevel = 2;
          }
+
+         // if the user is not the manager check if the page has access levels defined for roles
+         if (
+            this.accessLevels &&
+            Object.keys(this.accessLevels).length > 0 &&
+            !isAccessManager
+         ) {
+            // check to see if the user's roles matches one of the roles defined
+            this.application.userRoles().forEach((role) => {
+               if (
+                  this.accessLevels[role.id] &&
+                  parseInt(this.accessLevels[role.id]) > accessLevel
+               )
+                  // if the access level is higher than a previous role set to the new level
+                  accessLevel = parseInt(this.accessLevels[role.id]);
+            });
+         }
+      } else {
+         accessLevel = 2;
       }
 
-      // if the user is not the manager check if the page has access levels defined for roles
-      if (
-         this.accessLevels &&
-         Object.keys(this.accessLevels).length > 0 &&
-         !isAccessManager
-      ) {
-         // check to see if the user's roles matches one of the roles defined
-         this.application.userRoles().forEach((role) => {
-            if (
-               this.accessLevels[role.id] &&
-               parseInt(this.accessLevels[role.id]) > accessLevel
-            )
-               // if the access level is higher than a previous role set to the new level
-               accessLevel = parseInt(this.accessLevels[role.id]);
-         });
-      }
       return accessLevel;
    }
 
@@ -719,4 +725,3 @@ module.exports = class ABViewCore extends ABEmitter {
       return result;
    }
 };
-
