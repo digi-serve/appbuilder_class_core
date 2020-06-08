@@ -410,7 +410,7 @@ module.exports = class ABViewCore extends ABEmitter {
       this._views.splice(toPosition, 0, this._views.splice(from, 1)[0]);
 
       // save to database
-      return this.save();
+      return this.save(true);
    }
 
    /// ABApplication data methods
@@ -603,3 +603,4 @@ module.exports = class ABViewCore extends ABEmitter {
       return result;
    }
 };
+
