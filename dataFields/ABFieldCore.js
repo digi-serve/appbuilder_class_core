@@ -200,6 +200,14 @@ module.exports = class ABFieldCore extends ABMLClass {
       };
    }
 
+   defaultCheck(val, defaultVal) {
+      var returnVal = defaultVal;
+      if (typeof val != "undefined") {
+         returnVal = val;
+      }
+      return returnVal;
+   }
+
    /**
     * @method fromValues()
     *
@@ -226,9 +234,9 @@ module.exports = class ABFieldCore extends ABMLClass {
 
       values.settings = values.settings || {};
       this.settings = values.settings;
-      this.settings.showIcon = values.settings.showIcon || "1";
-      this.settings.required = values.settings.required || "1";
-      this.settings.width = values.settings.width || "0";
+      this.settings.showIcon = this.defaultCheck(values.settings.showIcon, "1");
+      this.settings.required = this.defaultCheck(values.settings.required, "1");
+      this.settings.width = this.defaultCheck(values.settings.width, "0");
 
       // convert from "0" => 0
       this.isImported = parseInt(this.isImported);
@@ -240,7 +248,10 @@ module.exports = class ABFieldCore extends ABMLClass {
       // we're responsible for setting up our specific settings:
       let defaultValues = this.constructor.defaultValues() || {};
       for (let dv in defaultValues) {
-         this.settings[dv] = values.settings[dv] || defaultValues[dv];
+         this.settings[dv] = this.defaultCheck(
+            values.settings[dv],
+            defaultValues[dv]
+         );
       }
 
       // let the MLClass now process the Translations
