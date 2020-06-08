@@ -31,8 +31,20 @@ module.exports = class ABMLClassCore extends ABEmitter {
    fromValues(attributes) {
       this.translations = attributes.translations;
 
-      // multilingual fields: label, description
-      this.translate();
+      // if translations were provided
+      if (this.translations) {
+         // multilingual fields: label, description
+         this.translate();
+      } else {
+         // maybe this came from a form that has ML values in the attributes, but
+         // no .translations[] yet:
+         // check for mlFields in attributes and record them here:
+         (this.mlFields || []).forEach((field) => {
+            if (attributes[field]) {
+               this[field] = attributes[field];
+            }
+         });
+      }
    }
 
    /**
