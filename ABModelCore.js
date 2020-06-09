@@ -557,6 +557,11 @@ module.exports = class ABModelCore {
             return f.key == "user";
          }) || [];
 
+      // calculate fields
+      var calculatedFields = this.object.fields(
+         (f) => f.key == "formula" || f.key == "calculate"
+      );
+
       data.forEach((d) => {
          if (d == null) return;
 
@@ -671,6 +676,11 @@ module.exports = class ABModelCore {
                } catch (err) {}
             }
          });
+
+         calculatedFields.forEach((calField) => {
+            d[calField.columnName] = calField.format(d);
+         });
       });
    }
 };
+
