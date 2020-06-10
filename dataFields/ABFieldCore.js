@@ -235,7 +235,7 @@ module.exports = class ABFieldCore extends ABMLClass {
       values.settings = values.settings || {};
       this.settings = values.settings;
       this.settings.showIcon = this.defaultCheck(values.settings.showIcon, "1");
-      this.settings.required = this.defaultCheck(values.settings.required, "1");
+      this.settings.required = this.defaultCheck(values.settings.required, "0");
       this.settings.width = this.defaultCheck(values.settings.width, "0");
 
       // convert from "0" => 0
