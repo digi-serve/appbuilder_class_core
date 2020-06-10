@@ -9,6 +9,30 @@
 
 const ABEmitter = require("../../platform/ABEmitter");
 
+// HACK:: this was added to enforce sequential saves to Views stored in Arango
+// once we move to ABDefinitions, this should not be necessary anymore.
+// ==> convert .updateAccessLevels() to return this.save(false, false);
+var __AccessLevelUpdates = [];
+var __statusUpdatesRunning = false;
+function processAccessLevelUpdates() {
+   // if already running, just return
+   if (__statusUpdatesRunning) return;
+   __statusUpdatesRunning = true;
+
+   // else get next entry
+   var entry = __AccessLevelUpdates.shift();
+   if (entry) {
+      // if entry
+      // entry.save() then processAccessLevelUpdates
+      entry.save(false, false).then(() => {
+         __statusUpdatesRunning = false;
+         processAccessLevelUpdates();
+      });
+   } else {
+      __statusUpdatesRunning = false;
+   }
+}
+
 const ABViewDefaults = {
    key: "view", // {string} unique key for this view
    icon: "window-maximize", // {string} fa-[icon] reference for this view
@@ -104,6 +128,7 @@ module.exports = class ABViewCore extends ABEmitter {
          // parent: this.parent,
 
          settings: this.application.cloneDeep(this.settings || {}),
+         accessLevels: this.accessLevels,
          translations: this.translations || []
       };
 
@@ -143,6 +168,8 @@ module.exports = class ABViewCore extends ABEmitter {
       this.translations = values.translations || [];
 
       this.settings = values.settings || {};
+
+      this.accessLevels = values.accessLevels || {};
 
       // If the View / DataCollection does not have a .name already,
       // use the English label translation as the .name instead.
@@ -212,6 +239,71 @@ module.exports = class ABViewCore extends ABEmitter {
       }
 
       return parents;
+   }
+
+   /**
+    * @method getUserAccess()
+    *
+    * return the access level of the current user on the current view
+    *
+    * @return {integer}  // 0 = No Access // 1 = Read Only // 2 = Full Access
+    */
+   getUserAccess() {
+      // by default everyone has no access
+      var accessLevel = 0;
+
+      if (this.application.isAccessManaged) {
+         // check to see if the current users is the access manager
+         var isAccessManager = false;
+         // first check if manager is defined by their role
+         if (parseInt(this.application.accessManagers.useRole) == 1) {
+            // if so check if any of the user's role match the managers
+            this.application.userRoles().forEach((role) => {
+               if (this.application.accessManagers.role.indexOf(role.id) > -1) {
+                  // if so set the access level to full access
+                  isAccessManager = true;
+                  accessLevel = 2;
+               }
+            });
+         }
+         // if the user isn't already set as the manager and the manager is defined by their account
+         if (
+            !isAccessManager &&
+            parseInt(this.application.accessManagers.useAccount) == 1
+         ) {
+            // check if the user's account matches the managers
+            if (
+               this.application.accessManagers.account.indexOf(
+                  OP.User.id() + ""
+               ) > -1
+            ) {
+               // if so set the access level to full access
+               isAccessManager = true;
+               accessLevel = 2;
+            }
+         }
+
+         // if the user is not the manager check if the page has access levels defined for roles
+         if (
+            this.accessLevels &&
+            Object.keys(this.accessLevels).length > 0 &&
+            !isAccessManager
+         ) {
+            // check to see if the user's roles matches one of the roles defined
+            this.application.userRoles().forEach((role) => {
+               if (
+                  this.accessLevels[role.id] &&
+                  parseInt(this.accessLevels[role.id]) > accessLevel
+               )
+                  // if the access level is higher than a previous role set to the new level
+                  accessLevel = parseInt(this.accessLevels[role.id]);
+            });
+         }
+      } else {
+         accessLevel = 2;
+      }
+
+      return accessLevel;
    }
 
    /**
@@ -297,6 +389,34 @@ module.exports = class ABViewCore extends ABEmitter {
       if (!dataviewID) return null;
 
       return this.application.datacollections((dc) => dc.id == dataviewID)[0];
+   }
+
+   ///
+   /// Update Access accessLevels
+   ///
+
+   /**
+    * @method updateAccessLevels()
+    *
+    *
+    * @param {string} roleId
+    *
+    * @param {string} accessLevel
+    *
+    * @return {Promise}
+    *
+    */
+   updateAccessLevels(roleId, accessLevel) {
+      if (parseInt(accessLevel) == 0) {
+         if (this.accessLevels[roleId]) delete this.accessLevels[roleId];
+      } else {
+         this.accessLevels[roleId] = accessLevel;
+      }
+
+      __AccessLevelUpdates.push(this);
+      processAccessLevelUpdates();
+      // return this.save(false, false);
+      return Promise.resolve();
    }
 
    ///
@@ -457,10 +577,12 @@ module.exports = class ABViewCore extends ABEmitter {
     *
     * @param includeSubViews {Boolean}
     *
+    * @param ignoreUiUpdate {Boolean}
+    *
     * @return {Promise}
     *						.resolve( {this} )
     */
-   save(includeSubViews = false) {
+   save(includeSubViews = false, updateUi = true) {
       return new Promise((resolve, reject) => {
          // // if this is our initial save()
          // if (!this.id) {
@@ -482,7 +604,7 @@ module.exports = class ABViewCore extends ABEmitter {
          }
 
          this.application
-            .viewSave(this, includeSubViews)
+            .viewSave(this, includeSubViews, updateUi)
             .then(() => {
                // persist the current ABViewPage in our list of ._pages.
                let parent = this.parent || this.application;
@@ -603,4 +725,3 @@ module.exports = class ABViewCore extends ABEmitter {
       return result;
    }
 };
-

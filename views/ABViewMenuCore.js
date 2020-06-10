@@ -132,6 +132,20 @@ module.exports = class ABViewMenuCore extends ABViewWidget {
             )[0];
             if (!existsPage) return;
 
+            var pageAccessLevel = existsPage.getUserAccess();
+            if (pageAccessLevel == 0) return;
+
+            if (displayPage.tabId) {
+               let existsTab = this.application.views(
+                  (v) => v.id == displayPage.tabId,
+                  true
+               )[0];
+               if (!existsTab) return;
+
+               var tabAccessLevel = existsTab.getUserAccess();
+               if (tabAccessLevel == 0) return;
+            }
+
             let label = this.getAliasname(displayPage);
             // create a temporaty store for the menu item
             var menuItem;

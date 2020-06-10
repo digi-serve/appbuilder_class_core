@@ -172,7 +172,7 @@ module.exports = class ABViewPageCore extends ABViewContainer {
     * @return {Promise}
     *         .resolve( {this} )
     */
-   save(includeSubViews = false) {
+   save(includeSubViews = false, updateUi = true) {
       return new Promise((resolve, reject) => {
          // if this is our initial save()
          if (!this.id) {
@@ -187,7 +187,7 @@ module.exports = class ABViewPageCore extends ABViewContainer {
          }
 
          this.application
-            .viewSave(this, includeSubViews)
+            .viewSave(this, includeSubViews, updateUi)
             .then(() => {
                // persist the current ABViewPage in our list of ._pages.
                var parent = this.parent || this.application;

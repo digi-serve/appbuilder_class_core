@@ -27,6 +27,8 @@ const ABQuery = require("../platform/ABObjectQuery");
 const ABDataCollectionCore = require("./ABDataCollectionCore");
 const ABFieldManager = require("./ABFieldManager");
 const ABViewManager = require("../platform/ABViewManager");
+const ABRole = require("../platform/ABRole.js");
+
 // const ABViewPageCore = require("./views/ABViewPageCore");
 // const ABQLManager = require("./ABQLManager");
 var ABMLClass = require("../platform/ABMLClass");
@@ -50,7 +52,13 @@ module.exports = class ABApplicationCore extends ABMLClass {
       if (typeof this.json == "string") this.json = JSON.parse(this.json);
       this.name = attributes.name || this.json.name || "";
       this.role = attributes.role;
+      this.class = {};
+      this.class.ABRole = ABRole; // This is a temporary fix that we can remove when OpsPortal is removed
       this.isAdminApp = JSON.parse(attributes.json.isAdminApp || false);
+      this.isAccessManaged = JSON.parse(attributes.isAccessManaged || false);
+      this.accessManagers = attributes.accessManagers;
+      if (typeof this.accessManagers == "string")
+         this.accessManagers = JSON.parse(this.accessManagers);
 
       // Transition:
       // _datacollections, _objects, and _queries are now defined
@@ -255,7 +263,9 @@ module.exports = class ABApplicationCore extends ABMLClass {
          json: this.json,
          role: this.role,
          isAdminApp: this.isAdminApp,
-         translations: this.json.translations
+         translations: this.json.translations,
+         isAccessManaged: this.isAccessManaged,
+         accessManagers: this.accessManagers
       };
    }
 
@@ -495,6 +505,131 @@ module.exports = class ABApplicationCore extends ABMLClass {
       } else {
          return false;
       }
+   }
+
+   ///
+   /// Views
+   ///
+
+   /**
+    * @method views()
+    *
+    * return an array of all the Views for this ABApplication.
+    *
+    * @param {fn} filter   a filter fn to return a set of Views that this fn
+    *              returns true for.
+    *
+    * @return {array}      array of Views
+    */
+   views(filter) {
+      var result = [];
+      var views = [];
+      var pages = [];
+
+      if (
+         (!this._pages || this._pages.length < 1) &&
+         (!this._views || this._views.length < 1)
+      )
+         return result;
+
+      // look at views recursively
+      if (filter) {
+         // look at views recursively (views can have subviews and so on)
+         if (this._views) {
+            views = this._views.filter(filter);
+
+            if (views.length < 1) {
+               this._views.forEach((v) => {
+                  var subViews = v.views(filter, true);
+                  if (subViews && subViews.length > 0) {
+                     views = subViews;
+                  }
+               });
+            }
+         }
+
+         // if no views of the root page match now look at the sub pages and their views
+         if (views.length) {
+            result = views;
+         } else {
+            // check the first level subpages
+            result = this._pages.filter(filter);
+
+            // if no match check each pages views and subpages
+            if (result.length < 1) {
+               // looping through pages
+               this._pages.forEach((p) => {
+                  // check the page views recusively
+                  var pageViews = p.views(filter, true);
+                  // if there was a match store it
+                  if (pageViews && pageViews.length > 0) {
+                     result = pageViews;
+                  }
+                  // if no match move on to the subpages
+                  if (result.length < 1) {
+                     // loop through each subpage recursively
+                     var subPages = p.pages(filter, true);
+                     // if there was a match store it
+                     if (subPages && subPages.length > 0) {
+                        result = subPages;
+                     }
+                  }
+               });
+            }
+         }
+      }
+      // find all views
+      else {
+         // recusively gather all views on this view
+         if (this._views) {
+            views = this._views;
+            if (views.length) {
+               views.forEach((v) => {
+                  var subViews = v.views(function() {
+                     return true;
+                  }, true);
+                  if (subViews && subViews.length) {
+                     views = views.concat(subViews);
+                  }
+               });
+            }
+         }
+
+         // recursively gather all pages and their views
+         if (this._pages) {
+            pages = this._pages;
+            if (pages.length) {
+               pages.forEach((p) => {
+                  // grab all views on this page
+                  var pageViews = p.views(function() {
+                     return true;
+                  }, true);
+                  if (pageViews && pageViews.length) {
+                     views = views.concat(pageViews);
+                  }
+                  // grab all subpages on this page
+                  var subPages = p.pages(function() {
+                     return true;
+                  }, true);
+                  if (subPages && subPages.length) {
+                     pages = pages.concat(subPages);
+                     subPages.forEach((sub) => {
+                        var subViews = sub.views(function() {
+                           return true;
+                        }, true);
+                        if (subViews && subViews.length) {
+                           views = views.concat(subViews);
+                        }
+                     });
+                  }
+               });
+            }
+         }
+
+         result = result.concat(pages, views);
+      }
+
+      return result;
    }
 
    ///
