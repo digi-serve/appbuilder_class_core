@@ -180,8 +180,11 @@ module.exports = class ABObjectQueryCore extends ABObject {
     * ABObjects.
     * @param {array} fieldSettings The different field urls for each field
     *					{ }
+    * @param {bool} shouldAliasColumn
+    *        should we add the object alias to the columnNames?
+    *        this is primarily used on the web client
     */
-   importFields(fieldSettings) {
+   importFields(fieldSettings, shouldAliasColumn = true) {
       var newFields = [];
       (fieldSettings || []).forEach((fieldInfo) => {
          if (fieldInfo == null) return;
@@ -209,19 +212,19 @@ module.exports = class ABObjectQueryCore extends ABObject {
 
             clonedField.alias = fieldInfo.alias;
 
-            let alias = "";
+            let alias = fieldInfo.alias;
             if (Array.isArray(this.joins())) {
                // NOTE: query v1
                alias = field.object.name;
-            } else {
-               alias = fieldInfo.alias;
             }
 
-            // include object name {aliasName}.{columnName}
-            // to use it in grid headers & hidden fields
-            clonedField.columnName = "{aliasName}.{columnName}"
-               .replace("{aliasName}", alias)
-               .replace("{columnName}", clonedField.columnName);
+            if (shouldAliasColumn) {
+               // include object name {aliasName}.{columnName}
+               // to use it in grid headers & hidden fields
+               clonedField.columnName = "{aliasName}.{columnName}"
+                  .replace("{aliasName}", alias)
+                  .replace("{columnName}", clonedField.columnName);
+            }
 
             newFields.push({
                alias: alias,
