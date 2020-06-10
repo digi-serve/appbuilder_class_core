@@ -43,7 +43,7 @@ const defaultValues = {
    defaultTimeValue: null // {Date}
 };
 
-module.exports = class ABFieldDateCore extends ABFieldDateCore {
+module.exports = class ABFieldDateTimeCore extends ABFieldDateCore {
    constructor(values, object) {
       super(values, object, ABFieldDateDefaults);
    }
