@@ -41,8 +41,16 @@ module.exports = class ABViewFormDatepickerCore extends ABViewFormComponent {
    fromValues(values) {
       super.fromValues(values);
 
-      // convert from "0" => 0
-      this.settings.timepicker = parseInt(this.settings.timepicker);
+      // convert boolean
+      try {
+         this.settings.timepicker = JSON.parse(
+            this.settings.timepicker ||
+               ABViewFormDatepickerPropertyComponentDefaults.timepicker
+         );
+      } catch (e) {
+         this.settings.timepicker =
+            ABViewFormDatepickerPropertyComponentDefaults.timepicker;
+      }
    }
 
    /**

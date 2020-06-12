@@ -549,7 +549,7 @@ module.exports = class ABModelCore {
       // if this object has some date fields, convert the data to date object:
       var dateFields =
          this.object.fields(function(f) {
-            return f.key == "date";
+            return f.key == "date" || f.key == "datetime";
          }) || [];
 
       var userFields =
@@ -558,9 +558,7 @@ module.exports = class ABModelCore {
          }) || [];
 
       // calculate fields
-      var calculatedFields = this.object.fields(
-         (f) => f.key == "formula" || f.key == "calculate"
-      );
+      var calculatedFields = this.object.fields((f) => f.key == "calculate");
 
       data.forEach((d) => {
          if (d == null) return;
@@ -646,20 +644,17 @@ module.exports = class ABModelCore {
             if (d && d[date.columnName] != null) {
                // check to see if data has already been converted to a date object
                if (typeof d[date.columnName] == "string") {
-                  if (date.settings.timeFormatValue == 1) {
+                  if (date.key == "date") {
                      // if we are ignoring the time it means we ignore timezone as well
                      // so lets trim that off when creating the date so it can be a simple date
                      d[date.columnName] = new Date(
                         moment(d[date.columnName].replace(/\T.*/, "")).format(
-                           "MM/DD/YYYY 00:00:00"
+                           "MM/DD/YYYY"
                         )
                      );
                   } else {
-                     d[date.columnName] = new Date(
-                        moment(d[date.columnName].replace(/\Z.*/, "")).format(
-                           "MM/DD/YYYY HH:mm:ss"
-                        )
-                     );
+                     // Convert UTC to Date
+                     d[date.columnName] = new Date(moment(d[date.columnName]));
                   }
                }
             }
@@ -683,4 +678,5 @@ module.exports = class ABModelCore {
       });
    }
 };
+
 
