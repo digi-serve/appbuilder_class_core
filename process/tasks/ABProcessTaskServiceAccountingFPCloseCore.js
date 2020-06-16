@@ -21,7 +21,7 @@ var AccountingFPCloseDefaults = {
    // key: {string}
    // unique key to reference this specific Task
 
-   settings: []
+   settings: ["processFPValue", "objectFP"]
    // settings: {array}
    // a list of internal setting values this Element tracks. These are the
    // values set by the platform .propertiesStash()
