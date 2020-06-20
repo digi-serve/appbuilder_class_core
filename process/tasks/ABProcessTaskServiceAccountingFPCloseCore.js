@@ -1,300 +1,156 @@
-const path = require("path");
-const uuid = require("node-uuid");
-const AccountingFPCloseCore = require(path.join(
-   __dirname,
-   "..",
-   "..",
-   "..",
-   "core",
-   "process",
-   "tasks",
-   "ABProcessTaskServiceAccountingFPCloseCore.js"
-));
+const ABProcessElement = require("../../../platform/process/tasks/ABProcessElement.js");
 
-// const ABProcessParticipant = require(path.join(
-//     __dirname,
-//     "..",
-//     "ABProcessParticipant"
-// ));
+var AccountingFPCloseDefaults = {
+   category: null,
+   // category: {string} | null
+   // if this Element should show up on one of the popup replace menus, then
+   // specify one of the categories of elements it should be an option for.
+   // Available choices: [ "start", "gateway", "task", "end" ].
+   //
+   // if it shouldn't show up under the popup menu, then leave this null
 
-const AB = require("ab-utils");
-const reqAB = AB.reqAB({}, {});
-reqAB.jobID = "AccountingFPClose";
+   icon: "check-circle", // font-awesome icon reference.  (without the 'fa-').  so 'user'  to reference 'fa-user'
+   // icon: {string}
+   // font-awesome icon reference.  (without the 'fa-').  so 'user'  to reference 'fa-user'
 
-module.exports = class AccountingFPClose extends AccountingFPCloseCore {
+   instanceValues: [],
+   // instanceValues: {array}
+   // a list of values this element tracks as it is operating in a process.
+
+   key: "AccountingFPClose",
+   // key: {string}
+   // unique key to reference this specific Task
+
+   settings: [
+      "processFPValue",
+      "objectFP",
+      "objectGL",
+      "fieldFPStart",
+      "fieldFPOpen",
+      "fieldGLStarting",
+      "fieldGLRunning",
+      "fieldGLAccount",
+      "fieldGLRc"
+   ]
+   // settings: {array}
+   // a list of internal setting values this Element tracks. These are the
+   // values set by the platform .propertiesStash()
+};
+
+module.exports = class AccountingFPCloseCore extends ABProcessElement {
+   constructor(attributes, process, application) {
+      attributes.type = attributes.type || "[type]";
+      super(attributes, process, application, AccountingFPCloseDefaults);
+
+      // listen
+   }
+
+   // return the default values for this DataField
+   static defaults() {
+      return AccountingFPCloseDefaults;
+   }
+
+   static DiagramReplace() {
+      return null;
+   }
+
+   /*
+    fromValues(attributes) {
+        /*
+        {
+            id: uuid(),
+            name: 'name',
+            type: 'xxxxx',
+            json: "{json}"
+        }
+        * /
+        super.fromValues(attributes);
+
+        AccountingFPCloseDefaults.settings.forEach((f) => {
+            this[f] = attributes[f];
+        });
+    }
+    */
+
+   /**
+    * @method toObj()
+    *
+    * properly compile the current state of this ABApplication instance
+    * into the values needed for saving to the DB.
+    *
+    * Most of the instance data is stored in .json field, so be sure to
+    * update that from all the current values of our child fields.
+    *
+    * @return {json}
+    */
+   /*
+    toObj() {
+        var data = super.toObj();
+
+        AccountingFPCloseDefaults.settings.forEach((f) => {
+            data[f] = this[f];
+        });
+
+        return data;
+    }
+    */
+
    ////
    //// Process Instance Methods
    ////
 
    /**
-    * do()
-    * this method actually performs the action for this task.
-    * @param {obj} instance  the instance data of the running process
-    * @return {Promise}
-    *      resolve(true/false) : true if the task is completed.
-    *                            false if task is still waiting
+    * initState()
+    * setup this task's initial state variables
+    * @param {obj} context  the context data of the process instance
+    * @param {obj} val  any values to override the default state
     */
-   do(instance) {
-      this.fpObject = this.application.objects((o) => o.id == this.objectFP)[0];
-      this.glObject = this.application.objects((o) => o.id == this.objectGL)[0];
+   /*
+    initState(context, val) {
+        var myDefaults = {
+            instanceVariable1: null,
+            instanceVariable2: null
+        };
 
-      return new Promise((resolve, reject) => {
-         var myState = this.myState(instance);
+        super.initState(context, myDefaults, val);
+    }
+    */
 
-         var currentProcessValues = this.hashProcessDataValues(instance);
-         var currentFPID = currentProcessValues[this.processFPValue];
-         if (!currentFPID) {
-            this.log(instance, "unable to find relevant Fiscal Period ID");
-            var error = new Error(
-               "AccountingFPClose.do(): unable to find relevant Fiscal Period ID"
-            );
-            reject(error);
-            return;
-         }
+   /**
+    * processDataFields()
+    * return an array of avaiable data fields that this element
+    * can provide to other ProcessElements.
+    * Different Process Elements can make data available to other
+    * process Elements.
+    * @return {array} | null
+    */
+   /*
+    processDataFields() {
+        // in this Task, we can return the Response to the UserForm
+        return [
+            {
+                key: `${this.id}.[someInstanceVariableHere]`,
+                label: `${this.label}->Response`
+            }
+        ];
+    }
+    */
 
-         // find the next fiscal month(.startDate == my.endDate + 1)
-         var cond = {
-            where: {
-               glue: "and",
-               rules: [
-                  {
-                     key: this.fpObject.PK(),
-                     rule: "equals",
-                     value: currentFPID
-                  }
-               ]
-            },
-            populate: true
-         };
-
-         Promise.resolve()
-            .then(() => {
-               return this.fpObject
-                  .modelAPI()
-                  .findAll(cond)
-                  .then((rows) => {
-                     this.currentFP = rows[0];
-                     this.log(instance, "Found FPObj");
-                     this.log(instance, rows);
-                  })
-                  .catch((err) => {
-                     reject(err);
-                  });
-            })
-            .then(() =>
-               new Promise((next, fail) => {
-                  // make sure exists FP
-                  if (this.currentFP == null) {
-                     this.log(instance, `Count not found FP: ${currentFPID}`);
-                     return next();
-                  }
-
-                  // .Open has to be true
-                  if (!this.currentFP.Open) {
-                     return next();
-                  }
-
-                  // Pull the .Start field for use to search the next FP
-                  let startField = this.fpObject.fields(
-                     (f) => f.id == this.fieldFPStart
-                  )[0];
-                  if (startField == null) {
-                     this.log(instance, `Count not found the .Start field`);
-                     return next();
-                  }
-
-                  // Pull the .Open field for use to search the next FP
-                  let openField = this.fpObject.fields(
-                     (f) => f.id == this.fieldFPOpen
-                  )[0];
-                  if (openField == null) {
-                     this.log(instance, `Count not found the .Open field`);
-                     return next();
-                  }
-
-                  // find the next fiscal month(.startDate == my.endDate + 1)
-                  // .open = true
-                  // .status = active
-                  let startDate = null;
-                  if (this.currentFP.End) {
-                     if (!(this.currentFP.End instanceof Date)) {
-                        startDate = new Date(this.currentFP.End);
-                     } else {
-                        startDate = _.clone(this.currentFP.End);
-                     }
-
-                     // add 1 day
-                     startDate.setDate(startDate.getDate() + 1);
-
-                     if (startField.key == "date")
-                        startDate = AppBuilder.rules.toSQLDate(startDate);
-                  }
-                  this.fpObject
-                     .modelAPI()
-                     .findAll({
-                        where: {
-                           glue: "and",
-                           rules: [
-                              {
-                                 key: startField.id,
-                                 rule: "equals",
-                                 value: startDate
-                              },
-                              {
-                                 key: openField.id,
-                                 rule: "equals",
-                                 value: 1
-                              }
-                           ]
-                        },
-                        populate: true
-                     })
-                     .then((rows) => {
-                        this.nextFP = rows[0];
-                        this.log(instance, "Found the next FPObj");
-                        this.log(instance, rows);
-                        next();
-                     })
-                     .catch((err) => {
-                        fail(err);
-                        reject(err);
-                     });
-               }).then(
-                  () =>
-                     new Promise((next, fail) => {
-                        // make sure exists FP
-                        if (this.currentFP == null) {
-                           return next();
-                        }
-
-                        // make sure exists next FP
-                        if (this.nextFP == null) {
-                           this.log(instance, "Count not found next FP");
-                           return next();
-                        }
-
-                        if (this.glObject == null) {
-                           this.log(instance, "GL object is undefined");
-                           return next();
-                        }
-
-                        let fieldFPLink = this.fpObject.fields(
-                           (f) =>
-                              f.key == "connectObject" &&
-                              f.settings.linkObject == this.glObject.id
-                        )[0];
-                        if (fieldFPLink == null) {
-                           this.log(instance, "GL connect field is undefined");
-                           return next();
-                        }
-
-                        let fieldGLlink = this.glObject.fields(
-                           (f) =>
-                              f.key == "connectObject" &&
-                              f.settings.linkObject == this.fpObject.id
-                        )[0];
-                        let fieldGLStarting = this.glObject.fields(
-                           (f) => f.id == this.fieldGLStarting
-                        )[0];
-                        let fieldGLRunning = this.glObject.fields(
-                           (f) => f.id == this.fieldGLRunning
-                        )[0];
-                        let fieldGLAccount = this.glObject.fields(
-                           (f) => f.id == this.fieldGLAccount
-                        )[0];
-                        let fieldGLRc = this.glObject.fields(
-                           (f) => f.id == this.fieldGLRc
-                        )[0];
-
-                        let linkName = fieldFPLink.relationName();
-                        let tasks = [];
-
-                        (this.currentFP[linkName] || []).forEach(
-                           (glSegment) => {
-                              let newGL = {};
-                              newGL[this.glObject.PK()] = uuid.v4();
-
-                              // link to the next FP
-                              if (fieldGLlink) {
-                                 newGL[fieldGLlink.columnName] = this.nextFP[
-                                    this.fpObject.PK()
-                                 ];
-                              }
-
-                              // set Starting & Running Balance
-                              if (fieldGLRunning) {
-                                 if (fieldGLStarting) {
-                                    newGL[fieldGLStarting.columnName] =
-                                       glSegment[fieldGLRunning.columnName];
-                                 }
-                                 newGL[fieldGLRunning.columnName] =
-                                    glSegment[fieldGLRunning.columnName];
-                              }
-
-                              // set link to Account
-                              if (fieldGLAccount) {
-                                 newGL[fieldGLAccount.columnName] =
-                                    glSegment[fieldGLAccount.columnName];
-                              }
-
-                              // set link to RC
-                              if (fieldGLRc) {
-                                 newGL[fieldGLRc.columnName] =
-                                    glSegment[fieldGLRc.columnName];
-                              }
-
-                              // make a new GLSegment ( same Account & RC + new FiscalMonth)
-                              tasks.push(
-                                 new Promise((ok, bad) => {
-                                    this.glObject
-                                       .modelAPI()
-                                       .create(newGL)
-                                       .catch(bad)
-                                       .then((newGLResult) => {
-                                          if (!this.nextFP[linkName])
-                                             this.nextFP[linkName] = [];
-
-                                          this.nextFP[linkName].push(
-                                             newGLResult
-                                          );
-
-                                          // Broadcast the create
-                                          sails.sockets.broadcast(
-                                             this.glObject.id,
-                                             "ab.datacollection.create",
-                                             newGLResult
-                                          );
-                                          ok();
-                                       });
-                                 })
-                              );
-                           }
-                        );
-
-                        Promise.all(tasks)
-                           .catch(fail)
-                           .then(() => {
-                              // Broadcast the create
-                              sails.sockets.broadcast(
-                                 this.fpObject.id,
-                                 "ab.datacollection.update",
-                                 {
-                                    objectId: this.fpObject.id,
-                                    data: this.nextFP
-                                 }
-                              );
-                              next();
-                           });
-                     })
-               )
-            )
-            // Final step
-            .then(() => {
-               this.log(instance, "I'm done.");
-               this.stateCompleted(instance);
-               resolve(true);
-            });
-      });
-   }
+   /**
+    * processData()
+    * return the current value requested for the given data key.
+    * @param {obj} instance
+    * @return {mixed} | null
+    */
+   /*
+    processData(instance, key) {
+        var parts = key.split(".");
+        if (parts[0] == this.id) {
+            var myState = this.myState(instance);
+            return myState[parts[1]];
+        }
+        return null;
+    }
+    */
 };
 
