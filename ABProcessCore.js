@@ -482,7 +482,9 @@ var queryPreviousTasks = (
          processedIDs.push(task.diagramID);
 
          // get any field's it provides
-         responses = _concat(responses, task[method].apply(task, param) || []);
+         var value = task[method].apply(task, param);
+         if (value === null) value = [];
+         responses = _concat(responses, value);
 
          // add any previous tasks to our list
          list = _concat(list, process.connectionPreviousTask(task));

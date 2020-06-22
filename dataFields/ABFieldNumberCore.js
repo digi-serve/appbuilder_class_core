@@ -105,6 +105,12 @@ module.exports = class ABFieldNumberCore extends ABField {
             position: "prefix"
          },
          {
+            id: "yen",
+            value: L("ab.dataField.number.format.yen", "¥"),
+            sign: "¥",
+            position: "prefix"
+         },
+         {
             id: "pound",
             value: L("ab.dataField.number.format.pound", "£"),
             sign: "£",
@@ -304,4 +310,3 @@ module.exports = class ABFieldNumberCore extends ABField {
          );
    }
 };
-

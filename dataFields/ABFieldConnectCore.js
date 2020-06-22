@@ -161,10 +161,8 @@ module.exports = class ABFieldConnectCore extends ABFieldSelectivity {
 
    /**
     * @method pullRelationValues
-    *
-    *
+    * Return the data values for this field entry in the provided data row.
     * @param {*} row
-    *
     * @return {array}
     */
    pullRelationValues(row) {
@@ -190,19 +188,7 @@ module.exports = class ABFieldConnectCore extends ABFieldSelectivity {
             }
          }
 
-         // if this select value is array
-         if (data.map) {
-            selectedData = data.map(function(d) {
-               // display label in format
-               if (d) d.text = d.text || linkedObject.displayData(d);
-
-               return d;
-            });
-         } else if (data.id) {
-            selectedData = data;
-            selectedData.text =
-               selectedData.text || linkedObject.displayData(selectedData);
-         }
+         selectedData = data;
       }
 
       return selectedData;

@@ -558,9 +558,7 @@ module.exports = class ABModelCore {
          }) || [];
 
       // calculate fields
-      var calculatedFields = this.object.fields(
-         (f) => f.key == "formula" || f.key == "calculate"
-      );
+      var calculatedFields = this.object.fields((f) => f.key == "calculate");
 
       data.forEach((d) => {
          if (d == null) return;
@@ -680,4 +678,5 @@ module.exports = class ABModelCore {
       });
    }
 };
+
 

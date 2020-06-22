@@ -144,6 +144,12 @@ module.exports = class RowFilter extends ABComponent {
                compareValue = new Date(compareValue);
 
             switch (rule) {
+               case "equals":
+                  result = value == compareValue;
+                  break;
+               case "not_equal":
+                  result = value != compareValue;
+                  break;
                case "less":
                   result = value < compareValue;
                   break;
@@ -231,6 +237,9 @@ module.exports = class RowFilter extends ABComponent {
             switch (rule) {
                case "equals":
                   result = value == compareValue;
+                  break;
+               case "not_equal":
+                  result = value != compareValue;
                   break;
                default:
                   result = _logic.queryValid(rowData, rule, compareValue);
@@ -723,3 +732,4 @@ module.exports = class RowFilter extends ABComponent {
       this.config_settings.rules = this.config_settings.rules || [];
    }
 };
+
