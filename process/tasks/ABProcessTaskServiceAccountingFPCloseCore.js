@@ -27,6 +27,8 @@ var AccountingFPCloseDefaults = {
       "objectGL",
       "fieldFPStart",
       "fieldFPOpen",
+      "fieldFPStatus",
+      "fieldFPActive",
       "fieldGLStarting",
       "fieldGLRunning",
       "fieldGLAccount",
@@ -153,4 +155,5 @@ module.exports = class AccountingFPCloseCore extends ABProcessElement {
     }
     */
 };
+
 
