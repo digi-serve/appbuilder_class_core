@@ -81,7 +81,9 @@ module.exports = class FilterComplexCore extends ABComponent {
       condition.rules.forEach((filter) => {
          if (!filter.key || !filter.rule) return;
 
-         var fieldInfo = this._Fields.filter((f) => f.id == filter.key)[0];
+         var fieldInfo = (this._Fields || []).filter(
+            (f) => f.id == filter.key
+         )[0];
          if (!fieldInfo) return;
 
          var condResult;
@@ -516,6 +518,71 @@ module.exports = class FilterComplexCore extends ABComponent {
       this._Application = application;
    }
 
+   processFieldsLoad(processFields = []) {
+      if (!Array.isArray(processFields)) {
+         processFields = [processFields];
+      }
+      processFields.forEach((processField) => {
+         var type = {};
+
+         // some processfields have .field definitions, others don't.
+         // if they do, process this using the field.id
+         if (processField.field) {
+            type[processField.field.id] = {
+               view: "select",
+               options: [
+                  {
+                     id: "empty",
+                     value: "choose option"
+                  },
+                  {
+                     id: processField.key,
+                     value: `context(${processField.label})`
+                  }
+               ]
+            };
+         } else {
+            // if there is no .field, it is probably an embedded special field
+            // like: .uuid
+            var key = processField.key.split(".").pop();
+            type[key] = {
+               view: "select",
+               options: [
+                  {
+                     id: "empty",
+                     value: "choose option"
+                  },
+                  {
+                     id: processField.key,
+                     value: `context(${processField.label})`
+                  }
+               ]
+            };
+         }
+
+         // add an "equals" and "not equals" filter for each:
+         this._Filters = this._Filters.concat([
+            {
+               id: `context_equals`,
+               name: `equals process value`,
+               type,
+               fn: (a, b) => {
+                  return a == b;
+               }
+            },
+            {
+               id: `context_not_equal`,
+               name: `not equals process value`,
+               type,
+               fn: (a, b) => {
+                  return a != b;
+               }
+            }
+         ]);
+      });
+      this.uiInit();
+   }
+
    /**
     * @method fieldsLoad
     * set fields
@@ -535,7 +602,8 @@ module.exports = class FilterComplexCore extends ABComponent {
 
          let thisObjOption = {
             id: "this_object",
-            label: object.label
+            label: object.label,
+            type: "uuid"
          };
 
          // If object is query ,then should define default alias: "BASE_OBJECT"
@@ -554,6 +622,7 @@ module.exports = class FilterComplexCore extends ABComponent {
    }
 
    fieldsToQB() {
+      /*
       let mapTypes = {
          LongText: "string",
          email: "string",
@@ -580,6 +649,29 @@ module.exports = class FilterComplexCore extends ABComponent {
          return { id: f.columnName, value: label, type: type };
       });
       return fields;
+      */
+
+      var fields = (this._Fields || []).map((f) => {
+         let label = f.label;
+         if (this._settings.showObjectName && f.object && f.object.label)
+            label = `${f.object.label}.${f.label}`;
+
+         let type = f.id; // the default unique identifier for our filter types
+         if (f.id == "this_object") {
+            // if this happens to be our special "this_object" field, then our
+            // type needs to be the "uuid" type in the definition:
+            type = f.type;
+         }
+
+         // the format for webix querybuilder:
+         // { id  value:"label" type }
+         //      type: {string} the type of value it is.
+         //            since we want to tailor value selectors per field,
+         //            we will make a unique type for each field. and then
+         //            add value selectors for that specific .type
+         return { id: f.id, value: label, type };
+      });
+      return fields;
    }
 
    filtersToQB() {
@@ -589,46 +681,44 @@ module.exports = class FilterComplexCore extends ABComponent {
    fieldsToFilters() {
       this._Filters = [];
 
-      let filterTypes = this._Fields.map((f) => f.key || f.type);
-      filterTypes = _.uniq(filterTypes);
-      filterTypes.forEach((fType) => {
-         switch (fType) {
+      (this._Fields || []).forEach((f) => {
+         switch (f.key || f.type) {
             // case "uuid":
             //    { id:"radio", name:"One From", type:{ "rating" : ratingEditor }, fn:(a,b) => a == b }
             //    break;
             case "connectObject":
-               this.fieldsAddFiltersQuery();
+               this.fieldsAddFiltersQuery(f);
                break;
             case "date":
-               this.fieldsAddFiltersDate();
+               this.fieldsAddFiltersDate(f);
                break;
             case "string":
-               this.fieldsAddFiltersString();
+               this.fieldsAddFiltersString(f);
                break;
             case "number":
-               this.fieldsAddFiltersNumber();
+               this.fieldsAddFiltersNumber(f);
                break;
             case "list":
-               this.fieldsAddFiltersList();
+               this.fieldsAddFiltersList(f);
                break;
             case "boolean":
-               this.fieldsAddFiltersBoolean();
+               this.fieldsAddFiltersBoolean(f);
                break;
             case "user":
-               this.fieldsAddFiltersUser();
+               this.fieldsAddFiltersUser(f);
                break;
          }
       });
    }
 
-   fieldsAddFiltersDate() {
+   fieldsAddFiltersDate(field) {
       var dateEditor = {
          // inputView.format = field.getDateFormat();
          id: "value",
          view: "datepicker"
       };
       var type = {};
-      type["date"] = dateEditor;
+      type[field.id] = dateEditor;
 
       let dateConditions = {
          less: this.labels.component.beforeCondition,
@@ -657,12 +747,12 @@ module.exports = class FilterComplexCore extends ABComponent {
       }
    }
 
-   fieldsAddFiltersString() {
+   fieldsAddFiltersString(field) {
       var textEditor = {
          view: "text"
       };
       var type = {};
-      type["string"] = textEditor;
+      type[field.id] = textEditor;
 
       let stringConditions = {
          contains: this.labels.component.containsCondition,
@@ -683,12 +773,12 @@ module.exports = class FilterComplexCore extends ABComponent {
       }
    }
 
-   fieldsAddFiltersNumber() {
+   fieldsAddFiltersNumber(field) {
       var textEditor = {
          view: "text"
       };
       var type = {};
-      type["number"] = textEditor;
+      type[field.id] = textEditor;
 
       let numberConditions = {
          equals: this.labels.component.equalCondition,
@@ -711,14 +801,16 @@ module.exports = class FilterComplexCore extends ABComponent {
       }
    }
 
-   fieldsAddFiltersList() {
+   fieldsAddFiltersList(field) {
       let editor = {
          view: "richselect",
-         options: [],
+         options: field.options().map((o) => {
+            return { id: o.id, value: o.text };
+         }),
          customEdit: true
       };
       let type = {};
-      type["list"] = editor;
+      type[field.id] = editor;
 
       let listConditions = {
          equals: this.labels.component.equalListCondition,
@@ -737,12 +829,12 @@ module.exports = class FilterComplexCore extends ABComponent {
       }
    }
 
-   fieldsAddFiltersBoolean() {
+   fieldsAddFiltersBoolean(field) {
       var textEditor = {
          view: "checkbox"
       };
       var type = {};
-      type["boolean"] = textEditor;
+      type[field.id] = textEditor;
 
       let booleanConditions = {
          equals: this.labels.component.equalListCondition
@@ -760,13 +852,13 @@ module.exports = class FilterComplexCore extends ABComponent {
       }
    }
 
-   fieldsAddFiltersUser() {
+   fieldsAddFiltersUser(field) {
       var textEditor = {
          view: "richselect",
          options: OP.User.userlist()
       };
       var type = {};
-      type["user"] = textEditor;
+      type[field.id] = textEditor;
 
       let userConditions = {
          is_current_user: this.labels.component.isCurrentUserCondition,
@@ -791,14 +883,14 @@ module.exports = class FilterComplexCore extends ABComponent {
       }
    }
 
-   fieldsAddFiltersQuery() {
+   fieldsAddFiltersQuery(field) {
       var editor = {
          view: "richselect",
          options: [], // TODO
          customEdit: true
       };
       var type = {};
-      type["connectObject"] = editor;
+      type[field.id] = editor;
 
       let connectConditions = {
          in_query: this.labels.component.inQuery,
@@ -838,13 +930,7 @@ module.exports = class FilterComplexCore extends ABComponent {
     *
     * @return {array}
     */
-   queries(filter) {
-      filter =
-         filter ||
-         function() {
-            return true;
-         };
-
+   queries(filter = () => true) {
       let result = [];
 
       if (this._Application) {
@@ -887,5 +973,3 @@ module.exports = class FilterComplexCore extends ABComponent {
       return this.condition;
    }
 };
-
-
