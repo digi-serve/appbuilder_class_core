@@ -4,15 +4,32 @@ const ABComponent = require("../platform/ABComponent");
 /**
  *  support get data from objects and queries
  */
-function getFieldVal(rowData, columnName) {
-   if (!columnName) return null;
+function getFieldVal(rowData, field) {
+   if (!field) return null;
+   if (!field.columnName) return null;
+   var columnName = field.columnName;
 
+   var value = null;
    if (columnName.indexOf(".") > -1) {
       let colName = columnName.split(".")[1];
-      return rowData[columnName] || rowData[colName];
+      value = rowData[columnName] || rowData[colName];
    } else {
-      return rowData[columnName];
+      value = rowData[columnName];
    }
+
+   if (typeof value != "undefined") {
+      return value;
+   }
+
+   // otherwise, this might be a process check where the rowData keys have
+   // '[diagramID].[field.id]'
+   for (var k in rowData) {
+      var key = k.split(".")[1];
+      if (key && key == field.id) {
+         value = rowData[k];
+      }
+   }
+   return value;
 }
 
 module.exports = class FilterComplexCore extends ABComponent {
@@ -97,7 +114,7 @@ module.exports = class FilterComplexCore extends ABComponent {
                ruleFieldType = fieldInfo.key;
             } else ruleFieldType = "this_object";
          }
-         var value = getFieldVal(rowData, fieldInfo.columnName);
+         var value = getFieldVal(rowData, fieldInfo);
 
          switch (ruleFieldType) {
             case "string":
