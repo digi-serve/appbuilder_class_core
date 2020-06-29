@@ -67,7 +67,7 @@ module.exports = class ABModelCore {
          ) {
             values.translations = [];
          }
-         this.object.application.unTranslate(values, values, mlFields);
+         this.object.unTranslate(values, values, mlFields);
       }
    }
 
@@ -624,7 +624,7 @@ module.exports = class ABModelCore {
 
             var relatedMlFields = objectLink.multilingualFields();
             if (relatedMlFields.length) {
-               objectLink.application.translate(
+               objectLink.translate(
                   d[relationName],
                   d[relationName],
                   relatedMlFields
@@ -636,7 +636,7 @@ module.exports = class ABModelCore {
          });
 
          if (mlFields.length) {
-            this.object.application.translate(d, d, mlFields);
+            this.object.translate(d, d, mlFields);
          }
 
          // convert the data to date object
@@ -678,5 +678,3 @@ module.exports = class ABModelCore {
       });
    }
 };
-
-
