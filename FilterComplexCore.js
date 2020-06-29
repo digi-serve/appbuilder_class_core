@@ -849,7 +849,7 @@ module.exports = class FilterComplexCore extends ABComponent {
       let result = [];
 
       if (this._Application) {
-         result = result.concat(this._Application.queries(filter));
+         result = result.concat(this._Application.queriesIncluded(filter));
       }
 
       if (this._Queries) {
@@ -888,5 +888,3 @@ module.exports = class FilterComplexCore extends ABComponent {
       return this.condition;
    }
 };
-
-
