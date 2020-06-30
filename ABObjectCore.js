@@ -447,6 +447,17 @@ module.exports = class ABObjectCore extends ABEmitter {
    }
 
    /**
+    * @method urlRestBatch
+    * return the url to use for batch creates for this object
+    * @return {string}
+    */
+   urlRestBatch() {
+      return "/app_builder/model/application/#appID#/object/#objID#/batch"
+         .replace("#appID#", this.application.id)
+         .replace("#objID#", this.id);
+   }
+
+   /**
     * @method urlRestItem
     * return the url to access the data for an instance of this object.
     * @return {string}
@@ -652,4 +663,3 @@ module.exports = class ABObjectCore extends ABEmitter {
       return cloneOne;
    }
 };
-
