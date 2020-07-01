@@ -7,7 +7,8 @@
  *
  *
  */
-const ABEmitter = require("../platform/ABEmitter");
+// const ABEmitter = require("../platform/ABEmitter");
+const ABMLClass = require("../platform/ABMLClass");
 
 const ABObject = require("../platform/ABObject");
 const ABObjectQuery = require("../platform/ABObjectQuery");
@@ -39,9 +40,9 @@ var DefaultValues = {
    }
 };
 
-module.exports = class ABViewDataCollectionCore extends ABEmitter {
+module.exports = class ABViewDataCollectionCore extends ABMLClass {
    constructor(attributes, application) {
-      super();
+      super(["label"]);
 
       attributes = attributes || {};
 
@@ -71,62 +72,132 @@ module.exports = class ABViewDataCollectionCore extends ABEmitter {
     */
    fromValues(values) {
       this.id = values.id;
+      // {string} .id
+      // the uuid of this ABDataCollection Definition.
+
+      this.name = values.name || null;
+      // {string} .name
+      // the unchanging name of this ABDataCollection
+
+      this.type = values.type || "datacollection";
+      // {string} .type
+      // the type of ABDefinition this is.
 
       values.settings = values.settings || {};
       this.settings = this.settings || {};
-
-      // label
-      this.translations = values.translations || [];
-      this.label = values.label;
+      // {obj} .settings
+      // the specific operation values for this ABDataCollection
 
       // if this is being instantiated on a read from the Property UI,
       this.settings.datasourceID =
          values.settings.datasourceID || DefaultValues.settings.datasourceID;
+      // {string} .settings.datasourceID
+      // the uuid of the ABObject/ABObjectQuery this ABDataCollection
+      // references
+
       this.settings.linkDatacollectionID =
          values.settings.linkDatacollectionID ||
          DefaultValues.settings.linkDatacollectionID;
+      // {string} .settings.linkDaacollectionID
+      // the uuid of another ABDataCollection that provides the link/trigger
+      // for filtering the values of this ABDataCollection.
+
       this.settings.linkFieldID =
          values.settings.linkFieldID || DefaultValues.settings.linkFieldID;
+      // {string} .settings.linkFieldID
+      // the uuid of the ABDataField of the .linkDatacollection ABObject
+      // whose value is the trigger value for this ABDataCollection
+
       this.settings.objectWorkspace = values.settings.objectWorkspace || {
          filterConditions:
             DefaultValues.settings.objectWorkspace.filterConditions,
          sortFields: DefaultValues.settings.objectWorkspace.sortFields
       };
+      // {obj} .settings.objectWorkspace
+      // the default settings for what is shown in the AppBuilder's
+      // DataCollection workspace
+
       this.settings.fixSelect = values.settings.fixSelect;
 
       // Convert to boolean
       this.settings.loadAll = JSON.parse(
          values.settings.loadAll || DefaultValues.settings.loadAll
       );
+      // {bool} .settings.loadAll
+      // do we load all the data at one time? false == load by pages.
+
       this.settings.isQuery = JSON.parse(
          values.settings.isQuery || DefaultValues.settings.isQuery
       );
+      // {bool} .settings.isQuery
+      // is the data source for this ABDataCollection based upon an
+      // ABObjectQuery?
 
       // Convert to number
       this.settings.syncType = parseInt(
          values.settings.syncType || DefaultValues.settings.syncType
       );
+      // {int} .settings.syncType
+      // how is the data between this ABDataCollection and it's
+      // .datasource synced?
 
-      // Populate data source: ABObject or ABObjectQuery
-      if (values.query && values.query[0]) {
-         this.__datasource = new ABObjectQuery(
-            values.query[0],
-            this.application
-         );
-         this.settings.isQuery = true;
+      this.__datasource = null;
+      // {obj} .__datasource
+      // the reference to the ABObject/ABObjectQuery that this ABDataCollection
+      // is based off of.
 
-         if (this.__datasource.isGroup) {
-            if (!this.__treeCollection)
-               this.__treeCollection = this._treeCollectionNew();
+      this.settings.datasourceID = values.settings.datasourceID;
+      // {string} .settings.datasourceID
+      // the uuid of the .__datasource object to use
 
-            this.__isGroup = true;
+      // now lookup and reference the proper datasource
+      if (this.settings.datasourceID) {
+         // check for an ABObject
+         var obj = this.application.objectByID(this.settings.datasourceID);
+         if (!obj) {
+            // this must be an ABObjectQuery then ...
+            obj = this.application.queryByID(this.settings.datasourceID);
          }
-      } else if (values.object && values.object[0]) {
-         this.__datasource = new ABObject(values.object[0], this.application);
-         this.settings.isQuery = false;
+
+         if (obj) {
+            this.__datasource = obj;
+            this.settings.isQuery = obj.type == "query";
+            if (this.settings.isQuery) {
+               if (this.__datasource.isGroup) {
+                  if (!this.__treeCollection)
+                     this.__treeCollection = this._treeCollectionNew();
+
+                  this.__isGroup = true;
+               }
+            }
+         } else {
+            console.error(
+               `ABDataCollection[${this.id}] unable to find datasource [${this.settings.datasourceID}]`
+            );
+         }
       }
 
-      if (this.application) this.application.translate(this, this, ["label"]);
+      // // Populate data source: ABObject or ABObjectQuery
+      // if (values.query && values.query[0]) {
+      //    this.__datasource = new ABObjectQuery(
+      //       values.query[0],
+      //       this.application
+      //    );
+      //    this.settings.isQuery = true;
+
+      //    if (this.__datasource.isGroup) {
+      //       if (!this.__treeCollection)
+      //          this.__treeCollection = this._treeCollectionNew();
+
+      //       this.__isGroup = true;
+      //    }
+      // } else if (values.object && values.object[0]) {
+      //    this.__datasource = new ABObject(values.object[0], this.application);
+      //    this.settings.isQuery = false;
+      // }
+
+      // let the MLClass now process the translations:
+      super.fromValues(values);
    }
 
    /**
@@ -141,12 +212,14 @@ module.exports = class ABViewDataCollectionCore extends ABEmitter {
     * @return {json}
     */
    toObj() {
-      this.application.unTranslate(this, this, ["label"]);
+      var obj = super.toObj(); // untranslate the object
 
       return {
          id: this.id,
+         name: this.name || this.label,
+         type: this.type || "datacollection",
          settings: _.cloneDeep(this.settings || {}),
-         translations: this.translations
+         translations: obj.translations
       };
    }
 
@@ -165,6 +238,15 @@ module.exports = class ABViewDataCollectionCore extends ABEmitter {
          this.label = this.label || this.name;
       }
 
+      return Promise.resolve()
+         .then(() => {
+            return super.save();
+         })
+         .then(() => {
+            return this.application.datacollectionInsert(this);
+         });
+
+      /*
       return new Promise((resolve, reject) => {
          this.application
             .datacollectionSave(this)
@@ -205,6 +287,7 @@ module.exports = class ABViewDataCollectionCore extends ABEmitter {
                reject(err);
             });
       });
+      */
    }
 
    /**
@@ -217,7 +300,37 @@ module.exports = class ABViewDataCollectionCore extends ABEmitter {
     * @return {Promise}
     */
    destroy() {
-      return this.application.datacollectionDestroy(this);
+      var removeFromApplications = () => {
+         return new Promise((next, err) => {
+            ABApplication.allCurrentApplications().then((apps) => {
+               // NOTE: apps is a webix datacollection
+
+               var allRemoves = [];
+
+               var appsWithObject = apps.find((a) => {
+                  return a.datacollectionsIncluded((o) => o.id == this.id);
+               });
+               appsWithObject.forEach((app) => {
+                  allRemoves.push(app.objectRemove(this));
+               });
+
+               return Promise.all(allRemoves)
+                  .then(next)
+                  .catch(err);
+            });
+         });
+      };
+
+      return Promise.resolve()
+         .then(() => {
+            return removeFromApplications();
+         })
+         .then(() => {
+            return super.destroy();
+         })
+         .then(() => {
+            this.emit("destroyed");
+         });
    }
 
    /**
@@ -1861,4 +1974,3 @@ module.exports = class ABViewDataCollectionCore extends ABEmitter {
       }
    }
 };
-

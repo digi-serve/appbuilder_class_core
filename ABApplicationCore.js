@@ -60,17 +60,6 @@ module.exports = class ABApplicationCore extends ABMLClass {
       if (typeof this.accessManagers == "string")
          this.accessManagers = JSON.parse(this.accessManagers);
 
-      // Transition:
-      // _datacollections, _objects, and _queries are now defined
-      // globally.  And not part of the internal definition of an
-      // ABApplication.
-      this._datacollections = [];
-      (attributes.json.datacollections || []).forEach((dc) => {
-         if (dc) {
-            this._datacollections.push(this.datacollectionNew(dc));
-         }
-      });
-
       // import all our ABObjects
       // NOTE: we work with ABObjects on both the client and server sides.
       // So we provide object methods in the base class.  However, each
@@ -109,6 +98,18 @@ module.exports = class ABApplicationCore extends ABMLClass {
          // we no longer need to track them internally
          //// TODO: consider remove this.queriesAll() during our constructor.
          //// no need for it now since this.queries() already references it.
+      });
+
+      // Transition:
+      // _datacollections, _objects, and _queries are now defined
+      // globally.  And not part of the internal definition of an
+      // ABApplication.
+      // this._datacollections = [];
+      this.datacollectionIDs = attributes.json.datacollectionIDs || [];
+      (this.datacollectionsAll() || []).forEach((dc) => {
+         // if (dc) {
+         //    this._datacollections.push(this.datacollectionNew(dc));
+         // }
       });
 
       // Transition:
@@ -237,6 +238,8 @@ module.exports = class ABApplicationCore extends ABMLClass {
 
       this.json.queryIDs = this.queryIDs;
 
+      this.json.datacollectionIDs = this.datacollectionIDs;
+
       // Save our processes.
       this.json.processIDs = (this._processes || []).map((p) => {
          return p.id;
@@ -294,9 +297,9 @@ module.exports = class ABApplicationCore extends ABMLClass {
    /// Data collections
    ///
 
-   datacollectionNew(values) {
-      return new ABDataCollectionCore(values, this);
-   }
+   // datacollectionNew(values) {
+   //    return new ABDataCollectionCore(values, this);
+   // }
 
    /**
     * @method datacollections()
@@ -308,7 +311,7 @@ module.exports = class ABApplicationCore extends ABMLClass {
     * @return {array} 	array of ABDataCollection
     */
    datacollections(filter = () => true) {
-      return (this._datacollections || []).filter(filter);
+      return (this.datacollectionsAll() || []).filter(filter);
    }
 
    datacollectionByID(ID) {
@@ -318,6 +321,18 @@ module.exports = class ABApplicationCore extends ABMLClass {
       return this.datacollections((dc) => {
          return dc.id == ID || dc.name == ID || dc.label == ID;
       });
+   }
+
+   datacollectionsExcluded(filter = () => true) {
+      return this.datacollections((o) => {
+         return this.datacollectionIDs.indexOf(o.id) == -1;
+      }).filter(filter);
+   }
+
+   datacollectionsIncluded(filter = () => true) {
+      return this.datacollections((o) => {
+         return this.datacollectionIDs.indexOf(o.id) > -1;
+      }).filter(filter);
    }
 
    ///
@@ -661,6 +676,20 @@ module.exports = class ABApplicationCore extends ABMLClass {
       return this.queries((q) => {
          return this.queryIDs.indexOf(q.id) > -1;
       }).filter(filter);
+   }
+
+   /**
+    * @method queryByID()
+    * return the specific query requested by the provided id.
+    * NOTE: this method has been extended to allow .name and .label
+    * as possible lookup values.
+    * @param {string} ID
+    * @return {obj}
+    */
+   queryByID(ID) {
+      return this.queries((q) => {
+         return q.id == ID || q.name == ID || q.label == ID;
+      })[0];
    }
 
    ///
