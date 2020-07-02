@@ -199,6 +199,14 @@ module.exports = class ABViewFormCore extends ABViewContainer {
       RecordRules.fromSettings(this.settings.recordRules);
       RecordRules.objectLoad(object);
 
+      // validate for record rules
+      let ruleValidator = object.isValidData(rowData);
+      let isUpdatedDataValid = ruleValidator.pass();
+      if (!isUpdatedDataValid) {
+         console.error("Updated data is invalid.", { rowData: rowData });
+         return Promise.reject(new Error("Updated data is invalid."));
+      }
+
       return RecordRules.process({ data: rowData, form: this });
    }
 
@@ -213,3 +221,4 @@ module.exports = class ABViewFormCore extends ABViewContainer {
       return SubmitRules.process({ data: rowData, form: this });
    }
 };
+
