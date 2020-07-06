@@ -85,6 +85,8 @@ module.exports = class ABViewPageCore extends ABViewContainer {
 
       obj.name = this.name;
 
+      obj.myAppID = this.myAppID;
+
       // icon of popup page
       if (this.settings.type == "popup") obj.icon = "clone";
 
@@ -115,6 +117,12 @@ module.exports = class ABViewPageCore extends ABViewContainer {
 
       // set label of the page
       if (!this.label || this.label == "?label?") this.label = this.name;
+
+      // track which application this Page belongs to:
+      this.myAppID = values.myAppID;
+      if (!this.myAppID && this.application) {
+         this.myAppID = this.application.id;
+      }
 
       // now properly handle our sub pages.
       var pages = [];
