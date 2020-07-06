@@ -92,11 +92,7 @@ module.exports = class ABViewPageCore extends ABViewContainer {
       if (!this.label || this.label == "?label?") obj.label = obj.name;
 
       // compile our pages
-      var pages = [];
-      this._pages.forEach((page) => {
-         pages.push(page.toObj());
-      });
-      obj.pages = pages;
+      obj.pageIDs = (this._pages || []).map((p) => p.id);
 
       return obj;
    }
@@ -118,8 +114,15 @@ module.exports = class ABViewPageCore extends ABViewContainer {
 
       // now properly handle our sub pages.
       var pages = [];
-      (values.pages || []).forEach((child) => {
-         pages.push(this.pageNew(child)); // ABViewManager.newView(child, this.application, this));
+      (values.pageIDs || []).forEach((id) => {
+         var def = this.application.definitionForID(id);
+         if (def) {
+            pages.push(this.pageNew(def));
+         } else {
+            console.error(
+               `App[${this.application.name}][${this.application.id}]->Page[${this.name}][${this.id}] referenced an unknown Page[${id}]`
+            );
+         }
       });
       this._pages = pages;
 
@@ -140,39 +143,59 @@ module.exports = class ABViewPageCore extends ABViewContainer {
     * @return {Promise}
     */
    destroy() {
-      return new Promise((resolve, reject) => {
-         // verify we have been .save() before:
-         if (this.id) {
-            this.application
-               .viewDestroy(this)
-               .then(() => {
-                  // remove the page in list
-                  var parent = this.parent || this.application;
-                  var remainingPages = parent.pages((p) => {
-                     return p.id != this.id;
-                  });
-                  parent._pages = remainingPages;
+      return Promise.resolve()
+         .then(() => {
+            var parent = this.parent || this.application;
+            return parent.pageRemove(this);
+         })
+         .then(() => {
+            return super.destroy();
+         });
 
-                  resolve();
-               })
-               .catch(reject);
-         } else {
-            resolve(); // nothing to do really
-         }
-      });
+      // return new Promise((resolve, reject) => {
+      //    // verify we have been .save() before:
+      //    if (this.id) {
+      //       this.application
+      //          .viewDestroy(this)
+      //          .then(() => {
+      //             // remove the page in list
+      //             var parent = this.parent || this.application;
+      //             var remainingPages = parent.pages((p) => {
+      //                return p.id != this.id;
+      //             });
+      //             parent._pages = remainingPages;
+
+      //             resolve();
+      //          })
+      //          .catch(reject);
+      //    } else {
+      //       resolve(); // nothing to do really
+      //    }
+      // });
    }
 
    /**
     * @method save()
-    *
-    * persist this instance of ABViewPage with it's parent
-    *
-    * @param includeSubViews {Boolean}
-    *
+    * persist this instance of ABViewPage
     * @return {Promise}
     *         .resolve( {this} )
     */
-   save(includeSubViews = false, updateUi = true) {
+   save() {
+      return Promise.resolve()
+         .then(() => {
+            // this creates our .id
+            return super.save();
+         })
+         .then(() => {
+            // now we can persist ourself in our parent
+            var parent = this.parent || this.application;
+            return parent.pageInsert(this);
+         })
+         .then(() => {
+            return this;
+         });
+
+      /*
       return new Promise((resolve, reject) => {
          // if this is our initial save()
          if (!this.id) {
@@ -203,6 +226,7 @@ module.exports = class ABViewPageCore extends ABViewContainer {
             })
             .catch(reject);
       });
+      */
    }
 
    ///
@@ -220,7 +244,7 @@ module.exports = class ABViewPageCore extends ABViewContainer {
     *
     * @return {array}			array of ABViewPages
     */
-   pages(filter, deep) {
+   pages(filter = () => true, deep = false) {
       var result = [];
 
       // find into sub-pages recursively
@@ -240,16 +264,34 @@ module.exports = class ABViewPageCore extends ABViewContainer {
       }
       // find root pages
       else {
-         filter =
-            filter ||
-            function() {
-               return true;
-            };
-
          result = this._pages.filter(filter);
       }
 
       return result;
+   }
+
+   /**
+    * @method pageInsert()
+    *
+    * save the given ABViewPage in our ._pages array and persist the current
+    * values if they changed.
+    *
+    * @param {ABViewPage} page The instance of the page to save.
+    * @return {Promise}
+    */
+   pageInsert(page) {
+      var isIncluded =
+         this.pages(function(o) {
+            return o.id == page.id;
+         }).length > 0;
+      if (!isIncluded) {
+         // if not already included, then add and save the Obj definition:
+         this._pages.push(page);
+         return this.save();
+      }
+
+      // Nothing was required so return
+      return Promise.resolve();
    }
 
    /**
@@ -276,19 +318,26 @@ module.exports = class ABViewPageCore extends ABViewContainer {
    }
 
    /**
-    * @method viewDestroy()
+    * @method pageRemove()
     *
-    * remove the current ABViewPage from our list of ._pages or ._views.
+    * remove the given ABViewPage from our ._pages array and persist the current
+    * values.
     *
-    * @param {ABView} view
+    * @param {ABViewPage} page The instance of the page to remove.
     * @return {Promise}
     */
-   viewDestroy(view) {
-      var remainingPages = this.pages(function(p) {
-         return p.id != view.id;
+   pageRemove(page) {
+      var origLen = this._pages.length;
+      this._pages = this.pages(function(p) {
+         return p.id != page.id;
       });
-      this._pages = remainingPages;
-      return this.save();
+
+      if (this._pages.length < origLen) {
+         return this.save();
+      }
+
+      // if we get here, then nothing changed so nothing to do.
+      return Promise.resolve();
    }
 
    /**

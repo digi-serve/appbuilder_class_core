@@ -118,8 +118,15 @@ module.exports = class ABApplicationCore extends ABMLClass {
 
       // import all our ABViews
       let newPages = [];
-      (attributes.json.pages || []).forEach((page) => {
-         newPages.push(this.pageNew(page));
+      (attributes.json.pageIDs || []).forEach((id) => {
+         var def = this.definitionForID(id);
+         if (def) {
+            newPages.push(this.pageNew(def));
+         } else {
+            console.error(
+               `App[${this.id}] is referenceing an unknown Page[${id}]`
+            );
+         }
       });
       this._pages = newPages;
 
@@ -246,11 +253,12 @@ module.exports = class ABApplicationCore extends ABMLClass {
       });
 
       // for each View: compile to json
-      var currPages = [];
-      this._pages.forEach((page) => {
-         currPages.push(page.toObj());
-      });
-      this.json.pages = currPages;
+      // var currPages = [];
+      // this._pages.forEach((page) => {
+      //    currPages.push(page.toObj());
+      // });
+      // this.json.pages = currPages;
+      this.json.pageIDs = (this._pages || []).map((p) => p.id);
 
       // // for each MobileApp: compile to json
       // var currApps = [];
