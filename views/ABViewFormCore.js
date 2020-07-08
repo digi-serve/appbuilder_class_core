@@ -191,23 +191,37 @@ module.exports = class ABViewFormCore extends ABViewContainer {
       return newView;
    }
 
-   doRecordRules(rowData) {
-      var object = this.datacollection.datasource;
+   get RecordRule() {
+      let object = this.datacollection.datasource;
 
-      var RecordRules = new ABRecordRule();
-      RecordRules.formLoad(this);
-      RecordRules.fromSettings(this.settings.recordRules);
-      RecordRules.objectLoad(object);
-
-      // validate for record rules
-      let ruleValidator = object.isValidData(rowData);
-      let isUpdatedDataValid = ruleValidator.pass();
-      if (!isUpdatedDataValid) {
-         console.error("Updated data is invalid.", { rowData: rowData });
-         return Promise.reject(new Error("Updated data is invalid."));
+      if (this._recordRule == null) {
+         this._recordRule = new ABRecordRule();
       }
 
-      return RecordRules.process({ data: rowData, form: this });
+      this._recordRule.formLoad(this);
+      this._recordRule.fromSettings(this.settings.recordRules);
+      this._recordRule.objectLoad(object);
+
+      return this._recordRule;
+   }
+
+   doRecordRulesPre(rowData) {
+      return this.RecordRule.processPre({ data: rowData, form: this });
+   }
+
+   doRecordRules(rowData) {
+      // validate for record rules
+      if (rowData) {
+         let object = this.datacollection.datasource;
+         let ruleValidator = object.isValidData(rowData);
+         let isUpdatedDataValid = ruleValidator.pass();
+         if (!isUpdatedDataValid) {
+            console.error("Updated data is invalid.", { rowData: rowData });
+            return Promise.reject(new Error("Updated data is invalid."));
+         }
+      }
+
+      return this.RecordRule.process({ data: rowData, form: this });
    }
 
    doSubmitRules(rowData) {
@@ -221,4 +235,5 @@ module.exports = class ABViewFormCore extends ABViewContainer {
       return SubmitRules.process({ data: rowData, form: this });
    }
 };
+
 

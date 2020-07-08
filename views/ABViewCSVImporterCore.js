@@ -69,15 +69,44 @@ module.exports = class ABViewCSVImporterCore extends ABViewWidget {
       );
    }
 
-   doRecordRules(rowData) {
+   get RecordRule() {
       let object = this.datacollection.datasource;
 
-      let RecordRules = new ABRecordRule();
-      RecordRules.formLoad(this);
-      RecordRules.fromSettings(this.settings.recordRules);
-      RecordRules.objectLoad(object);
+      if (this._recordRule == null) {
+         this._recordRule = new ABRecordRule();
+      }
 
-      return RecordRules.process({ data: rowData, form: this });
+      this._recordRule.formLoad(this);
+      this._recordRule.fromSettings(this.settings.recordRules);
+      this._recordRule.objectLoad(object);
+
+      return this._recordRule;
+   }
+
+   doRecordRulesPre(rowDatas) {
+      if (rowDatas && !Array.isArray(rowDatas)) {
+         rowDatas = [rowDatas];
+      }
+
+      rowDatas.forEach((row) => {
+         this.RecordRule.processPre({ data: row.data || row, form: this });
+      });
+   }
+
+   doRecordRules(rowDatas) {
+      if (rowDatas && !Array.isArray(rowDatas)) {
+         rowDatas = [rowDatas];
+      }
+
+      let tasks = [];
+
+      rowDatas.forEach((row) => {
+         tasks.push(
+            this.RecordRule.process({ data: row.data || row, form: this })
+         );
+      });
+
+      return Promise.all(tasks);
    }
 };
 

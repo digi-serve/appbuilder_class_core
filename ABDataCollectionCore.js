@@ -1885,27 +1885,43 @@ module.exports = class ABViewDataCollectionCore extends ABMLClass {
          this.application
       );
       clonedDatacollection.__datasource = this.__datasource;
+      clonedDatacollection._dataStatus = this._dataStatus;
+      // clonedDatacollection.__dataCollection = this.__dataCollection.copy();
+      if (clonedDatacollection.__dataCollection) {
+         clonedDatacollection.__dataCollection.parse(
+            this.__dataCollection.find({})
+         );
+      }
+      if (clonedDatacollection.__treeCollection) {
+         clonedDatacollection.__treeCollection.parse(
+            this.__treeCollection.find({})
+         );
+      }
 
-      return new Promise((resolve, reject) => {
-         // load the data
-         clonedDatacollection
-            .loadData()
-            .then(() => {
-               // set the cursor
-               var cursorID = this.getCursor();
+      // return new Promise((resolve, reject) => {
+      //    // load the data
+      //    clonedDatacollection
+      //       .loadData()
+      //       .then(() => {
 
-               if (cursorID) {
-                  // NOTE: webix documentation issue: .getCursor() is supposed to return
-                  // the .id of the item.  However it seems to be returning the {obj}
-                  if (cursorID.id) cursorID = cursorID.id;
+      // set the cursor
+      clonedDatacollection.setStaticCursor();
 
-                  clonedDatacollection.setCursor(cursorID);
-               }
+      var cursorID = this.getCursor();
+      if (cursorID) {
+         // NOTE: webix documentation issue: .getCursor() is supposed to return
+         // the .id of the item.  However it seems to be returning the {obj}
+         if (cursorID.id) cursorID = cursorID.id;
 
-               resolve(clonedDatacollection);
-            })
-            .catch(reject);
-      });
+         clonedDatacollection.setCursor(cursorID);
+      }
+
+      return clonedDatacollection;
+
+      // resolve(clonedDatacollection);
+      //       })
+      //       .catch(reject);
+      // });
    }
 
    filteredClone(filters) {
