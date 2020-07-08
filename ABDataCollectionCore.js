@@ -987,7 +987,7 @@ module.exports = class ABViewDataCollectionCore extends ABEmitter {
                var cond = { where: {} };
                cond.where[PK] = values[PK];
                // this data collection has the record so we need to query the server to find out what it's latest data is so we can update all instances
-               this.model.staleRefresh(cond).then((res) => {
+               this.model.findAll(cond).then((res) => {
                   // check to make sure there is data to work with
                   if (Array.isArray(res.data) && res.data.length) {
                      // tell the webix data collection to update using their API with the row id (values.id) and content (res.data[0])
