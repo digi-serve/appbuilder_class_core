@@ -182,6 +182,11 @@ module.exports = class ABViewCore extends ABMLClass {
       // {obj} .settings
       // the property settings for this ABView
 
+      // make sure .settings.height is an int and not a string
+      if (this.settings.height) {
+         this.settings.height = parseInt(this.settings.height);
+      }
+
       this.accessLevels = values.accessLevels || {};
       // {obj} .accessLevels
       // tracks the Role -> AccessLevel settings of this particual
