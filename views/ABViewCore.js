@@ -589,6 +589,22 @@ module.exports = class ABViewCore extends ABMLClass {
 
       return Promise.resolve()
          .then(() => {
+            // When deleting an ABView
+            // be sure to remove any of it's ABViews as well
+            // This cleans out any dangling ABDefinitions
+
+            var allViewDeletes = [];
+            var allViews = this.views();
+            this._views = [];
+            // doing ._views = [] prevents any of my updates when
+            // a sub-view is .destroy()ed
+
+            allViews.forEach((v) => {
+               allViewDeletes.push(v.destroy());
+            });
+            return Promise.all(allViewDeletes);
+         })
+         .then(() => {
             // NOTE: this should not happen on ABViewPage objects
             if (this.parent && !this.pages) {
                return this.parent.viewRemove(this);

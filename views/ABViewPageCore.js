@@ -153,6 +153,23 @@ module.exports = class ABViewPageCore extends ABViewContainer {
    destroy() {
       return Promise.resolve()
          .then(() => {
+            // When deleting an ABViewPage
+            // be sure to remove any of it's ABViewPages as well
+            // This cleans out any dangling ABDefinitions and cleans up the
+            // OpsPortal Permissions:
+
+            var allPageDeletes = [];
+            var allPages = this.pages();
+            this._pages = [];
+            // doing ._pages = [] prevents any of my updates when
+            // a sub-page is .destroy()ed
+
+            allPages.forEach((p) => {
+               allPageDeletes.push(p.destroy());
+            });
+            return Promise.all(allPageDeletes);
+         })
+         .then(() => {
             var parent = this.parent || this.application;
             return parent.pageRemove(this);
          })
