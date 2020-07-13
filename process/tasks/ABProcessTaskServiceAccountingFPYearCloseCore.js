@@ -29,8 +29,13 @@ var AccountingFPYearCloseDefaults = {
       "objectAccount",
       "valueFundBalances",
       "valueNetIncome",
+      "fieldFPYearStart",
+      "fieldFPYearEnd",
       "fieldFPYearStatus",
       "fieldFPYearActive",
+      "fieldFPMonthStart",
+      "fieldFPMonthEnd",
+      "fieldAccNumber",
       "fieldAccType",
       "fieldAccTypeIncome",
       "fieldAccTypeExpense",
@@ -157,4 +162,5 @@ module.exports = class AccountingFPYearCloseCore extends ABProcessElement {
     }
     */
 };
+
 
