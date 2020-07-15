@@ -210,15 +210,23 @@ module.exports = class ABViewMenuCore extends ABViewWidget {
          // remove [en] or [th] etc.
          !label.replace(/\[.{2,}\]/g, "")
       ) {
+         // first check to see if we are actually on a page
+         // if not recursivly look up for the nearest parent page
+         var pageId;
+         if (pageInfo.pageId) {
+            pageId = pageInfo.pageId;
+         } else {
+            pageId = this.getParentPageId(pageInfo);
+         }
          // find label of the actual page
-         var page = this.application.pages(
-            (p) => p.id == pageInfo.pageId,
-            true
-         )[0];
+         var page = this.application.pages((p) => p.id == pageId, true)[0];
          if (page) {
             // find label of the tab view
-            if (pageInfo.type == "tab") {
-               var tabView = page.views((v) => v.id == pageInfo.tabId, true)[0];
+            if (pageInfo.type == "tab" || pageInfo.key == "viewcontainer") {
+               var tabView = page.views(
+                  (v) => v.id == pageInfo.tabId || v.id == pageInfo.id,
+                  true
+               )[0];
                if (tabView) {
                   label = tabView.label;
                }
@@ -229,6 +237,14 @@ module.exports = class ABViewMenuCore extends ABViewWidget {
       }
 
       return label;
+   }
+
+   getParentPageId(currentView) {
+      if (currentView.key != "page") {
+         return this.getParentPageId(currentView.parent);
+      } else {
+         return currentView.id;
+      }
    }
 
    copy(lookUpIds, parent) {
