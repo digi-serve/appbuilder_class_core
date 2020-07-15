@@ -50,7 +50,7 @@ module.exports = class ABViewFormButtonCore extends ABView {
 
       if (this.settings.resetLabel) labels.push("resetLabel");
 
-      this.application.unTranslate(this.settings, this.settings, labels);
+      this.unTranslate(this.settings, this.settings, labels);
 
       let result = super.toObj();
 
@@ -69,7 +69,7 @@ module.exports = class ABViewFormButtonCore extends ABView {
 
       if (this.settings.resetLabel) labels.push("resetLabel");
 
-      this.application.unTranslate(this.settings, this.settings, labels);
+      this.unTranslate(this.settings, this.settings, labels);
 
       this.settings.includeSave = JSON.parse(
          this.settings.includeSave ||

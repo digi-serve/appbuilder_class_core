@@ -51,6 +51,11 @@ module.exports = class ABViewPageCore extends ABViewContainer {
       // 	}
 
       this.parent = null; // will be set by the pageNew() that creates this obj.
+      // {obj} .parent
+      // this points to the ABView object that manages this object as a child.
+      // this param is shared across ABViews as well as ABViewPage, but has
+      // different implications ... so we default an ABViewPage.paret = null
+      // and the place that Creates the Page must assign the .parent externally.
    }
 
    static common() {
