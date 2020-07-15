@@ -9,30 +9,6 @@
 
 var ABMLClass = require("../../platform/ABMLClass");
 
-// HACK:: this was added to enforce sequential saves to Views stored in Arango
-// once we move to ABDefinitions, this should not be necessary anymore.
-// ==> convert .updateAccessLevels() to return this.save(false, false);
-var __AccessLevelUpdates = [];
-var __statusUpdatesRunning = false;
-function processAccessLevelUpdates() {
-   // if already running, just return
-   if (__statusUpdatesRunning) return;
-   __statusUpdatesRunning = true;
-
-   // else get next entry
-   var entry = __AccessLevelUpdates.shift();
-   if (entry) {
-      // if entry
-      // entry.save() then processAccessLevelUpdates
-      entry.save(false, false).then(() => {
-         __statusUpdatesRunning = false;
-         processAccessLevelUpdates();
-      });
-   } else {
-      __statusUpdatesRunning = false;
-   }
-}
-
 const ABViewDefaults = {
    key: "view", // {string} unique key for this view
    icon: "window-maximize", // {string} fa-[icon] reference for this view
@@ -440,10 +416,7 @@ module.exports = class ABViewCore extends ABMLClass {
          this.accessLevels[roleId] = accessLevel;
       }
 
-      __AccessLevelUpdates.push(this);
-      processAccessLevelUpdates();
-      // return this.save(false, false);
-      return Promise.resolve();
+      return this.save(false, false);
    }
 
    ///
