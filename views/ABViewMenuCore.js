@@ -202,7 +202,15 @@ module.exports = class ABViewMenuCore extends ABViewWidget {
     * @return {string}
     */
    getAliasname(pageInfo) {
-      var label = pageInfo.aliasname;
+      var translation = pageInfo.translations.filter((t) => {
+         return t.language_code == AD.lang.currentLanguage;
+      });
+      var label = translation[0].aliasname;
+
+      // Just in case there isn't one stored in the translations yet
+      if (!label) {
+         label = pageInfo.aliasname;
+      }
 
       // if alias is empty, then find label of page or tab
       if (
