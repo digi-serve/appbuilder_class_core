@@ -17,7 +17,9 @@ var ABFieldCustomIndexDefaults = {
 };
 
 // defaultValues: the keys must match a .name of your elements to set it's default value.
-var defaultValues = {};
+const defaultValues = {
+   delimiter: "plus" // plus, space, dash, period
+};
 
 module.exports = class ABFieldCustomIndexCore extends ABField {
    constructor(values, object) {
@@ -35,6 +37,8 @@ module.exports = class ABFieldCustomIndexCore extends ABField {
 
    fromValues(values) {
       super.fromValues(values);
+
+      this.settings.delimiter = values.settings.delimiter || defaultValues.delimiter;
    }
 
    /**
@@ -48,3 +52,4 @@ module.exports = class ABFieldCustomIndexCore extends ABField {
       delete values[this.columnName];
    }
 };
+
