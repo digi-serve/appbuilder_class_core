@@ -552,4 +552,18 @@ module.exports = class ABObjectQueryCore extends ABObject {
    isDisabled() {
       return this.disabled || false;
    }
+
+   get workspaceFilterConditions() {
+      let filterConditions = super.workspaceFilterConditions;
+      if (
+         filterConditions == null ||
+         filterConditions.rules == null ||
+         !filterConditions.rules.length
+      ) {
+         filterConditions = this.where;
+      }
+
+      return filterConditions;
+   }
 };
+
