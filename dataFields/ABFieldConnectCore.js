@@ -29,7 +29,19 @@ var ABFieldConnectDefaults = {
       "*Connect two data objects together"
    ),
 
-   isSortable: false,
+   isSortable: (field) => {
+      return (
+         field &&
+         field.settings &&
+         // 1:M
+         ((field.settings.linkType == "one" &&
+            field.settings.linkViaType == "many") ||
+            // 1:1 isSource = true
+            (field.settings.linkType == "one" &&
+               field.settings.linkViaType == "one" &&
+               field.settings.isSource))
+      );
+   },
    isFilterable: true, // now we can filter using Queries
    useAsLabel: false,
 
@@ -326,3 +338,4 @@ module.exports = class ABFieldConnectCore extends ABFieldSelectivity {
       return indexField;
    }
 };
+
