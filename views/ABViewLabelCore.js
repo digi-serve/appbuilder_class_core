@@ -46,7 +46,7 @@ module.exports = class ABViewLabelCore extends ABViewWidget {
       this.application.unTranslate(this, this, ["label", "text"]);
 
       var obj = super.toObj();
-      obj.views = [];
+      obj.viewIDs = [];
       return obj;
    }
 
@@ -57,7 +57,7 @@ module.exports = class ABViewLabelCore extends ABViewWidget {
     * @param {obj} values
     */
    fromValues(values) {
-      super.fromValues(values);
+      super.fromValues(values); // <-- this performs the translations
 
       // if this is being instantiated on a read from the Property UI,
       // .text is coming in under .settings.label
@@ -74,8 +74,6 @@ module.exports = class ABViewLabelCore extends ABViewWidget {
 
       // convert from "0" => 0
       this.settings.format = parseInt(this.settings.format);
-
-      this.application.translate(this, this, ["text"]);
    }
 
    /**

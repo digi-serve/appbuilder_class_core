@@ -198,7 +198,7 @@ module.exports = class ABViewCore extends ABMLClass {
       (values.viewIDs || []).forEach((id) => {
          var def = this.application.definitionForID(id);
          if (def) {
-            views.push(this.viewNew(def, this.application, this));
+            views.push(this.application.viewNew(def, this.application, this));
          } else {
             console.error(
                `Application[${this.application.name}][${this.application.id}].View[${this.name}][${this.id}] references unknown View[${id}]`
@@ -673,6 +673,24 @@ module.exports = class ABViewCore extends ABMLClass {
       }
    }
 
+   /**
+    * @method copy()
+    * create a new copy of this ABView object. The resulting ABView should
+    * be identical in settings and all sub pages/views, but each new object
+    * is a unique view (different ids).
+    * @param {obj} lookUpIds
+    *        an { oldID : newID } lookup hash for converting ABView objects
+    *        and their setting pointers.
+    * @param {ABView*} parent
+    *        Which ABView should be connected as the parent object of this
+    *        copy.
+    * @param {obj} options
+    *        option settings for the copy command.
+    *        options.ignoreSubPages {bool}
+    *             set to true to skip copying any sub pages of this ABView.
+    * @return {Promise}
+    *        .resolved with the instance of the copied ABView
+    */
    copy(lookUpIds, parent, options = {}) {
       lookUpIds = lookUpIds || {};
 
@@ -680,7 +698,7 @@ module.exports = class ABViewCore extends ABMLClass {
       let config = this.toObj();
 
       // remove sub-elements property
-      ["pages", "views"].forEach((prop) => {
+      ["pageIDs", "viewIDs"].forEach((prop) => {
          delete config[prop];
       });
 
@@ -693,32 +711,68 @@ module.exports = class ABViewCore extends ABMLClass {
       }
 
       // copy from settings
-      let result = this.viewNew(config, this.application, parent);
+      let result = this.application.viewNew(config, this.application, parent);
 
       // change id
-      result.id = lookUpIds[result.id] || OP.Util.uuid();
+      result.id = lookUpIds[result.id] || this.application.uuid();
 
-      // copy sub pages
-      if (this.pages && !options.ignoreSubPages) {
-         result._pages = [];
-         this.pages().forEach((p) => {
-            let copiedSubPage = p.copy(lookUpIds, result, options);
-            copiedSubPage.parent = result;
+      return Promise.resolve()
+         .then(() => {
+            // copy sub pages
+            var allSaves = [];
 
-            result._pages.push(copiedSubPage);
+            if (this._pages && !options.ignoreSubPages) {
+               result._pages = [];
+               this.pages().forEach((p) => {
+                  // this prevents result.save() from happening on each of these
+                  // p.copy():
+                  this.application._pages.push({ id: lookUpIds[p.id] });
+                  allSaves.push(
+                     p
+                        .copy(lookUpIds, result, options)
+                        .then((copiedSubPage) => {
+                           copiedSubPage.parent = result;
+                           // remove the temp {id:} entry above:
+                           this.application._pages = this.application._pages.filter(
+                              (p2) => p2.id != lookUpIds[p.id]
+                           );
+
+                           // now add the full copiedSubPage:
+                           result._pages.push(copiedSubPage);
+                        })
+                  );
+               });
+            }
+
+            return Promise.all(allSaves);
+         })
+         .then(() => {
+            // copy sub views
+            var allSaves = [];
+
+            if (this._views && !options.ignoreSubViews) {
+               result._views = [];
+               this.views().forEach((v) => {
+                  allSaves.push(
+                     // send a null for parent, so that the .save() wont trigger
+                     // a save of the parent.
+                     v.copy(lookUpIds, null, options).then((copiedView) => {
+                        // now patch up the parent connection:
+                        copiedView.parent = result;
+                        result._views.push(copiedView);
+                     })
+                  );
+               });
+            }
+
+            return Promise.all(allSaves);
+         })
+         .then(() => {
+            // now we do 1 save for all the views
+            return result.save();
+         })
+         .then(() => {
+            return result;
          });
-      }
-
-      // copy sub views
-      if (this.views && !options.ignoreSubViews) {
-         result._views = [];
-         this.views().forEach((v) => {
-            let copiedView = v.copy(lookUpIds, result, options);
-
-            result._views.push(copiedView);
-         });
-      }
-
-      return result;
    }
 };

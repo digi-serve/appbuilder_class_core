@@ -56,7 +56,7 @@ module.exports = class ABViewMenuCore extends ABViewWidget {
    /**
     * @method toObj()
     *
-    * properly compile the current state of this ABViewLabel instance
+    * properly compile the current state of this ABViewMenu instance
     * into the values needed for saving.
     *
     * @return {json}
@@ -64,12 +64,12 @@ module.exports = class ABViewMenuCore extends ABViewWidget {
    toObj() {
       if (this.settings.pages) {
          this.settings.pages.forEach((page) => {
-            this.application.unTranslate(page, page, ["aliasname"]);
+            this.unTranslate(page, page, ["aliasname"]);
          });
       }
 
       var obj = super.toObj();
-      obj.views = [];
+      obj.viewIDs = [];
       return obj;
    }
 
@@ -90,7 +90,7 @@ module.exports = class ABViewMenuCore extends ABViewWidget {
          if (page instanceof Object) {
             page.isChecked = JSON.parse(page.isChecked || false);
 
-            this.application.translate(page, page, ["aliasname"]);
+            this.translate(page, page, ["aliasname"]);
          }
          // Compatible with old data
          else if (typeof page == "string") {
@@ -100,8 +100,6 @@ module.exports = class ABViewMenuCore extends ABViewWidget {
             };
          }
       }
-
-      this.application.translate(this, this, ["menulabel"]);
    }
 
    /**
@@ -232,21 +230,23 @@ module.exports = class ABViewMenuCore extends ABViewWidget {
    }
 
    copy(lookUpIds, parent) {
-      let result = super.copy(lookUpIds, parent);
+      return super.copy(lookUpIds, parent).then((result) => {
+         // update ids of page's settings
+         (result.settings.pages || []).forEach((p, i) => {
+            let page = result.settings.pages[i];
 
-      // update ids of page's settings
-      (result.settings.pages || []).forEach((p, i) => {
-         let page = result.settings.pages[i];
+            // Compatible with old data
+            if (typeof page == "string") {
+               result.settings.pages[i] = lookUpIds[page];
+            } else {
+               page.pageId = lookUpIds[page.pageId];
+               page.tabId = lookUpIds[page.tabId];
+            }
+         });
 
-         // Compatible with old data
-         if (typeof page == "string") {
-            result.settings.pages[i] = lookUpIds[page];
-         } else {
-            page.pageId = lookUpIds[page.pageId];
-            page.tabId = lookUpIds[page.tabId];
-         }
+         return result.save().then(() => {
+            return result;
+         });
       });
-
-      return result;
    }
 };

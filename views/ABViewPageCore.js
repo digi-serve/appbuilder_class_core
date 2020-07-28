@@ -404,15 +404,29 @@ module.exports = class ABViewPageCore extends ABViewContainer {
       return obj;
    }
 
+   /**
+    * @method copy()
+    * create a new copy of this ABViewPage object. The resulting ABView should
+    * be identical in settings and all sub pages/views, but each new object
+    * is a unique view (different ids).
+    * @param {obj} lookUpIds
+    *        an { oldID : newID } lookup hash for converting ABView objects
+    *        and their setting pointers.
+    * @param {ABView*} parent
+    *        Which ABView should be connected as the parent object of this
+    *        copy.
+    * @return {Promise}
+    *        .resolved with the instance of the copied ABView
+    */
    copy(lookUpIds, parent) {
       // initial new ids of pages and components
       if (lookUpIds == null) {
+         // create a hash of { oldID : newID } of any sub Pages and Views.
          lookUpIds = {};
 
-         //// TODO: OP.*  code should not be in *Core.js version of code
          let mapNewIdFn = (currView) => {
             if (!lookUpIds[currView.id])
-               lookUpIds[currView.id] = OP.Util.uuid();
+               lookUpIds[currView.id] = this.application.uuid();
 
             if (currView.pages) {
                currView.pages().forEach((p) => mapNewIdFn(p));
@@ -427,12 +441,12 @@ module.exports = class ABViewPageCore extends ABViewContainer {
          mapNewIdFn(this);
       }
 
-      // copy
-      let result = super.copy(lookUpIds, parent);
-
-      // page's name should not be duplicate
-      result.name = null;
-
-      return result;
+      // now continue with the default .copy()
+      return super.copy(lookUpIds, parent).then((result) => {
+         // page's name should not be duplicate
+         result.name = result.name +=
+            "_copied_" + this.application.uuid().slice(0, 3);
+         return result;
+      });
    }
 };
