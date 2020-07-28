@@ -21,7 +21,13 @@ let AccountingJEArchiveDefaults = {
    // key: {string}
    // unique key to reference this specific Task
 
-   settings: ["processBatchValue", "objectBatch", "objectJE", "objectJEArchive"]
+   settings: [
+      "processBatchValue",
+      "objectBatch",
+      "objectJE",
+      "objectJEArchive",
+      "fieldsMatch"
+   ]
    // settings: {array}
    // a list of internal setting values this Element tracks. These are the
    // values set by the platform .propertiesStash()
@@ -143,4 +149,5 @@ module.exports = class AccountingJEArchiveCore extends ABProcessElement {
     }
     */
 };
+
 
