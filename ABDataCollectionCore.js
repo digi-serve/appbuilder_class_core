@@ -31,6 +31,7 @@ var DefaultValues = {
          sortFields: [] // array of columns with their sort configurations
       },
       loadAll: false,
+      preventPopulate: false,
       isQuery: false, // if true it is a query, otherwise it is a object.
 
       fixSelect: "", // _CurrentUser, _FirstRecord, _FirstRecordDefault or row id
@@ -100,6 +101,10 @@ module.exports = class ABViewDataCollectionCore extends ABEmitter {
       );
       this.settings.isQuery = JSON.parse(
          values.settings.isQuery || DefaultValues.settings.isQuery
+      );
+      this.settings.preventPopulate = JSON.parse(
+         values.settings.preventPopulate ||
+            DefaultValues.settings.preventPopulate
       );
 
       // Convert to number
@@ -1185,7 +1190,8 @@ module.exports = class ABViewDataCollectionCore extends ABEmitter {
          where: wheres,
          // limit: limit || 20,
          skip: start || 0,
-         sort: sorts
+         sort: sorts,
+         populate: this.settings.preventPopulate ? false : true
       };
 
       //// NOTE: we no longer set a default limit on loadData() but
