@@ -32,6 +32,7 @@ var DefaultValues = {
          sortFields: [] // array of columns with their sort configurations
       },
       loadAll: false,
+      preventPopulate: false,
       isQuery: false, // if true it is a query, otherwise it is a object.
 
       fixSelect: "", // _CurrentUser, _FirstRecord, _FirstRecordDefault or row id
@@ -132,6 +133,14 @@ module.exports = class ABViewDataCollectionCore extends ABMLClass {
       // {bool} .settings.isQuery
       // is the data source for this ABDataCollection based upon an
       // ABObjectQuery?
+
+      this.settings.preventPopulate = JSON.parse(
+         values.settings.preventPopulate ||
+            DefaultValues.settings.preventPopulate
+      );
+      // {bool} preventPopulate
+      // option to not populate the data this Datacollection requests from the
+      // server.  Usually to speed up the process.
 
       // Convert to number
       this.settings.syncType = parseInt(
@@ -1298,7 +1307,8 @@ module.exports = class ABViewDataCollectionCore extends ABMLClass {
          where: wheres,
          // limit: limit || 20,
          skip: start || 0,
-         sort: sorts
+         sort: sorts,
+         populate: this.settings.preventPopulate ? false : true
       };
 
       //// NOTE: we no longer set a default limit on loadData() but
