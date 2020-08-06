@@ -265,11 +265,7 @@ module.exports = class ABProcessCore extends ABMLClass {
     *                should be returned.
     * @return {[ABProcessTask, ABProcessParticipant, etc...]}
     */
-   elements(fn) {
-      if (!fn)
-         fn = () => {
-            return true;
-         };
+   elements(fn = () => true) {
       var allElements = Object.keys(this._elements).map((e) => {
          return this._elements[e];
       });

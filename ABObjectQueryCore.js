@@ -285,23 +285,6 @@ module.exports = class ABObjectQueryCore extends ABObject {
       return this.application
          .objects((o) => this.objectIDs.indexOf(o.id) > -1)
          .filter(fn);
-
-      // in case where a fn is intentionally provided, then simply pass that
-      // along to the application.objects()
-      // else, limit objects to the list in our .objectIDs
-      // if (!fn) {
-      //    fn = (o) => this.objectIDs.indexOf(o.id) > -1;
-      // }
-
-      // if (!this._objects) return [];
-
-      // get all objects (values of a object)
-      // let objects = Object.keys(this._objects).map((key) => {
-      //    let obj = this._objects[key];
-      //    obj.alias = key;
-
-      //    return obj;
-      // });
    }
 
    /**
@@ -602,4 +585,3 @@ module.exports = class ABObjectQueryCore extends ABObject {
       return filterConditions;
    }
 };
-

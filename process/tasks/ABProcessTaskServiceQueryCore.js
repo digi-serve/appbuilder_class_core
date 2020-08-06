@@ -51,6 +51,22 @@ module.exports = class ABProcessTaskServiceQueryCore extends ABProcessElement {
       return null;
    }
 
+   /**
+    * @method exportIDs()
+    * export any relevant .ids for the necessary operation of this application.
+    * @return {array}
+    *         any relevalt ABDefinition IDs
+    */
+   exportIDs() {
+      var myIDs = super.exportIDs();
+
+      if (this.qlObj) {
+         myIDs = myIDs.concat(this.qlObj.exportIDs());
+      }
+
+      return myIDs;
+   }
+
    fromValues(attributes) {
       super.fromValues(attributes);
 

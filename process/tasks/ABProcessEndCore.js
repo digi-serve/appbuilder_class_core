@@ -24,6 +24,7 @@ var ABProcessTaskEndDefaults = {
 
 module.exports = class ABProcessTaskEndCore extends ABProcessElement {
    constructor(attributes, process, application) {
+      attributes.type = attributes.type || "process.task.end";
       super(attributes, process, application, ABProcessTaskEndDefaults);
 
       // listen
