@@ -328,7 +328,7 @@ module.exports = class ABApplicationCore extends ABMLClass {
 
       return this.datacollections((dc) => {
          return dc.id == ID || dc.name == ID || dc.label == ID;
-      });
+      })[0];
    }
 
    datacollectionsExcluded(filter = () => true) {
