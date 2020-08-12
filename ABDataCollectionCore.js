@@ -429,6 +429,9 @@ module.exports = class ABViewDataCollectionCore extends ABEmitter {
     *
     */
    refreshLinkCursor() {
+      // if we are loading the data server side already filtered we do not need to fitler it client side
+      if (this.__reloadWheres) return false;
+
       let linkCursor;
       let dvLink = this.datacollectionLink;
       if (dvLink) {
@@ -1184,6 +1187,10 @@ module.exports = class ABViewDataCollectionCore extends ABEmitter {
 
       // pull filter conditions
       var wheres = this.settings.objectWorkspace.filterConditions || null;
+      // if we pass new wheres with a reload use them instead
+      if (this.__reloadWheres) {
+         wheres = this.__reloadWheres;
+      }
 
       // set query condition
       var cond = {
@@ -1357,7 +1364,13 @@ module.exports = class ABViewDataCollectionCore extends ABEmitter {
          this.__totalCount = data.total_count;
 
          // load the data into our actual dataCollection
-         this.__dataCollection.parse(data);
+         // previously we had been using parse() but it does not like
+         // when you change the total_count
+         // now that we are loading data from the server when you scroll a datatable
+         // we need to update the total_count and load() handles that well
+         this.__dataCollection.load(function() {
+            return data;
+         });
 
          this.parseTreeCollection(data);
 
@@ -1398,6 +1411,10 @@ module.exports = class ABViewDataCollectionCore extends ABEmitter {
       if (this.__treeCollection) this.__treeCollection.clearAll();
 
       return this.loadData(start, limit);
+   }
+
+   reloadWheres(wheres) {
+      this.__reloadWheres = wheres;
    }
 
    getData(filter) {
