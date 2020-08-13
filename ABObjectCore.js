@@ -31,7 +31,10 @@ module.exports = class ABObjectCore extends ABEmitter {
 	],
 	fields:[
 		{ABDataField}
-	]
+   ],
+   indexes: [
+      {ABIndex}
+   ]
 }
 */
       // link me to my parent ABApplication
@@ -75,6 +78,9 @@ module.exports = class ABObjectCore extends ABEmitter {
             ],
             fields:[
                 {ABDataField}
+            ],
+            indexes: [
+               {ABIndex}
             ]
         }
         */
@@ -122,6 +128,9 @@ module.exports = class ABObjectCore extends ABEmitter {
       // import all our ABField
       this.importFields(attributes.fields || []);
 
+      // import all our ABIndex
+      this.importIndexes(attributes.indexes || []);
+
       // convert '0' to 0
       this.isImported = parseInt(this.isImported || 0);
 
@@ -151,6 +160,19 @@ module.exports = class ABObjectCore extends ABEmitter {
       this._fields = newFields;
    }
 
+   importIndexes(indexSettings) {
+      let newIndexes = [];
+
+      if (indexSettings && !Array.isArray(indexSettings)) {
+         indexSettings = [indexSettings];
+      }
+
+      indexSettings.forEach((index) => {
+         newIndexes.push(this.application.indexNew(index, this));
+      });
+      this._indexes = newIndexes;
+   }
+
    /**
     * @method exportFields
     * convert our array of fields into a settings object for saving to disk.
@@ -162,6 +184,19 @@ module.exports = class ABObjectCore extends ABEmitter {
          currFields.push(obj.toObj());
       });
       return currFields;
+   }
+
+   /**
+    * @method exportFields
+    * convert our array of fields into a settings object for saving to disk.
+    * @return {array}
+    */
+   exportIndexes() {
+      var currIndexes = [];
+      this._indexes.forEach((idx) => {
+         currIndexes.push(idx.toObj());
+      });
+      return currIndexes;
    }
 
    /**
@@ -197,6 +232,7 @@ module.exports = class ABObjectCore extends ABEmitter {
          isSystemObject: this.isSystemObject,
          translations: this.translations,
          fields: currFields,
+         indexes: this.exportIndexes(),
          createdInAppID: this.createdInAppID
       };
    }
@@ -394,6 +430,65 @@ module.exports = class ABObjectCore extends ABEmitter {
     */
    multilingualFields() {
       return this.fields((f) => f && f.isMultilingual).map((f) => f.columnName);
+   }
+
+   /**
+    * @method indexes()
+    *
+    * return an array of all the ABIndex for this ABObject.
+    *
+    * @param filter {Object}
+    *
+    * @return {array}
+    */
+   indexes(filter) {
+      filter =
+         filter ||
+         function() {
+            return true;
+         };
+
+      let result = this._indexes.filter(filter);
+
+      return result;
+   }
+
+   /**
+    * @method indexRemove()
+    *
+    * remove the given ABIndex from our ._indexes array and persist the current
+    * values.
+    *
+    * @param {ABIndex}
+    * @return {Promise}
+    */
+   indexRemove(index) {
+      this._indexes = this.indexes(function(idx) {
+         return idx.id != index.id;
+      });
+
+      return this.save();
+   }
+
+   /**
+    * @method indexSave()
+    *
+    * save the given ABIndex in our ._indexes array and persist the current
+    * values.
+    *
+    * @param {ABIndex}
+    * @return {Promise}
+    */
+   indexSave(index) {
+      var isIncluded =
+         this.indexes(function(idx) {
+            return idx.id == index.id;
+         }).length > 0;
+      if (!isIncluded) {
+         this._indexes.push(index);
+      }
+
+      return this.save();
    }
 
    ///
@@ -663,3 +758,4 @@ module.exports = class ABObjectCore extends ABEmitter {
       return cloneOne;
    }
 };
+
