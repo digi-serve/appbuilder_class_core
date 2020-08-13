@@ -1363,14 +1363,12 @@ module.exports = class ABViewDataCollectionCore extends ABEmitter {
          // store total count
          this.__totalCount = data.total_count;
 
-         // load the data into our actual dataCollection
-         // previously we had been using parse() but it does not like
-         // when you change the total_count
-         // now that we are loading data from the server when you scroll a datatable
-         // we need to update the total_count and load() handles that well
+         // In order to get the total_count updated I had to use .load()
          this.__dataCollection.load(function() {
             return data;
          });
+         // In order to keep detail and graphs loading properly I had to keep .parse()
+         this.__dataCollection.parse(data);
 
          this.parseTreeCollection(data);
 
@@ -1900,5 +1898,3 @@ module.exports = class ABViewDataCollectionCore extends ABEmitter {
       }
    }
 };
-
-
