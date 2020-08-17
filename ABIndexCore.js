@@ -14,11 +14,13 @@ module.exports = class ABIndexCore {
         name: 'name',
         fields:[
             {ABDataField}
-        ]
+        ],
+        unique: {boolean}
       }
       */
       this.id = attributes.id;
       this.name = attributes.name;
+      this.unique = JSON.parse(attributes.unique || false);
 
       // Convert to an array
       if (attributes.fields && !Array.isArray(attributes.fields)) {
@@ -53,6 +55,7 @@ module.exports = class ABIndexCore {
 
       result.id = this.id || uuid();
       result.name = this.name;
+      result.unique = this.unique;
 
       // Convert to an array
       if (this.fields && !Array.isArray(this.fields)) {
