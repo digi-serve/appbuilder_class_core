@@ -78,5 +78,11 @@ module.exports = class ABIndexCore {
       // Maximum 64 characters long
       return `${tableName}_${this.name}`.replace(/ /g, "").substring(0, 64);
    }
+
+   get uniqueName() {
+      let indexName = this.indexName.substring(0, 57);
+
+      return `${indexName}_unique`;
+   }
 };
 
