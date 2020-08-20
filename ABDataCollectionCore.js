@@ -66,6 +66,20 @@ module.exports = class ABViewDataCollectionCore extends ABMLClass {
    }
 
    /**
+    * contextKey()
+    *
+    * return a unique key that represents data from/for this type of object.
+    *
+    * used when creating Network jobs and needing to be notified when a job
+    * is complete.  We send a contextKey() to the Network job and then listen
+    * for it to know when it is complete.
+    * @return {string}
+    */
+   static contextKey() {
+      return "datacollection";
+   }
+
+   /**
     * @method fromValues()
     *
     * initialze this object with the given set of values.
@@ -1297,6 +1311,7 @@ module.exports = class ABViewDataCollectionCore extends ABMLClass {
          return Promise.resolve([]);
       }
 
+      // pull the defined sort values
       var sorts = this.settings.objectWorkspace.sortFields || [];
 
       // pull filter conditions
@@ -1495,11 +1510,13 @@ module.exports = class ABViewDataCollectionCore extends ABMLClass {
             this.emit("initializedData", {});
          }
 
-         // If dc set load all, then it will not trigger .loadData in dc at .onAfterLoad event
+         // If dc set load all, then it will not trigger .loadData in dc at
+         // .onAfterLoad event
          if (this.settings.loadAll) {
             this.emit("loadData", {});
          }
 
+         // now we close out our .loadData() promise.resolve() :
          if (this._pendingLoadDataResolve) {
             this._pendingLoadDataResolve.resolve();
 
@@ -1553,6 +1570,8 @@ module.exports = class ABViewDataCollectionCore extends ABMLClass {
       if (fieldLink == null) return true;
 
       // the parent's cursor is not set.
+      // our DC depends on the value of the parent's cursor,
+      // so until it is set, any data we receive is inValid
       var linkCursor = linkDv.getCursor();
       if (linkCursor == null) return false;
 

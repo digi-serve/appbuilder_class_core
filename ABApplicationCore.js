@@ -322,13 +322,23 @@ module.exports = class ABApplicationCore extends ABMLClass {
       return (this.datacollectionsAll() || []).filter(filter);
    }
 
+   /**
+    * @method datacollectionByID()
+    * returns a single ABDatacollection that matches the given ID.
+    * @param {string} ID
+    *        the .id/.name/.label of the ABDatacollection we are searching
+    *        for.
+    * @return {ABDatacollection}
+    *        the matching ABDatacollection object if found
+    *        {null} if not found.
+    */
    datacollectionByID(ID) {
       // an undefined or null ID should not match any DC.
       if (!ID) return null;
 
       return this.datacollections((dc) => {
          return dc.id == ID || dc.name == ID || dc.label == ID;
-      });
+      })[0];
    }
 
    datacollectionsExcluded(filter = () => true) {
