@@ -936,6 +936,13 @@ module.exports = class ABApplicationCore extends ABMLClass {
       return ABQLManager.newOP(values, application || this, parent);
    }
 
+   /**
+    * @method indexNew()
+    *
+    * return an instance of a new (unsaved) ABIndex.
+    *
+    * @return {ABView}
+    */
    indexNew(values, object) {
       return new ABIndex(values, object);
    }
@@ -1085,4 +1092,3 @@ module.exports = class ABApplicationCore extends ABMLClass {
       return JSON.parse(JSON.stringify(object));
    }
 };
-
