@@ -32,7 +32,10 @@ module.exports = class ABObjectCore extends ABMLClass {
 	],
 	fields:[
 		{ABDataField}
-	]
+   ],
+   indexes: [
+      {ABIndex}
+   ]
 }
 */
       // link me to my parent ABApplication
@@ -76,6 +79,9 @@ module.exports = class ABObjectCore extends ABMLClass {
             ],
             fields:[
                 {ABDataField}
+            ],
+            indexes: [
+               {ABIndex}
             ]
         }
         */
@@ -183,8 +189,24 @@ module.exports = class ABObjectCore extends ABMLClass {
       // and are avaiable to other users in the Designer.
 
       // pull in field definitions:
+      this.importFields(attributes.fieldIDs);
+
+      // pull in index definitions:
+      this.importIndexes(attributes.indexIDs);
+
+      // let the MLClass now process the translations:
+      super.fromValues(attributes);
+   }
+
+   /**
+    * @method importFields
+    * instantiate a set of fields from the given field ids.
+    * @param {array} fieldIDs The different ABDefinition IDs for each field
+    *	       [ "uuid11", "uuid2", ... "uuidN" ]
+    */
+   importFields(fieldIDs) {
       var fields = [];
-      (attributes.fieldIDs || []).forEach((id) => {
+      (fieldIDs || []).forEach((id) => {
          var def = ABDefinition.definition(id);
          if (def) {
             fields.push(this.application.fieldNew(def, this));
@@ -201,36 +223,34 @@ module.exports = class ABObjectCore extends ABMLClass {
          }
       });
       this._fields = fields;
-
-      // //// TODO: old Arango method: remove this
-      // if (this._fields.length == 0) {
-      //     // import all our ABField
-      //     this.importFields(attributes.fields || []);
-      // }
-
-      // let the MLClass now process the translations:
-      super.fromValues(attributes);
    }
 
    /**
-    * @method importFields
-    * instantiate a set of fields from the given attributes.
-    * @param {array} fieldSettings The different settings for each field to create.
-    *							[ { fieldURL: 'xxxxx' }, ... ]
+    * @method importIndexes
+    * instantiate a set of indexes from the given ids.
+    * @param {array} indexIDs The different ABDefinition IDs for each index
+    *        [ "uuid11", "uuid2", ... "uuidN" ]
     */
-   // importFields(fieldSettings) {
-   //     var newFields = [];
-
-   //     if (fieldSettings && !Array.isArray(fieldSettings)) {
-   //         console.error("fieldSettings is not an Array!", fieldSettings);
-   //         fieldSettings = [fieldSettings];
-   //     }
-
-   //     fieldSettings.forEach((field) => {
-   //         newFields.push(this.application.fieldNew(field, this));
-   //     });
-   //     this._fields = newFields;
-   // }
+   importIndexes(indexIDs) {
+      var indexes = [];
+      (indexIDs || []).forEach((id) => {
+         var def = ABDefinition.definition(id);
+         if (def) {
+            indexes.push(this.application.indexNew(def, this));
+         } else {
+            console.error(
+               "Object [" +
+                  this.name +
+                  "][" +
+                  this.id +
+                  "] referenced an unknown index id [" +
+                  id +
+                  "]"
+            );
+         }
+      });
+      this._indexes = indexes;
+   }
 
    /**
     * @method exportFields
@@ -243,6 +263,19 @@ module.exports = class ABObjectCore extends ABMLClass {
    //         currFields.push(obj.toObj());
    //     });
    //     return currFields;
+   // }
+
+   // /**
+   //  * @method exportFields
+   //  * convert our array of fields into a settings object for saving to disk.
+   //  * @return {array}
+   //  */
+   // exportIndexes() {
+   //    var currIndexes = [];
+   //    this._indexes.forEach((idx) => {
+   //       currIndexes.push(idx.toObj());
+   //    });
+   //    return currIndexes;
    // }
 
    /**
@@ -261,9 +294,10 @@ module.exports = class ABObjectCore extends ABMLClass {
       var obj = super.toObj();
 
       // track the field .ids of our fields
-      var fieldIDs = this.fields().map((f) => {
-         return f.id;
-      });
+      var fieldIDs = this.fields().map((f) => f.id);
+
+      // track the index .ids of our indexes
+      var indexIDs = this.indexes().map((f) => f.id);
 
       return {
          id: this.id,
@@ -283,8 +317,10 @@ module.exports = class ABObjectCore extends ABMLClass {
          // importFromObject: this.importFromObject,
          objectWorkspace: this.objectWorkspace,
          isSystemObject: this.isSystemObject,
+
          translations: obj.translations,
          fieldIDs: fieldIDs,
+         indexIDs: indexIDs,
          createdInAppID: this.createdInAppID
       };
    }
@@ -361,20 +397,6 @@ module.exports = class ABObjectCore extends ABMLClass {
     */
    connectFields(getAll = false) {
       return this.fields((f) => f && f.key == "connectObject", getAll);
-   }
-
-   /**
-    * @method indexFields()
-    *
-    * return an array of the ABFieldConnect.
-    *
-    * @return {array}
-    */
-   indexFields(getAll = false) {
-      return this.fields(
-         (f) => f && (f.key == "AutoIndex" || f.key == "customIndex"),
-         getAll
-      );
    }
 
    /**
@@ -472,9 +494,10 @@ module.exports = class ABObjectCore extends ABMLClass {
          }).length > 0;
       if (!isIncluded) {
          this._fields.push(field);
+         return this.save();
       }
 
-      return this.save();
+      return Promise.resolve();
    }
 
    /**
@@ -510,6 +533,65 @@ module.exports = class ABObjectCore extends ABMLClass {
     */
    multilingualFields() {
       return this.fields((f) => f && f.isMultilingual).map((f) => f.columnName);
+   }
+
+   /**
+    * @method indexes()
+    *
+    * return an array of all the ABIndex for this ABObject.
+    *
+    * @param filter {Object}
+    *
+    * @return {array}
+    */
+   indexes(filter = () => true) {
+      return this._indexes.filter(filter);
+   }
+
+   /**
+    * @method indexRemove()
+    *
+    * remove the given ABIndex from our ._indexes array and persist the current
+    * values.
+    *
+    * @param {ABIndex}
+    * @return {Promise}
+    */
+   indexRemove(index) {
+      var origLen = this._indexes.length;
+      this._indexes = this.indexes(function(idx) {
+         return idx.id != index.id;
+      });
+
+      // persist our changes if something changed.
+      if (origLen != this._indexes.length) {
+         return this.save();
+      }
+
+      // nothing was removed, so continue on.
+      return Promise.resolve();
+   }
+
+   /**
+    * @method indexSave()
+    *
+    * save the given ABIndex in our ._indexes array and persist the current
+    * values.
+    *
+    * @param {ABIndex}
+    * @return {Promise}
+    */
+   indexSave(index) {
+      var isIncluded =
+         this.indexes(function(idx) {
+            return idx.id == index.id;
+         }).length > 0;
+      if (!isIncluded) {
+         this._indexes.push(index);
+         return this.save();
+      }
+
+      return Promise.resolve();
    }
 
    ///

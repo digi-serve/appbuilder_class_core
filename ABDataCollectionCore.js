@@ -560,6 +560,9 @@ module.exports = class ABViewDataCollectionCore extends ABMLClass {
     *
     */
    refreshLinkCursor() {
+      // if we are loading the data server side already filtered we do not need to fitler it client side
+      if (this.__reloadWheres) return false;
+
       let linkCursor;
       let dvLink = this.datacollectionLink;
       if (dvLink) {
@@ -1316,6 +1319,10 @@ module.exports = class ABViewDataCollectionCore extends ABMLClass {
 
       // pull filter conditions
       var wheres = this.settings.objectWorkspace.filterConditions || null;
+      // if we pass new wheres with a reload use them instead
+      if (this.__reloadWheres) {
+         wheres = this.__reloadWheres;
+      }
 
       // set query condition
       var cond = {
@@ -1488,7 +1495,11 @@ module.exports = class ABViewDataCollectionCore extends ABMLClass {
          // store total count
          this.__totalCount = data.total_count;
 
-         // load the data into our actual dataCollection
+         // In order to get the total_count updated I had to use .load()
+         this.__dataCollection.load(function() {
+            return data;
+         });
+         // In order to keep detail and graphs loading properly I had to keep .parse()
          this.__dataCollection.parse(data);
 
          this.parseTreeCollection(data);
@@ -1532,6 +1543,10 @@ module.exports = class ABViewDataCollectionCore extends ABMLClass {
       if (this.__treeCollection) this.__treeCollection.clearAll();
 
       return this.loadData(start, limit);
+   }
+
+   reloadWheres(wheres) {
+      this.__reloadWheres = wheres;
    }
 
    getData(filter) {

@@ -27,7 +27,8 @@ const ABQuery = require("../platform/ABObjectQuery");
 const ABDataCollectionCore = require("./ABDataCollectionCore");
 const ABFieldManager = require("./ABFieldManager");
 const ABViewManager = require("../platform/ABViewManager");
-const ABRole = require("../platform/ABRole.js");
+const ABIndex = require("../platform/ABIndex");
+const ABRole = require("../platform/ABRole");
 
 // const ABViewPageCore = require("./views/ABViewPageCore");
 // const ABQLManager = require("./ABQLManager");
@@ -935,6 +936,10 @@ module.exports = class ABApplicationCore extends ABMLClass {
       return ABQLManager.newOP(values, application || this, parent);
    }
 
+   indexNew(values, object) {
+      return new ABIndex(values, object);
+   }
+
    ///
    /// Utilities
    ///
@@ -1080,3 +1085,4 @@ module.exports = class ABApplicationCore extends ABMLClass {
       return JSON.parse(JSON.stringify(object));
    }
 };
+
