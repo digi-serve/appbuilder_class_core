@@ -40,9 +40,9 @@ module.exports = class ABApplicationCore extends ABMLClass {
 
       // attributes should be in format:
       // {
-      // 	id:##,
-      // 	json:{},
-      // 	name:"XYZ"
+      //    id:##,
+      //    json:{},
+      //    name:"XYZ"
       // }
       attributes.json = attributes.json || {};
 
@@ -66,10 +66,10 @@ module.exports = class ABApplicationCore extends ABMLClass {
       // So we provide object methods in the base class.  However, each
       // ABObject sub class (client and server) needs to implement it's own
       // .objectNew() method.
-      //  	var newObjects = [];
-      //  	(attributes.json.objects || []).forEach((obj) => {
-      //  		newObjects.push( this.objectNew(obj) );
-      //  	})
+      //    var newObjects = [];
+      //    (attributes.json.objects || []).forEach((obj) => {
+      //       newObjects.push( this.objectNew(obj) );
+      //    })
       this._objects = [];
       this.objectIDs = attributes.json.objectIDs || [];
       (this.objectsAll() || attributes.json.objects || []).forEach((obj) => {
@@ -86,11 +86,11 @@ module.exports = class ABApplicationCore extends ABMLClass {
       // // implement .queryNew()
       // var newQueries = [];
       // (attributes.json.queries || []).forEach((query) => {
-      // 	// prevent processing of null values.
-      // 	if (query) {
-      //   		newQueries.push( this.queryNew(query) );
-      //   	}
-      //  	})
+      //    // prevent processing of null values.
+      //    if (query) {
+      //       newQueries.push( this.queryNew(query) );
+      //    }
+      //    })
 
       // this._queries = [];
       this.queryIDs = attributes.json.queryIDs || [];
@@ -137,11 +137,11 @@ module.exports = class ABApplicationCore extends ABMLClass {
       // // an Application can have one or more Mobile Apps registered.
       // var newMobileApps = [];
       // (attributes.json.mobileApps || []).forEach((ma) => {
-      // 	// prevent processing of null values.
-      // 	if (ma) {
-      //   		newMobileApps.push( this.mobileAppNew(ma) );
-      //   	}
-      //  	})
+      //    // prevent processing of null values.
+      //    if (ma) {
+      //       newMobileApps.push( this.mobileAppNew(ma) );
+      //    }
+      //    })
       // this._mobileApps = [newMobileApps];
 
       var newProcesses = [];
@@ -264,7 +264,7 @@ module.exports = class ABApplicationCore extends ABMLClass {
       // // for each MobileApp: compile to json
       // var currApps = [];
       // this._mobileApps.forEach((app) => {
-      // 	currApps.push(app.toObj())
+      //    currApps.push(app.toObj())
       // })
       // this.json.mobileApps = currApps;
 
@@ -290,9 +290,9 @@ module.exports = class ABApplicationCore extends ABMLClass {
     *
     * return an array of all the ABObjectQueries for this ABApplication.
     *
-    * @param {fn} filter  	a filter fn to return a set of ABObjectQueries that
-    *						this fn returns true for.
-    * @return {array} 	array of ABObjectQueries
+    * @param {fn} filter   a filter fn to return a set of ABObjectQueries that
+    *                this fn returns true for.
+    * @return {array}   array of ABObjectQueries
     */
    mobileApps(filter = () => true) {
       return (this._mobileApps || []).filter(filter);
@@ -315,9 +315,9 @@ module.exports = class ABApplicationCore extends ABMLClass {
     *
     * return an array of all the ABDataCollection for this ABApplication.
     *
-    * @param {fn} filter  	a filter fn to return a set of ABDataCollection that
-    *						this fn returns true for.
-    * @return {array} 	array of ABDataCollection
+    * @param {fn} filter   a filter fn to return a set of ABDataCollection that
+    *        this fn returns true for.
+    * @return {array}   array of ABDataCollection
     */
    datacollections(filter = () => true) {
       return (this.datacollectionsAll() || []).filter(filter);
@@ -363,9 +363,9 @@ module.exports = class ABApplicationCore extends ABMLClass {
     *
     * return an array of all the ABObjects for this ABApplication.
     *
-    * @param {fn} filter  	a filter fn to return a set of ABObjects that this fn
-    *						returns true for.
-    * @return {array} 	array of ABObject
+    * @param {fn} filter   a filter fn to return a set of ABObjects that this fn
+    *                returns true for.
+    * @return {array}   array of ABObject
     */
    objects(filter = () => true) {
       return (this.objectsAll() || []).filter(filter);
@@ -388,9 +388,9 @@ module.exports = class ABApplicationCore extends ABMLClass {
     *
     * return an array of all the connected ABObjects for this ABApplication.
     *
-    * @param {id} id  	an ID of an ABObject
+    * @param {id} id    an ID of an ABObject
     *
-    * @return {array} 	array of options for webix select
+    * @return {array}   array of options for webix select
     */
    connectedObjects(obj) {
       if (obj == "") return [];
@@ -424,11 +424,11 @@ module.exports = class ABApplicationCore extends ABMLClass {
     *
     * return an array of all the connected ABFields for a given ABObject
     *
-    * @param {currObj} id		an ID of the current ABObject
+    * @param {currObj} id     an ID of the current ABObject
     *
-    * @param {linkedObject} id	an ID of the linked ABObject
+    * @param {linkedObject} id   an ID of the linked ABObject
     *
-    * @return {array}			array of options for webix select
+    * @return {array}         array of options for webix select
     */
    connectedFields(currObj, linkedObject) {
       // Determine the object from the currObj
@@ -720,9 +720,9 @@ module.exports = class ABApplicationCore extends ABMLClass {
     *
     * return an array of all the ABRole for this ABApplication.
     *
-    * @param {fn} filter  	a filter fn to return a set of ABRole that
-    *						this fn returns true for.
-    * @return {array} 	array of ABRole
+    * @param {fn} filter   a filter fn to return a set of ABRole that
+    *                this fn returns true for.
+    * @return {array}   array of ABRole
     */
    roles(filter = () => true) {
       return (this._roles || []).filter(filter);
@@ -735,13 +735,13 @@ module.exports = class ABApplicationCore extends ABMLClass {
     * reference an object's .id, or an object's .property.
     * for example:
     * #/_objects   : resolves to the array of ._objects pointed to by this
-    * 				  application.
+    *               application.
     * #/_objects/[object.id] : reolved to a specific object
     * #/_objects/[object.id]/_fields/[field.id] : resolves to a specific data field
-    * 				  refereced by object.id.
+    *               refereced by object.id.
     *
     * @param {string} pointer : the string url referencing the object you want
-    * 							 to retrieve.
+    *                       to retrieve.
     * @return {obj}
     */
    urlResolve(pointer) {
@@ -837,7 +837,7 @@ module.exports = class ABApplicationCore extends ABMLClass {
    }
 
    ///
-   ///	Object List Settings
+   ///   Object List Settings
    ///
    get objectlistIsOpen() {
       return this.objectListSettings.isOpen;
@@ -885,7 +885,7 @@ module.exports = class ABApplicationCore extends ABMLClass {
     * is performed on the field.
     *
     * @param {obj} values  the initial values for this field.
-    *						{ key:'{string}'} is required
+    *                { key:'{string}'} is required
     * @param {ABObject} object  the parent object this field belongs to.
     * @return {ABField}
     */
@@ -952,14 +952,14 @@ module.exports = class ABApplicationCore extends ABMLClass {
     *
     * @param {obj} obj  The instance of the object being translated
     * @param {json} json The json data being used for translation.
-    *						There should be json.translations = [ {transEntry}, ...]
-    *						where transEntry = {
-    *							language_code:'en',
-    *							field1:'value',
-    *							...
-    *						}
+    *                There should be json.translations = [ {transEntry}, ...]
+    *                where transEntry = {
+    *                   language_code:'en',
+    *                   field1:'value',
+    *                   ...
+    *                }
     * @param {array} fields an Array of multilingual fields to pull to
-    *						 the obj[field] value.
+    *                 the obj[field] value.
     *
     */
    /*
@@ -979,7 +979,7 @@ module.exports = class ABApplicationCore extends ABMLClass {
 
         if (fields && fields.length > 0) {
             // [fix] if no matching translation is in our json.translations
-            // 		 object, then just use the 1st one.
+            //        object, then just use the 1st one.
             var first = null; // the first translation entry encountered
             var found = false; // did we find a matching translation?
 
@@ -1021,14 +1021,14 @@ module.exports = class ABApplicationCore extends ABMLClass {
     *
     * @param {obj} obj  The instance of the object with the translation
     * @param {json} json The json data being used for translation.
-    *						There should be json.translations = [ {transEntry}, ...]
-    *						where transEntry = {
-    *							language_code:'en',
-    *							field1:'value',
-    *							...
-    *						}
+    *                There should be json.translations = [ {transEntry}, ...]
+    *                where transEntry = {
+    *                   language_code:'en',
+    *                   field1:'value',
+    *                   ...
+    *                }
     * @param {array} fields an Array of multilingual fields to pull from
-    *						 the obj[field] value.
+    *                 the obj[field] value.
     *
     */
    /*
