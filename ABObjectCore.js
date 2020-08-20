@@ -189,24 +189,8 @@ module.exports = class ABObjectCore extends ABMLClass {
       // and are avaiable to other users in the Designer.
 
       // pull in field definitions:
-      this.importFields(attributes.fieldIDs);
-
-      // pull in index definitions:
-      this.importIndexes(attributes.indexIDs);
-
-      // let the MLClass now process the translations:
-      super.fromValues(attributes);
-   }
-
-   /**
-    * @method importFields
-    * instantiate a set of fields from the given field ids.
-    * @param {array} fieldIDs The different ABDefinition IDs for each field
-    *	       [ "uuid11", "uuid2", ... "uuidN" ]
-    */
-   importFields(fieldIDs) {
       var fields = [];
-      (fieldIDs || []).forEach((id) => {
+      (attributes.fieldIDs || []).forEach((id) => {
          var def = ABDefinition.definition(id);
          if (def) {
             fields.push(this.application.fieldNew(def, this));
@@ -223,7 +207,21 @@ module.exports = class ABObjectCore extends ABMLClass {
          }
       });
       this._fields = fields;
+
+      // pull in index definitions:
+      this.importIndexes(attributes.indexIDs);
+
+      // let the MLClass now process the translations:
+      super.fromValues(attributes);
    }
+
+   /**
+    * @method importFields
+    * instantiate a set of fields from the given field ids.
+    * @param {array} fieldIDs The different ABDefinition IDs for each field
+    *	       [ "uuid11", "uuid2", ... "uuidN" ]
+    */
+   // importFields(fieldIDs) {}
 
    /**
     * @method importIndexes
