@@ -1,19 +1,19 @@
-let ABField = require("../../platform/dataFields/ABField");
+let ABField = require("app_builder/api/classes/platform/dataFields/ABField");
 
 function L(key, altText) {
    // TODO:
    return altText; // AD.lang.label.getLabel(key) || altText;
 }
 
-var ABFieldCustomIndexDefaults = {
-   key: "customIndex", // unique key to reference this specific DataField
+var ABFieldCombinedDefaults = {
+   key: "combined", // unique key to reference this specific DataField
    icon: "key", // font-awesome icon reference.  (without the 'fa-').  so 'user'  to reference 'fa-user'
 
    // menuName: what gets displayed in the Editor drop list
-   menuName: L("ab.dataField.CustomIndex.menuName", "*Custom Index"),
+   menuName: L("ab.dataField.Combined.menuName", "*Combined Field"),
 
    // description: what gets displayed in the Editor description.
-   description: L("ab.dataField.CustomIndex.description", "*Custom Value")
+   description: L("ab.dataField.Combined.description", "*Combined Value")
 };
 
 // defaultValues: the keys must match a .name of your elements to set it's default value.
@@ -21,14 +21,14 @@ const defaultValues = {
    delimiter: "plus" // plus, space, dash, period
 };
 
-module.exports = class ABFieldCustomIndexCore extends ABField {
+module.exports = class ABFieldCombineCore extends ABField {
    constructor(values, object) {
-      super(values, object, ABFieldCustomIndexDefaults);
+      super(values, object, ABFieldCombinedDefaults);
    }
 
    // return the default values for this DataField
    static defaults() {
-      return ABFieldCustomIndexDefaults;
+      return ABFieldCombinedDefaults;
    }
 
    static defaultValues() {
@@ -38,7 +38,8 @@ module.exports = class ABFieldCustomIndexCore extends ABField {
    fromValues(values) {
       super.fromValues(values);
 
-      this.settings.delimiter = values.settings.delimiter || defaultValues.delimiter;
+      this.settings.delimiter =
+         values.settings.delimiter || defaultValues.delimiter;
    }
 
    /**
