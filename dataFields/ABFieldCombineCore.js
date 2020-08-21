@@ -1,4 +1,4 @@
-let ABField = require("app_builder/api/classes/platform/dataFields/ABField");
+let ABField = require("../../platform/dataFields/ABField");
 
 function L(key, altText) {
    // TODO:
@@ -53,4 +53,5 @@ module.exports = class ABFieldCombineCore extends ABField {
       delete values[this.columnName];
    }
 };
+
 
