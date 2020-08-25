@@ -24,8 +24,17 @@ let AccountingJEArchiveDefaults = {
    settings: [
       "processBatchValue",
       "objectBatch",
+      "objectBalance",
       "objectJE",
       "objectJEArchive",
+
+      "fieldBatchFiscalMonth",
+      "fieldJeAccount",
+      "fieldJeRC",
+      "fieldJeArchiveBalance",
+      "fieldBrFiscalMonth",
+      "fieldBrAccount",
+      "fieldBrRC",
       "fieldsMatch"
    ]
    // settings: {array}
@@ -149,5 +158,4 @@ module.exports = class AccountingJEArchiveCore extends ABProcessElement {
     }
     */
 };
-
 
