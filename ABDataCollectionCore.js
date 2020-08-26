@@ -1404,11 +1404,49 @@ module.exports = class ABViewDataCollectionCore extends ABEmitter {
    }
 
    reloadData(start, limit) {
-      this.__dataCollection.clearAll();
+      var waitForDataCollectionToInitialize = (DC) => {
+         return new Promise((resolve, reject) => {
+            switch (DC.dataStatus) {
+               // if that DC hasn't started initializing yet, start it!
+               case DC.dataStatusFlag.notInitial:
+                  DC.loadData().catch(reject);
+               // no break;
 
-      if (this.__treeCollection) this.__treeCollection.clearAll();
+               // once in the process of initializing
+               case DC.dataStatusFlag.initializing:
+                  // listen for "initializedData" event from the DC
+                  // then we can continue.
+                  this.eventAdd({
+                     emitter: DC,
+                     eventName: "initializedData",
+                     listener: () => {
+                        // go next
+                        resolve();
+                     }
+                  });
+                  break;
 
-      return this.loadData(start, limit);
+               // if it is already initialized, we can continue:
+               case DC.dataStatusFlag.initialized:
+                  resolve();
+                  break;
+
+               // just in case, if the status is not known, just continue
+               default:
+                  resolve();
+                  break;
+            }
+         });
+      };
+
+      return Promise.resolve()
+         .then(() => {
+            return waitForDataCollectionToInitialize(this);
+         })
+         .then(() => {
+            this.clearAll();
+            return this.loadData(start, limit);
+         });
    }
 
    reloadWheres(wheres) {
