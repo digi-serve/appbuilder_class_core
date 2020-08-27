@@ -345,5 +345,49 @@ module.exports = class ABFieldConnectCore extends ABFieldSelectivity {
 
       return indexField;
    }
+
+   getRelationValue(rowData) {
+      let PK;
+      let indexField = this.indexField;
+      let datasourceLink = this.datasourceLink;
+
+      // custom index
+      // M:N
+      if (
+         this.settings.linkType == "many" &&
+         this.settings.linkViaType == "many"
+      ) {
+         let indexField2 = this.indexField2;
+
+         if (indexField && indexField.object.id == datasourceLink.id) {
+            PK = indexField.columnName;
+         } else if (indexField2 && indexField2.object.id == datasourceLink.id) {
+            PK = indexField2.columnName;
+         }
+      }
+      // 1:M, 1:1 isSource = true
+      else if (
+         indexField &&
+         ((this.settings.linkType == "one" &&
+            this.settings.linkViaType == "many") ||
+            (this.settings.linkType == "one" &&
+               this.settings.linkViaType == "one" &&
+               this.settings.isSource))
+      ) {
+         PK = indexField.columnName;
+      }
+      // M:1 or NO CUSTOM INDEX
+      else if (datasourceLink) {
+         PK = datasourceLink.PK();
+      }
+
+      let result = rowData[PK] || rowData.id || rowData;
+
+      if (PK == "id") {
+         result = parseInt(result);
+      }
+
+      return result;
+   }
 };
 
