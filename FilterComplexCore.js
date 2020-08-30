@@ -776,7 +776,7 @@ module.exports = class FilterComplexCore extends ABComponent {
          contains: this.labels.component.containsCondition,
          not_contains: this.labels.component.notContainsCondition,
          equals: this.labels.component.isCondition,
-         not_equals: this.labels.component.isNotCondition
+         not_equal: this.labels.component.isNotCondition
          // TODO: query field option
          // TODO: record rule option
       };

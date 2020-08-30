@@ -365,18 +365,20 @@ module.exports = class ABFieldConnectCore extends ABFieldSelectivity {
             PK = indexField2.columnName;
          }
       }
-      // 1:M, 1:1 isSource = true
+      // M:1, 1:M, 1:1 isSource = true
       else if (
          indexField &&
-         ((this.settings.linkType == "one" &&
-            this.settings.linkViaType == "many") ||
+         ((this.settings.linkType == "many" &&
+            this.settings.linkViaType == "one") ||
+            (this.settings.linkType == "one" &&
+               this.settings.linkViaType == "many") ||
             (this.settings.linkType == "one" &&
                this.settings.linkViaType == "one" &&
                this.settings.isSource))
       ) {
          PK = indexField.columnName;
       }
-      // M:1 or NO CUSTOM INDEX
+      // NO CUSTOM INDEX
       else if (datasourceLink) {
          PK = datasourceLink.PK();
       }
