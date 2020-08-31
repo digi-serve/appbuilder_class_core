@@ -338,8 +338,17 @@ module.exports = class ABFieldConnectCore extends ABFieldSelectivity {
       return indexField;
    }
 
-   getRelationValue(rowData) {
-      let PK;
+   /**
+    * @method getRelationValue
+    * pull values for update connect data
+    * @param {Object} rowData
+    * @param {Object} options - {
+    *                               forUpdate: boolean
+    *                           }
+    * @return {Object}
+    */
+   getRelationValue(rowData, options = {}) {
+      let colName;
       let indexField = this.indexField;
       let datasourceLink = this.datasourceLink;
 
@@ -352,32 +361,46 @@ module.exports = class ABFieldConnectCore extends ABFieldSelectivity {
          let indexField2 = this.indexField2;
 
          if (indexField && indexField.object.id == datasourceLink.id) {
-            PK = indexField.columnName;
+            colName = indexField.columnName;
          } else if (indexField2 && indexField2.object.id == datasourceLink.id) {
-            PK = indexField2.columnName;
+            colName = indexField2.columnName;
          }
       }
-      // M:1, 1:M, 1:1 isSource = true
+      // 1:M, 1:1 isSource = true
       else if (
          indexField &&
-         ((this.settings.linkType == "many" &&
-            this.settings.linkViaType == "one") ||
-            (this.settings.linkType == "one" &&
-               this.settings.linkViaType == "many") ||
+         ((this.settings.linkType == "one" &&
+            this.settings.linkViaType == "many") ||
             (this.settings.linkType == "one" &&
                this.settings.linkViaType == "one" &&
                this.settings.isSource))
       ) {
-         PK = indexField.columnName;
+         colName = indexField.columnName;
+      }
+      // M:1
+      else if (
+         indexField &&
+         this.settings.linkType == "many" &&
+         this.settings.linkViaType == "one"
+      ) {
+         // NOTE: M:1 has special case
+         // it uses different value for search and update.
+         // UPDATE uses row id
+         // SEARCH uses custom index value
+         if (options.forUpdate) {
+            colName = datasourceLink.PK();
+         } else {
+            colName = indexField.columnName;
+         }
       }
       // NO CUSTOM INDEX
       else if (datasourceLink) {
-         PK = datasourceLink.PK();
+         colName = datasourceLink.PK();
       }
 
-      let result = rowData[PK] || rowData.id || rowData;
+      let result = rowData[colName] || rowData.id || rowData;
 
-      if (PK == "id") {
+      if (colName == "id") {
          result = parseInt(result);
       }
 
