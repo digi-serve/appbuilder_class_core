@@ -27,6 +27,10 @@ var AllProcessElements = [
    require("../../platform/process/tasks/ABProcessGatewayExclusive"),
    require("../../platform/process/tasks/ABProcessTaskEmail"),
    require("../../platform/process/tasks/ABProcessTaskService"),
+   require("../../platform/process/tasks/ABProcessTaskServiceAccountingBatchProcessing"),
+   require("../../platform/process/tasks/ABProcessTaskServiceAccountingFPClose"),
+   require("../../platform/process/tasks/ABProcessTaskServiceAccountingFPYearClose"),
+   require("../../platform/process/tasks/ABProcessTaskServiceAccountingJEArchive"),
    require("../../platform/process/tasks/ABProcessTaskServiceQuery"),
    require("../../platform/process/tasks/ABProcessTaskUser"),
    require("../../platform/process/tasks/ABProcessTaskUserApproval"),
@@ -125,3 +129,5 @@ module.exports = {
       return DEFINITIONTYPES[key];
    }
 };
+
+

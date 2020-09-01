@@ -33,19 +33,6 @@ module.exports = class ABViewFormDatepickerCore extends ABViewFormComponent {
    ///
 
    /**
-    * @method fromValues()
-    *
-    * initialze this object with the given set of values.
-    * @param {obj} values
-    */
-   fromValues(values) {
-      super.fromValues(values);
-
-      // convert from "0" => 0
-      this.settings.timepicker = parseInt(this.settings.timepicker);
-   }
-
-   /**
     * @method componentList
     * return the list of components available on this view to display in the editor.
     */
@@ -53,3 +40,4 @@ module.exports = class ABViewFormDatepickerCore extends ABViewFormComponent {
       return [];
    }
 };
+

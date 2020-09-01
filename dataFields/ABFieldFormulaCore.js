@@ -81,14 +81,29 @@ module.exports = class ABFieldFormulaCore extends ABField {
    }
 
    format(rowData) {
+      var fieldLink = this.fieldLink;
+
+      let reformat = (numData) => {
+         // ABFieldCalculate does not need to .format again
+         if (!fieldLink || fieldLink.key == "calculate") {
+            return numData;
+         } else {
+            let rowDataFormat = {};
+            rowDataFormat[fieldLink.columnName] = numData;
+            return fieldLink.format(rowDataFormat);
+         }
+      };
+
       // if data exists, then will not calculate on client side
-      if (rowData[this.columnName] != null) return rowData[this.columnName];
+      if (rowData[this.columnName] != null) {
+         // reformat data
+         return reformat(rowData[this.columnName]);
+      }
+
+      if (!fieldLink) return 0;
 
       var fieldBase = this.fieldBase();
       if (!fieldBase) return 0;
-
-      var fieldLink = this.fieldLink;
-      if (!fieldLink) return 0;
 
       var data = rowData[fieldBase.relationName()] || [];
       if (!Array.isArray(data)) data = [data];
@@ -135,14 +150,11 @@ module.exports = class ABFieldFormulaCore extends ABField {
             break;
       }
 
-      var rowDataFormat = {};
-      rowDataFormat[fieldLink.columnName] = result;
-
       // ABFieldCalculate does not need to .format again
       if (fieldLink.key == "calculate") {
          return result;
       } else {
-         return fieldLink.format(rowDataFormat);
+         return reformat(result);
       }
    }
 
@@ -162,3 +174,4 @@ module.exports = class ABFieldFormulaCore extends ABField {
       return field;
    }
 };
+

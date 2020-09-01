@@ -9,6 +9,7 @@ var ABFieldString = require("../platform/dataFields/ABFieldString");
 var ABFieldLongText = require("../platform/dataFields/ABFieldLongText");
 var ABFieldNumber = require("../platform/dataFields/ABFieldNumber");
 var ABFieldDate = require("../platform/dataFields/ABFieldDate");
+var ABFieldDateTime = require("../platform/dataFields/ABFieldDateTime");
 var ABFieldBoolean = require("../platform/dataFields/ABFieldBoolean");
 var ABFieldList = require("../platform/dataFields/ABFieldList");
 var ABFieldTree = require("../platform/dataFields/ABFieldTree");
@@ -22,7 +23,7 @@ var ABFieldTextFormula = require("../platform/dataFields/ABFieldTextFormula");
 var ABFieldFormula = require("../platform/dataFields/ABFieldFormula");
 var ABFieldAutoIndex = require("../platform/dataFields/ABFieldAutoIndex");
 var ABFieldJson = require("../platform/dataFields/ABFieldJson");
-var ABFieldCustomIndex = require("../platform/dataFields/ABFieldCustomIndex");
+var ABFieldCombine = require("../platform/dataFields/ABFieldCombine");
 
 /*
  * Fields
@@ -33,6 +34,7 @@ Fields[ABFieldString.defaults().key] = ABFieldString;
 Fields[ABFieldLongText.defaults().key] = ABFieldLongText;
 Fields[ABFieldNumber.defaults().key] = ABFieldNumber;
 Fields[ABFieldDate.defaults().key] = ABFieldDate;
+Fields[ABFieldDateTime.defaults().key] = ABFieldDateTime;
 Fields[ABFieldBoolean.defaults().key] = ABFieldBoolean;
 Fields[ABFieldList.defaults().key] = ABFieldList;
 Fields[ABFieldTree.defaults().key] = ABFieldTree;
@@ -46,7 +48,7 @@ Fields[ABFieldTextFormula.defaults().key] = ABFieldTextFormula;
 Fields[ABFieldFormula.defaults().key] = ABFieldFormula;
 Fields[ABFieldAutoIndex.defaults().key] = ABFieldAutoIndex;
 Fields[ABFieldJson.defaults().key] = ABFieldJson;
-Fields[ABFieldCustomIndex.defaults().key] = ABFieldCustomIndex;
+Fields[ABFieldCombine.defaults().key] = ABFieldCombine;
 
 module.exports = {
    /*
@@ -85,3 +87,4 @@ module.exports = {
       }
    }
 };
+

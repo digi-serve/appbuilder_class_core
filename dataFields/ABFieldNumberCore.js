@@ -105,6 +105,12 @@ module.exports = class ABFieldNumberCore extends ABField {
             position: "prefix"
          },
          {
+            id: "yen",
+            value: L("ab.dataField.number.format.yen", "¥"),
+            sign: "¥",
+            position: "prefix"
+         },
+         {
             id: "pound",
             value: L("ab.dataField.number.format.pound", "£"),
             sign: "£",
@@ -241,7 +247,14 @@ module.exports = class ABFieldNumberCore extends ABField {
    }
 
    format(rowData) {
-      var data = rowData[this.columnName] || 0;
+      if (rowData[this.columnName] == null || rowData[this.columnName] == "")
+         return "";
+
+      let data = rowData[this.columnName] || 0;
+
+      if (typeof data == "string") {
+         data = data.replace(/,/g, "");
+      }
 
       // Validate number
       if (isNaN(parseFloat(data))) data = 0;
@@ -300,3 +313,4 @@ module.exports = class ABFieldNumberCore extends ABField {
          );
    }
 };
+

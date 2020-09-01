@@ -132,6 +132,20 @@ module.exports = class ABViewMenuCore extends ABViewWidget {
             )[0];
             if (!existsPage) return;
 
+            var pageAccessLevel = existsPage.getUserAccess();
+            if (pageAccessLevel == 0) return;
+
+            if (displayPage.tabId) {
+               let existsTab = this.application.views(
+                  (v) => v.id == displayPage.tabId,
+                  true
+               )[0];
+               if (!existsTab) return;
+
+               var tabAccessLevel = existsTab.getUserAccess();
+               if (tabAccessLevel == 0) return;
+            }
+
             let label = this.getAliasname(displayPage);
             // create a temporaty store for the menu item
             var menuItem;
@@ -188,7 +202,15 @@ module.exports = class ABViewMenuCore extends ABViewWidget {
     * @return {string}
     */
    getAliasname(pageInfo) {
-      var label = pageInfo.aliasname;
+      var translation = pageInfo.translations.filter((t) => {
+         return t.language_code == AD.lang.currentLanguage;
+      });
+      var label = translation[0].aliasname;
+
+      // Just in case there isn't one stored in the translations yet
+      if (!label) {
+         label = pageInfo.aliasname;
+      }
 
       // if alias is empty, then find label of page or tab
       if (
@@ -196,15 +218,23 @@ module.exports = class ABViewMenuCore extends ABViewWidget {
          // remove [en] or [th] etc.
          !label.replace(/\[.{2,}\]/g, "")
       ) {
+         // first check to see if we are actually on a page
+         // if not recursivly look up for the nearest parent page
+         var pageId;
+         if (pageInfo.pageId) {
+            pageId = pageInfo.pageId;
+         } else {
+            pageId = this.getParentPageId(pageInfo);
+         }
          // find label of the actual page
-         var page = this.application.pages(
-            (p) => p.id == pageInfo.pageId,
-            true
-         )[0];
+         var page = this.application.pages((p) => p.id == pageId, true)[0];
          if (page) {
             // find label of the tab view
-            if (pageInfo.type == "tab") {
-               var tabView = page.views((v) => v.id == pageInfo.tabId, true)[0];
+            if (pageInfo.type == "tab" || pageInfo.key == "viewcontainer") {
+               var tabView = page.views(
+                  (v) => v.id == pageInfo.tabId || v.id == pageInfo.id,
+                  true
+               )[0];
                if (tabView) {
                   label = tabView.label;
                }
@@ -215,6 +245,14 @@ module.exports = class ABViewMenuCore extends ABViewWidget {
       }
 
       return label;
+   }
+
+   getParentPageId(currentView) {
+      if (currentView.key != "page") {
+         return this.getParentPageId(currentView.parent);
+      } else {
+         return currentView.id;
+      }
    }
 
    copy(lookUpIds, parent) {

@@ -191,15 +191,37 @@ module.exports = class ABViewFormCore extends ABViewContainer {
       return newView;
    }
 
+   get RecordRule() {
+      let object = this.datacollection.datasource;
+
+      if (this._recordRule == null) {
+         this._recordRule = new ABRecordRule();
+      }
+
+      this._recordRule.formLoad(this);
+      this._recordRule.fromSettings(this.settings.recordRules);
+      this._recordRule.objectLoad(object);
+
+      return this._recordRule;
+   }
+
+   doRecordRulesPre(rowData) {
+      return this.RecordRule.processPre({ data: rowData, form: this });
+   }
+
    doRecordRules(rowData) {
-      var object = this.datacollection.datasource;
+      // validate for record rules
+      if (rowData) {
+         let object = this.datacollection.datasource;
+         let ruleValidator = object.isValidData(rowData);
+         let isUpdatedDataValid = ruleValidator.pass();
+         if (!isUpdatedDataValid) {
+            console.error("Updated data is invalid.", { rowData: rowData });
+            return Promise.reject(new Error("Updated data is invalid."));
+         }
+      }
 
-      var RecordRules = new ABRecordRule();
-      RecordRules.formLoad(this);
-      RecordRules.fromSettings(this.settings.recordRules);
-      RecordRules.objectLoad(object);
-
-      return RecordRules.process({ data: rowData, form: this });
+      return this.RecordRule.process({ data: rowData, form: this });
    }
 
    doSubmitRules(rowData) {
@@ -213,3 +235,5 @@ module.exports = class ABViewFormCore extends ABViewContainer {
       return SubmitRules.process({ data: rowData, form: this });
    }
 };
+
+

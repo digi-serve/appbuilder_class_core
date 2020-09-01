@@ -31,6 +31,7 @@ var DefaultValues = {
          sortFields: [] // array of columns with their sort configurations
       },
       loadAll: false,
+      preventPopulate: false,
       isQuery: false, // if true it is a query, otherwise it is a object.
 
       fixSelect: "", // _CurrentUser, _FirstRecord, _FirstRecordDefault or row id
@@ -100,6 +101,10 @@ module.exports = class ABViewDataCollectionCore extends ABEmitter {
       );
       this.settings.isQuery = JSON.parse(
          values.settings.isQuery || DefaultValues.settings.isQuery
+      );
+      this.settings.preventPopulate = JSON.parse(
+         values.settings.preventPopulate ||
+            DefaultValues.settings.preventPopulate
       );
 
       // Convert to number
@@ -424,6 +429,9 @@ module.exports = class ABViewDataCollectionCore extends ABEmitter {
     *
     */
    refreshLinkCursor() {
+      // if we are loading the data server side already filtered we do not need to fitler it client side
+      if (this.__reloadWheres) return false;
+
       let linkCursor;
       let dvLink = this.datacollectionLink;
       if (dvLink) {
@@ -987,7 +995,7 @@ module.exports = class ABViewDataCollectionCore extends ABEmitter {
                var cond = { where: {} };
                cond.where[PK] = values[PK];
                // this data collection has the record so we need to query the server to find out what it's latest data is so we can update all instances
-               this.model.staleRefresh(cond).then((res) => {
+               this.model.findAll(cond).then((res) => {
                   // check to make sure there is data to work with
                   if (Array.isArray(res.data) && res.data.length) {
                      // tell the webix data collection to update using their API with the row id (values.id) and content (res.data[0])
@@ -1179,13 +1187,18 @@ module.exports = class ABViewDataCollectionCore extends ABEmitter {
 
       // pull filter conditions
       var wheres = this.settings.objectWorkspace.filterConditions || null;
+      // if we pass new wheres with a reload use them instead
+      if (this.__reloadWheres) {
+         wheres = this.__reloadWheres;
+      }
 
       // set query condition
       var cond = {
          where: wheres,
          // limit: limit || 20,
          skip: start || 0,
-         sort: sorts
+         sort: sorts,
+         populate: this.settings.preventPopulate ? false : true
       };
 
       //// NOTE: we no longer set a default limit on loadData() but
@@ -1350,7 +1363,11 @@ module.exports = class ABViewDataCollectionCore extends ABEmitter {
          // store total count
          this.__totalCount = data.total_count;
 
-         // load the data into our actual dataCollection
+         // In order to get the total_count updated I had to use .load()
+         this.__dataCollection.load(function() {
+            return data;
+         });
+         // In order to keep detail and graphs loading properly I had to keep .parse()
          this.__dataCollection.parse(data);
 
          this.parseTreeCollection(data);
@@ -1387,11 +1404,53 @@ module.exports = class ABViewDataCollectionCore extends ABEmitter {
    }
 
    reloadData(start, limit) {
-      this.__dataCollection.clearAll();
+      var waitForDataCollectionToInitialize = (DC) => {
+         return new Promise((resolve, reject) => {
+            switch (DC.dataStatus) {
+               // if that DC hasn't started initializing yet, start it!
+               case DC.dataStatusFlag.notInitial:
+                  DC.loadData().catch(reject);
+               // no break;
 
-      if (this.__treeCollection) this.__treeCollection.clearAll();
+               // once in the process of initializing
+               case DC.dataStatusFlag.initializing:
+                  // listen for "initializedData" event from the DC
+                  // then we can continue.
+                  this.eventAdd({
+                     emitter: DC,
+                     eventName: "initializedData",
+                     listener: () => {
+                        // go next
+                        resolve();
+                     }
+                  });
+                  break;
 
-      return this.loadData(start, limit);
+               // if it is already initialized, we can continue:
+               case DC.dataStatusFlag.initialized:
+                  resolve();
+                  break;
+
+               // just in case, if the status is not known, just continue
+               default:
+                  resolve();
+                  break;
+            }
+         });
+      };
+
+      return Promise.resolve()
+         .then(() => {
+            return waitForDataCollectionToInitialize(this);
+         })
+         .then(() => {
+            this.clearAll();
+            return this.loadData(start, limit);
+         });
+   }
+
+   reloadWheres(wheres) {
+      this.__reloadWheres = wheres;
    }
 
    getData(filter) {
@@ -1752,8 +1811,10 @@ module.exports = class ABViewDataCollectionCore extends ABEmitter {
    isValidData(rowData) {
       let result = true;
 
-      if (this.__filterDatasource)
-         result = result && this.__filterDatasource.isValid(rowData);
+      // NOTE: should we use filter of the current view of object to filter
+      //        if yes, update .wheres condition in .loadData too
+      // if (this.__filterDatasource)
+      //    result = result && this.__filterDatasource.isValid(rowData);
 
       if (this.__filterDatacollection)
          result = result && this.__filterDatacollection.isValid(rowData);
@@ -1770,27 +1831,43 @@ module.exports = class ABViewDataCollectionCore extends ABEmitter {
          this.application
       );
       clonedDatacollection.__datasource = this.__datasource;
+      clonedDatacollection._dataStatus = this._dataStatus;
+      // clonedDatacollection.__dataCollection = this.__dataCollection.copy();
+      if (clonedDatacollection.__dataCollection) {
+         clonedDatacollection.__dataCollection.parse(
+            this.__dataCollection.find({})
+         );
+      }
+      if (clonedDatacollection.__treeCollection) {
+         clonedDatacollection.__treeCollection.parse(
+            this.__treeCollection.find({})
+         );
+      }
 
-      return new Promise((resolve, reject) => {
-         // load the data
-         clonedDatacollection
-            .loadData()
-            .then(() => {
-               // set the cursor
-               var cursorID = this.getCursor();
+      // return new Promise((resolve, reject) => {
+      //    // load the data
+      //    clonedDatacollection
+      //       .loadData()
+      //       .then(() => {
 
-               if (cursorID) {
-                  // NOTE: webix documentation issue: .getCursor() is supposed to return
-                  // the .id of the item.  However it seems to be returning the {obj}
-                  if (cursorID.id) cursorID = cursorID.id;
+      // set the cursor
+      clonedDatacollection.setStaticCursor();
 
-                  clonedDatacollection.setCursor(cursorID);
-               }
+      var cursorID = this.getCursor();
+      if (cursorID) {
+         // NOTE: webix documentation issue: .getCursor() is supposed to return
+         // the .id of the item.  However it seems to be returning the {obj}
+         if (cursorID.id) cursorID = cursorID.id;
 
-               resolve(clonedDatacollection);
-            })
-            .catch(reject);
-      });
+         clonedDatacollection.setCursor(cursorID);
+      }
+
+      return clonedDatacollection;
+
+      // resolve(clonedDatacollection);
+      //       })
+      //       .catch(reject);
+      // });
    }
 
    filteredClone(filters) {

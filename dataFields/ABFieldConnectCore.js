@@ -29,7 +29,19 @@ var ABFieldConnectDefaults = {
       "*Connect two data objects together"
    ),
 
-   isSortable: false,
+   isSortable: (field) => {
+      return (
+         field &&
+         field.settings &&
+         // 1:M
+         ((field.settings.linkType == "one" &&
+            field.settings.linkViaType == "many") ||
+            // 1:1 isSource = true
+            (field.settings.linkType == "one" &&
+               field.settings.linkViaType == "one" &&
+               field.settings.isSource))
+      );
+   },
    isFilterable: true, // now we can filter using Queries
    useAsLabel: false,
 
@@ -161,10 +173,8 @@ module.exports = class ABFieldConnectCore extends ABFieldSelectivity {
 
    /**
     * @method pullRelationValues
-    *
-    *
+    * Return the data values for this field entry in the provided data row.
     * @param {*} row
-    *
     * @return {array}
     */
    pullRelationValues(row) {
@@ -182,19 +192,7 @@ module.exports = class ABFieldConnectCore extends ABFieldSelectivity {
             } catch (e) {}
          }
 
-         // if this select value is array
-         if (data.map) {
-            selectedData = data.map(function(d) {
-               // display label in format
-               if (d) d.text = d.text || linkedObject.displayData(d);
-
-               return d;
-            });
-         } else if (data.id) {
-            selectedData = data;
-            selectedData.text =
-               selectedData.text || linkedObject.displayData(selectedData);
-         }
+         selectedData = data;
       }
 
       return selectedData;
@@ -339,4 +337,74 @@ module.exports = class ABFieldConnectCore extends ABFieldSelectivity {
 
       return indexField;
    }
+
+   /**
+    * @method getRelationValue
+    * pull values for update connect data
+    * @param {Object} rowData
+    * @param {Object} options - {
+    *                               forUpdate: boolean
+    *                           }
+    * @return {Object}
+    */
+   getRelationValue(rowData, options = {}) {
+      let colName;
+      let indexField = this.indexField;
+      let datasourceLink = this.datasourceLink;
+
+      // custom index
+      // M:N
+      if (
+         this.settings.linkType == "many" &&
+         this.settings.linkViaType == "many"
+      ) {
+         let indexField2 = this.indexField2;
+
+         if (indexField && indexField.object.id == datasourceLink.id) {
+            colName = indexField.columnName;
+         } else if (indexField2 && indexField2.object.id == datasourceLink.id) {
+            colName = indexField2.columnName;
+         }
+      }
+      // 1:M, 1:1 isSource = true
+      else if (
+         indexField &&
+         ((this.settings.linkType == "one" &&
+            this.settings.linkViaType == "many") ||
+            (this.settings.linkType == "one" &&
+               this.settings.linkViaType == "one" &&
+               this.settings.isSource))
+      ) {
+         colName = indexField.columnName;
+      }
+      // M:1
+      else if (
+         indexField &&
+         this.settings.linkType == "many" &&
+         this.settings.linkViaType == "one"
+      ) {
+         // NOTE: M:1 has special case
+         // it uses different value for search and update.
+         // UPDATE uses row id
+         // SEARCH uses custom index value
+         if (options.forUpdate) {
+            colName = datasourceLink.PK();
+         } else {
+            colName = indexField.columnName;
+         }
+      }
+      // NO CUSTOM INDEX
+      else if (datasourceLink) {
+         colName = datasourceLink.PK();
+      }
+
+      let result = rowData[colName] || rowData.id || rowData;
+
+      if (colName == "id") {
+         result = parseInt(result);
+      }
+
+      return result;
+   }
 };
+

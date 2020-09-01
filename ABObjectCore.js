@@ -31,7 +31,10 @@ module.exports = class ABObjectCore extends ABEmitter {
 	],
 	fields:[
 		{ABDataField}
-	]
+   ],
+   indexes: [
+      {ABIndex}
+   ]
 }
 */
       // link me to my parent ABApplication
@@ -75,6 +78,9 @@ module.exports = class ABObjectCore extends ABEmitter {
             ],
             fields:[
                 {ABDataField}
+            ],
+            indexes: [
+               {ABIndex}
             ]
         }
         */
@@ -92,6 +98,10 @@ module.exports = class ABObjectCore extends ABEmitter {
       this.urlPath = attributes.urlPath || "";
       this.importFromObject = attributes.importFromObject || "";
       this.translations = attributes.translations;
+
+      // knex does not like .(dot) in table and column names
+      // https://github.com/knex/knex/issues/2762
+      this.tableName = this.tableName.replace(/[^a-zA-Z0-9_ ]/gi, "");
 
       if (attributes.isSystemObject)
          this.isSystemObject = attributes.isSystemObject;
@@ -117,6 +127,9 @@ module.exports = class ABObjectCore extends ABEmitter {
 
       // import all our ABField
       this.importFields(attributes.fields || []);
+
+      // import all our ABIndex
+      this.importIndexes(attributes.indexes || []);
 
       // convert '0' to 0
       this.isImported = parseInt(this.isImported || 0);
@@ -147,6 +160,19 @@ module.exports = class ABObjectCore extends ABEmitter {
       this._fields = newFields;
    }
 
+   importIndexes(indexSettings) {
+      let newIndexes = [];
+
+      if (indexSettings && !Array.isArray(indexSettings)) {
+         indexSettings = [indexSettings];
+      }
+
+      indexSettings.forEach((index) => {
+         newIndexes.push(this.application.indexNew(index, this));
+      });
+      this._indexes = newIndexes;
+   }
+
    /**
     * @method exportFields
     * convert our array of fields into a settings object for saving to disk.
@@ -158,6 +184,19 @@ module.exports = class ABObjectCore extends ABEmitter {
          currFields.push(obj.toObj());
       });
       return currFields;
+   }
+
+   /**
+    * @method exportFields
+    * convert our array of fields into a settings object for saving to disk.
+    * @return {array}
+    */
+   exportIndexes() {
+      var currIndexes = [];
+      this._indexes.forEach((idx) => {
+         currIndexes.push(idx.toObj());
+      });
+      return currIndexes;
    }
 
    /**
@@ -193,6 +232,7 @@ module.exports = class ABObjectCore extends ABEmitter {
          isSystemObject: this.isSystemObject,
          translations: this.translations,
          fields: currFields,
+         indexes: this.exportIndexes(),
          createdInAppID: this.createdInAppID
       };
    }
@@ -271,20 +311,6 @@ module.exports = class ABObjectCore extends ABEmitter {
     */
    connectFields(getAll = false) {
       return this.fields((f) => f && f.key == "connectObject", getAll);
-   }
-
-   /**
-    * @method indexFields()
-    *
-    * return an array of the ABFieldConnect.
-    *
-    * @return {array}
-    */
-   indexFields(getAll = false) {
-      return this.fields(
-         (f) => f && (f.key == "AutoIndex" || f.key == "customIndex"),
-         getAll
-      );
    }
 
    /**
@@ -392,6 +418,65 @@ module.exports = class ABObjectCore extends ABEmitter {
       return this.fields((f) => f && f.isMultilingual).map((f) => f.columnName);
    }
 
+   /**
+    * @method indexes()
+    *
+    * return an array of all the ABIndex for this ABObject.
+    *
+    * @param filter {Object}
+    *
+    * @return {array}
+    */
+   indexes(filter) {
+      filter =
+         filter ||
+         function() {
+            return true;
+         };
+
+      let result = this._indexes.filter(filter);
+
+      return result;
+   }
+
+   /**
+    * @method indexRemove()
+    *
+    * remove the given ABIndex from our ._indexes array and persist the current
+    * values.
+    *
+    * @param {ABIndex}
+    * @return {Promise}
+    */
+   indexRemove(index) {
+      this._indexes = this.indexes(function(idx) {
+         return idx.id != index.id;
+      });
+
+      return this.save();
+   }
+
+   /**
+    * @method indexSave()
+    *
+    * save the given ABIndex in our ._indexes array and persist the current
+    * values.
+    *
+    * @param {ABIndex}
+    * @return {Promise}
+    */
+   indexSave(index) {
+      var isIncluded =
+         this.indexes(function(idx) {
+            return idx.id == index.id;
+         }).length > 0;
+      if (!isIncluded) {
+         this._indexes.push(index);
+      }
+
+      return this.save();
+   }
+
    ///
    /// Working with data from server
    ///
@@ -438,6 +523,17 @@ module.exports = class ABObjectCore extends ABEmitter {
     */
    urlRest() {
       return "/app_builder/model/application/#appID#/object/#objID#"
+         .replace("#appID#", this.application.id)
+         .replace("#objID#", this.id);
+   }
+
+   /**
+    * @method urlRestBatch
+    * return the url to use for batch creates for this object
+    * @return {string}
+    */
+   urlRestBatch() {
+      return "/app_builder/model/application/#appID#/object/#objID#/batch"
          .replace("#appID#", this.application.id)
          .replace("#objID#", this.id);
    }
@@ -648,3 +744,5 @@ module.exports = class ABObjectCore extends ABEmitter {
       return cloneOne;
    }
 };
+
+

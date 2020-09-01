@@ -172,10 +172,11 @@ module.exports = class ABViewPageCore extends ABViewContainer {
     * @return {Promise}
     *         .resolve( {this} )
     */
-   save(includeSubViews = false) {
+   save(includeSubViews = false, updateUi = true) {
       return new Promise((resolve, reject) => {
          // if this is our initial save()
          if (!this.id) {
+            //// TODO: OP.*  code should be move to platform version of code.
             this.id = OP.Util.uuid(); // setup default .id
             this.name = this.name + "_" + this.id.split("-")[1]; // add a unique string to the name so it doesnt collide with a previous page name
          }
@@ -186,7 +187,7 @@ module.exports = class ABViewPageCore extends ABViewContainer {
          }
 
          this.application
-            .viewSave(this, includeSubViews)
+            .viewSave(this, includeSubViews, updateUi)
             .then(() => {
                // persist the current ABViewPage in our list of ._pages.
                var parent = this.parent || this.application;
@@ -329,6 +330,7 @@ module.exports = class ABViewPageCore extends ABViewContainer {
       if (lookUpIds == null) {
          lookUpIds = {};
 
+         //// TODO: OP.*  code should not be in *Core.js version of code
          let mapNewIdFn = (currView) => {
             if (!lookUpIds[currView.id])
                lookUpIds[currView.id] = OP.Util.uuid();
