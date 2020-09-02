@@ -247,7 +247,10 @@ module.exports = class ABFieldNumberCore extends ABField {
    }
 
    format(rowData) {
-      if (rowData[this.columnName] == null || rowData[this.columnName] == "")
+      if (
+         rowData[this.columnName] == null ||
+         (rowData[this.columnName] != 0 && rowData[this.columnName] == "")
+      )
          return "";
 
       let data = rowData[this.columnName] || 0;
@@ -313,4 +316,5 @@ module.exports = class ABFieldNumberCore extends ABField {
          );
    }
 };
+
 
