@@ -395,36 +395,36 @@ module.exports = class RowFilter extends ABComponent {
          },
 
          connectFieldValid: function(rowData, field, rule, compareValue) {
-            var columnName = field.relationName();
+            let columnName = field.relationName();
+
+            let connectedVal = "";
+
+            if (rowData && rowData[columnName]) {
+               connectedVal = (
+                  (field.indexField
+                     ? rowData[columnName][field.indexField.columnName]
+                     : false) || // custom index
+                  (field.indexField2
+                     ? rowData[columnName][field.indexField2.columnName]
+                     : false) || // custom index 2
+                  rowData[columnName].id ||
+                  rowData[columnName]
+               )
+                  .toString()
+                  .toLowerCase();
+            }
+
+            let compareValueLowercase = (compareValue || "").toLowerCase();
+
             switch (rule) {
                case "contains":
-                  return (
-                     (rowData[columnName].id || rowData[columnName])
-                        .toString()
-                        .indexOf(compareValue) > -1
-                  );
-                  break;
+                  return connectedVal.indexOf(compareValueLowercase) > -1;
                case "not_contains":
-                  return (
-                     (rowData[columnName].id || rowData[columnName])
-                        .toString()
-                        .indexOf(compareValue) == -1
-                  );
-                  break;
+                  return connectedVal.indexOf(compareValueLowercase) == -1;
                case "equals":
-                  return (
-                     (
-                        rowData[columnName].id || rowData[columnName]
-                     ).toString() == compareValue
-                  );
-                  break;
+                  return connectedVal == compareValueLowercase;
                case "not_equal":
-                  return (
-                     (
-                        rowData[columnName].id || rowData[columnName]
-                     ).toString() != compareValue
-                  );
-                  break;
+                  return connectedVal != compareValueLowercase;
                case "in_query":
                case "not_in_query":
                   return _logic.inQueryValid(
@@ -433,13 +433,11 @@ module.exports = class RowFilter extends ABComponent {
                      rule,
                      compareValue
                   );
-                  break;
                case "is_current_user":
                case "is_not_current_user":
                case "contain_current_user":
                case "not_contain_current_user":
                   return _logic.userValid(rowData, field, rule, compareValue);
-                  break;
                case "in_data_collection":
                case "not_in_data_collection":
                   return _logic.dataCollectionValid(
@@ -448,7 +446,6 @@ module.exports = class RowFilter extends ABComponent {
                      rule,
                      compareValue
                   );
-                  break;
             }
          },
 
