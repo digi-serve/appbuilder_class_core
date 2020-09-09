@@ -30,29 +30,6 @@ class ABQLCore {
    /// Instance Methods
    ///
 
-   /**
-    * @method exportIDs()
-    * export any relevant .ids for the necessary operation of this application.
-    * @return {array}
-    *         any relevalt ABDefinition IDs
-    */
-   exportIDs() {
-      var myIDs = [];
-
-      if (this.next) {
-         var nextIDs = this.next.exportIDs();
-         if (nextIDs && nextIDs.length > 0) {
-            myIDs = myIDs.concat(nextIDs);
-         }
-      }
-
-      if (this.objectID) {
-         myIDs = myIDs.concat(this.object.exportIDs());
-      }
-
-      return myIDs;
-   }
-
    initObject(attributes) {}
 
    fromAttributes(attributes) {
