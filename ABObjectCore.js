@@ -829,7 +829,7 @@ module.exports = class ABObjectCore extends ABMLClass {
     * @return {string}
     */
    PK() {
-      return this.primaryColumnName || "id";
+      return this.primaryColumnName || "uuid";
    }
 
    remoteCreate(data) {
