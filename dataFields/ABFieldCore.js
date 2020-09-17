@@ -226,10 +226,6 @@ module.exports = class ABFieldCore extends ABMLClass {
 
       this.columnName = values.columnName || "";
 
-      // knex does not like .(dot) in table and column names
-      // https://github.com/knex/knex/issues/2762
-      this.columnName = this.columnName.replace(/[^a-zA-Z0-9_ ]/gi, "");
-
       this.isImported = values.isImported || 0;
 
       values.settings = values.settings || {};
@@ -256,6 +252,13 @@ module.exports = class ABFieldCore extends ABMLClass {
 
       // let the MLClass now process the Translations
       super.fromValues(values);
+
+      // final validity check: columnName really should have a value:
+      this.columnName = this.columnName || this.label;
+
+      // knex does not like .(dot) in table and column names
+      // https://github.com/knex/knex/issues/2762
+      this.columnName = this.columnName.replace(/[^a-zA-Z0-9_ ]/gi, "");
    }
 
    /**
