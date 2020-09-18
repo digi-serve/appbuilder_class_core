@@ -540,17 +540,9 @@ module.exports = class ABApplicationCore {
             }
          }
 
-         // if no views of the root page match now look at the sub pages and their views
-         if (views.length) {
-            result = views;
-         } else {
-            // check the first level subpages
-            result = this._pages.filter(filter);
-
-            // if no match check each pages views and subpages
-            if (result.length < 1) {
-               // looping through pages
-               this._pages.forEach((p) => {
+         function lookDeep(view) {
+            if (view._pages && view._pages.length) {
+               view._pages.forEach((p) => {
                   // check the page views recusively
                   var pageViews = p.views(filter, true);
                   // if there was a match store it
@@ -565,8 +557,25 @@ module.exports = class ABApplicationCore {
                      if (subPages && subPages.length > 0) {
                         result = subPages;
                      }
+                     if (result.length < 1) {
+                        lookDeep(p);
+                     }
                   }
                });
+            }
+         }
+
+         // if no views of the root page match now look at the sub pages and their views
+         if (views.length) {
+            result = views;
+         } else {
+            // check the first level subpages
+            result = this._pages.filter(filter);
+
+            // if no match check each pages views and subpages
+            if (result.length < 1) {
+               // looping through pages
+               lookDeep(this);
             }
          }
       }
@@ -1027,4 +1036,3 @@ module.exports = class ABApplicationCore {
       return JSON.parse(JSON.stringify(object));
    }
 };
-
