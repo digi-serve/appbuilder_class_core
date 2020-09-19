@@ -31,12 +31,9 @@ module.exports = class ABIndexCore extends ABMLClass {
 
       this.fields = (attributes.fieldIDs || [])
          .map((f) => {
-            // Convert to ABField
-            // if (typeof f == "string") {
-            return this.object.fields((fld) => fld.id == f)[0];
-            // } else if (f) {
-            //    return f;
-            // }
+            // NOTE: to prevent a Race Condition on load, we need to
+            // send .fields(filter(), TRUE);
+            return this.object.fields((fld) => fld.id == f, true)[0];
          })
          .filter((fId) => fId);
 
