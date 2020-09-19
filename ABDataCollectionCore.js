@@ -41,7 +41,7 @@ var DefaultValues = {
    }
 };
 
-module.exports = class ABViewDataCollectionCore extends ABMLClass {
+module.exports = class ABDataCollectionCore extends ABMLClass {
    constructor(attributes, application) {
       super(["label"]);
 
@@ -195,7 +195,7 @@ module.exports = class ABViewDataCollectionCore extends ABMLClass {
             }
          } else {
             console.error(
-               `ABDataCollection[${this.id}] unable to find datasource [${this.settings.datasourceID}]`
+               `ABDataCollection[${this.name}][${this.id}] unable to find datasource [${this.settings.datasourceID}]`
             );
          }
       }
