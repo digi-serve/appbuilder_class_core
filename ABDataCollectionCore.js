@@ -13,6 +13,11 @@ const ABObject = require("../platform/ABObject");
 const ABObjectQuery = require("../platform/ABObjectQuery");
 const RowFilter = require("../platform/RowFilter");
 
+function L(key, altText) {
+   // TODO:
+   return altText; // AD.lang.label.getLabel(key) || altText;
+}
+
 var DefaultValues = {
    id: "uuid",
    label: "", // label
@@ -625,12 +630,61 @@ module.exports = class ABViewDataCollectionCore extends ABEmitter {
                      // filter condition before add
                      if (!this.isValidData(updatedV)) return;
 
+                     // check to see if item already exisits in data collection
+                     // and check to see that we are not loading the data serverside from cursor
                      if (
-                        !this.__dataCollection.exists(updatedV[`${obj.PK()}`])
+                        !this.__dataCollection.exists(
+                           updatedV[`${obj.PK()}`]
+                        ) &&
+                        !this.__reloadWheres
                      ) {
                         this.__dataCollection.add(updatedV, 0);
                         this.emit("create", updatedV);
                         // this.__dataCollection.setCursor(rowData.id);
+                     } else if (
+                        !this.__dataCollection.exists(
+                           updatedV[`${obj.PK()}`]
+                        ) &&
+                        this.__reloadWheres
+                     ) {
+                        // debugger;
+                        if (this.isParentFilterValid(updatedV)) {
+                           this.__bindComponentIds.forEach((bcids) => {
+                              // if the reload button already exisits move on
+                              if ($$($$(bcids).id + "_reloadView"))
+                                 return false;
+
+                              // find the position of the data view
+                              var pos = $$(bcids)
+                                 .getParentView()
+                                 .index($$(bcids));
+
+                              // store the datacollection so we can pass it to the button later
+                              var DC = this;
+                              // add a button that reloads the view when clicked
+                              $$(bcids)
+                                 .getParentView()
+                                 .addView(
+                                    {
+                                       id: $$(bcids).id + "_reloadView",
+                                       view: "button",
+                                       value: L(
+                                          "ab.dataCollection.staleTable",
+                                          "*New data available. Click to reload."
+                                       ),
+                                       css: "webix_primary webix_warn",
+                                       click: function(id, event) {
+                                          DC.reloadData();
+                                          $$(id)
+                                             .getParentView()
+                                             .removeView(id);
+                                       }
+                                    },
+                                    pos
+                                 );
+                           });
+                           // this.emit("create", updatedV);
+                        }
                      }
                   });
 
