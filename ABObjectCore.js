@@ -292,7 +292,7 @@ module.exports = class ABObjectCore extends ABMLClass {
       var obj = super.toObj();
 
       // track the field .ids of our fields
-      var fieldIDs = this.fields().map((f) => f.id);
+      var fieldIDs = this.fields(null, true).map((f) => f.id);
 
       // track the index .ids of our indexes
       var indexIDs = this.indexes().map((f) => f.id);

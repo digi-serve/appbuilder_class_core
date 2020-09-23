@@ -168,7 +168,10 @@ module.exports = class ABFieldConnectCore extends ABFieldSelectivity {
       var objectLink = this.datasourceLink;
       if (!objectLink) return null;
 
-      return objectLink.fields((f) => f.id == this.settings.linkColumn)[0];
+      return objectLink.fields(
+         (f) => f.id == this.settings.linkColumn,
+         true
+      )[0];
    }
 
    /**
@@ -415,4 +418,3 @@ module.exports = class ABFieldConnectCore extends ABFieldSelectivity {
       return result;
    }
 };
-
