@@ -1291,7 +1291,6 @@ module.exports = class ABDataCollectionCore extends ABMLClass {
          // update relation data
          if (
             obj instanceof ABObject &&
-            deletedIds[0] &&
             connectedFields &&
             connectedFields.length > 0
          ) {
