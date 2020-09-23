@@ -1106,7 +1106,6 @@ module.exports = class ABViewDataCollectionCore extends ABEmitter {
          // update relation data
          if (
             obj instanceof ABObject &&
-            deletedIds[0] &&
             connectedFields &&
             connectedFields.length > 0
          ) {
