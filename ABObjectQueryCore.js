@@ -250,6 +250,7 @@ module.exports = class ABObjectQueryCore extends ABObject {
     * @return {array}
     */
    fields(fn = () => true) {
+      if (!fn) fn = () => true;
       return this._fields.map((f) => f.field).filter(fn);
    }
 
