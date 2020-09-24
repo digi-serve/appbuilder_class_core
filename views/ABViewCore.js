@@ -114,6 +114,12 @@ module.exports = class ABViewCore extends ABMLClass {
 
       if (this.position) result.position = this.position;
 
+      // encode our .isRoot() reference.
+      // (NOTE: this is set so our server side code can distinguish) between a .view
+      // and a root page:
+      // NOTE: we intentionally do NOT pull this out in .fromValues()
+      result.isRoot = this.isRoot();
+
       return result;
    }
 
