@@ -1783,32 +1783,32 @@ module.exports = class ABDataCollectionCore extends ABMLClass {
          );
       }
 
-      // Set filter of data view
-      if (this.__filterDatacollection == null)
-         this.__filterDatacollection = new RowFilter();
+      // // Set filter of data view
+      // if (this.__filterDatacollection == null)
+      //    this.__filterDatacollection = new RowFilter();
 
-      this.__filterDatacollection.applicationLoad(
-         this.datasource ? this.datasource.application : null
-      );
-      this.__filterDatacollection.fieldsLoad(
-         this.datasource ? this.datasource.fields() : []
-      );
+      // this.__filterDatacollection.applicationLoad(
+      //    this.datasource ? this.datasource.application : null
+      // );
+      // this.__filterDatacollection.fieldsLoad(
+      //    this.datasource ? this.datasource.fields() : []
+      // );
 
-      if (wheres) this.settings.objectWorkspace.filterConditions = wheres;
+      // if (wheres) this.settings.objectWorkspace.filterConditions = wheres;
 
-      if (
-         this.settings &&
-         this.settings.objectWorkspace &&
-         this.settings.objectWorkspace.filterConditions
-      ) {
-         this.__filterDatacollection.setValue(
-            this.settings.objectWorkspace.filterConditions
-         );
-      } else {
-         this.__filterDatacollection.setValue(
-            DefaultValues.settings.objectWorkspace.filterConditions
-         );
-      }
+      // if (
+      //    this.settings &&
+      //    this.settings.objectWorkspace &&
+      //    this.settings.objectWorkspace.filterConditions
+      // ) {
+      //    this.__filterDatacollection.setValue(
+      //       this.settings.objectWorkspace.filterConditions
+      //    );
+      // } else {
+      //    this.__filterDatacollection.setValue(
+      //       DefaultValues.settings.objectWorkspace.filterConditions
+      //    );
+      // }
    }
 
    get isGroup() {
@@ -2002,11 +2002,11 @@ module.exports = class ABDataCollectionCore extends ABMLClass {
 
       // NOTE: should we use filter of the current view of object to filter
       //        if yes, update .wheres condition in .loadData too
-      // if (this.__filterDatasource)
-      //    result = result && this.__filterDatasource.isValid(rowData);
+      if (this.__filterDatasource)
+         result = result && this.__filterDatasource.isValid(rowData);
 
-      if (this.__filterDatacollection)
-         result = result && this.__filterDatacollection.isValid(rowData);
+      // if (this.__filterDatacollection)
+      //    result = result && this.__filterDatacollection.isValid(rowData);
 
       return result;
    }
