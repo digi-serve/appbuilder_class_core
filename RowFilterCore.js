@@ -7,9 +7,12 @@ const ABObjectQuery = require("../platform/ABObjectQuery");
 function getFieldVal(rowData, field) {
    if (!field) return null;
    if (!field.columnName) return null;
-   var columnName = field.columnName;
+   // if rowData is an array, then pull the first element to get value
+   if (rowData && rowData[0]) rowData = rowData[0];
 
-   var value = null;
+   let columnName = field.columnName;
+
+   let value = null;
    if (columnName.indexOf(".") > -1) {
       let colName = columnName.split(".")[1];
       value = rowData[columnName] || rowData[colName];
