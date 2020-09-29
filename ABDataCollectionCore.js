@@ -1644,14 +1644,17 @@ module.exports = class ABDataCollectionCore extends ABMLClass {
       var dc = this.__dataCollection;
       if (dc) {
          return dc.find((row) => {
-            // data collection filter
-            var isValid = this.isValidData(row);
+            let isValid = true;
 
+            // data collection filter
+            // isValid = this.isValidData(row);
+
+            // NOTE: data are filtered from the server side (webix.dataFeed)
             // parent dc filter
-            var linkDv = this.datacollectionLink;
-            if (isValid && linkDv) {
-               isValid = this.isParentFilterValid(row);
-            }
+            // var linkDv = this.datacollectionLink;
+            // if (isValid && linkDv) {
+            //    isValid = this.isParentFilterValid(row);
+            // }
 
             // addition filter
             if (isValid && filter) {
