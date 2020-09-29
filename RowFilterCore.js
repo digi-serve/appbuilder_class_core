@@ -352,7 +352,7 @@ module.exports = class RowFilter extends ABComponent {
                   .replace("{id}", query.id),
                inQueryFilter = new RowFilter(App, qIdBase);
             inQueryFilter.Account = this.Account;
-            inQueryFilter.applicationLoad(this.application);
+            inQueryFilter.applicationLoad(this._Application);
             inQueryFilter.fieldsLoad(query.fields());
             inQueryFilter.setValue(query.workspaceFilterConditions);
 
@@ -732,5 +732,6 @@ module.exports = class RowFilter extends ABComponent {
       this.config_settings.rules = this.config_settings.rules || [];
    }
 };
+
 
 
