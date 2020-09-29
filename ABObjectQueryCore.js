@@ -161,6 +161,20 @@ module.exports = class ABObjectQueryCore extends ABObject {
 
          // pull object by alias name
          let object = this.objectByAlias(fieldInfo.alias);
+
+         // Pull object from .application
+         if (!object && this.application) {
+            object = this.application.objects(
+               (obj) => obj.id == fieldInfo.objectID
+            )[0];
+
+            // keep
+            if (object) {
+               this._objects = this._objects || {};
+               this._objects[fieldInfo.alias] = object;
+            }
+         }
+
          if (!object) return;
 
          let field = object.fields((f) => f.id == fieldInfo.fieldID, true)[0];
@@ -566,4 +580,5 @@ module.exports = class ABObjectQueryCore extends ABObject {
       return filterConditions;
    }
 };
+
 
