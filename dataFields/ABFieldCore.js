@@ -278,7 +278,8 @@ module.exports = class ABFieldCore extends ABEmitter {
       // console.error('!!! Field ['+this.fieldKey()+'] has not implemented .isValidData()!!!');
       if (
          this.settings.required &&
-         (data[this.columnName] == null || data[this.columnName] == "")
+         (data[this.columnName] == null || data[this.columnName] == "") &&
+         data[this.columnName] != 0
       ) {
          validator.addError(this.columnName, "This is a required field.");
       }
@@ -313,4 +314,5 @@ module.exports = class ABFieldCore extends ABEmitter {
       } else return "";
    }
 };
+
 
