@@ -15,6 +15,7 @@ const ABViewChartArea = require("../platform/views/ABViewChartArea");
 const ABViewComment = require("../platform/views/ABViewComment");
 const ABViewConditionalContainer = require("../platform/views/ABViewConditionalContainer");
 const ABViewContainer = require("../platform/views/ABViewContainer");
+const ABViewCSVExporter = require("../platform/views/ABViewCSVExporter");
 const ABViewCSVImporter = require("../platform/views/ABViewCSVImporter");
 const ABViewDataview = require("../platform/views/ABViewDataview");
 const ABViewDocxBuilder = require("../platform/views/ABViewDocxBuilder");
@@ -69,6 +70,7 @@ Views[ABViewChartArea.common().key] = ABViewChartArea;
 Views[ABViewComment.common().key] = ABViewComment;
 Views[ABViewConditionalContainer.common().key] = ABViewConditionalContainer;
 Views[ABViewContainer.common().key] = ABViewContainer;
+Views[ABViewCSVExporter.common().key] = ABViewCSVExporter;
 Views[ABViewCSVImporter.common().key] = ABViewCSVImporter;
 Views[ABViewDataview.common().key] = ABViewDataview;
 Views[ABViewDocxBuilder.common().key] = ABViewDocxBuilder;
@@ -160,3 +162,4 @@ module.exports = class ABViewManagerCore {
       }
    }
 };
+
