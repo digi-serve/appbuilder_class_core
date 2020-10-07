@@ -680,6 +680,71 @@ module.exports = class ABViewCore extends ABMLClass {
    }
 
    /**
+    * @method clone()
+    * clone the definitions of this ABView object.
+    * @param {obj} lookUpIds
+    *        an { oldID : newID } lookup hash for converting ABView objects
+    *        and their setting pointers.
+    * @param {ABView*} parent
+    *        Which ABView should be connected as the parent object of this
+    *        copy.
+    * @param {obj} options
+    *        option settings for the copy command.
+    *        options.ignoreSubPages {bool}
+    *             set to true to skip copying any sub pages of this ABView.
+    * @return {obj}
+    *        obj defs of this ABView
+    */
+   clone(lookUpIds, parent, options = {}) {
+      lookUpIds = lookUpIds || {};
+
+      // get settings of the target
+      let config = this.toObj();
+
+      // remove sub-elements property
+      ["pages", "views"].forEach((prop) => {
+         delete config[prop];
+      });
+
+      // update id of linked components
+      if (this.copyUpdateProperyList) {
+         (this.copyUpdateProperyList() || []).forEach((prop) => {
+            if (config && config.settings)
+               config.settings[prop] = lookUpIds[config.settings[prop]];
+         });
+      }
+
+      // copy from settings
+      let result = this.viewNew(config, this.application, parent);
+
+      // change id
+      result.id = lookUpIds[result.id] || OP.Util.uuid();
+
+      // copy sub pages
+      if (this.pages && !options.ignoreSubPages) {
+         result._pages = [];
+         this.pages().forEach((p) => {
+            let copiedSubPage = p.clone(lookUpIds, result, options);
+            copiedSubPage.parent = result;
+
+            result._pages.push(copiedSubPage);
+         });
+      }
+
+      // copy sub views
+      if (this.views && !options.ignoreSubViews) {
+         result._views = [];
+         this.views().forEach((v) => {
+            let copiedView = v.clone(lookUpIds, result, options);
+
+            result._views.push(copiedView);
+         });
+      }
+
+      return result;
+   }
+
+   /**
     * @method copy()
     * create a new copy of this ABView object. The resulting ABView should
     * be identical in settings and all sub pages/views, but each new object
