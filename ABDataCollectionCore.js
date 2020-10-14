@@ -723,7 +723,7 @@ module.exports = class ABDataCollectionCore extends ABMLClass {
                         if (!newDataId) return;
 
                         where.rules.push({
-                           key: `${o.alias}.${o.PK()}`,
+                           key: `${o.alias || obj.objectAlias(o.id)}.${o.PK()}`,
                            rule: "equals",
                            value: newDataId
                         });

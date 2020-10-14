@@ -122,7 +122,6 @@ module.exports = class ABViewTextCore extends ABViewWidget {
             f.settings.defaultImageUrl &&
             f.settings.useDefaultImage
          ) {
-            console.log(f.settings);
             data = prepend + f.settings.defaultImageUrl;
             result = result.replace(
                "img",
