@@ -73,10 +73,12 @@ module.exports = class ABApplicationCore extends ABMLClass {
       this._objects = [];
       this.objectIDs = attributes.json.objectIDs || [];
       (this.objectsAll() || attributes.json.objects || []).forEach((obj) => {
-         if (obj instanceof ABObject) {
-            this._objects.push(obj);
-         } else {
-            this._objects.push(this.objectNew(obj));
+         if (this.objectIDs.indexOf(obj.id) !== -1) {
+            if (obj instanceof ABObject) {
+               this._objects.push(obj);
+            } else {
+               this._objects.push(this.objectNew(obj));
+            }
          }
       });
 
