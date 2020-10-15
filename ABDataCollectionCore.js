@@ -108,13 +108,6 @@ module.exports = class ABDataCollectionCore extends ABMLClass {
       // {obj} .settings
       // the specific operation values for this ABDataCollection
 
-      // if this is being instantiated on a read from the Property UI,
-      this.settings.datasourceID =
-         values.settings.datasourceID || DefaultValues.settings.datasourceID;
-      // {string} .settings.datasourceID
-      // the uuid of the ABObject/ABObjectQuery this ABDataCollection
-      // references
-
       this.settings.linkDatacollectionID =
          values.settings.linkDatacollectionID ||
          DefaultValues.settings.linkDatacollectionID;
@@ -174,7 +167,8 @@ module.exports = class ABDataCollectionCore extends ABMLClass {
       // the reference to the ABObject/ABObjectQuery that this ABDataCollection
       // is based off of.
 
-      this.settings.datasourceID = values.settings.datasourceID;
+      this.settings.datasourceID =
+         values.settings.datasourceID || DefaultValues.settings.datasourceID;
       // {string} .settings.datasourceID
       // the uuid of the .__datasource object to use
 
@@ -189,7 +183,7 @@ module.exports = class ABDataCollectionCore extends ABMLClass {
 
          if (obj) {
             this.__datasource = obj;
-            this.settings.isQuery = obj.type == "query";
+            this.settings.isQuery = obj.type === "query";
             if (this.settings.isQuery) {
                if (this.__datasource.isGroup) {
                   if (!this.__treeCollection)
