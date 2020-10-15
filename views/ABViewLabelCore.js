@@ -43,7 +43,7 @@ module.exports = class ABViewLabelCore extends ABViewWidget {
     * @return {json}
     */
    toObj() {
-      this.application.unTranslate(this, this, ["label", "text"]);
+      this.unTranslate(this, this, ["label", "text"]);
 
       var obj = super.toObj();
       obj.viewIDs = [];
@@ -75,7 +75,7 @@ module.exports = class ABViewLabelCore extends ABViewWidget {
       // convert from "0" => 0
       this.settings.format = parseInt(this.settings.format);
 
-      this.application.translate(this, this, ["text"]);
+      this.translate(this, this, ["text"]);
    }
 
    /**
