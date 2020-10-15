@@ -1169,6 +1169,8 @@ module.exports = class ABDataCollectionCore extends ABMLClass {
          // updated values
          var values = data.data;
 
+         if (!values) return;
+
          // use the Object's defined Primary Key:
          var PK = this.model.object.PK();
          if (!values[PK]) {
