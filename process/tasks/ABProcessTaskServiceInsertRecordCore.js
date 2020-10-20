@@ -43,7 +43,7 @@ module.exports = class InsertRecordCore extends ABProcessElement {
 
    get startElement() {
       let startElem = this.process.elements(
-         (elem) => elem.defaults.category == "start"
+         (elem) => elem && elem.defaults && elem.defaults.category == "start"
       )[0];
       return startElem;
    }
@@ -151,4 +151,5 @@ module.exports = class InsertRecordCore extends ABProcessElement {
      }
      */
 };
+
 
