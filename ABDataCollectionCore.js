@@ -1619,7 +1619,7 @@ module.exports = class ABViewDataCollectionCore extends ABEmitter {
    }
 
    refreshFilterConditions(wheres = null) {
-      // Set filter of data source
+      // Set filter of ABObject
       if (this.__filterDatasource == null)
          this.__filterDatasource = new RowFilter();
 
@@ -1650,7 +1650,7 @@ module.exports = class ABViewDataCollectionCore extends ABEmitter {
          );
       }
 
-      // Set filter of data view
+      // Set filter of data collection
       if (this.__filterDatacollection == null)
          this.__filterDatacollection = new RowFilter();
 
@@ -1675,6 +1675,37 @@ module.exports = class ABViewDataCollectionCore extends ABEmitter {
          this.__filterDatacollection.setValue(
             DefaultValues.settings.objectWorkspace.filterConditions
          );
+      }
+
+      // Set filter of user's scope
+      if (this.__filterScope == null) this.__filterScope = new RowFilter();
+
+      if (this.datasource && OP && OP.User) {
+         let scopeList = (OP.User.scopes() || []).filter(
+            (s) =>
+               !s.allowAll &&
+               (s.objectIds || []).indexOf(this.datasource.id) > -1
+         );
+         if (scopeList && scopeList.length > 0) {
+            this.__filterScope.applicationLoad(this.datasource.application);
+            this.__filterScope.fieldsLoad(this.datasource.fields() || []);
+
+            // concat all rules of scopes
+            let scopeRules = [];
+            scopeList
+               .filter(
+                  (s) => s.filter && s.filter.rules && s.filter.rules.length
+               )
+               .forEach((s) => {
+                  scopeRules = scopeRules.concat(s.filter.rules);
+               });
+
+            let scopeWhere = {
+               glue: "and",
+               rules: scopeRules
+            };
+            this.__filterScope.setValue(scopeWhere);
+         }
       }
    }
 
@@ -1875,6 +1906,9 @@ module.exports = class ABViewDataCollectionCore extends ABEmitter {
       if (this.__filterDatacollection)
          result = result && this.__filterDatacollection.isValid(rowData);
 
+      if (result && this.__filterScope)
+         result = result && this.__filterScope.isValid(rowData);
+
       return result;
    }
 
@@ -1992,3 +2026,4 @@ module.exports = class ABViewDataCollectionCore extends ABEmitter {
       }
    }
 };
+
