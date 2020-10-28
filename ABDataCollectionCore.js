@@ -1751,7 +1751,7 @@ module.exports = class ABDataCollectionCore extends ABMLClass {
    }
 
    refreshFilterConditions(wheres = null) {
-      // Set filter of data source
+      // Set filter of ABObject
       if (this.__filterDatasource == null)
          this.__filterDatasource = new RowFilter();
 
@@ -1808,6 +1808,42 @@ module.exports = class ABDataCollectionCore extends ABMLClass {
       //       DefaultValues.settings.objectWorkspace.filterConditions
       //    );
       // }
+
+      // Set filter of user's scope
+      if (this.__filterScope == null) this.__filterScope = new RowFilter();
+
+      if (this.datasource && OP && OP.User) {
+         let scopeList = (OP.User.scopes() || []).filter(
+            (s) =>
+               !s.allowAll &&
+               (s.objectIds || []).indexOf(this.datasource.id) > -1
+         );
+         if (scopeList && scopeList.length > 0) {
+            this.__filterScope.applicationLoad(this.datasource.application);
+            this.__filterScope.fieldsLoad(this.datasource.fields() || []);
+
+            // concat all rules of scopes
+            let scopeRules = [];
+            scopeList
+               .filter(
+                  (s) => s.filter && s.filter.rules && s.filter.rules.length
+               )
+               .forEach((s) => {
+                  let sRules = (s.filter.rules || []).filter(
+                     (r) =>
+                        this.datasource.fields((f) => f.id == r.key).length > 0
+                  );
+
+                  scopeRules = scopeRules.concat(sRules);
+               });
+
+            let scopeWhere = {
+               glue: "or",
+               rules: scopeRules
+            };
+            this.__filterScope.setValue(scopeWhere);
+         }
+      }
    }
 
    get isGroup() {
@@ -2007,6 +2043,9 @@ module.exports = class ABDataCollectionCore extends ABMLClass {
       // if (this.__filterDatacollection)
       //    result = result && this.__filterDatacollection.isValid(rowData);
 
+      if (result && this.__filterScope)
+         result = result && this.__filterScope.isValid(rowData);
+
       return result;
    }
 
@@ -2124,3 +2163,4 @@ module.exports = class ABDataCollectionCore extends ABMLClass {
       }
    }
 };
+
