@@ -1697,11 +1697,16 @@ module.exports = class ABViewDataCollectionCore extends ABEmitter {
                   (s) => s.filter && s.filter.rules && s.filter.rules.length
                )
                .forEach((s) => {
-                  scopeRules = scopeRules.concat(s.filter.rules);
+                  let sRules = (s.filter.rules || []).filter(
+                     (r) =>
+                        this.datasource.fields((f) => f.id == r.key).length > 0
+                  );
+
+                  scopeRules = scopeRules.concat(sRules);
                });
 
             let scopeWhere = {
-               glue: "and",
+               glue: "or",
                rules: scopeRules
             };
             this.__filterScope.setValue(scopeWhere);
