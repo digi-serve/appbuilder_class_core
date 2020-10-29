@@ -1680,8 +1680,8 @@ module.exports = class ABViewDataCollectionCore extends ABEmitter {
       // Set filter of user's scope
       if (this.__filterScope == null) this.__filterScope = new RowFilter();
 
-      if (this.datasource && OP && OP.User) {
-         let scopeList = (OP.User.scopes() || []).filter(
+      if (this.datasource) {
+         let scopeList = (this.userScopes || []).filter(
             (s) =>
                !s.allowAll &&
                (s.objectIds || []).indexOf(this.datasource.id) > -1
@@ -2029,6 +2029,10 @@ module.exports = class ABViewDataCollectionCore extends ABEmitter {
             e.emitter.removeListener(e.eventName, e.listener);
          });
       }
+   }
+
+   get userScopes() {
+      return [];
    }
 };
 
