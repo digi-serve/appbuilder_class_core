@@ -390,7 +390,6 @@ module.exports = class ABFieldConnectCore extends ABFieldSelectivity {
       }
       // M:1
       else if (
-         indexField &&
          this.settings.linkType == "many" &&
          this.settings.linkViaType == "one"
       ) {
@@ -401,7 +400,9 @@ module.exports = class ABFieldConnectCore extends ABFieldSelectivity {
          if (options.forUpdate) {
             colName = datasourceLink.PK();
          } else {
-            colName = indexField.columnName;
+            colName = indexField
+               ? indexField.columnName
+               : this.fieldLink.columnName;
          }
       }
       // NO CUSTOM INDEX
