@@ -411,7 +411,7 @@ module.exports = class ABDataCollectionCore extends ABMLClass {
       let object = this.datasource;
       if (!object) return null;
 
-      return object.fields((f) => f.id == this.settings.linkFieldID)[0];
+      return object.fields((f) => f.id == this.settings.linkFieldID, true)[0];
    }
 
    /**
@@ -2167,4 +2167,5 @@ module.exports = class ABDataCollectionCore extends ABMLClass {
       return [];
    }
 };
+
 
