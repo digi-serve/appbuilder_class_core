@@ -275,7 +275,8 @@ module.exports = class ABFieldConnectCore extends ABFieldSelectivity {
          this.settings.linkViaType == "many"
       ) {
          return this.datasourceLink.fields(
-            (f) => f.id == this.settings.indexField
+            (f) => f.id == this.settings.indexField,
+            true
          )[0];
       }
       // 1:1
@@ -285,11 +286,13 @@ module.exports = class ABFieldConnectCore extends ABFieldSelectivity {
       ) {
          if (this.settings.isSource) {
             return this.datasourceLink.fields(
-               (f) => f.id == this.settings.indexField
+               (f) => f.id == this.settings.indexField,
+               true
             )[0];
          } else {
             return this.object.fields(
-               (f) => f.id == this.settings.indexField
+               (f) => f.id == this.settings.indexField,
+               true
             )[0];
          }
       }
@@ -298,7 +301,10 @@ module.exports = class ABFieldConnectCore extends ABFieldSelectivity {
          this.settings.linkType == "many" &&
          this.settings.linkViaType == "one"
       ) {
-         return this.object.fields((f) => f.id == this.settings.indexField)[0];
+         return this.object.fields(
+            (f) => f.id == this.settings.indexField,
+            true
+         )[0];
       }
       // M:N
       else if (
@@ -306,12 +312,14 @@ module.exports = class ABFieldConnectCore extends ABFieldSelectivity {
          this.settings.linkViaType == "many"
       ) {
          let indexField = this.object.fields(
-            (f) => f.id == this.settings.indexField
+            (f) => f.id == this.settings.indexField,
+            true
          )[0];
 
          if (indexField == null)
             indexField = this.datasourceLink.fields(
-               (f) => f.id == this.settings.indexField
+               (f) => f.id == this.settings.indexField,
+               true
             )[0];
 
          return indexField;
@@ -337,12 +345,14 @@ module.exports = class ABFieldConnectCore extends ABFieldSelectivity {
          this.settings.linkViaType == "many"
       ) {
          indexField = this.object.fields(
-            (f) => f.id == this.settings.indexField2
+            (f) => f.id == this.settings.indexField2,
+            true
          )[0];
 
          if (indexField == null)
             indexField = this.datasourceLink.fields(
-               (f) => f.id == this.settings.indexField2
+               (f) => f.id == this.settings.indexField2,
+               true
             )[0];
       }
 
