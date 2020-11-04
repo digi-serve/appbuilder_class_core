@@ -634,7 +634,7 @@ module.exports = class ABDataCollectionCore extends ABMLClass {
             let currRowId = this.__dataCollection.getCursor();
             if (
                !currRowId ||
-               (currRowId && this.__dataCollection.getIndexById(currRowId) < 0)
+               (currRowId && !this.__dataCollection.exists(currRowId))
             ) {
                // If current cursor is filtered by parent DC, then select new cursor
 
