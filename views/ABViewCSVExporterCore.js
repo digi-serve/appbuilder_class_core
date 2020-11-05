@@ -12,7 +12,7 @@ const ABViewCSVExporterPropertyComponentDefaults = {
    buttonLabel: "Export CSV",
    filename: "exportCSV",
    hasHeader: true,
-   width: 0
+   width: 150
 };
 
 module.exports = class ABViewCSVExporterCore extends ABViewWidget {
@@ -61,4 +61,5 @@ module.exports = class ABViewCSVExporterCore extends ABViewWidget {
       );
    }
 };
+
 
