@@ -203,9 +203,16 @@ module.exports = class ABViewMenuCore extends ABViewWidget {
       var translation = pageInfo.translations.filter((t) => {
          return t.language_code == AD.lang.currentLanguage;
       });
-      var label = translation[0].aliasname
-         ? translation[0].aliasname
-         : translation[0].label;
+
+      var label = "";
+
+      if (translation.length) {
+         if (translation[0].aliasname) {
+            label = translation[0].aliasname;
+         } else if (translation[0].label) {
+            label = translation[0].label;
+         }
+      }
 
       // Just in case there isn't one stored in the translations yet
       if (!label && pageInfo.aliasname) {
