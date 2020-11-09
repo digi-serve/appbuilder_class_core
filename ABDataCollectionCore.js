@@ -1561,10 +1561,12 @@ module.exports = class ABViewDataCollectionCore extends ABEmitter {
       // array - 1:M , M:N
       if (linkVal.filter) {
          return (
-            linkVal.filter((val) => (val.id || val) == linkCursor.id).length > 0
+            linkVal.filter(
+               (val) => (val.uuid || val.id || val) == linkCursor.id
+            ).length > 0
          );
       } else {
-         return (linkVal.id || linkVal) == linkCursor.id;
+         return (linkVal.uuid || linkVal.id || linkVal) == linkCursor.id;
       }
    }
 
@@ -2035,5 +2037,6 @@ module.exports = class ABViewDataCollectionCore extends ABEmitter {
       return [];
    }
 };
+
 
 
