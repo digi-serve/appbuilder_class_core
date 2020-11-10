@@ -109,7 +109,13 @@ module.exports = class ABViewTextCore extends ABViewWidget {
       object.fields(null, true).forEach((f) => {
          var rowData = val || dv.getCursor() || {};
 
-         var template = new RegExp("{" + f.label + "}", "g");
+         // add \\ in front of the regular expression special charactors
+         let label = f.label || "";
+         label = label.replace(/\(/g, "\\(");
+         label = label.replace(/\)/g, "\\)");
+
+         var template = new RegExp("{" + label + "}", "g");
+
          var prepend = "";
          if (f.key == "image") {
             prepend = "/opsportal/image/" + this.application.name + "/";
@@ -154,4 +160,5 @@ module.exports = class ABViewTextCore extends ABViewWidget {
       return result;
    }
 };
+
 
