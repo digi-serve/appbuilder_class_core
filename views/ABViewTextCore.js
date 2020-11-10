@@ -106,7 +106,7 @@ module.exports = class ABViewTextCore extends ABViewWidget {
       var object = dv.datasource;
       if (!object) return clearTemplateValue(result);
 
-      object.fields().forEach((f) => {
+      object.fields(null, true).forEach((f) => {
          var rowData = val || dv.getCursor() || {};
 
          var template = new RegExp("{" + f.label + "}", "g");
@@ -122,7 +122,6 @@ module.exports = class ABViewTextCore extends ABViewWidget {
             f.settings.defaultImageUrl &&
             f.settings.useDefaultImage
          ) {
-            console.log(f.settings);
             data = prepend + f.settings.defaultImageUrl;
             result = result.replace(
                "img",
@@ -155,3 +154,4 @@ module.exports = class ABViewTextCore extends ABViewWidget {
       return result;
    }
 };
+
