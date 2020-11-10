@@ -106,7 +106,7 @@ module.exports = class ABViewTextCore extends ABViewWidget {
       var object = dv.datasource;
       if (!object) return clearTemplateValue(result);
 
-      object.fields().forEach((f) => {
+      object.fields(null, true).forEach((f) => {
          var rowData = val || dv.getCursor() || {};
 
          var template = new RegExp("{" + f.label + "}", "g");
@@ -154,3 +154,4 @@ module.exports = class ABViewTextCore extends ABViewWidget {
       return result;
    }
 };
+
