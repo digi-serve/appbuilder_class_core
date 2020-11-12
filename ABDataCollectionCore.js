@@ -776,8 +776,9 @@ module.exports = class ABDataCollectionCore extends ABMLClass {
                         if (this.isParentFilterValid(updatedV)) {
                            this.__bindComponentIds.forEach((bcids) => {
                               // if the reload button already exisits move on
-                              if ($$($$(bcids).id + "_reloadView"))
+                              if ($$(bcids + "_reloadView")) {
                                  return false;
+                              }
 
                               // find the position of the data view
                               var pos = $$(bcids)
@@ -791,7 +792,7 @@ module.exports = class ABDataCollectionCore extends ABMLClass {
                                  .getParentView()
                                  .addView(
                                     {
-                                       id: $$(bcids).id + "_reloadView",
+                                       id: bcids + "_reloadView",
                                        view: "button",
                                        value: L(
                                           "ab.dataCollection.staleTable",
@@ -1131,12 +1132,19 @@ module.exports = class ABDataCollectionCore extends ABMLClass {
 
                // If this item needs to update
                if (Object.keys(updateItemData).length > 0) {
-                  this.__dataCollection.updateItem(d.id, updateItemData);
-
-                  if (this.__treeCollection)
+                  if (
+                     this.__treeCollection &&
+                     this.__treeCollection.exists(d.id)
+                  )
                      this.__treeCollection.updateItem(d.id, updateItemData);
 
-                  this.emit("update", this.__dataCollection.getItem(d.id));
+                  if (
+                     this.__dataCollection &&
+                     this.__dataCollection.exists(d.id)
+                  ) {
+                     this.__dataCollection.updateItem(d.id, updateItemData);
+                     this.emit("update", this.__dataCollection.getItem(d.id));
+                  }
                }
             });
          }
@@ -2169,6 +2177,3 @@ module.exports = class ABDataCollectionCore extends ABMLClass {
       return [];
    }
 };
-
-
-
