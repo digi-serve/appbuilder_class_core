@@ -62,6 +62,11 @@ module.exports = class ABViewMenuCore extends ABViewWidget {
     * @return {json}
     */
    toObj() {
+      this.unTranslate(this, this, [
+         "menuTextLeft",
+         "menuTextCenter",
+         "menuTextRight"
+      ]);
       if (this.settings.pages) {
          this.settings.pages.forEach((page) => {
             this.unTranslate(page, page, ["aliasname"]);
@@ -81,6 +86,12 @@ module.exports = class ABViewMenuCore extends ABViewWidget {
     */
    fromValues(values) {
       super.fromValues(values);
+
+      this.translate(this, this, [
+         "menuTextLeft",
+         "menuTextCenter",
+         "menuTextRight"
+      ]);
 
       this.settings.pages =
          this.settings.pages || ABViewMenuPropertyComponentDefaults.pages;
