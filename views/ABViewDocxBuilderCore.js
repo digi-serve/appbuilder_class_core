@@ -35,6 +35,22 @@ module.exports = class ABViewDocxBuilderCore extends ABViewWidget {
    ///
 
    /**
+    * @method toObj()
+    *
+    * properly compile the current state of this ABViewLabel instance
+    * into the values needed for saving.
+    *
+    * @return {json}
+    */
+   toObj() {
+      this.unTranslate(this, this, ["filelabel", "buttonlabel"]);
+
+      var obj = super.toObj();
+      obj.viewIDs = [];
+      return obj;
+   }
+
+   /**
     * @method fromValues()
     *
     * initialze this object with the given set of values.
@@ -47,6 +63,8 @@ module.exports = class ABViewDocxBuilderCore extends ABViewWidget {
       this.settings.width = parseInt(
          this.settings.width || ABViewDocxBuilderPropertyComponentDefaults.width
       );
+
+      this.translate(this, this, ["filelabel", "buttonlabel"]);
    }
 
    uploadUrl() {

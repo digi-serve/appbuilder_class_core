@@ -1,7 +1,8 @@
-const uuid = require("uuid/v4");
+const ABMLClass = require("../platform/ABMLClass");
 
-module.exports = class ABIndexCore {
+module.exports = class ABIndexCore extends ABMLClass {
    constructor(attributes, object) {
+      super(/* ["label"] */);
       this.object = object;
 
       this.fromValues(attributes);
@@ -13,30 +14,31 @@ module.exports = class ABIndexCore {
         id: uuid(),
         name: 'name',
         fields:[
-            {ABDataField}
+            {ABDataField.id}
         ],
         unique: {boolean}
       }
       */
       this.id = attributes.id;
+      this.type = "index";
       this.name = attributes.name;
       this.unique = JSON.parse(attributes.unique || false);
 
       // Convert to an array
-      if (attributes.fields && !Array.isArray(attributes.fields)) {
-         attributes.fields = [attributes.fields];
+      if (attributes.fieldIDs && !Array.isArray(attributes.fieldIDs)) {
+         attributes.fieldIDs = [attributes.fieldIDs];
       }
 
-      this.fields = (attributes.fields || [])
+      this.fields = (attributes.fieldIDs || [])
          .map((f) => {
-            // Convert to ABField
-            if (typeof f == "string") {
-               return this.object.fields((fld) => fld.id == f)[0];
-            } else if (f) {
-               return f;
-            }
+            // NOTE: to prevent a Race Condition on load, we need to
+            // send .fields(filter(), TRUE);
+            return this.object.fields((fld) => fld.id == f, true)[0];
          })
          .filter((fId) => fId);
+
+      // let the MLClass process the Translations
+      super.fromValues(attributes);
    }
 
    /**
@@ -51,9 +53,10 @@ module.exports = class ABIndexCore {
     * @return {json}
     */
    toObj() {
-      let result = {};
+      let result = super.toObj();
 
-      result.id = this.id || uuid();
+      result.id = this.id;
+      result.type = "index";
       result.name = this.name;
       result.unique = this.unique;
 
@@ -62,7 +65,7 @@ module.exports = class ABIndexCore {
          this.fields = [this.fields];
       }
 
-      result.fields = (this.fields || [])
+      result.fieldIDs = (this.fields || [])
          .map((f) => {
             // Convert to the id of field
             return f.id || f;
@@ -85,4 +88,3 @@ module.exports = class ABIndexCore {
       return `${indexName}_unique`;
    }
 };
-

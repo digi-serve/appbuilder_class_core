@@ -6,11 +6,12 @@
  * how it is related to the ABObject classes.
  *
  */
-const ABEmitter = require("../../platform/ABEmitter");
+// const ABEmitter = require("../../platform/ABEmitter");
+const ABMLClass = require("../../platform/ABMLClass");
 
-module.exports = class ABFieldCore extends ABEmitter {
+module.exports = class ABFieldCore extends ABMLClass {
    constructor(values, object, fieldDefaults) {
-      super();
+      super(["label"]);
 
       // NOTE: setup this first so later we can use .fieldType(), .fieldIcon()
       this.defaults = fieldDefaults || {};
@@ -185,19 +186,26 @@ module.exports = class ABFieldCore extends ABEmitter {
     * @return {json}
     */
    toObj() {
-      // store "label" in our translations
-      if (this.object && this.object.application)
-         this.object.application.unTranslate(this, this, ["label"]);
+      var obj = super.toObj();
 
       return {
          id: this.id,
+         type: this.type || "field",
          key: this.key,
          icon: this.icon,
          isImported: this.isImported,
          columnName: this.columnName,
          settings: this.settings,
-         translations: this.translations
+         translations: obj.translations
       };
+   }
+
+   defaultCheck(val, defaultVal) {
+      var returnVal = defaultVal;
+      if (typeof val != "undefined") {
+         returnVal = val;
+      }
+      return returnVal;
    }
 
    /**
@@ -208,6 +216,7 @@ module.exports = class ABFieldCore extends ABEmitter {
     */
    fromValues(values) {
       if (!this.id) this.id = values.id; // NOTE: only exists after .save()
+      this.type == values.type || "field";
       this.key = values.key || this.fieldKey();
       this.icon = values.icon || this.fieldIcon();
 
@@ -217,19 +226,13 @@ module.exports = class ABFieldCore extends ABEmitter {
 
       this.columnName = values.columnName || "";
 
-      // knex does not like .(dot) in table and column names
-      // https://github.com/knex/knex/issues/2762
-      this.columnName = this.columnName.replace(/[^a-zA-Z0-9_ ]/gi, "");
-
-      this.translations = values.translations || [];
-
       this.isImported = values.isImported || 0;
 
       values.settings = values.settings || {};
       this.settings = values.settings;
-      this.settings.showIcon = values.settings.showIcon + "" || "1";
-      this.settings.required = values.settings.required + "" || "1";
-      this.settings.width = values.settings.width + "" || "0";
+      this.settings.showIcon = this.defaultCheck(values.settings.showIcon, "1");
+      this.settings.required = this.defaultCheck(values.settings.required, "0");
+      this.settings.width = this.defaultCheck(values.settings.width, "0");
 
       // convert from "0" => 0
       this.isImported = parseInt(this.isImported);
@@ -241,11 +244,21 @@ module.exports = class ABFieldCore extends ABEmitter {
       // we're responsible for setting up our specific settings:
       let defaultValues = this.constructor.defaultValues() || {};
       for (let dv in defaultValues) {
-         this.settings[dv] = values.settings[dv] || defaultValues[dv];
+         this.settings[dv] = this.defaultCheck(
+            values.settings[dv],
+            defaultValues[dv]
+         );
       }
 
-      if (this.object && this.object.application)
-         this.object.application.translate(this, this, ["label"]);
+      // let the MLClass now process the Translations
+      super.fromValues(values);
+
+      // final validity check: columnName really should have a value:
+      this.columnName = this.columnName || this.label;
+
+      // knex does not like .(dot) in table and column names
+      // https://github.com/knex/knex/issues/2762
+      this.columnName = this.columnName.replace(/[^a-zA-Z0-9_ ]/gi, "");
    }
 
    /**
@@ -313,6 +326,26 @@ module.exports = class ABFieldCore extends ABEmitter {
          return this.dataValue(rowData);
       } else return "";
    }
+
+   /**
+    * @method toDefinition()
+    *
+    * convert this instance into an ABDefinition object.
+    *
+    * @return {ABDefinition}
+    */
+   toDefinition() {
+      var myDef = super.toDefinition();
+
+      // attempt to provide a more descriptive name:
+      // [obj]->[fieldName]
+      if (myDef.name == "") {
+         myDef.name =
+            myDef.json.name || myDef.json.label || myDef.json.columnName;
+      }
+      if (this.object && this.object.name) {
+         myDef.name = `${this.object.name}->${myDef.name}`;
+      }
+      return myDef;
+   }
 };
-
-

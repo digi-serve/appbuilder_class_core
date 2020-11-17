@@ -51,6 +51,11 @@ module.exports = class ABViewPageCore extends ABViewContainer {
       // 	}
 
       this.parent = null; // will be set by the pageNew() that creates this obj.
+      // {obj} .parent
+      // this points to the ABView object that manages this object as a child.
+      // this param is shared across ABViews as well as ABViewPage, but has
+      // different implications ... so we default an ABViewPage.parent = null
+      // and the place that Creates the Page must assign the .parent externally.
    }
 
    static common() {
@@ -85,6 +90,8 @@ module.exports = class ABViewPageCore extends ABViewContainer {
 
       obj.name = this.name;
 
+      obj.myAppID = this.myAppID;
+
       // icon of popup page
       if (this.settings.type == "popup") obj.icon = "clone";
 
@@ -92,11 +99,7 @@ module.exports = class ABViewPageCore extends ABViewContainer {
       if (!this.label || this.label == "?label?") obj.label = obj.name;
 
       // compile our pages
-      var pages = [];
-      this._pages.forEach((page) => {
-         pages.push(page.toObj());
-      });
-      obj.pages = pages;
+      obj.pageIDs = (this._pages || []).map((p) => p.id);
 
       return obj;
    }
@@ -116,10 +119,23 @@ module.exports = class ABViewPageCore extends ABViewContainer {
       // set label of the page
       if (!this.label || this.label == "?label?") this.label = this.name;
 
+      // track which application this Page belongs to:
+      this.myAppID = values.myAppID;
+      if (!this.myAppID && this.application) {
+         this.myAppID = this.application.id;
+      }
+
       // now properly handle our sub pages.
       var pages = [];
-      (values.pages || []).forEach((child) => {
-         pages.push(this.pageNew(child)); // ABViewManager.newView(child, this.application, this));
+      (values.pageIDs || []).forEach((id) => {
+         var def = this.application.definitionForID(id);
+         if (def) {
+            pages.push(this.pageNew(def));
+         } else {
+            console.error(
+               `App[${this.application.name}][${this.application.id}]->Page[${this.name}][${this.id}] referenced an unknown Page[${id}]`
+            );
+         }
       });
       this._pages = pages;
 
@@ -140,39 +156,76 @@ module.exports = class ABViewPageCore extends ABViewContainer {
     * @return {Promise}
     */
    destroy() {
-      return new Promise((resolve, reject) => {
-         // verify we have been .save() before:
-         if (this.id) {
-            this.application
-               .viewDestroy(this)
-               .then(() => {
-                  // remove the page in list
-                  var parent = this.parent || this.application;
-                  var remainingPages = parent.pages((p) => {
-                     return p.id != this.id;
-                  });
-                  parent._pages = remainingPages;
+      return Promise.resolve()
+         .then(() => {
+            // When deleting an ABViewPage
+            // be sure to remove any of it's ABViewPages as well
+            // This cleans out any dangling ABDefinitions and cleans up the
+            // OpsPortal Permissions:
 
-                  resolve();
-               })
-               .catch(reject);
-         } else {
-            resolve(); // nothing to do really
-         }
-      });
+            var allPageDeletes = [];
+            var allPages = this.pages();
+            this._pages = [];
+            // doing ._pages = [] prevents any of my updates when
+            // a sub-page is .destroy()ed
+
+            allPages.forEach((p) => {
+               allPageDeletes.push(p.destroy());
+            });
+            return Promise.all(allPageDeletes);
+         })
+         .then(() => {
+            var parent = this.parent || this.application;
+            return parent.pageRemove(this);
+         })
+         .then(() => {
+            return super.destroy();
+         });
+
+      // return new Promise((resolve, reject) => {
+      //    // verify we have been .save() before:
+      //    if (this.id) {
+      //       this.application
+      //          .viewDestroy(this)
+      //          .then(() => {
+      //             // remove the page in list
+      //             var parent = this.parent || this.application;
+      //             var remainingPages = parent.pages((p) => {
+      //                return p.id != this.id;
+      //             });
+      //             parent._pages = remainingPages;
+
+      //             resolve();
+      //          })
+      //          .catch(reject);
+      //    } else {
+      //       resolve(); // nothing to do really
+      //    }
+      // });
    }
 
    /**
     * @method save()
-    *
-    * persist this instance of ABViewPage with it's parent
-    *
-    * @param includeSubViews {Boolean}
-    *
+    * persist this instance of ABViewPage
     * @return {Promise}
     *         .resolve( {this} )
     */
-   save(includeSubViews = false, updateUi = true) {
+   save() {
+      return Promise.resolve()
+         .then(() => {
+            // this creates our .id
+            return super.save();
+         })
+         .then(() => {
+            // now we can persist ourself in our parent
+            var parent = this.parent || this.application;
+            return parent.pageInsert(this);
+         })
+         .then(() => {
+            return this;
+         });
+
+      /*
       return new Promise((resolve, reject) => {
          // if this is our initial save()
          if (!this.id) {
@@ -203,6 +256,7 @@ module.exports = class ABViewPageCore extends ABViewContainer {
             })
             .catch(reject);
       });
+      */
    }
 
    ///
@@ -220,7 +274,7 @@ module.exports = class ABViewPageCore extends ABViewContainer {
     *
     * @return {array}			array of ABViewPages
     */
-   pages(filter, deep) {
+   pages(filter = () => true, deep = false) {
       var result = [];
 
       // find into sub-pages recursively
@@ -240,16 +294,34 @@ module.exports = class ABViewPageCore extends ABViewContainer {
       }
       // find root pages
       else {
-         filter =
-            filter ||
-            function() {
-               return true;
-            };
-
          result = this._pages.filter(filter);
       }
 
       return result;
+   }
+
+   /**
+    * @method pageInsert()
+    *
+    * save the given ABViewPage in our ._pages array and persist the current
+    * values if they changed.
+    *
+    * @param {ABViewPage} page The instance of the page to save.
+    * @return {Promise}
+    */
+   pageInsert(page) {
+      var isIncluded =
+         this.pages(function(o) {
+            return o.id == page.id;
+         }).length > 0;
+      if (!isIncluded) {
+         // if not already included, then add and save the Obj definition:
+         this._pages.push(page);
+         return this.save();
+      }
+
+      // Nothing was required so return
+      return Promise.resolve();
    }
 
    /**
@@ -276,19 +348,26 @@ module.exports = class ABViewPageCore extends ABViewContainer {
    }
 
    /**
-    * @method viewDestroy()
+    * @method pageRemove()
     *
-    * remove the current ABViewPage from our list of ._pages or ._views.
+    * remove the given ABViewPage from our ._pages array and persist the current
+    * values.
     *
-    * @param {ABView} view
+    * @param {ABViewPage} page The instance of the page to remove.
     * @return {Promise}
     */
-   viewDestroy(view) {
-      var remainingPages = this.pages(function(p) {
-         return p.id != view.id;
+   pageRemove(page) {
+      var origLen = this._pages.length;
+      this._pages = this.pages(function(p) {
+         return p.id != page.id;
       });
-      this._pages = remainingPages;
-      return this.save();
+
+      if (this._pages.length < origLen) {
+         return this.save();
+      }
+
+      // if we get here, then nothing changed so nothing to do.
+      return Promise.resolve();
    }
 
    /**
@@ -325,15 +404,27 @@ module.exports = class ABViewPageCore extends ABViewContainer {
       return obj;
    }
 
-   copy(lookUpIds, parent) {
+   /**
+    * @method clone()
+    * clone the defintions of this ABViewPage object.
+    * @param {obj} lookUpIds
+    *        an { oldID : newID } lookup hash for converting ABView objects
+    *        and their setting pointers.
+    * @param {ABView*} parent
+    *        Which ABView should be connected as the parent object of this
+    *        copy.
+    * @return {obj}
+    *        defs of the copied ABView
+    */
+   clone(lookUpIds, parent) {
       // initial new ids of pages and components
       if (lookUpIds == null) {
+         // create a hash of { oldID : newID } of any sub Pages and Views.
          lookUpIds = {};
 
-         //// TODO: OP.*  code should not be in *Core.js version of code
          let mapNewIdFn = (currView) => {
             if (!lookUpIds[currView.id])
-               lookUpIds[currView.id] = OP.Util.uuid();
+               lookUpIds[currView.id] = this.application.uuid();
 
             if (currView.pages) {
                currView.pages().forEach((p) => mapNewIdFn(p));
@@ -349,11 +440,57 @@ module.exports = class ABViewPageCore extends ABViewContainer {
       }
 
       // copy
-      let result = super.copy(lookUpIds, parent);
+      let result = super.clone(lookUpIds, parent);
 
       // page's name should not be duplicate
       result.name = null;
 
       return result;
+   }
+
+   /**
+    * @method copy()
+    * create a new copy of this ABViewPage object. The resulting ABView should
+    * be identical in settings and all sub pages/views, but each new object
+    * is a unique view (different ids).
+    * @param {obj} lookUpIds
+    *        an { oldID : newID } lookup hash for converting ABView objects
+    *        and their setting pointers.
+    * @param {ABView*} parent
+    *        Which ABView should be connected as the parent object of this
+    *        copy.
+    * @return {Promise}
+    *        .resolved with the instance of the copied ABView
+    */
+   copy(lookUpIds, parent) {
+      // initial new ids of pages and components
+      if (lookUpIds == null) {
+         // create a hash of { oldID : newID } of any sub Pages and Views.
+         lookUpIds = {};
+
+         let mapNewIdFn = (currView) => {
+            if (!lookUpIds[currView.id])
+               lookUpIds[currView.id] = this.application.uuid();
+
+            if (currView.pages) {
+               currView.pages().forEach((p) => mapNewIdFn(p));
+            }
+
+            if (currView.views) {
+               currView.views().forEach((v) => mapNewIdFn(v));
+            }
+         };
+
+         // start map new ids
+         mapNewIdFn(this);
+      }
+
+      // now continue with the default .copy()
+      return super.copy(lookUpIds, parent).then((result) => {
+         // page's name should not be duplicate
+         result.name = result.name +=
+            "_copied_" + this.application.uuid().slice(0, 3);
+         return result;
+      });
    }
 };

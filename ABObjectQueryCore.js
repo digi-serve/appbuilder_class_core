@@ -67,7 +67,7 @@ module.exports = class ABObjectQueryCore extends ABObject {
 }
 */
 
-      this.fromValues(attributes);
+      // this.fromValues(attributes);
    }
 
    ///
@@ -96,21 +96,47 @@ module.exports = class ABObjectQueryCore extends ABObject {
    fromValues(attributes) {
       super.fromValues(attributes);
 
-      // populate connection objects
-      this._objects = {};
+      this.type = "query";
 
-      (attributes.objects || []).forEach((obj) => {
-         this._objects[obj.alias] = new ABObject(obj, this.application);
-      });
+      // populate connection objects
+      // this._objects = {};
+      // this.obj2Alias = attributes.obj2Alias || {};
+
+      this.alias2Obj = {}; // this gets built in the .importJoins()
+      // { "alias" : object.id }
+      // this is a lookup hash of a referenced alias to the Object it
+      // references.
+
+      this.objectIDs = [];
+      // {array}  of ABObject.id s that are referenced by this query.
+      // this is how we limit our searches on objects.
+      // this gets built in the .importJoins();
+
+      this.viewName = attributes.viewName || "";
+      // knex does not like .(dot) in table and column names
+      // https://github.com/knex/knex/issues/2762
+      this.viewName = this.viewName.replace(/[^a-zA-Z0-9_ ]/gi, "");
 
       // import all our ABObjects
       this.importJoins(attributes.joins || {});
       this.importFields(attributes.fields || []); // import after joins are imported
+
+      // Import our Where condition
       this.where = attributes.where || {}; // .workspaceFilterConditions
+      // Fix default where.glue value
+      if (
+         this.where &&
+         !this.where.glue &&
+         this.where.rules &&
+         this.where.rules.length > 0
+      )
+         this.where.glue = "and";
+
+      this._objectWorkspaceViews = attributes.objectWorkspaceViews || {};
 
       this.settings = this.settings || {};
 
-      if (attributes.settings) {
+      if (attributes && attributes.settings) {
          // convert from "0" => true/false
          this.settings.grouping = JSON.parse(
             attributes.settings.grouping || false
@@ -132,9 +158,10 @@ module.exports = class ABObjectQueryCore extends ABObject {
    toObj() {
       var result = super.toObj();
 
-      /// include our additional objects and where settings:
+      result.viewName = this.viewName;
 
-      result.joins = this.exportJoins(); //objects;
+      result.joins = this.exportJoins();
+      result.fields = this.exportFields();
       result.where = this.where; // .workspaceFilterConditions
 
       result.settings = this.settings;
@@ -189,26 +216,21 @@ module.exports = class ABObjectQueryCore extends ABObject {
                   f.alias == fieldInfo.alias && f.field.id == fieldInfo.fieldID
             ).length < 1
          ) {
-            let clonedField = _.clone(field, false);
+            // add alias to field
+            // refactor _.clone() to actually return a new instance of this same ABDataField obj:
+            var def = field.toObj();
+            let clonedField = new field.constructor(def, field.object);
 
             clonedField.alias = fieldInfo.alias;
 
-            // NOTE: query v1
-            let alias = "";
+            let alias = fieldInfo.alias;
             if (Array.isArray(this.joins())) {
+               // NOTE: query v1
                alias = field.object.name;
-            } else {
-               alias = fieldInfo.alias;
             }
 
-            // include object name {aliasName}.{columnName}
-            // to use it in grid headers & hidden fields
-            clonedField.columnName = "{aliasName}.{columnName}"
-               .replace("{aliasName}", alias)
-               .replace("{columnName}", clonedField.columnName);
-
             newFields.push({
-               alias: fieldInfo.alias,
+               alias: alias,
                field: clonedField
             });
          }
@@ -236,20 +258,14 @@ module.exports = class ABObjectQueryCore extends ABObject {
    /**
     * @method fields()
     *
-    * return an array of all the ABFields for this ABObject.
+    * Support the ABObject api by returning a list of fields relevant
+    * to this ABObjectQuery.
     *
     * @return {array}
     */
-   fields(filter) {
-      filter =
-         filter ||
-         function() {
-            return true;
-         };
-
-      return this._fields
-         .map((f) => f.field)
-         .filter((result) => filter(result));
+   fields(fn = () => true) {
+      if (!fn) fn = () => true;
+      return this._fields.map((f) => f.field).filter(fn);
    }
 
    ///
@@ -270,28 +286,20 @@ module.exports = class ABObjectQueryCore extends ABObject {
    /**
     * @method objects()
     *
-    * return an array of all the ABObjects for this Query.
+    * return an array of all the relevant ABObjects for this Query.
     *
     * @return {array}
     */
-   objects(filter) {
-      if (!this._objects) return [];
+   objects(fn = () => true) {
+      // TODO: find the case where limiting to this.objectIDs was
+      // problematic, and refactor the code making the call:
 
-      filter =
-         filter ||
-         function() {
-            return true;
-         };
+      // FOR proper expected operation, this fn must only return object
+      // matches for which this ABQuery is managing objects:
 
-      // get all objects (values of a object)
-      let objects = Object.keys(this._objects).map((key) => {
-         let obj = this._objects[key];
-         obj.alias = key;
-
-         return obj;
-      });
-
-      return (objects || []).filter(filter);
+      return this.application
+         .objects((o) => this.objectIDs.indexOf(o.id) > -1)
+         .filter(fn);
    }
 
    /**
@@ -304,9 +312,8 @@ module.exports = class ABObjectQueryCore extends ABObject {
    objectAlias(objectId) {
       let result = null;
 
-      Object.keys(this._objects || {}).forEach((alias) => {
-         let obj = this._objects[alias];
-         if (obj.id == objectId && !result) {
+      Object.keys(this.alias2Obj || {}).forEach((alias) => {
+         if (!result && this.alias2Obj[alias] == objectId) {
             result = alias;
          }
       });
@@ -323,7 +330,10 @@ module.exports = class ABObjectQueryCore extends ABObject {
    objectBase() {
       if (!this._joins.objectID) return null;
 
-      return this.objects((obj) => obj.id == this._joins.objectID)[0] || null;
+      return (
+         this.application.objects((obj) => obj.id == this._joins.objectID)[0] ||
+         null
+      );
    }
 
    /**
@@ -334,7 +344,11 @@ module.exports = class ABObjectQueryCore extends ABObject {
     * @return {ABClassObject}
     */
    objectByAlias(alias) {
-      return (this._objects || {})[alias];
+      var objID = this.alias2Obj[alias];
+      if (objID) {
+         return this.objects((o) => o.id == objID)[0];
+      }
+      return null;
    }
 
    /**
@@ -344,13 +358,7 @@ module.exports = class ABObjectQueryCore extends ABObject {
     *
     * @return {array}
     */
-   links(filter) {
-      filter =
-         filter ||
-         function() {
-            return true;
-         };
-
+   links(filter = () => true) {
       return (this._links || []).filter(filter);
    }
 
@@ -365,15 +373,24 @@ module.exports = class ABObjectQueryCore extends ABObject {
       // copy join settings
       this._joins = _.cloneDeep(settings);
 
-      var newObjects = {};
+      var uniqueObjectIDs = {};
+      // { obj.id : obj.id }
+      // a hash of object.ids for all the relevant ABObjects necessary for this
+      // ABObjectQuery
+
       var newLinks = [];
+      // {array} of link definitions
+      // build the operating values for this._links
 
       let storeObject = (object, alias) => {
          if (!object) return;
 
          // var inThere = newObjects.filter(obj => obj.id == object.id && obj.alias == alias ).length > 0;
          // if (!inThere) {
-         newObjects[alias] = object;
+         // newObjects[alias] = object;
+         // this.obj2Alias[object.id] = alias;
+         this.alias2Obj[alias] = object.id;
+         uniqueObjectIDs[object.id] = object.id;
          // newObjects.push({
          // 	alias: alias,
          // 	object: object
@@ -418,7 +435,7 @@ module.exports = class ABObjectQueryCore extends ABObject {
             if (!linkField) return;
 
             // track our linked object
-            var linkObject = this.objects(
+            var linkObject = this.application.objects(
                (obj) => obj.id == linkField.settings.linkObject
             )[0];
             if (!linkObject) return;
@@ -438,7 +455,7 @@ module.exports = class ABObjectQueryCore extends ABObject {
       // store the root object
       var rootObject = this.objectBase();
       if (!rootObject) {
-         this._objects = newObjects;
+         // this._objects = newObjects;
          return;
       }
 
@@ -448,8 +465,9 @@ module.exports = class ABObjectQueryCore extends ABObject {
 
       processJoin(rootObject, settings.links);
 
-      this._objects = newObjects;
+      // this._objects = newObjects;
       this._links = newLinks;
+      this.objectIDs = Object.keys(uniqueObjectIDs);
    }
 
    /**
@@ -518,9 +536,11 @@ module.exports = class ABObjectQueryCore extends ABObject {
 
       // I can filter a field if it's object OR the object it links to can be filtered:
       let object = field.object;
-      let linkedObject = this.objects(
-         (obj) => obj.id == field.settings.linkObject
-      )[0];
+      // Transition:
+      // let linkedObject = this.objects(
+      //    (obj) => obj.id == field.settings.linkObject
+      // )[0];
+      var linkedObject = field.datasourceLink;
 
       return this.canFilterObject(object) || this.canFilterObject(linkedObject);
    }
@@ -580,5 +600,3 @@ module.exports = class ABObjectQueryCore extends ABObject {
       return filterConditions;
    }
 };
-
-

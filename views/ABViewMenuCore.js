@@ -56,20 +56,25 @@ module.exports = class ABViewMenuCore extends ABViewWidget {
    /**
     * @method toObj()
     *
-    * properly compile the current state of this ABViewLabel instance
+    * properly compile the current state of this ABViewMenu instance
     * into the values needed for saving.
     *
     * @return {json}
     */
    toObj() {
+      this.unTranslate(this, this, [
+         "menuTextLeft",
+         "menuTextCenter",
+         "menuTextRight"
+      ]);
       if (this.settings.pages) {
          this.settings.pages.forEach((page) => {
-            this.application.unTranslate(page, page, ["aliasname"]);
+            this.unTranslate(page, page, ["aliasname"]);
          });
       }
 
       var obj = super.toObj();
-      obj.views = [];
+      obj.viewIDs = [];
       return obj;
    }
 
@@ -82,6 +87,12 @@ module.exports = class ABViewMenuCore extends ABViewWidget {
    fromValues(values) {
       super.fromValues(values);
 
+      this.translate(this, this, [
+         "menuTextLeft",
+         "menuTextCenter",
+         "menuTextRight"
+      ]);
+
       this.settings.pages =
          this.settings.pages || ABViewMenuPropertyComponentDefaults.pages;
 
@@ -90,7 +101,7 @@ module.exports = class ABViewMenuCore extends ABViewWidget {
          if (page instanceof Object) {
             page.isChecked = JSON.parse(page.isChecked || false);
 
-            this.application.translate(page, page, ["aliasname"]);
+            this.translate(page, page, ["aliasname"]);
          }
          // Compatible with old data
          else if (typeof page == "string") {
@@ -100,8 +111,6 @@ module.exports = class ABViewMenuCore extends ABViewWidget {
             };
          }
       }
-
-      this.application.translate(this, this, ["menulabel"]);
    }
 
    /**
@@ -205,10 +214,19 @@ module.exports = class ABViewMenuCore extends ABViewWidget {
       var translation = pageInfo.translations.filter((t) => {
          return t.language_code == AD.lang.currentLanguage;
       });
-      var label = translation[0].aliasname;
+
+      var label = "";
+
+      if (translation.length) {
+         if (translation[0].aliasname) {
+            label = translation[0].aliasname;
+         } else if (translation[0].label) {
+            label = translation[0].label;
+         }
+      }
 
       // Just in case there isn't one stored in the translations yet
-      if (!label) {
+      if (!label && pageInfo.aliasname) {
          label = pageInfo.aliasname;
       }
 
@@ -256,21 +274,23 @@ module.exports = class ABViewMenuCore extends ABViewWidget {
    }
 
    copy(lookUpIds, parent) {
-      let result = super.copy(lookUpIds, parent);
+      return super.copy(lookUpIds, parent).then((result) => {
+         // update ids of page's settings
+         (result.settings.pages || []).forEach((p, i) => {
+            let page = result.settings.pages[i];
 
-      // update ids of page's settings
-      (result.settings.pages || []).forEach((p, i) => {
-         let page = result.settings.pages[i];
+            // Compatible with old data
+            if (typeof page == "string") {
+               result.settings.pages[i] = lookUpIds[page];
+            } else {
+               page.pageId = lookUpIds[page.pageId];
+               page.tabId = lookUpIds[page.tabId];
+            }
+         });
 
-         // Compatible with old data
-         if (typeof page == "string") {
-            result.settings.pages[i] = lookUpIds[page];
-         } else {
-            page.pageId = lookUpIds[page.pageId];
-            page.tabId = lookUpIds[page.tabId];
-         }
+         return result.save().then(() => {
+            return result;
+         });
       });
-
-      return result;
    }
 };

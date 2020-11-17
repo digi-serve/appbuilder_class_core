@@ -23,6 +23,7 @@
 // webpack can handle 'require()' statements, but node can't handle import
 // so let's use require():
 const ABObject = require("../platform/ABObject");
+const ABQuery = require("../platform/ABObjectQuery");
 const ABDataCollectionCore = require("./ABDataCollectionCore");
 const ABFieldManager = require("./ABFieldManager");
 const ABViewManager = require("../platform/ABViewManager");
@@ -31,19 +32,23 @@ const ABRole = require("../platform/ABRole");
 
 // const ABViewPageCore = require("./views/ABViewPageCore");
 // const ABQLManager = require("./ABQLManager");
+var ABMLClass = require("../platform/ABMLClass");
 
-module.exports = class ABApplicationCore {
+module.exports = class ABApplicationCore extends ABMLClass {
    constructor(attributes) {
+      super(ABApplicationCore.fieldsMultilingual());
+
       // attributes should be in format:
       // {
-      // 	id:##,
-      // 	json:{},
-      // 	name:"XYZ"
+      //    id:##,
+      //    json:{},
+      //    name:"XYZ"
       // }
       attributes.json = attributes.json || {};
 
       // ABApplication Attributes
       this.id = attributes.id;
+      this.type = attributes.type || "application";
       this.json = attributes.json;
       if (typeof this.json == "string") this.json = JSON.parse(this.json);
       this.name = attributes.name || this.json.name || "";
@@ -56,30 +61,24 @@ module.exports = class ABApplicationCore {
       if (typeof this.accessManagers == "string")
          this.accessManagers = JSON.parse(this.accessManagers);
 
-      // Transition:
-      // _datacollections, _objects, and _queries are now defined
-      // globally.  And not part of the internal definition of an
-      // ABApplication.
-      this._datacollections = [];
-      (attributes.json.datacollections || []).forEach((dc) => {
-         this._datacollections.push(this.datacollectionNew(dc));
-      });
-
       // import all our ABObjects
       // NOTE: we work with ABObjects on both the client and server sides.
       // So we provide object methods in the base class.  However, each
       // ABObject sub class (client and server) needs to implement it's own
       // .objectNew() method.
-      //  	var newObjects = [];
-      //  	(attributes.json.objects || []).forEach((obj) => {
-      //  		newObjects.push( this.objectNew(obj) );
-      //  	})
+      //    var newObjects = [];
+      //    (attributes.json.objects || []).forEach((obj) => {
+      //       newObjects.push( this.objectNew(obj) );
+      //    })
       this._objects = [];
+      this.objectIDs = attributes.json.objectIDs || [];
       (this.objectsAll() || attributes.json.objects || []).forEach((obj) => {
-         if (obj instanceof ABObject) {
-            this._objects.push(obj);
-         } else {
-            this._objects.push(this.objectNew(obj));
+         if (this.objectIDs.indexOf(obj.id) !== -1) {
+            if (obj instanceof ABObject) {
+               this._objects.push(obj);
+            } else {
+               this._objects.push(this.objectNew(obj));
+            }
          }
       });
 
@@ -89,14 +88,31 @@ module.exports = class ABApplicationCore {
       // // implement .queryNew()
       // var newQueries = [];
       // (attributes.json.queries || []).forEach((query) => {
-      // 	// prevent processing of null values.
-      // 	if (query) {
-      //   		newQueries.push( this.queryNew(query) );
-      //   	}
-      //  	})
-      this._queries = [];
-      (attributes.json.queries || []).forEach((q) => {
-         this._queries.push(this.queryNew(q));
+      //    // prevent processing of null values.
+      //    if (query) {
+      //       newQueries.push( this.queryNew(query) );
+      //    }
+      //    })
+
+      // this._queries = [];
+      this.queryIDs = attributes.json.queryIDs || [];
+      (this.queriesAll() || attributes.json.queries || []).forEach((q) => {
+         // The  Platform ABApplication manages all our live Query Objects
+         // we no longer need to track them internally
+         //// TODO: consider remove this.queriesAll() during our constructor.
+         //// no need for it now since this.queries() already references it.
+      });
+
+      // Transition:
+      // _datacollections, _objects, and _queries are now defined
+      // globally.  And not part of the internal definition of an
+      // ABApplication.
+      // this._datacollections = [];
+      this.datacollectionIDs = attributes.json.datacollectionIDs || [];
+      (this.datacollectionsAll() || []).forEach((dc) => {
+         // if (dc) {
+         //    this._datacollections.push(this.datacollectionNew(dc));
+         // }
       });
 
       // Transition:
@@ -105,8 +121,15 @@ module.exports = class ABApplicationCore {
 
       // import all our ABViews
       let newPages = [];
-      (attributes.json.pages || []).forEach((page) => {
-         newPages.push(this.pageNew(page));
+      (attributes.json.pageIDs || []).forEach((id) => {
+         var def = this.definitionForID(id);
+         if (def) {
+            newPages.push(this.pageNew(def));
+         } else {
+            console.error(
+               `App[${this.id}] is referenceing an unknown Page[${id}]`
+            );
+         }
       });
       this._pages = newPages;
 
@@ -116,11 +139,11 @@ module.exports = class ABApplicationCore {
       // // an Application can have one or more Mobile Apps registered.
       // var newMobileApps = [];
       // (attributes.json.mobileApps || []).forEach((ma) => {
-      // 	// prevent processing of null values.
-      // 	if (ma) {
-      //   		newMobileApps.push( this.mobileAppNew(ma) );
-      //   	}
-      //  	})
+      //    // prevent processing of null values.
+      //    if (ma) {
+      //       newMobileApps.push( this.mobileAppNew(ma) );
+      //    }
+      //    })
       // this._mobileApps = [newMobileApps];
 
       var newProcesses = [];
@@ -162,6 +185,13 @@ module.exports = class ABApplicationCore {
       this.objectListSettings.isGroup = JSON.parse(
          attributes.json.objectListSettings.isGroup || false
       );
+
+      // let the MLClass now process the translations:
+      // transition issues:
+      attributes.translations =
+         attributes.translations || attributes.json.translations;
+
+      super.fromValues(attributes);
    }
 
    ///
@@ -201,7 +231,8 @@ module.exports = class ABApplicationCore {
     * @return {json}
     */
    toObj() {
-      this.unTranslate(this, this.json, this.constructor.fieldsMultilingual());
+      // MLClass translation
+      this.json = super.toObj();
 
       this.json.name = this.name;
 
@@ -211,8 +242,13 @@ module.exports = class ABApplicationCore {
       //     currObjects.push(obj.toObj());
       // });
       // this.json.objects = currObjects;
+      this.json.objectIDs = this.objectIDs;
 
       this.json.objectListSettings = this.objectListSettings;
+
+      this.json.queryIDs = this.queryIDs;
+
+      this.json.datacollectionIDs = this.datacollectionIDs;
 
       // Save our processes.
       this.json.processIDs = (this._processes || []).map((p) => {
@@ -220,25 +256,28 @@ module.exports = class ABApplicationCore {
       });
 
       // for each View: compile to json
-      var currPages = [];
-      this._pages.forEach((page) => {
-         currPages.push(page.toObj());
-      });
-      this.json.pages = currPages;
+      // var currPages = [];
+      // this._pages.forEach((page) => {
+      //    currPages.push(page.toObj());
+      // });
+      // this.json.pages = currPages;
+      this.json.pageIDs = (this._pages || []).map((p) => p.id);
 
       // // for each MobileApp: compile to json
       // var currApps = [];
       // this._mobileApps.forEach((app) => {
-      // 	currApps.push(app.toObj())
+      //    currApps.push(app.toObj())
       // })
       // this.json.mobileApps = currApps;
 
       return {
          id: this.id,
+         type: this.type || "application",
          name: this.name,
          json: this.json,
          role: this.role,
          isAdminApp: this.isAdminApp,
+         translations: this.json.translations,
          isAccessManaged: this.isAccessManaged,
          accessManagers: this.accessManagers
       };
@@ -253,16 +292,11 @@ module.exports = class ABApplicationCore {
     *
     * return an array of all the ABObjectQueries for this ABApplication.
     *
-    * @param {fn} filter  	a filter fn to return a set of ABObjectQueries that
-    *						this fn returns true for.
-    * @return {array} 	array of ABObjectQueries
+    * @param {fn} filter   a filter fn to return a set of ABObjectQueries that
+    *                this fn returns true for.
+    * @return {array}   array of ABObjectQueries
     */
-   mobileApps(filter) {
-      filter =
-         filter ||
-         function() {
-            return true;
-         };
+   mobileApps(filter = () => true) {
       return (this._mobileApps || []).filter(filter);
    }
 
@@ -274,36 +308,52 @@ module.exports = class ABApplicationCore {
    /// Data collections
    ///
 
-   datacollectionNew(values) {
-      return new ABDataCollectionCore(values, this);
-   }
+   // datacollectionNew(values) {
+   //    return new ABDataCollectionCore(values, this);
+   // }
 
    /**
     * @method datacollections()
     *
     * return an array of all the ABDataCollection for this ABApplication.
     *
-    * @param {fn} filter  	a filter fn to return a set of ABDataCollection that
-    *						this fn returns true for.
-    * @return {array} 	array of ABDataCollection
+    * @param {fn} filter   a filter fn to return a set of ABDataCollection that
+    *        this fn returns true for.
+    * @return {array}   array of ABDataCollection
     */
-   datacollections(filter) {
-      filter =
-         filter ||
-         function() {
-            return true;
-         };
-
-      return (this._datacollections || []).filter(filter);
+   datacollections(filter = () => true) {
+      return (this.datacollectionsAll() || []).filter(filter);
    }
 
+   /**
+    * @method datacollectionByID()
+    * returns a single ABDatacollection that matches the given ID.
+    * @param {string} ID
+    *        the .id/.name/.label of the ABDatacollection we are searching
+    *        for.
+    * @return {ABDatacollection}
+    *        the matching ABDatacollection object if found
+    *        {null} if not found.
+    */
    datacollectionByID(ID) {
       // an undefined or null ID should not match any DC.
       if (!ID) return null;
 
       return this.datacollections((dc) => {
          return dc.id == ID || dc.name == ID || dc.label == ID;
-      });
+      })[0];
+   }
+
+   datacollectionsExcluded(filter = () => true) {
+      return this.datacollections((o) => {
+         return this.datacollectionIDs.indexOf(o.id) == -1;
+      }).filter(filter);
+   }
+
+   datacollectionsIncluded(filter = () => true) {
+      return this.datacollections((o) => {
+         return this.datacollectionIDs.indexOf(o.id) > -1;
+      }).filter(filter);
    }
 
    ///
@@ -315,18 +365,24 @@ module.exports = class ABApplicationCore {
     *
     * return an array of all the ABObjects for this ABApplication.
     *
-    * @param {fn} filter  	a filter fn to return a set of ABObjects that this fn
-    *						returns true for.
-    * @return {array} 	array of ABObject
+    * @param {fn} filter   a filter fn to return a set of ABObjects that this fn
+    *                returns true for.
+    * @return {array}   array of ABObject
     */
-   objects(filter) {
-      filter =
-         filter ||
-         function() {
-            return true;
-         };
+   objects(filter = () => true) {
+      return (this.objectsAll() || []).filter(filter);
+   }
 
-      return (this._objects || []).filter(filter);
+   objectsExcluded(filter = () => true) {
+      return this.objects((o) => {
+         return this.objectIDs.indexOf(o.id) == -1;
+      }).filter(filter);
+   }
+
+   objectsIncluded(filter = () => true) {
+      return this.objects((o) => {
+         return this.objectIDs.indexOf(o.id) > -1;
+      }).filter(filter);
    }
 
    /**
@@ -334,9 +390,9 @@ module.exports = class ABApplicationCore {
     *
     * return an array of all the connected ABObjects for this ABApplication.
     *
-    * @param {id} id  	an ID of an ABObject
+    * @param {id} id    an ID of an ABObject
     *
-    * @return {array} 	array of options for webix select
+    * @return {array}   array of options for webix select
     */
    connectedObjects(obj) {
       if (obj == "") return [];
@@ -370,11 +426,11 @@ module.exports = class ABApplicationCore {
     *
     * return an array of all the connected ABFields for a given ABObject
     *
-    * @param {currObj} id    an ID of the current ABObject
+    * @param {currObj} id     an ID of the current ABObject
     *
-    * @param {linkedObject} id an ID of the linked ABObject
+    * @param {linkedObject} id   an ID of the linked ABObject
     *
-    * @return {array}      array of options for webix select
+    * @return {array}         array of options for webix select
     */
    connectedFields(currObj, linkedObject) {
       // Determine the object from the currObj
@@ -436,7 +492,7 @@ module.exports = class ABApplicationCore {
     *
     * @return {array}      array of ABViewPages
     */
-   pages(filter, deep) {
+   pages(filter = () => true, deep = false) {
       var result = [];
 
       if (!this._pages || this._pages.length < 1) return result;
@@ -456,12 +512,6 @@ module.exports = class ABApplicationCore {
       }
       // find root pages
       else {
-         filter =
-            filter ||
-            function() {
-               return true;
-            };
-
          result = (this._pages || []).filter(filter);
       }
 
@@ -481,13 +531,7 @@ module.exports = class ABApplicationCore {
     *                      this fn returns true for.
     * @return {array}  array of ABProcesses
     */
-   processes(filter) {
-      filter =
-         filter ||
-         function() {
-            return true;
-         };
-
+   processes(filter = () => true) {
       return this._processes.filter(filter);
    }
 
@@ -642,18 +686,40 @@ module.exports = class ABApplicationCore {
     *
     * return an array of all the ABObjectQueries for this ABApplication.
     *
-    * @param {fn} filter  	a filter fn to return a set of ABObjectQueries that
-    *						this fn returns true for.
-    * @return {array} 	array of ABObjectQueries
+    * @param {fn} filter
+    *        a filter fn to return a set of ABObjectQueries that this fn
+    *        returns true for.
+    * @return {array}
+    *        array of ABObjectQueries
     */
-   queries(filter) {
-      filter =
-         filter ||
-         function() {
-            return true;
-         };
+   queries(filter = () => true) {
+      return (this.queriesAll() || []).filter(filter);
+   }
 
-      return (this._queries || []).filter(filter);
+   queriesExcluded(filter = () => true) {
+      return this.queries((q) => {
+         return this.queryIDs.indexOf(q.id) == -1;
+      }).filter(filter);
+   }
+
+   queriesIncluded(filter = () => true) {
+      return this.queries((q) => {
+         return this.queryIDs.indexOf(q.id) > -1;
+      }).filter(filter);
+   }
+
+   /**
+    * @method queryByID()
+    * return the specific query requested by the provided id.
+    * NOTE: this method has been extended to allow .name and .label
+    * as possible lookup values.
+    * @param {string} ID
+    * @return {obj}
+    */
+   queryByID(ID) {
+      return this.queries((q) => {
+         return q.id == ID || q.name == ID || q.label == ID;
+      })[0];
    }
 
    ///
@@ -665,17 +731,11 @@ module.exports = class ABApplicationCore {
     *
     * return an array of all the ABRole for this ABApplication.
     *
-    * @param {fn} filter  	a filter fn to return a set of ABRole that
-    *						this fn returns true for.
-    * @return {array} 	array of ABRole
+    * @param {fn} filter   a filter fn to return a set of ABRole that
+    *                this fn returns true for.
+    * @return {array}   array of ABRole
     */
-   roles(filter) {
-      filter =
-         filter ||
-         function() {
-            return true;
-         };
-
+   roles(filter = () => true) {
       return (this._roles || []).filter(filter);
    }
 
@@ -686,13 +746,13 @@ module.exports = class ABApplicationCore {
     * reference an object's .id, or an object's .property.
     * for example:
     * #/_objects   : resolves to the array of ._objects pointed to by this
-    * 				  application.
+    *               application.
     * #/_objects/[object.id] : reolved to a specific object
     * #/_objects/[object.id]/_fields/[field.id] : resolves to a specific data field
-    * 				  refereced by object.id.
+    *               refereced by object.id.
     *
     * @param {string} pointer : the string url referencing the object you want
-    * 							 to retrieve.
+    *                       to retrieve.
     * @return {obj}
     */
    urlResolve(pointer) {
@@ -788,7 +848,7 @@ module.exports = class ABApplicationCore {
    }
 
    ///
-   ///	Object List Settings
+   ///   Object List Settings
    ///
    get objectlistIsOpen() {
       return this.objectListSettings.isOpen;
@@ -836,7 +896,7 @@ module.exports = class ABApplicationCore {
     * is performed on the field.
     *
     * @param {obj} values  the initial values for this field.
-    *						{ key:'{string}'} is required
+    *                { key:'{string}'} is required
     * @param {ABObject} object  the parent object this field belongs to.
     * @return {ABField}
     */
@@ -887,6 +947,13 @@ module.exports = class ABApplicationCore {
       return ABQLManager.newOP(values, application || this, parent);
    }
 
+   /**
+    * @method indexNew()
+    *
+    * return an instance of a new (unsaved) ABIndex.
+    *
+    * @return {ABView}
+    */
    indexNew(values, object) {
       return new ABIndex(values, object);
    }
@@ -894,10 +961,6 @@ module.exports = class ABApplicationCore {
    ///
    /// Utilities
    ///
-
-   languageDefault() {
-      return "en";
-   }
 
    /**
     * @function OP.Multilingual.translate
@@ -907,64 +970,66 @@ module.exports = class ABApplicationCore {
     *
     * @param {obj} obj  The instance of the object being translated
     * @param {json} json The json data being used for translation.
-    *						There should be json.translations = [ {transEntry}, ...]
-    *						where transEntry = {
-    *							language_code:'en',
-    *							field1:'value',
-    *							...
-    *						}
+    *                There should be json.translations = [ {transEntry}, ...]
+    *                where transEntry = {
+    *                   language_code:'en',
+    *                   field1:'value',
+    *                   ...
+    *                }
     * @param {array} fields an Array of multilingual fields to pull to
-    *						 the obj[field] value.
+    *                 the obj[field] value.
     *
     */
-   translate(obj, json, fields, languageCode = null) {
-      json = json || {};
-      fields = fields || [];
+   /*
+    translate(obj, json, fields, languageCode = null) {
+        json = json || {};
+        fields = fields || [];
 
-      if (!json.translations) {
-         json.translations = [];
-      }
+        if (!json.translations) {
+            json.translations = [];
+        }
 
-      if (typeof json.translations == "string") {
-         json.translations = JSON.parse(json.translations);
-      }
+        if (typeof json.translations == "string") {
+            json.translations = JSON.parse(json.translations);
+        }
 
-      var currLanguage = languageCode || this.languageDefault();
+        var currLanguage = languageCode || this.languageDefault();
 
-      if (fields && fields.length > 0) {
-         // [fix] if no matching translation is in our json.translations
-         //     object, then just use the 1st one.
-         var first = null; // the first translation entry encountered
-         var found = false; // did we find a matching translation?
+        if (fields && fields.length > 0) {
+            // [fix] if no matching translation is in our json.translations
+            //        object, then just use the 1st one.
+            var first = null; // the first translation entry encountered
+            var found = false; // did we find a matching translation?
 
-         json.translations.forEach(function(t) {
-            if (!first) first = t;
+            json.translations.forEach(function(t) {
+                if (!first) first = t;
 
-            // find the translation for the current language code
-            if (t.language_code == currLanguage) {
-               found = true;
+                // find the translation for the current language code
+                if (t.language_code == currLanguage) {
+                    found = true;
 
-               // copy each field to the root object
-               fields.forEach(function(f) {
-                  if (t[f] != null) obj[f] = t[f];
+                    // copy each field to the root object
+                    fields.forEach(function(f) {
+                        if (t[f] != null) obj[f] = t[f];
 
-                  obj[f] = t[f] || ""; // default to '' if not found.
-               });
-            }
-         });
-
-         // if !found, then use the 1st entry we did find.  prepend desired
-         // [language_code] to each of the fields.
-         if (!found && first) {
-            // copy each field to the root object
-            fields.forEach(function(f) {
-               if (first[f] != null && first[f] != "")
-                  obj[f] = `[${currLanguage}]${first[f]}`;
-               else obj[f] = ""; // default to '' if not found.
+                        obj[f] = t[f] || ""; // default to '' if not found.
+                    });
+                }
             });
-         }
-      }
-   }
+
+            // if !found, then use the 1st entry we did find.  prepend desired
+            // [language_code] to each of the fields.
+            if (!found && first) {
+                // copy each field to the root object
+                fields.forEach(function(f) {
+                    if (first[f] != null && first[f] != "")
+                        obj[f] = `[${currLanguage}]${first[f]}`;
+                    else obj[f] = ""; // default to '' if not found.
+                });
+            }
+        }
+    }
+    */
 
    /**
     * @function OP.Multilingual.unTranslate
@@ -974,44 +1039,45 @@ module.exports = class ABApplicationCore {
     *
     * @param {obj} obj  The instance of the object with the translation
     * @param {json} json The json data being used for translation.
-    *            There should be json.translations = [ {transEntry}, ...]
-    *            where transEntry = {
-    *              language_code:'en',
-    *              field1:'value',
-    *              ...
-    *            }
+    *                There should be json.translations = [ {transEntry}, ...]
+    *                where transEntry = {
+    *                   language_code:'en',
+    *                   field1:'value',
+    *                   ...
+    *                }
     * @param {array} fields an Array of multilingual fields to pull from
-    *             the obj[field] value.
+    *                 the obj[field] value.
     *
     */
-   unTranslate(obj, json, fields) {
-      json = json || {};
-      fields = fields || [];
+   /*
+    unTranslate(obj, json, fields) {
+        json = json || {};
+        fields = fields || [];
 
-      if (!json.translations) {
-         json.translations = [];
-      }
+        if (!json.translations) {
+            json.translations = [];
+        }
 
-      var currLanguage = this.languageDefault();
+        var currLanguage = this.languageDefault();
 
-      if (fields && fields.length > 0) {
-         var foundOne = false;
+        if (fields && fields.length > 0) {
+            var foundOne = false;
 
-         json.translations.forEach(function(t) {
-            // find the translation for the current language code
-            if (t.language_code == currLanguage) {
-               // copy each field to the root object
-               fields.forEach(function(f) {
-                  // verify obj[f] is defined
-                  // --> DONT erase the existing translation
-                  if (obj[f] != null) {
-                     t[f] = obj[f];
-                  }
-               });
+            json.translations.forEach(function(t) {
+                // find the translation for the current language code
+                if (t.language_code == currLanguage) {
+                    // copy each field to the root object
+                    fields.forEach(function(f) {
+                        // verify obj[f] is defined
+                        // --> DONT erase the existing translation
+                        if (obj[f] != null) {
+                            t[f] = obj[f];
+                        }
+                    });
 
-               foundOne = true;
-            }
-         });
+                    foundOne = true;
+                }
+            });
 
          // if we didn't update an existing translation
          if (!foundOne) {
@@ -1027,10 +1093,11 @@ module.exports = class ABApplicationCore {
                }
             });
 
-            json.translations.push(trans);
-         }
-      }
-   }
+                json.translations.push(trans);
+            }
+        }
+    }
+*/
 
    cloneDeep(object) {
       return JSON.parse(JSON.stringify(object));

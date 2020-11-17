@@ -124,7 +124,7 @@ module.exports = class ABProcessTaskUserApprovalCore extends ABProcessElement {
     */
    preProcessFormIOComponents() {
       var fields = this.process.processDataFields(this);
-      if (this.formBuilder && this.formBuilder.components) {
+      if (fields && this.formBuilder && this.formBuilder.components) {
          this.formBuilder.components.forEach((c) => {
             if (c.abFieldID) {
                fields.filter((entry) => {

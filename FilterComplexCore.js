@@ -617,6 +617,7 @@ module.exports = class FilterComplexCore extends ABComponent {
       if (object) {
          this._Object = object;
 
+         // insert our uuid in addition to the rest of our fields
          let thisObjOption = {
             id: "this_object",
             label: object.label,
@@ -951,7 +952,7 @@ module.exports = class FilterComplexCore extends ABComponent {
       let result = [];
 
       if (this._Application) {
-         result = result.concat(this._Application.queries(filter));
+         result = result.concat(this._Application.queriesIncluded(filter));
       }
 
       if (this._Queries) {

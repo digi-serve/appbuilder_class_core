@@ -5,61 +5,65 @@
  *
  */
 
-const ABView = require("../platform/views/ABView");
-const ABViewCarousel = require("../platform/views/ABViewCarousel");
-const ABViewChart = require("../platform/views/ABViewChart");
-const ABViewChartPie = require("../platform/views/ABViewChartPie");
-const ABViewChartBar = require("../platform/views/ABViewChartBar");
-const ABViewChartLine = require("../platform/views/ABViewChartLine");
-const ABViewChartArea = require("../platform/views/ABViewChartArea");
-const ABViewComment = require("../platform/views/ABViewComment");
-const ABViewConditionalContainer = require("../platform/views/ABViewConditionalContainer");
-const ABViewContainer = require("../platform/views/ABViewContainer");
-const ABViewCSVExporter = require("../platform/views/ABViewCSVExporter");
-const ABViewCSVImporter = require("../platform/views/ABViewCSVImporter");
-const ABViewDataview = require("../platform/views/ABViewDataview");
-const ABViewDocxBuilder = require("../platform/views/ABViewDocxBuilder");
-const ABViewPage = require("../platform/views/ABViewPage");
-const ABViewPivot = require("../platform/views/ABViewPivot");
-const ABViewLabel = require("../platform/views/ABViewLabel");
-const ABViewLayout = require("../platform/views/ABViewLayout");
-const ABViewList = require("../platform/views/ABViewList");
-const ABViewMenu = require("../platform/views/ABViewMenu");
-const ABViewGrid = require("../platform/views/ABViewGrid");
-const ABViewImage = require("../platform/views/ABViewImage");
-const ABViewTab = require("../platform/views/ABViewTab");
-const ABViewText = require("../platform/views/ABViewText");
-const ABViewKanban = require("../platform/views/ABViewKanban");
+var AllViews = [];
+AllViews.push(require("../platform/views/ABView"));
+AllViews.push(require("../platform/views/ABViewCarousel"));
+AllViews.push(require("../platform/views/ABViewChart"));
+AllViews.push(require("../platform/views/ABViewChartPie"));
+AllViews.push(require("../platform/views/ABViewChartBar"));
+AllViews.push(require("../platform/views/ABViewChartLine"));
+AllViews.push(require("../platform/views/ABViewChartArea"));
+AllViews.push(require("../platform/views/ABViewComment"));
+AllViews.push(require("../platform/views/ABViewConditionalContainer"));
+AllViews.push(require("../platform/views/ABViewContainer"));
+AllViews.push(require("../platform/views/ABViewCSVExporter"));
+AllViews.push(require("../platform/views/ABViewCSVImporter"));
+AllViews.push(require("../platform/views/ABViewDataview"));
+AllViews.push(require("../platform/views/ABViewDocxBuilder"));
+AllViews.push(require("../platform/views/ABViewPage"));
+AllViews.push(require("../platform/views/ABViewPivot"));
+AllViews.push(require("../platform/views/ABViewLabel"));
+AllViews.push(require("../platform/views/ABViewLayout"));
+AllViews.push(require("../platform/views/ABViewList"));
+AllViews.push(require("../platform/views/ABViewMenu"));
+AllViews.push(require("../platform/views/ABViewGrid"));
+AllViews.push(require("../platform/views/ABViewImage"));
+AllViews.push(require("../platform/views/ABViewTab"));
+AllViews.push(require("../platform/views/ABViewText"));
+AllViews.push(require("../platform/views/ABViewKanban"));
 
-const ABViewDetail = require("../platform/views/ABViewDetail");
-const ABViewDetailCheckbox = require("../platform/views/ABViewDetailCheckbox");
-const ABViewDetailCustom = require("../platform/views/ABViewDetailCustom");
-const ABViewDetailConnect = require("../platform/views/ABViewDetailConnect");
-const ABViewDetailImage = require("../platform/views/ABViewDetailImage");
-const ABViewDetailSelectivity = require("../platform/views/ABViewDetailSelectivity");
-const ABViewDetailText = require("../platform/views/ABViewDetailText");
-const ABViewDetailTree = require("../platform/views/ABViewDetailTree");
+AllViews.push(require("../platform/views/ABViewDetail"));
+AllViews.push(require("../platform/views/ABViewDetailCheckbox"));
+AllViews.push(require("../platform/views/ABViewDetailCustom"));
+AllViews.push(require("../platform/views/ABViewDetailConnect"));
+AllViews.push(require("../platform/views/ABViewDetailImage"));
+AllViews.push(require("../platform/views/ABViewDetailSelectivity"));
+AllViews.push(require("../platform/views/ABViewDetailText"));
+AllViews.push(require("../platform/views/ABViewDetailTree"));
 
-const ABViewForm = require("../platform/views/ABViewForm");
-const ABViewFormButton = require("../platform/views/ABViewFormButton");
-const ABViewFormCheckbox = require("../platform/views/ABViewFormCheckbox");
-const ABViewFormConnect = require("../platform/views/ABViewFormConnect");
-const ABViewFormCustom = require("../platform/views/ABViewFormCustom");
-const ABViewFormDatepicker = require("../platform/views/ABViewFormDatepicker");
-const ABViewFormNumber = require("../platform/views/ABViewFormNumber");
-//const ABViewFormSelectMultiple = require("../platform/views/ABViewFormSelectMultiple");
-const ABViewFormSelectSingle = require("../platform/views/ABViewFormSelectSingle");
-const ABViewFormReadonly = require("../platform/views/ABViewFormReadonly");
-const ABViewFormTextbox = require("../platform/views/ABViewFormTextbox");
-const ABViewFormTree = require("../platform/views/ABViewFormTree");
+AllViews.push(require("../platform/views/ABViewForm"));
+AllViews.push(require("../platform/views/ABViewFormButton"));
+AllViews.push(require("../platform/views/ABViewFormCheckbox"));
+AllViews.push(require("../platform/views/ABViewFormConnect"));
+AllViews.push(require("../platform/views/ABViewFormCustom"));
+AllViews.push(require("../platform/views/ABViewFormDatepicker"));
+AllViews.push(require("../platform/views/ABViewFormNumber"));
+//AllViews.push(require("../platform/views/ABViewFormSelectMultiple"));
+AllViews.push(require("../platform/views/ABViewFormSelectSingle"));
+AllViews.push(require("../platform/views/ABViewFormReadonly"));
+AllViews.push(require("../platform/views/ABViewFormTextbox"));
+AllViews.push(require("../platform/views/ABViewFormTree"));
 
 /*
  * Views
  * A name => ABView  hash of the different ABViews available.
  */
 var Views = {};
-Views[ABView.common().key] = ABView;
+AllViews.forEach((v) => {
+   Views[v.common().key] = v;
+});
 
+/*
 Views[ABViewCarousel.common().key] = ABViewCarousel;
 Views[ABViewChart.common().key] = ABViewChart;
 Views[ABViewChartPie.common().key] = ABViewChartPie;
@@ -107,20 +111,14 @@ Views[ABViewFormSelectSingle.common().key] = ABViewFormSelectSingle;
 Views[ABViewFormReadonly.common().key] = ABViewFormReadonly;
 Views[ABViewFormTextbox.common().key] = ABViewFormTextbox;
 Views[ABViewFormTree.common().key] = ABViewFormTree;
-
+*/
 module.exports = class ABViewManagerCore {
    /**
     * @function allViews
     * return all the currently defined ABViews in an array.
     * @return [{ABView},...]
     */
-   static allViews(fn) {
-      fn =
-         fn ||
-         function() {
-            return true;
-         };
-
+   static allViews(fn = () => true) {
       var views = [];
       for (var v in Views) {
          var V = Views[v];
@@ -162,4 +160,3 @@ module.exports = class ABViewManagerCore {
       }
    }
 };
-

@@ -104,6 +104,7 @@ module.exports = class ABProcessTriggerLifecycle extends ABProcessTrigger {
             object.fields().forEach((field) => {
                fields.push({
                   key: `${myID}.${field.id}`,
+
                   label: `${this.label}->${object.label}->${field.label}`,
                   field,
                   object
@@ -115,6 +116,12 @@ module.exports = class ABProcessTriggerLifecycle extends ABProcessTrigger {
                field: null,
                object
             });
+         } else {
+            console.error(
+               "ABProcessTriggerLifecycleCore.processDataFields(): could not find referenced object by ID [" +
+                  this.objectID +
+                  "]"
+            );
          }
       }
       return fields;

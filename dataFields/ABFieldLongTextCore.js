@@ -94,10 +94,8 @@ module.exports = class ABFieldLongText extends ABField {
       );
 
       if (this.settings.supportMultilingual) {
-         if (this.object && this.object.application)
-            this.object.application.translate(this.settings, this.settings, [
-               "default"
-            ]);
+         if (this.object)
+            this.object.translate(this.settings, this.settings, ["default"]);
       } else this.settings.default = values.settings.default || "";
    }
 
@@ -116,10 +114,8 @@ module.exports = class ABFieldLongText extends ABField {
       var obj = super.toObj();
 
       if (this.settings.supportMultilingual)
-         if (this.object && this.object.application)
-            this.object.application.unTranslate(obj.settings, obj.settings, [
-               "default"
-            ]);
+         if (this.object)
+            this.object.unTranslate(obj.settings, obj.settings, ["default"]);
          else obj.settings.default = this.settings.default;
 
       return obj;

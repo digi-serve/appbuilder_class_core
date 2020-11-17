@@ -168,7 +168,10 @@ module.exports = class ABFieldConnectCore extends ABFieldSelectivity {
       var objectLink = this.datasourceLink;
       if (!objectLink) return null;
 
-      return objectLink.fields((f) => f.id == this.settings.linkColumn)[0];
+      return objectLink.fields(
+         (f) => f.id == this.settings.linkColumn,
+         true
+      )[0];
    }
 
    /**
@@ -180,6 +183,10 @@ module.exports = class ABFieldConnectCore extends ABFieldSelectivity {
    pullRelationValues(row) {
       var selectedData = [];
 
+      /// LEFT OFF HERE:
+      /// debug invalid data for JSON.parse() on line 183
+      // debugger;
+
       // Get linked object
       var linkedObject = this.datasourceLink;
 
@@ -189,7 +196,11 @@ module.exports = class ABFieldConnectCore extends ABFieldSelectivity {
          if (typeof data == "string") {
             try {
                data = JSON.parse(data);
-            } catch (e) {}
+            } catch (e) {
+               // must be a UUID
+               // so just set that to selectedData:
+               selectedData = data;
+            }
          }
 
          selectedData = data;
@@ -264,7 +275,8 @@ module.exports = class ABFieldConnectCore extends ABFieldSelectivity {
          this.settings.linkViaType == "many"
       ) {
          return this.datasourceLink.fields(
-            (f) => f.id == this.settings.indexField
+            (f) => f.id == this.settings.indexField,
+            true
          )[0];
       }
       // 1:1
@@ -274,11 +286,13 @@ module.exports = class ABFieldConnectCore extends ABFieldSelectivity {
       ) {
          if (this.settings.isSource) {
             return this.datasourceLink.fields(
-               (f) => f.id == this.settings.indexField
+               (f) => f.id == this.settings.indexField,
+               true
             )[0];
          } else {
             return this.object.fields(
-               (f) => f.id == this.settings.indexField
+               (f) => f.id == this.settings.indexField,
+               true
             )[0];
          }
       }
@@ -287,7 +301,10 @@ module.exports = class ABFieldConnectCore extends ABFieldSelectivity {
          this.settings.linkType == "many" &&
          this.settings.linkViaType == "one"
       ) {
-         return this.object.fields((f) => f.id == this.settings.indexField)[0];
+         return this.object.fields(
+            (f) => f.id == this.settings.indexField,
+            true
+         )[0];
       }
       // M:N
       else if (
@@ -295,12 +312,14 @@ module.exports = class ABFieldConnectCore extends ABFieldSelectivity {
          this.settings.linkViaType == "many"
       ) {
          let indexField = this.object.fields(
-            (f) => f.id == this.settings.indexField
+            (f) => f.id == this.settings.indexField,
+            true
          )[0];
 
          if (indexField == null)
             indexField = this.datasourceLink.fields(
-               (f) => f.id == this.settings.indexField
+               (f) => f.id == this.settings.indexField,
+               true
             )[0];
 
          return indexField;
@@ -326,12 +345,14 @@ module.exports = class ABFieldConnectCore extends ABFieldSelectivity {
          this.settings.linkViaType == "many"
       ) {
          indexField = this.object.fields(
-            (f) => f.id == this.settings.indexField2
+            (f) => f.id == this.settings.indexField2,
+            true
          )[0];
 
          if (indexField == null)
             indexField = this.datasourceLink.fields(
-               (f) => f.id == this.settings.indexField2
+               (f) => f.id == this.settings.indexField2,
+               true
             )[0];
       }
 
@@ -408,5 +429,3 @@ module.exports = class ABFieldConnectCore extends ABFieldSelectivity {
       return result;
    }
 };
-
-

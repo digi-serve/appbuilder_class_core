@@ -7,31 +7,7 @@
  *
  */
 
-const ABEmitter = require("../../platform/ABEmitter");
-
-// HACK:: this was added to enforce sequential saves to Views stored in Arango
-// once we move to ABDefinitions, this should not be necessary anymore.
-// ==> convert .updateAccessLevels() to return this.save(false, false);
-var __AccessLevelUpdates = [];
-var __statusUpdatesRunning = false;
-function processAccessLevelUpdates() {
-   // if already running, just return
-   if (__statusUpdatesRunning) return;
-   __statusUpdatesRunning = true;
-
-   // else get next entry
-   var entry = __AccessLevelUpdates.shift();
-   if (entry) {
-      // if entry
-      // entry.save() then processAccessLevelUpdates
-      entry.save(false, false).then(() => {
-         __statusUpdatesRunning = false;
-         processAccessLevelUpdates();
-      });
-   } else {
-      __statusUpdatesRunning = false;
-   }
-}
+var ABMLClass = require("../../platform/ABMLClass");
 
 const ABViewDefaults = {
    key: "view", // {string} unique key for this view
@@ -44,14 +20,14 @@ const ABViewPropertyComponentDefaults = {
    label: ""
 };
 
-module.exports = class ABViewCore extends ABEmitter {
+module.exports = class ABViewCore extends ABMLClass {
    /**
     * @param {obj} values  key=>value hash of ABView values
     * @param {ABApplication} application the application object this view is under
     * @param {ABView} parent the ABView this view is a child of. (can be null)
     */
    constructor(values, application, parent, defaultValues) {
-      super();
+      super(["label"]);
 
       this.__events = [];
       // keep track of any event listeners attached to this ABView object
@@ -111,35 +87,38 @@ module.exports = class ABViewCore extends ABEmitter {
     * @return {json}
     */
    toObj() {
-      // NOTE: ensure we have a uuid() set:
-      if (!this.id) {
-         this.id = this.application.uuid();
-      }
+      // // NOTE: ensure we have a uuid() set:
+      // if (!this.id) {
+      //    this.id = this.application.uuid();
+      // }
 
-      this.application.unTranslate(this, this, ["label"]);
+      // this.application.unTranslate(this, this, ["label"]);
+
+      // MLClass translation
+      var obj = super.toObj();
 
       var result = {
          id: this.id,
+         type: this.type || "view",
          key: this.key,
          icon: this.icon,
          tabicon: this.tabicon,
-
          name: this.name,
-         // parent: this.parent,
-
          settings: this.application.cloneDeep(this.settings || {}),
          accessLevels: this.accessLevels,
-         translations: this.translations || []
+         translations: obj.translations
       };
 
-      // for each Object: compile to json
-      var views = [];
-      (this._views || []).forEach((view) => {
-         views.push(view.toObj());
-      });
-      result.views = views;
+      // encode our child view references
+      result.viewIDs = (this._views || []).map((v) => v.id);
 
       if (this.position) result.position = this.position;
+
+      // encode our .isRoot() reference.
+      // (NOTE: this is set so our server side code can distinguish) between a .view
+      // and a root page:
+      // NOTE: we intentionally do NOT pull this out in .fromValues()
+      result.isRoot = this.isRoot();
 
       return result;
    }
@@ -152,24 +131,51 @@ module.exports = class ABViewCore extends ABEmitter {
     */
    fromValues(values) {
       this.id = values.id; // NOTE: only exists after .save()
+      // {string} .id
+      // the uuid of this ABObject Definition.
+
+      this.type = values.type || "view";
+      // {string} .type
+      // the type of ABDefinition this is.
+
       this.key = values.key || this.viewKey();
+      // {string} .key
+      // the unique lookup key for our ABViewManager to create new
+      // instances of this object.
+
       this.icon = values.icon || this.viewIcon();
+      // {string} .icon
+      // the font awesome icon reference for showing an icon for this
+      // view in the AppBuilder interface builder.
+
       this.tabicon = values.tabicon || this.tabIcon();
 
-      // this.parent = values.parent || null;
-
       this.name = values.name;
+      // {string} .name
+      // A name reference for this ABView. This is a reference that isn't
+      // translateable and will be used for lookups across languages.
 
       // if this is being instantiated on a read from the Property UI,
       // .label is coming in under .settings.label
       values.settings = values.settings || {};
       this.label = values.label || values.settings.label || "?label?";
 
-      this.translations = values.translations || [];
-
       this.settings = values.settings || {};
+      // {obj} .settings
+      // the property settings for this ABView
+
+      // make sure .settings.height is an int and not a string
+      if (this.settings.height) {
+         this.settings.height = parseInt(this.settings.height);
+      }
 
       this.accessLevels = values.accessLevels || {};
+      // {obj} .accessLevels
+      // tracks the Role -> AccessLevel settings of this particual
+      // view.
+
+      // let the MLClass now process the translations:
+      super.fromValues(values);
 
       // If the View / DataCollection does not have a .name already,
       // use the English label translation as the .name instead.
@@ -187,9 +193,6 @@ module.exports = class ABViewCore extends ABEmitter {
          }
       }
 
-      // label is a multilingual value:
-      this.application.translate(this, this, ["label"]);
-
       // default value for our label
       if (this.label == "?label?") {
          if (this.parent) {
@@ -198,8 +201,15 @@ module.exports = class ABViewCore extends ABEmitter {
       }
 
       var views = [];
-      (values.views || []).forEach((child) => {
-         views.push(this.viewNew(child, this.application, this));
+      (values.viewIDs || []).forEach((id) => {
+         var def = this.application.definitionForID(id);
+         if (def) {
+            views.push(this.application.viewNew(def, this.application, this));
+         } else {
+            console.error(
+               `Application[${this.application.name}][${this.application.id}].View[${this.name}][${this.id}] references unknown View[${id}]`
+            );
+         }
       });
       this._views = views;
 
@@ -207,7 +217,6 @@ module.exports = class ABViewCore extends ABEmitter {
       this.position = values.position || {};
 
       if (this.position.x != null) this.position.x = parseInt(this.position.x);
-
       if (this.position.y != null) this.position.y = parseInt(this.position.y);
 
       this.position.dx = parseInt(this.position.dx || 1);
@@ -413,10 +422,7 @@ module.exports = class ABViewCore extends ABEmitter {
          this.accessLevels[roleId] = accessLevel;
       }
 
-      __AccessLevelUpdates.push(this);
-      processAccessLevelUpdates();
-      // return this.save(false, false);
-      return Promise.resolve();
+      return this.save(false, false);
    }
 
    ///
@@ -434,7 +440,7 @@ module.exports = class ABViewCore extends ABEmitter {
     *
     * @return {array} 	array of ABViews
     */
-   views(filter, deep) {
+   views(filter = () => true, deep = false) {
       var result = [];
 
       if (!this._views || this._views.length < 1) return result;
@@ -450,12 +456,6 @@ module.exports = class ABViewCore extends ABEmitter {
             }
          });
       } else {
-         filter =
-            filter ||
-            function() {
-               return true;
-            };
-
          result = this._views.filter(filter);
       }
 
@@ -485,32 +485,50 @@ module.exports = class ABViewCore extends ABEmitter {
     * @return {Promise}
     */
    viewDestroy(view) {
-      var remainingViews = this.views(function(v) {
-         return v.id != view.id;
-      });
-      this._views = remainingViews;
-
-      return this.save();
+      console.error("DEPRECIATED: where is this called?");
+      return this.viewRemove(view);
    }
 
    /**
-    * @method viewSave()
+    * @method viewRemove()
+    *
+    * remove the current ABView from our list of ._views.
+    *
+    * @param {ABView} view
+    * @return {Promise}
+    */
+   viewRemove(view) {
+      var origLen = this._views.length;
+      this._views = this.views(function(v) {
+         return v.id != view.id;
+      });
+
+      if (this._views.length < origLen) {
+         return this.save();
+      }
+
+      return Promise.resolve();
+   }
+
+   /**
+    * @method viewInsert()
     *
     * persist the current ABView in our list of ._views.
     *
     * @param {ABView} object
     * @return {Promise}
     */
-   viewSave(view) {
+   viewInsert(view) {
       var isIncluded =
          this.views(function(v) {
             return v.id == view.id;
          }).length > 0;
       if (!isIncluded) {
          this._views.push(view);
+         return this.save();
       }
 
-      return this.save();
+      return Promise.resolve();
    }
 
    /**
@@ -545,78 +563,63 @@ module.exports = class ABViewCore extends ABEmitter {
     * @return {Promise}
     */
    destroy() {
-      return new Promise((resolve, reject) => {
-         // unsubscribe events
-         this.eventClear(true);
+      // unsubscribe events
+      this.eventClear(true);
 
-         // verify we have been .save() before:
-         if (this.id) {
-            this.application
-               .viewDestroy(this)
-               .then(() => {
-                  // remove the page in list
-                  let parent = this.parent;
-                  if (parent) {
-                     let remainingPages = parent.views((v) => v.id != this.id);
-                     parent._views = remainingPages;
-                  }
+      return Promise.resolve()
+         .then(() => {
+            // When deleting an ABView
+            // be sure to remove any of it's ABViews as well
+            // This cleans out any dangling ABDefinitions
 
-                  resolve();
-               })
-               .catch(reject);
-         } else {
-            resolve(); // nothing to do really
-         }
-      });
+            var allViewDeletes = [];
+            var allViews = this.views();
+            this._views = [];
+            // doing ._views = [] prevents any of my updates when
+            // a sub-view is .destroy()ed
+
+            allViews.forEach((v) => {
+               allViewDeletes.push(v.destroy());
+            });
+            return Promise.all(allViewDeletes);
+         })
+         .then(() => {
+            // NOTE: this should not happen on ABViewPage objects
+            if (this.parent && !this.pages) {
+               return this.parent.viewRemove(this);
+            }
+         })
+         .then(() => {
+            return super.destroy();
+         })
+         .then(() => {
+            this.emit("destroyed");
+         });
    }
 
    /**
     * @method save()
-    *
-    * persist this instance of ABView with it's parent
-    *
-    * @param includeSubViews {Boolean}
-    *
-    * @param ignoreUiUpdate {Boolean}
-    *
+    * persist this instance of ABView
     * @return {Promise}
-    *						.resolve( {this} )
+    *		.resolve( {this} )
     */
-   save(includeSubViews = false, updateUi = true) {
-      return new Promise((resolve, reject) => {
-         // // if this is our initial save()
-         // if (!this.id) {
-         // 	this.id = OP.Util.uuid();	// setup default .id
-         // }
-
-         // // if this is not a child of another view then tell it's
-         // // application to save this view.
-         //  var parent = this.parent;
-         // if (!parent) parent = this.application;
-
-         // parent.viewSave(this)
-         // 	.then(resolve)
-         // 	.catch(reject)
-
-         // if this is our initial save()
-         if (!this.id) {
-            this.id = OP.Util.uuid(); // setup default .id
-         }
-
-         this.application
-            .viewSave(this, includeSubViews, updateUi)
-            .then(() => {
-               // persist the current ABViewPage in our list of ._pages.
-               let parent = this.parent || this.application;
-               let isIncluded = parent.views((v) => v.id == this.id).length > 0;
-               if (!isIncluded) {
-                  parent._views.push(this);
-               }
-
-               resolve();
-            })
-            .catch(reject);
-      });
+   save() {
+      return Promise.resolve()
+         .then(() => {
+            // this creates our .id
+            return super.save();
+         })
+         .then(() => {
+            // NOTE: this should not happen on ABViewPage objects:
+            if (this.parent && !this.pages) {
+               // if we have a .parent, make sure we are included in our .parent's
+               // viewIDs
+               return this.parent.viewInsert(this);
+            }
+         })
+         .then(() => {
+            return this;
+         });
    }
 
    ///
@@ -676,7 +679,23 @@ module.exports = class ABViewCore extends ABEmitter {
       }
    }
 
-   copy(lookUpIds, parent, options = {}) {
+   /**
+    * @method clone()
+    * clone the definitions of this ABView object.
+    * @param {obj} lookUpIds
+    *        an { oldID : newID } lookup hash for converting ABView objects
+    *        and their setting pointers.
+    * @param {ABView*} parent
+    *        Which ABView should be connected as the parent object of this
+    *        copy.
+    * @param {obj} options
+    *        option settings for the copy command.
+    *        options.ignoreSubPages {bool}
+    *             set to true to skip copying any sub pages of this ABView.
+    * @return {obj}
+    *        obj defs of this ABView
+    */
+   clone(lookUpIds, parent, options = {}) {
       lookUpIds = lookUpIds || {};
 
       // get settings of the target
@@ -705,7 +724,7 @@ module.exports = class ABViewCore extends ABEmitter {
       if (this.pages && !options.ignoreSubPages) {
          result._pages = [];
          this.pages().forEach((p) => {
-            let copiedSubPage = p.copy(lookUpIds, result, options);
+            let copiedSubPage = p.clone(lookUpIds, result, options);
             copiedSubPage.parent = result;
 
             result._pages.push(copiedSubPage);
@@ -716,12 +735,115 @@ module.exports = class ABViewCore extends ABEmitter {
       if (this.views && !options.ignoreSubViews) {
          result._views = [];
          this.views().forEach((v) => {
-            let copiedView = v.copy(lookUpIds, result, options);
+            let copiedView = v.clone(lookUpIds, result, options);
 
             result._views.push(copiedView);
          });
       }
 
       return result;
+   }
+
+   /**
+    * @method copy()
+    * create a new copy of this ABView object. The resulting ABView should
+    * be identical in settings and all sub pages/views, but each new object
+    * is a unique view (different ids).
+    * @param {obj} lookUpIds
+    *        an { oldID : newID } lookup hash for converting ABView objects
+    *        and their setting pointers.
+    * @param {ABView*} parent
+    *        Which ABView should be connected as the parent object of this
+    *        copy.
+    * @param {obj} options
+    *        option settings for the copy command.
+    *        options.ignoreSubPages {bool}
+    *             set to true to skip copying any sub pages of this ABView.
+    * @return {Promise}
+    *        .resolved with the instance of the copied ABView
+    */
+   copy(lookUpIds, parent, options = {}) {
+      lookUpIds = lookUpIds || {};
+
+      // get settings of the target
+      let config = this.toObj();
+
+      // remove sub-elements property
+      ["pageIDs", "viewIDs"].forEach((prop) => {
+         delete config[prop];
+      });
+
+      // update id of linked components
+      if (this.copyUpdateProperyList) {
+         (this.copyUpdateProperyList() || []).forEach((prop) => {
+            if (config && config.settings)
+               config.settings[prop] = lookUpIds[config.settings[prop]];
+         });
+      }
+
+      // copy from settings
+      let result = this.application.viewNew(config, this.application, parent);
+
+      // change id
+      result.id = lookUpIds[result.id] || this.application.uuid();
+
+      return Promise.resolve()
+         .then(() => {
+            // copy sub pages
+            var allSaves = [];
+
+            if (this._pages && !options.ignoreSubPages) {
+               result._pages = [];
+               this.pages().forEach((p) => {
+                  // this prevents result.save() from happening on each of these
+                  // p.copy():
+                  this.application._pages.push({ id: lookUpIds[p.id] });
+                  allSaves.push(
+                     p
+                        .copy(lookUpIds, result, options)
+                        .then((copiedSubPage) => {
+                           copiedSubPage.parent = result;
+                           // remove the temp {id:} entry above:
+                           this.application._pages = this.application._pages.filter(
+                              (p2) => p2.id != lookUpIds[p.id]
+                           );
+
+                           // now add the full copiedSubPage:
+                           result._pages.push(copiedSubPage);
+                        })
+                  );
+               });
+            }
+
+            return Promise.all(allSaves);
+         })
+         .then(() => {
+            // copy sub views
+            var allSaves = [];
+
+            if (this._views && !options.ignoreSubViews) {
+               result._views = [];
+               this.views().forEach((v) => {
+                  allSaves.push(
+                     // send a null for parent, so that the .save() wont trigger
+                     // a save of the parent.
+                     v.copy(lookUpIds, null, options).then((copiedView) => {
+                        // now patch up the parent connection:
+                        copiedView.parent = result;
+                        result._views.push(copiedView);
+                     })
+                  );
+               });
+            }
+
+            return Promise.all(allSaves);
+         })
+         .then(() => {
+            // now we do 1 save for all the views
+            return result.save();
+         })
+         .then(() => {
+            return result;
+         });
    }
 };

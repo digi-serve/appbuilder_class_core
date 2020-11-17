@@ -95,7 +95,7 @@ module.exports = class ABFieldListCore extends ABField {
       // translate options list
       if (this.settings.options && this.settings.options.length > 0) {
          this.settings.options.forEach((opt) => {
-            this.object.application.translate(opt, opt, ["text"]);
+            this.object.translate(opt, opt, ["text"]);
          });
       }
 
@@ -119,7 +119,7 @@ module.exports = class ABFieldListCore extends ABField {
 
       // Un-translate options list
       obj.settings.options.forEach((opt) => {
-         this.object.application.unTranslate(opt, opt, ["text"]);
+         this.object.unTranslate(opt, opt, ["text"]);
       });
 
       return obj;

@@ -7,7 +7,8 @@
  *
  *
  */
-const ABEmitter = require("../platform/ABEmitter");
+// const ABEmitter = require("../platform/ABEmitter");
+const ABMLClass = require("../platform/ABMLClass");
 
 const ABObject = require("../platform/ABObject");
 const ABObjectQuery = require("../platform/ABObjectQuery");
@@ -45,9 +46,9 @@ var DefaultValues = {
    }
 };
 
-module.exports = class ABViewDataCollectionCore extends ABEmitter {
+module.exports = class ABDataCollectionCore extends ABMLClass {
    constructor(attributes, application) {
-      super();
+      super(["label"]);
 
       attributes = attributes || {};
 
@@ -70,6 +71,20 @@ module.exports = class ABViewDataCollectionCore extends ABEmitter {
    }
 
    /**
+    * contextKey()
+    *
+    * return a unique key that represents data from/for this type of object.
+    *
+    * used when creating Network jobs and needing to be notified when a job
+    * is complete.  We send a contextKey() to the Network job and then listen
+    * for it to know when it is complete.
+    * @return {string}
+    */
+   static contextKey() {
+      return "datacollection";
+   }
+
+   /**
     * @method fromValues()
     *
     * initialze this object with the given set of values.
@@ -77,66 +92,134 @@ module.exports = class ABViewDataCollectionCore extends ABEmitter {
     */
    fromValues(values) {
       this.id = values.id;
+      // {string} .id
+      // the uuid of this ABDataCollection Definition.
+
+      this.name = values.name || null;
+      // {string} .name
+      // the unchanging name of this ABDataCollection
+
+      this.type = values.type || "datacollection";
+      // {string} .type
+      // the type of ABDefinition this is.
 
       values.settings = values.settings || {};
       this.settings = this.settings || {};
+      // {obj} .settings
+      // the specific operation values for this ABDataCollection
 
-      // label
-      this.translations = values.translations || [];
-      this.label = values.label;
-
-      // if this is being instantiated on a read from the Property UI,
-      this.settings.datasourceID =
-         values.settings.datasourceID || DefaultValues.settings.datasourceID;
       this.settings.linkDatacollectionID =
          values.settings.linkDatacollectionID ||
          DefaultValues.settings.linkDatacollectionID;
+      // {string} .settings.linkDaacollectionID
+      // the uuid of another ABDataCollection that provides the link/trigger
+      // for filtering the values of this ABDataCollection.
+
       this.settings.linkFieldID =
          values.settings.linkFieldID || DefaultValues.settings.linkFieldID;
+      // {string} .settings.linkFieldID
+      // the uuid of the ABDataField of the .linkDatacollection ABObject
+      // whose value is the trigger value for this ABDataCollection
+
       this.settings.objectWorkspace = values.settings.objectWorkspace || {
          filterConditions:
             DefaultValues.settings.objectWorkspace.filterConditions,
          sortFields: DefaultValues.settings.objectWorkspace.sortFields
       };
+      // {obj} .settings.objectWorkspace
+      // the default settings for what is shown in the AppBuilder's
+      // DataCollection workspace
+
       this.settings.fixSelect = values.settings.fixSelect;
 
       // Convert to boolean
       this.settings.loadAll = JSON.parse(
          values.settings.loadAll || DefaultValues.settings.loadAll
       );
+      // {bool} .settings.loadAll
+      // do we load all the data at one time? false == load by pages.
+
       this.settings.isQuery = JSON.parse(
          values.settings.isQuery || DefaultValues.settings.isQuery
       );
+      // {bool} .settings.isQuery
+      // is the data source for this ABDataCollection based upon an
+      // ABObjectQuery?
+
       this.settings.preventPopulate = JSON.parse(
          values.settings.preventPopulate ||
             DefaultValues.settings.preventPopulate
       );
+      // {bool} preventPopulate
+      // option to not populate the data this Datacollection requests from the
+      // server.  Usually to speed up the process.
 
       // Convert to number
       this.settings.syncType = parseInt(
          values.settings.syncType || DefaultValues.settings.syncType
       );
+      // {int} .settings.syncType
+      // how is the data between this ABDataCollection and it's
+      // .datasource synced?
 
-      // Populate data source: ABObject or ABObjectQuery
-      if (values.query && values.query[0]) {
-         this.__datasource = new ABObjectQuery(
-            values.query[0],
-            this.application
-         );
-         this.settings.isQuery = true;
+      this.__datasource = null;
+      // {obj} .__datasource
+      // the reference to the ABObject/ABObjectQuery that this ABDataCollection
+      // is based off of.
 
-         if (this.__datasource.isGroup) {
-            if (!this.__treeCollection)
-               this.__treeCollection = this._treeCollectionNew();
+      this.settings.datasourceID =
+         values.settings.datasourceID || DefaultValues.settings.datasourceID;
+      // {string} .settings.datasourceID
+      // the uuid of the .__datasource object to use
 
-            this.__isGroup = true;
+      // now lookup and reference the proper datasource
+      if (this.settings.datasourceID) {
+         // check for an ABObject
+         var obj = this.application.objectByID(this.settings.datasourceID);
+         if (!obj) {
+            // this must be an ABObjectQuery then ...
+            obj = this.application.queryByID(this.settings.datasourceID);
          }
-      } else if (values.object && values.object[0]) {
-         this.__datasource = new ABObject(values.object[0], this.application);
-         this.settings.isQuery = false;
+
+         if (obj) {
+            this.__datasource = obj;
+            this.settings.isQuery = obj.type === "query";
+            if (this.settings.isQuery) {
+               if (this.__datasource.isGroup) {
+                  if (!this.__treeCollection)
+                     this.__treeCollection = this._treeCollectionNew();
+
+                  this.__isGroup = true;
+               }
+            }
+         } else {
+            console.error(
+               `ABDataCollection[${this.name}][${this.id}] unable to find datasource [${this.settings.datasourceID}]`
+            );
+         }
       }
 
-      if (this.application) this.application.translate(this, this, ["label"]);
+      // // Populate data source: ABObject or ABObjectQuery
+      // if (values.query && values.query[0]) {
+      //    this.__datasource = new ABObjectQuery(
+      //       values.query[0],
+      //       this.application
+      //    );
+      //    this.settings.isQuery = true;
+
+      //    if (this.__datasource.isGroup) {
+      //       if (!this.__treeCollection)
+      //          this.__treeCollection = this._treeCollectionNew();
+
+      //       this.__isGroup = true;
+      //    }
+      // } else if (values.object && values.object[0]) {
+      //    this.__datasource = new ABObject(values.object[0], this.application);
+      //    this.settings.isQuery = false;
+      // }
+
+      // let the MLClass now process the translations:
+      super.fromValues(values);
    }
 
    /**
@@ -151,12 +234,14 @@ module.exports = class ABViewDataCollectionCore extends ABEmitter {
     * @return {json}
     */
    toObj() {
-      this.application.unTranslate(this, this, ["label"]);
+      var obj = super.toObj(); // untranslate the object
 
       return {
          id: this.id,
+         name: this.name || this.label,
+         type: this.type || "datacollection",
          settings: _.cloneDeep(this.settings || {}),
-         translations: this.translations
+         translations: obj.translations
       };
    }
 
@@ -175,6 +260,15 @@ module.exports = class ABViewDataCollectionCore extends ABEmitter {
          this.label = this.label || this.name;
       }
 
+      return Promise.resolve()
+         .then(() => {
+            return super.save();
+         })
+         .then(() => {
+            return this.application.datacollectionInsert(this);
+         });
+
+      /*
       return new Promise((resolve, reject) => {
          this.application
             .datacollectionSave(this)
@@ -215,6 +309,7 @@ module.exports = class ABViewDataCollectionCore extends ABEmitter {
                reject(err);
             });
       });
+      */
    }
 
    /**
@@ -227,7 +322,37 @@ module.exports = class ABViewDataCollectionCore extends ABEmitter {
     * @return {Promise}
     */
    destroy() {
-      return this.application.datacollectionDestroy(this);
+      var removeFromApplications = () => {
+         return new Promise((next, err) => {
+            ABApplication.allCurrentApplications().then((apps) => {
+               // NOTE: apps is a webix datacollection
+
+               var allRemoves = [];
+
+               var appsWithObject = apps.find((a) => {
+                  return a.datacollectionsIncluded((o) => o.id == this.id);
+               });
+               appsWithObject.forEach((app) => {
+                  allRemoves.push(app.objectRemove(this));
+               });
+
+               return Promise.all(allRemoves)
+                  .then(next)
+                  .catch(err);
+            });
+         });
+      };
+
+      return Promise.resolve()
+         .then(() => {
+            return removeFromApplications();
+         })
+         .then(() => {
+            return super.destroy();
+         })
+         .then(() => {
+            this.emit("destroyed");
+         });
    }
 
    /**
@@ -509,7 +634,7 @@ module.exports = class ABViewDataCollectionCore extends ABEmitter {
             let currRowId = this.__dataCollection.getCursor();
             if (
                !currRowId ||
-               (currRowId && this.__dataCollection.getIndexById(currRowId) < 0)
+               (currRowId && !this.__dataCollection.exists(currRowId))
             ) {
                // If current cursor is filtered by parent DC, then select new cursor
 
@@ -592,7 +717,7 @@ module.exports = class ABViewDataCollectionCore extends ABEmitter {
                         if (!newDataId) return;
 
                         where.rules.push({
-                           key: `${o.alias}.${o.PK()}`,
+                           key: `${o.alias || obj.objectAlias(o.id)}.${o.PK()}`,
                            rule: "equals",
                            value: newDataId
                         });
@@ -651,8 +776,9 @@ module.exports = class ABViewDataCollectionCore extends ABEmitter {
                         if (this.isParentFilterValid(updatedV)) {
                            this.__bindComponentIds.forEach((bcids) => {
                               // if the reload button already exisits move on
-                              if ($$($$(bcids).id + "_reloadView"))
+                              if ($$(bcids + "_reloadView")) {
                                  return false;
+                              }
 
                               // find the position of the data view
                               var pos = $$(bcids)
@@ -666,7 +792,7 @@ module.exports = class ABViewDataCollectionCore extends ABEmitter {
                                  .getParentView()
                                  .addView(
                                     {
-                                       id: $$(bcids).id + "_reloadView",
+                                       id: bcids + "_reloadView",
                                        view: "button",
                                        value: L(
                                           "ab.dataCollection.staleTable",
@@ -1006,12 +1132,19 @@ module.exports = class ABViewDataCollectionCore extends ABEmitter {
 
                // If this item needs to update
                if (Object.keys(updateItemData).length > 0) {
-                  this.__dataCollection.updateItem(d.id, updateItemData);
-
-                  if (this.__treeCollection)
+                  if (
+                     this.__treeCollection &&
+                     this.__treeCollection.exists(d.id)
+                  )
                      this.__treeCollection.updateItem(d.id, updateItemData);
 
-                  this.emit("update", this.__dataCollection.getItem(d.id));
+                  if (
+                     this.__dataCollection &&
+                     this.__dataCollection.exists(d.id)
+                  ) {
+                     this.__dataCollection.updateItem(d.id, updateItemData);
+                     this.emit("update", this.__dataCollection.getItem(d.id));
+                  }
                }
             });
          }
@@ -1038,6 +1171,8 @@ module.exports = class ABViewDataCollectionCore extends ABEmitter {
          // updated values
          var values = data.data;
 
+         if (!values) return;
+
          // use the Object's defined Primary Key:
          var PK = this.model.object.PK();
          if (!values[PK]) {
@@ -1049,7 +1184,7 @@ module.exports = class ABViewDataCollectionCore extends ABEmitter {
                var cond = { where: {} };
                cond.where[PK] = values[PK];
                // this data collection has the record so we need to query the server to find out what it's latest data is so we can update all instances
-               this.model.findAll(cond).then((res) => {
+               this.model.staleRefresh(cond).then((res) => {
                   // check to make sure there is data to work with
                   if (Array.isArray(res.data) && res.data.length) {
                      // tell the webix data collection to update using their API with the row id (values.id) and content (res.data[0])
@@ -1236,6 +1371,7 @@ module.exports = class ABViewDataCollectionCore extends ABEmitter {
          return Promise.resolve([]);
       }
 
+      // pull the defined sort values
       var sorts = this.settings.objectWorkspace.sortFields || [];
 
       // pull filter conditions
@@ -1442,11 +1578,13 @@ module.exports = class ABViewDataCollectionCore extends ABEmitter {
             this.emit("initializedData", {});
          }
 
-         // If dc set load all, then it will not trigger .loadData in dc at .onAfterLoad event
+         // If dc set load all, then it will not trigger .loadData in dc at
+         // .onAfterLoad event
          if (this.settings.loadAll) {
             this.emit("loadData", {});
          }
 
+         // now we close out our .loadData() promise.resolve() :
          if (this._pendingLoadDataResolve) {
             this._pendingLoadDataResolve.resolve();
 
@@ -1545,6 +1683,8 @@ module.exports = class ABViewDataCollectionCore extends ABEmitter {
       if (fieldLink == null) return true;
 
       // the parent's cursor is not set.
+      // our DC depends on the value of the parent's cursor,
+      // so until it is set, any data we receive is inValid
       var linkCursor = linkDv.getCursor();
       if (linkCursor == null) return false;
 
@@ -1652,32 +1792,32 @@ module.exports = class ABViewDataCollectionCore extends ABEmitter {
          );
       }
 
-      // Set filter of data collection
-      if (this.__filterDatacollection == null)
-         this.__filterDatacollection = new RowFilter();
+      // // Set filter of data view
+      // if (this.__filterDatacollection == null)
+      //    this.__filterDatacollection = new RowFilter();
 
-      this.__filterDatacollection.applicationLoad(
-         this.datasource ? this.datasource.application : null
-      );
-      this.__filterDatacollection.fieldsLoad(
-         this.datasource ? this.datasource.fields() : []
-      );
+      // this.__filterDatacollection.applicationLoad(
+      //    this.datasource ? this.datasource.application : null
+      // );
+      // this.__filterDatacollection.fieldsLoad(
+      //    this.datasource ? this.datasource.fields() : []
+      // );
 
-      if (wheres) this.settings.objectWorkspace.filterConditions = wheres;
+      // if (wheres) this.settings.objectWorkspace.filterConditions = wheres;
 
-      if (
-         this.settings &&
-         this.settings.objectWorkspace &&
-         this.settings.objectWorkspace.filterConditions
-      ) {
-         this.__filterDatacollection.setValue(
-            this.settings.objectWorkspace.filterConditions
-         );
-      } else {
-         this.__filterDatacollection.setValue(
-            DefaultValues.settings.objectWorkspace.filterConditions
-         );
-      }
+      // if (
+      //    this.settings &&
+      //    this.settings.objectWorkspace &&
+      //    this.settings.objectWorkspace.filterConditions
+      // ) {
+      //    this.__filterDatacollection.setValue(
+      //       this.settings.objectWorkspace.filterConditions
+      //    );
+      // } else {
+      //    this.__filterDatacollection.setValue(
+      //       DefaultValues.settings.objectWorkspace.filterConditions
+      //    );
+      // }
 
       // Set filter of user's scope
       if (this.__filterScope == null) this.__filterScope = new RowFilter();
@@ -1907,11 +2047,11 @@ module.exports = class ABViewDataCollectionCore extends ABEmitter {
 
       // NOTE: should we use filter of the current view of object to filter
       //        if yes, update .wheres condition in .loadData too
-      // if (this.__filterDatasource)
-      //    result = result && this.__filterDatasource.isValid(rowData);
+      if (this.__filterDatasource)
+         result = result && this.__filterDatasource.isValid(rowData);
 
-      if (this.__filterDatacollection)
-         result = result && this.__filterDatacollection.isValid(rowData);
+      // if (this.__filterDatacollection)
+      //    result = result && this.__filterDatacollection.isValid(rowData);
 
       if (result && this.__filterScope)
          result = result && this.__filterScope.isValid(rowData);
@@ -2037,6 +2177,3 @@ module.exports = class ABViewDataCollectionCore extends ABEmitter {
       return [];
    }
 };
-
-
-

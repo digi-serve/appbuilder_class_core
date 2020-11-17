@@ -316,7 +316,7 @@ module.exports = class RowFilter extends ABComponent {
             let qIdBase = "{idBase}-query-field-{id}"
                   .replace("{idBase}", idBase)
                   .replace("{id}", query.id),
-               inQueryFieldFilter = new RowFilter(App, qIdBase);
+               inQueryFieldFilter = new RowFilter(this.App, qIdBase);
             inQueryFieldFilter.Account = this.Account;
             inQueryFieldFilter.applicationLoad(this._Application);
             inQueryFieldFilter.fieldsLoad(query.fields());
@@ -350,7 +350,7 @@ module.exports = class RowFilter extends ABComponent {
             let qIdBase = "{idBase}-query-{id}"
                   .replace("{idBase}", idBase)
                   .replace("{id}", query.id),
-               inQueryFilter = new RowFilter(App, qIdBase);
+               inQueryFilter = new RowFilter(this.App, qIdBase);
             inQueryFilter.Account = this.Account;
             inQueryFilter.applicationLoad(this._Application);
             inQueryFilter.fieldsLoad(query.fields());
@@ -732,6 +732,3 @@ module.exports = class RowFilter extends ABComponent {
       this.config_settings.rules = this.config_settings.rules || [];
    }
 };
-
-
-
