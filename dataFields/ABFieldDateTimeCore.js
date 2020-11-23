@@ -135,29 +135,39 @@ module.exports = class ABFieldDateTimeCore extends ABFieldDateCore {
    getFormat() {
       let dateFormatString = super.getFormat();
 
-      let timeFormat =
-         this.settings && this.settings.timeFormat
-            ? this.settings.timeFormat
-            : "";
-      switch (timeFormat) {
-         case 2:
-            {
-               dateFormatString += " %h:%i %A";
-            }
-            break;
-         case 3:
-            {
-               dateFormatString += " %H:%i";
-            }
-            break;
-         default:
-            {
-               //Do not show time in format
-            }
-            break;
-      }
+      let timeFormat = this.getTimeFormat();
+      if (timeFormat) dateFormatString += ` ${timeFormat}`;
 
       return dateFormatString;
+   }
+
+   format(rowData) {
+      this.settings = this.settings || {};
+      if (this.settings.dateFormat == 1) {
+         var d = this.dataValue(rowData);
+         if (d == "" || d == null) {
+            return "";
+         }
+
+         // pull format from settings.
+         let momentObj = this.convertToMoment(d);
+         let timeFormat = this.getTimeFormat();
+         return webix.Date.dateToStr(timeFormat)(new Date(momentObj));
+      } else {
+         return super.format(rowData);
+      }
+   }
+
+   getTimeFormat() {
+      this.settings = this.settings || {};
+      switch (this.settings.timeFormat) {
+         case 2:
+            return " %h:%i %A";
+         case 3:
+            return " %H:%i";
+         default:
+            return "";
+      }
    }
 
    /**
@@ -169,3 +179,4 @@ module.exports = class ABFieldDateTimeCore extends ABFieldDateCore {
       return date.toISOString();
    }
 };
+
