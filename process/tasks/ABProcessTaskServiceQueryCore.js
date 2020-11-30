@@ -23,21 +23,16 @@ var ABProcessTaskServiceQueryDefaults = {
    // key: {string}
    // unique key to reference this specific Task
 
-   settings: ["qlObj"]
+   settings: ["qlObj"],
    // settings: {array}
    // a list of internal setting values this Element tracks. These are the
    // values set by the platform .propertiesStash()
 };
 
 module.exports = class ABProcessTaskServiceQueryCore extends ABProcessElement {
-   constructor(attributes, process, application) {
+   constructor(attributes, process, AB) {
       attributes.type = attributes.type || "process.task.service.query";
-      super(
-         attributes,
-         process,
-         application,
-         ABProcessTaskServiceQueryDefaults
-      );
+      super(attributes, process, AB, ABProcessTaskServiceQueryDefaults);
 
       // listen
    }
@@ -56,23 +51,14 @@ module.exports = class ABProcessTaskServiceQueryCore extends ABProcessElement {
 
       // comvert our qlObj into an ABQLxxx instance.
       if (this.qlObj) {
-         this.qlObj = ABQLManager.fromAttributes(
-            this.qlObj,
-            this,
-            this.application
-         );
+         this.qlObj = ABQLManager.fromAttributes(this.qlObj, this, this.AB);
       }
    }
 
    /**
     * @method toObj()
-    *
-    * properly compile the current state of this ABApplication instance
+    * properly compile the current state of this object instance
     * into the values needed for saving to the DB.
-    *
-    * Most of the instance data is stored in .json field, so be sure to
-    * update that from all the current values of our child fields.
-    *
     * @return {json}
     */
    toObj() {

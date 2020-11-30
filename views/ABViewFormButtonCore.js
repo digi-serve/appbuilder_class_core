@@ -9,13 +9,13 @@ const ABViewFormButtonPropertyComponentDefaults = {
    resetLabel: "",
    afterCancel: null,
    alignment: "right",
-   isDefault: false // mark default button of form widget
+   isDefault: false, // mark default button of form widget
 };
 
 const ABViewFormButtonDefaults = {
    key: "button", // {string} unique key for this view
    icon: "square", // {string} fa-[icon] reference for this view
-   labelKey: "ab.components.button" // {string} the multilingual label key for the class label
+   labelKey: "ab.components.button", // {string} the multilingual label key for the class label
 };
 
 module.exports = class ABViewFormButtonCore extends ABView {

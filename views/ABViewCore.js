@@ -13,11 +13,11 @@ const ABViewDefaults = {
    key: "view", // {string} unique key for this view
    icon: "window-maximize", // {string} fa-[icon] reference for this view
    labelKey: "ab.components.view", // {string} the multilingual label key for the class label
-   tabicon: "" // no default tab icons
+   tabicon: "", // no default tab icons
 };
 
 const ABViewPropertyComponentDefaults = {
-   label: ""
+   label: "",
 };
 
 module.exports = class ABViewCore extends ABMLClass {
@@ -27,7 +27,7 @@ module.exports = class ABViewCore extends ABMLClass {
     * @param {ABView} parent the ABView this view is a child of. (can be null)
     */
    constructor(values, application, parent, defaultValues) {
-      super(["label"]);
+      super(["label"], application.AB);
 
       this.__events = [];
       // keep track of any event listeners attached to this ABView object
@@ -104,9 +104,9 @@ module.exports = class ABViewCore extends ABMLClass {
          icon: this.icon,
          tabicon: this.tabicon,
          name: this.name,
-         settings: this.application.cloneDeep(this.settings || {}),
+         settings: this.AB.cloneDeep(this.settings || {}),
          accessLevels: this.accessLevels,
-         translations: obj.translations
+         translations: obj.translations,
       };
 
       // encode our child view references
@@ -202,7 +202,7 @@ module.exports = class ABViewCore extends ABMLClass {
 
       var views = [];
       (values.viewIDs || []).forEach((id) => {
-         var def = this.application.definitionForID(id);
+         var def = this.AB.definitionForID(id);
          if (def) {
             views.push(this.application.viewNew(def, this.application, this));
          } else {
@@ -397,7 +397,7 @@ module.exports = class ABViewCore extends ABMLClass {
       let dataviewID = (this.settings || {}).dataviewID;
       if (!dataviewID) return null;
 
-      return this.application.datacollections((dc) => dc.id == dataviewID)[0];
+      return this.AB.datacollectionByID(dataviewID);
    }
 
    ///
@@ -499,7 +499,7 @@ module.exports = class ABViewCore extends ABMLClass {
     */
    viewRemove(view) {
       var origLen = this._views.length;
-      this._views = this.views(function(v) {
+      this._views = this.views(function (v) {
          return v.id != view.id;
       });
 
@@ -520,7 +520,7 @@ module.exports = class ABViewCore extends ABMLClass {
     */
    viewInsert(view) {
       var isIncluded =
-         this.views(function(v) {
+         this.views(function (v) {
             return v.id == view.id;
          }).length > 0;
       if (!isIncluded) {
@@ -650,7 +650,7 @@ module.exports = class ABViewCore extends ABMLClass {
          this.__events.push({
             emitter: evt.emitter,
             eventName: evt.eventName,
-            listener: evt.listener
+            listener: evt.listener,
          });
 
          // listening this event
@@ -718,7 +718,7 @@ module.exports = class ABViewCore extends ABMLClass {
       let result = this.viewNew(config, this.application, parent);
 
       // change id
-      result.id = lookUpIds[result.id] || OP.Util.uuid();
+      result.id = lookUpIds[result.id] || this.AB.uuid();
 
       // copy sub pages
       if (this.pages && !options.ignoreSubPages) {
@@ -785,7 +785,7 @@ module.exports = class ABViewCore extends ABMLClass {
       let result = this.application.viewNew(config, this.application, parent);
 
       // change id
-      result.id = lookUpIds[result.id] || this.application.uuid();
+      result.id = lookUpIds[result.id] || this.AB.uuid();
 
       return Promise.resolve()
          .then(() => {

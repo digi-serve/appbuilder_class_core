@@ -6,12 +6,11 @@
  */
 
 var ABModel = require("../platform/ABModel");
-var ABDefinition = require("../platform/ABDefinition");
 var ABMLClass = require("../platform/ABMLClass");
 
 module.exports = class ABObjectCore extends ABMLClass {
-   constructor(attributes, application) {
-      super(["label"]);
+   constructor(attributes, AB) {
+      super(["label"], AB);
 
       /*
 {
@@ -38,8 +37,6 @@ module.exports = class ABObjectCore extends ABMLClass {
    ]
 }
 */
-      // link me to my parent ABApplication
-      this.application = application;
 
       this.fromValues(attributes);
    }
@@ -86,7 +83,6 @@ module.exports = class ABObjectCore extends ABMLClass {
         }
         */
 
-      // ABApplication Attributes (or is it ABObject attributes?)
       this.id = attributes.id;
       // {string} .id
       // the uuid of this ABObject Definition.
@@ -181,7 +177,7 @@ module.exports = class ABObjectCore extends ABMLClass {
          sortFields: [], // array of columns with their sort configurations
          filterConditions: [], // array of filters to apply to the data table
          frozenColumnID: "", // id of column you want to stop freezing
-         hiddenFields: [] // array of [ids] to add hidden:true to
+         hiddenFields: [], // array of [ids] to add hidden:true to
       };
       // {obj} .objectWorkspace
       // When in the ABObject editor in the AppBuilder Designer, different
@@ -191,9 +187,9 @@ module.exports = class ABObjectCore extends ABMLClass {
       // pull in field definitions:
       var fields = [];
       (attributes.fieldIDs || []).forEach((id) => {
-         var def = ABDefinition.definition(id);
+         var def = this.AB.definitionForID(id);
          if (def) {
-            fields.push(this.application.fieldNew(def, this));
+            fields.push(this.AB.fieldNew(def, this));
          } else {
             console.error(
                "Object [" +
@@ -232,9 +228,9 @@ module.exports = class ABObjectCore extends ABMLClass {
    importIndexes(indexIDs) {
       var indexes = [];
       (indexIDs || []).forEach((id) => {
-         var def = ABDefinition.definition(id);
+         var def = this.AB.definitionForID(id);
          if (def) {
-            indexes.push(this.application.indexNew(def, this));
+            indexes.push(this.AB.indexNew(def, this));
          } else {
             console.error(
                "Object [" +
@@ -319,7 +315,7 @@ module.exports = class ABObjectCore extends ABMLClass {
          translations: obj.translations,
          fieldIDs: fieldIDs,
          indexIDs: indexIDs,
-         createdInAppID: this.createdInAppID
+         createdInAppID: this.createdInAppID,
       };
    }
 
@@ -355,35 +351,8 @@ module.exports = class ABObjectCore extends ABMLClass {
     *
     * @return {array}
     */
-   fields(filter = () => true, getAll = false) {
-      // NOTE: keep this check here in case we pass in .fields(null, true);
-      if (!filter) filter = () => true;
-      let result = this._fields.filter(filter);
-
-      // limit connectObject fields to only fields that connect to other
-      // objects this application currently references ...
-      if (this.application) {
-         let availableConnectFn = (f) => {
-            if (
-               f &&
-               f.key == "connectObject" &&
-               this.application &&
-               this.application.objectsIncluded(
-                  (obj) => obj.id == f.settings.linkObject
-               ).length < 1
-            ) {
-               return false;
-            } else {
-               return true;
-            }
-         };
-
-         if (!getAll) {
-            result = result.filter(availableConnectFn);
-         }
-      }
-
-      return result;
+   fields(fn = () => true) {
+      return this._fields.filter(fn);
    }
 
    /**
@@ -393,8 +362,8 @@ module.exports = class ABObjectCore extends ABMLClass {
     *
     * @return {array}
     */
-   connectFields(getAll = false) {
-      return this.fields((f) => f && f.key == "connectObject", getAll);
+   connectFields() {
+      return this.fields((f) => f && f.key == "connectObject");
    }
 
    /**
@@ -409,7 +378,7 @@ module.exports = class ABObjectCore extends ABMLClass {
     * @return {ABField}
     */
    fieldNew(values) {
-      return this.application.fieldNew(values, this);
+      return this.AB.fieldNew(values, this);
    }
 
    /**
@@ -423,7 +392,7 @@ module.exports = class ABObjectCore extends ABMLClass {
     */
    fieldRemove(field) {
       var origLen = this._fields.length;
-      this._fields = this.fields(function(o) {
+      this._fields = this.fields(function (o) {
          return o.id != field.id;
       });
 
@@ -487,7 +456,7 @@ module.exports = class ABObjectCore extends ABMLClass {
     */
    fieldSave(field) {
       var isIncluded =
-         this.fields(function(o) {
+         this.fields(function (o) {
             return o.id == field.id;
          }).length > 0;
       if (!isIncluded) {
@@ -509,7 +478,7 @@ module.exports = class ABObjectCore extends ABMLClass {
     */
    fieldAdd(field) {
       var isIncluded =
-         this.fields(function(o) {
+         this.fields(function (o) {
             return o.id == field.id;
          }).length > 0;
       if (!isIncluded) {
@@ -557,7 +526,7 @@ module.exports = class ABObjectCore extends ABMLClass {
     */
    indexRemove(index) {
       var origLen = this._indexes.length;
-      this._indexes = this.indexes(function(idx) {
+      this._indexes = this.indexes(function (idx) {
          return idx.id != index.id;
       });
 
@@ -581,7 +550,7 @@ module.exports = class ABObjectCore extends ABMLClass {
     */
    indexSave(index) {
       var isIncluded =
-         this.indexes(function(idx) {
+         this.indexes(function (idx) {
             return idx.id == index.id;
          }).length > 0;
       if (!isIncluded) {
@@ -637,9 +606,7 @@ module.exports = class ABObjectCore extends ABMLClass {
     * @return {string}
     */
    urlRest() {
-      return "/app_builder/model/application/#appID#/object/#objID#"
-         .replace("#appID#", this.application.id)
-         .replace("#objID#", this.id);
+      return `/app_builder/model/${this.id}`;
    }
 
    /**
@@ -648,9 +615,7 @@ module.exports = class ABObjectCore extends ABMLClass {
     * @return {string}
     */
    urlRestBatch() {
-      return "/app_builder/model/application/#appID#/object/#objID#/batch"
-         .replace("#appID#", this.application.id)
-         .replace("#objID#", this.id);
+      return `/app_builder/model/${this.id}/batch`;
    }
 
    /**
@@ -659,10 +624,7 @@ module.exports = class ABObjectCore extends ABMLClass {
     * @return {string}
     */
    urlRestItem(id) {
-      return "/app_builder/model/application/#appID#/object/#objID#/#id#"
-         .replace("#appID#", this.application.id)
-         .replace("#objID#", this.id)
-         .replace("#id#", id);
+      return `/app_builder/model/${this.id}/${id}`;
    }
 
    /**
@@ -671,9 +633,7 @@ module.exports = class ABObjectCore extends ABMLClass {
     * @return {string}
     */
    urlRestRefresh() {
-      return "/app_builder/model/application/#appID#/refreshobject/#objID#"
-         .replace("#appID#", this.application.id)
-         .replace("#objID#", this.id);
+      return `/app_builder/model/refreshobject/${this.id}`;
    }
 
    /**
@@ -682,9 +642,7 @@ module.exports = class ABObjectCore extends ABMLClass {
     * @return {string}
     */
    urlRestCount() {
-      return "/app_builder/model/application/#appID#/count/#objID#"
-         .replace("#appID#", this.application.id)
-         .replace("#objID#", this.id);
+      return `/app_builder/model/count/${this.id}`;
    }
 
    ///
@@ -805,6 +763,9 @@ module.exports = class ABObjectCore extends ABMLClass {
     * @return {string}
     */
    urlPointer(acrossApp) {
+      console.error("Who is calling this?");
+      debugger;
+
       if (this.application == null) return null;
 
       return this.application.urlObject(acrossApp) + this.id;
@@ -819,6 +780,8 @@ module.exports = class ABObjectCore extends ABMLClass {
     * @return {string}
     */
    urlField(acrossApp) {
+      console.error("Who is calling this?");
+      debugger;
       return this.urlPointer(acrossApp) + "/_fields/";
    }
 

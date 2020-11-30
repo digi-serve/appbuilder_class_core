@@ -2,13 +2,13 @@ const ABViewDetailComponent = require("../../platform/views/ABViewDetailComponen
 
 const ABViewDetailImagePropertyComponentDefaults = {
    height: 80,
-   width: 120
+   width: 120,
 };
 
 const ABViewDetailImageDefaults = {
    key: "detailimage", // {string} unique key for this view
    icon: "image", // {string} fa-[icon] reference for this view
-   labelKey: "ab.components.detail.image" // {string} the multilingual label key for the class label
+   labelKey: "ab.components.detail.image", // {string} the multilingual label key for the class label
 };
 
 module.exports = class ABViewDetailImageCore extends ABViewDetailComponent {

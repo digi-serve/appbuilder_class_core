@@ -52,7 +52,7 @@ var ABFieldListDefaults = {
 
    // what types of Sails ORM attributes can be imported into this data type?
    // http://sailsjs.org/documentation/concepts/models-and-orm/attributes#?attribute-options
-   compatibleOrmTypes: []
+   compatibleOrmTypes: [],
 };
 
 var defaultValues = {
@@ -60,7 +60,7 @@ var defaultValues = {
    hasColors: 0,
    options: [],
    default: "none",
-   multipleDefault: []
+   multipleDefault: [],
 };
 
 module.exports = class ABFieldListCore extends ABField {
@@ -95,7 +95,7 @@ module.exports = class ABFieldListCore extends ABField {
       // translate options list
       if (this.settings.options && this.settings.options.length > 0) {
          this.settings.options.forEach((opt) => {
-            this.object.translate(opt, opt, ["text"]);
+            this.translate(opt, opt, ["text"]);
          });
       }
 
@@ -119,7 +119,7 @@ module.exports = class ABFieldListCore extends ABField {
 
       // Un-translate options list
       obj.settings.options.forEach((opt) => {
-         this.object.unTranslate(opt, opt, ["text"]);
+         this.unTranslate(opt, opt, ["text"]);
       });
 
       return obj;

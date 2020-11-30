@@ -21,13 +21,13 @@ let InsertRecordDefaults = {
    // key: {string}
    // unique key to reference this specific Task
 
-   settings: ["objectID", "fieldValues"]
+   settings: ["objectID", "fieldValues"],
 };
 
 module.exports = class InsertRecordCore extends ABProcessElement {
-   constructor(attributes, process, application) {
+   constructor(attributes, process, AB) {
       attributes.type = attributes.type || "process.task.service.insertRecord";
-      super(attributes, process, application, InsertRecordDefaults);
+      super(attributes, process, AB, InsertRecordDefaults);
 
       // listen
    }
@@ -151,6 +151,3 @@ module.exports = class InsertRecordCore extends ABProcessElement {
      }
      */
 };
-
-
-

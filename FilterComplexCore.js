@@ -49,15 +49,15 @@ module.exports = class FilterComplexCore extends ABComponent {
       // internal business logic
       var _logic = (this._logic = {
          callbacks: {
-            onChange: () => {}
+            onChange: () => {},
          },
 
-         removeHtmlTags: function(text) {
+         removeHtmlTags: function (text) {
             var div = document.createElement("div");
             div.innerHTML = text;
 
             return div.textContent || div.innerText || "";
-         }
+         },
       });
 
       // Interface methods for parent component:
@@ -174,10 +174,7 @@ module.exports = class FilterComplexCore extends ABComponent {
       value = value.trim().toLowerCase();
       value = this._logic.removeHtmlTags(value); // remove html tags - rich text editor
 
-      compareValue = compareValue
-         .trim()
-         .toLowerCase()
-         .replace(/  +/g, " ");
+      compareValue = compareValue.trim().toLowerCase().replace(/  +/g, " ");
 
       // support "john smith" => "john" OR/AND "smith"
       var compareArray = compareValue.split(" ");
@@ -434,9 +431,7 @@ module.exports = class FilterComplexCore extends ABComponent {
 
       if (!compareValue || !this._Application) return result;
 
-      let dc = this._Application.datacollections(
-         (d) => d.id == compareValue
-      )[0];
+      let dc = this.AB.datacollections((d) => d.id == compareValue)[0];
 
       switch (rule) {
          case "in_data_collection":
@@ -550,13 +545,13 @@ module.exports = class FilterComplexCore extends ABComponent {
                options: [
                   {
                      id: "empty",
-                     value: "choose option"
+                     value: "choose option",
                   },
                   {
                      id: processField.key,
-                     value: `context(${processField.label})`
-                  }
-               ]
+                     value: `context(${processField.label})`,
+                  },
+               ],
             };
          } else {
             // if there is no .field, it is probably an embedded special field
@@ -567,13 +562,13 @@ module.exports = class FilterComplexCore extends ABComponent {
                options: [
                   {
                      id: "empty",
-                     value: "choose option"
+                     value: "choose option",
                   },
                   {
                      id: processField.key,
-                     value: `context(${processField.label})`
-                  }
-               ]
+                     value: `context(${processField.label})`,
+                  },
+               ],
             };
          }
 
@@ -585,7 +580,7 @@ module.exports = class FilterComplexCore extends ABComponent {
                type,
                fn: (a, b) => {
                   return a == b;
-               }
+               },
             },
             {
                id: `context_not_equal`,
@@ -593,8 +588,8 @@ module.exports = class FilterComplexCore extends ABComponent {
                type,
                fn: (a, b) => {
                   return a != b;
-               }
-            }
+               },
+            },
          ]);
       });
       this.uiInit();
@@ -621,7 +616,7 @@ module.exports = class FilterComplexCore extends ABComponent {
          let thisObjOption = {
             id: "this_object",
             label: object.label,
-            type: "uuid"
+            type: "uuid",
          };
 
          // If object is query ,then should define default alias: "BASE_OBJECT"
@@ -733,7 +728,7 @@ module.exports = class FilterComplexCore extends ABComponent {
       var dateEditor = {
          // inputView.format = field.getDateFormat();
          id: "value",
-         view: "datepicker"
+         view: "datepicker",
       };
       var type = {};
       type[field.id] = dateEditor;
@@ -750,7 +745,7 @@ module.exports = class FilterComplexCore extends ABComponent {
          greater_or_equal_current: this.labels.component
             .onOrAfterCurrentCondition,
          last_days: this.labels.component.onLastDaysCondition,
-         next_days: this.labels.component.onNextDaysCondition
+         next_days: this.labels.component.onNextDaysCondition,
          // TODO: query field option
          // TODO: record rule option
       };
@@ -760,14 +755,14 @@ module.exports = class FilterComplexCore extends ABComponent {
             id: condKey,
             name: dateConditions[condKey],
             type,
-            fn: (a, b) => this.dateValid(a, condKey, b)
+            fn: (a, b) => this.dateValid(a, condKey, b),
          });
       }
    }
 
    fieldsAddFiltersString(field) {
       var textEditor = {
-         view: "text"
+         view: "text",
       };
       var type = {};
       type[field.id] = textEditor;
@@ -776,7 +771,7 @@ module.exports = class FilterComplexCore extends ABComponent {
          contains: this.labels.component.containsCondition,
          not_contains: this.labels.component.notContainsCondition,
          equals: this.labels.component.isCondition,
-         not_equal: this.labels.component.isNotCondition
+         not_equal: this.labels.component.isNotCondition,
          // TODO: query field option
          // TODO: record rule option
       };
@@ -786,14 +781,14 @@ module.exports = class FilterComplexCore extends ABComponent {
             id: condKey,
             name: stringConditions[condKey],
             type,
-            fn: (a, b) => this.textValid(a, condKey, b)
+            fn: (a, b) => this.textValid(a, condKey, b),
          });
       }
    }
 
    fieldsAddFiltersNumber(field) {
       var textEditor = {
-         view: "text"
+         view: "text",
       };
       var type = {};
       type[field.id] = textEditor;
@@ -804,7 +799,7 @@ module.exports = class FilterComplexCore extends ABComponent {
          less: this.labels.component.lessThanCondition,
          greater: this.labels.component.moreThanCondition,
          less_or_equal: this.labels.component.lessThanOrEqualCondition,
-         greater_or_equal: this.labels.component.moreThanOrEqualCondition
+         greater_or_equal: this.labels.component.moreThanOrEqualCondition,
          // TODO : query field option
          // TODO : record rule
       };
@@ -814,7 +809,7 @@ module.exports = class FilterComplexCore extends ABComponent {
             id: condKey,
             name: numberConditions[condKey],
             type,
-            fn: (a, b) => this.numberValid(a, condKey, b)
+            fn: (a, b) => this.numberValid(a, condKey, b),
          });
       }
    }
@@ -825,14 +820,14 @@ module.exports = class FilterComplexCore extends ABComponent {
          options: field.options().map((o) => {
             return { id: o.id, value: o.text };
          }),
-         customEdit: true
+         customEdit: true,
       };
       let type = {};
       type[field.id] = editor;
 
       let listConditions = {
          equals: this.labels.component.equalListCondition,
-         not_equal: this.labels.component.notEqualListCondition
+         not_equal: this.labels.component.notEqualListCondition,
          // TODO : query field option
          // TODO : record rule
       };
@@ -842,20 +837,20 @@ module.exports = class FilterComplexCore extends ABComponent {
             id: condKey,
             name: listConditions[condKey],
             type,
-            fn: (a, b) => this.listValid(a, condKey, b)
+            fn: (a, b) => this.listValid(a, condKey, b),
          });
       }
    }
 
    fieldsAddFiltersBoolean(field) {
       var textEditor = {
-         view: "checkbox"
+         view: "checkbox",
       };
       var type = {};
       type[field.id] = textEditor;
 
       let booleanConditions = {
-         equals: this.labels.component.equalListCondition
+         equals: this.labels.component.equalListCondition,
          // TODO : query field option
          // TODO : record rule
       };
@@ -865,7 +860,7 @@ module.exports = class FilterComplexCore extends ABComponent {
             id: condKey,
             name: booleanConditions[condKey],
             type,
-            fn: (a, b) => this.booleanValid(a, condKey, b)
+            fn: (a, b) => this.booleanValid(a, condKey, b),
          });
       }
    }
@@ -873,7 +868,7 @@ module.exports = class FilterComplexCore extends ABComponent {
    fieldsAddFiltersUser(field) {
       var textEditor = {
          view: "richselect",
-         options: OP.User.userlist()
+         options: OP.User.userlist(),
       };
       var type = {};
       type[field.id] = textEditor;
@@ -886,7 +881,7 @@ module.exports = class FilterComplexCore extends ABComponent {
          not_contain_current_user: this.labels.component
             .notContainsCurrentUserCondition,
          equals: this.labels.component.equalListCondition,
-         not_equal: this.labels.component.notEqualListCondition
+         not_equal: this.labels.component.notEqualListCondition,
          // TODO : query field option
          // TODO : record rule
       };
@@ -896,7 +891,7 @@ module.exports = class FilterComplexCore extends ABComponent {
             id: condKey,
             name: userConditions[condKey],
             type,
-            fn: (a, b) => this.userValid(a, condKey, b)
+            fn: (a, b) => this.userValid(a, condKey, b),
          });
       }
    }
@@ -905,7 +900,7 @@ module.exports = class FilterComplexCore extends ABComponent {
       var editor = {
          view: "richselect",
          options: [], // TODO
-         customEdit: true
+         customEdit: true,
       };
       var type = {};
       type[field.id] = editor;
@@ -916,7 +911,7 @@ module.exports = class FilterComplexCore extends ABComponent {
          same_as_user: this.labels.component.sameAsUser,
          not_same_as_user: this.labels.component.notSameAsUser,
          in_data_collection: this.labels.component.inDataCollection,
-         not_in_data_collection: this.labels.component.notInDataCollection
+         not_in_data_collection: this.labels.component.notInDataCollection,
          // TODO
          // contains: this.labels.component.containsCondition,
          // not_contains: this.labels.component.notContainCondition,
@@ -930,7 +925,7 @@ module.exports = class FilterComplexCore extends ABComponent {
             id: condKey,
             name: connectConditions[condKey],
             type,
-            fn: (a, b) => this.inQueryValid(a, condKey, b)
+            fn: (a, b) => this.inQueryValid(a, condKey, b),
          });
       }
    }

@@ -19,7 +19,7 @@ const ABViewContainer = require("../../platform/views/ABViewContainer");
 
 const ABViewDefaults = {
    key: "page", // unique key identifier for this ABView
-   icon: "file" // icon reference: (without 'fa-' )
+   icon: "file", // icon reference: (without 'fa-' )
 };
 
 const ABPropertyComponentDefaults = {
@@ -28,7 +28,7 @@ const ABPropertyComponentDefaults = {
    popupHeight: 450,
    pageWidth: null,
    fixedPageWidth: 0,
-   pageBackground: "ab-background-default"
+   pageBackground: "ab-background-default",
 };
 
 module.exports = class ABViewPageCore extends ABViewContainer {
@@ -73,7 +73,7 @@ module.exports = class ABViewPageCore extends ABViewContainer {
          String(view.name)
             .replace(/[^a-z0-9]/gi, "")
             .toLowerCase(),
-         "view"
+         "view",
       ].join(".");
    }
 
@@ -128,11 +128,11 @@ module.exports = class ABViewPageCore extends ABViewContainer {
       // now properly handle our sub pages.
       var pages = [];
       (values.pageIDs || []).forEach((id) => {
-         var def = this.application.definitionForID(id);
+         var def = this.AB.definitionForID(id);
          if (def) {
             pages.push(this.pageNew(def));
          } else {
-            console.error(
+            this.AB.error(
                `App[${this.application.name}][${this.application.id}]->Page[${this.name}][${this.id}] referenced an unknown Page[${id}]`
             );
          }
@@ -311,7 +311,7 @@ module.exports = class ABViewPageCore extends ABViewContainer {
     */
    pageInsert(page) {
       var isIncluded =
-         this.pages(function(o) {
+         this.pages(function (o) {
             return o.id == page.id;
          }).length > 0;
       if (!isIncluded) {
@@ -358,7 +358,7 @@ module.exports = class ABViewPageCore extends ABViewContainer {
     */
    pageRemove(page) {
       var origLen = this._pages.length;
-      this._pages = this.pages(function(p) {
+      this._pages = this.pages(function (p) {
          return p.id != page.id;
       });
 
@@ -424,7 +424,7 @@ module.exports = class ABViewPageCore extends ABViewContainer {
 
          let mapNewIdFn = (currView) => {
             if (!lookUpIds[currView.id])
-               lookUpIds[currView.id] = this.application.uuid();
+               lookUpIds[currView.id] = this.AB.uuid();
 
             if (currView.pages) {
                currView.pages().forEach((p) => mapNewIdFn(p));
@@ -470,7 +470,7 @@ module.exports = class ABViewPageCore extends ABViewContainer {
 
          let mapNewIdFn = (currView) => {
             if (!lookUpIds[currView.id])
-               lookUpIds[currView.id] = this.application.uuid();
+               lookUpIds[currView.id] = this.AB.uuid();
 
             if (currView.pages) {
                currView.pages().forEach((p) => mapNewIdFn(p));
@@ -488,8 +488,7 @@ module.exports = class ABViewPageCore extends ABViewContainer {
       // now continue with the default .copy()
       return super.copy(lookUpIds, parent).then((result) => {
          // page's name should not be duplicate
-         result.name = result.name +=
-            "_copied_" + this.application.uuid().slice(0, 3);
+         result.name = result.name += "_copied_" + this.AB.uuid().slice(0, 3);
          return result;
       });
    }

@@ -2,13 +2,13 @@ const ABViewContainer = require("../../platform/views/ABViewContainer");
 
 const ABViewPropertyDefaults = {
    dataviewID: null,
-   filterConditions: {}
+   filterConditions: {},
 };
 
 const ABViewDefaults = {
    key: "conditionalcontainer", // unique key identifier for this ABView
    icon: "shield", // icon reference: (without 'fa-' )
-   labelKey: "ab.components.conditionalcontainer" // {string} the multilingual label key for the class label
+   labelKey: "ab.components.conditionalcontainer", // {string} the multilingual label key for the class label
 };
 
 module.exports = class ABViewConditionalContainerCore extends ABViewContainer {
@@ -23,8 +23,8 @@ module.exports = class ABViewConditionalContainerCore extends ABViewContainer {
                key: ABViewContainer.common().key,
                label: "If",
                settings: {
-                  removable: false
-               }
+                  removable: false,
+               },
             },
             application,
             this
@@ -37,8 +37,8 @@ module.exports = class ABViewConditionalContainerCore extends ABViewContainer {
                key: ABViewContainer.common().key,
                label: "Else",
                settings: {
-                  removable: false
-               }
+                  removable: false,
+               },
             },
             application,
             this

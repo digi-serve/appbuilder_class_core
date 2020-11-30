@@ -1,5 +1,6 @@
 module.exports = class ABRoleCore {
    constructor(values) {
+      console.error("Transition Code: Where is this being used?");
       // this.application = application;
       this._scopes = [];
 
@@ -31,7 +32,7 @@ module.exports = class ABRoleCore {
          name: this.name,
          description: this.description,
          translations: this.translations,
-         scopes: scopes
+         scopes: scopes,
       };
    }
 
@@ -48,13 +49,7 @@ module.exports = class ABRoleCore {
     *						this fn returns true for.
     * @return {array} 	array of ABScope
     */
-   scopes(filter) {
-      filter =
-         filter ||
-         function() {
-            return true;
-         };
-
+   scopes(filter = () => true) {
       return (this._scopes || []).filter(filter);
    }
 };

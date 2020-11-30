@@ -47,7 +47,7 @@ module.exports = class ABProcessEngineCore {
             { xmlRef: "bpmn2:serviceTask", type: "serviceTask" },
             { xmlRef: "bpmn2:userTask", type: "userTask" },
             { xmlRef: "bpmn2:endEvent", type: "end" },
-            { xmlRef: "bpmn2:parallelGateway", type: "parallelGateway" }
+            { xmlRef: "bpmn2:parallelGateway", type: "parallelGateway" },
          ];
 
          typeLookup.forEach((lookup) => {
@@ -108,12 +108,14 @@ module.exports = class ABProcessEngineCore {
     * walkGraph()
     * recursively step through the list of ABProcessTasks and
     * return the currently active tasks that are not finished().
-    * @param {array} list the current list of Tasks to evaluate
-    * @param {array} pending (optional) the current list of Tasks that are
-    *                not finished.
-    * @param {fn} cb node style callback (cb(err, pending)) to receive the
-    *                final list.
-    * @return {ABProcessTask} or {undefined} if not found.
+    * @param {array} list
+    *        the current list of Tasks to evaluate
+    * @param {array} pending (optional)
+    *        the current list of Tasks that are not finished.
+    * @param {fn} cb
+    *        node style callback (cb(err, pending)) to receive the final list.
+    *          pending {array} : the current Tasks that are currently working
+    *                            and not yet done.
     */
    walkGraph(list, pending, cb) {
       // make sure pending and cb are properly set

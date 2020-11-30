@@ -8,13 +8,13 @@ const ABViewDocxBuilderPropertyComponentDefaults = {
    filelabel: "output.docx",
    language: "en", // en
    toolbarBackground: "ab-background-default",
-   buttonPosition: "left"
+   buttonPosition: "left",
 };
 
 const ABViewDefaults = {
    key: "docxBuilder", // {string} unique key for this view
    icon: "file-word-o", // {string} fa-[icon] reference for this view
-   labelKey: "ab.components.docxBuilder" // {string} the multilingual label key for the class label
+   labelKey: "ab.components.docxBuilder", // {string} the multilingual label key for the class label
 };
 
 module.exports = class ABViewDocxBuilderCore extends ABViewWidget {
@@ -94,9 +94,6 @@ module.exports = class ABViewDocxBuilderCore extends ABViewWidget {
 
       let dvList = dataviewID.split(",") || [];
 
-      return (
-         this.application.datacollections((dv) => dvList.indexOf(dv.id) > -1) ||
-         []
-      );
+      return this.AB.datacollections((dv) => dvList.indexOf(dv.id) > -1) || [];
    }
 };

@@ -7,13 +7,13 @@ const ABViewChartAreaPropertyComponentDefaults = {
    chartHeight: 0,
    labelFontSize: 12,
    stepValue: 20,
-   maxValue: 100
+   maxValue: 100,
 };
 
 const ABViewDefaults = {
    key: "area", // {string} unique key for this view
    icon: "area-chart", // {string} fa-[icon] reference for this view
-   labelKey: "ab.components.chart.area" // {string} the multilingual label key for the class label
+   labelKey: "ab.components.chart.area", // {string} the multilingual label key for the class label
 };
 
 module.exports = class ABViewChartAreaCore extends ABViewChartComponent {
@@ -66,7 +66,7 @@ module.exports = class ABViewChartAreaCore extends ABViewChartComponent {
             ABViewChartAreaPropertyComponentDefaults.maxValue
       );
 
-      this.application.translate(this, this, ["areaLabel"]);
+      this.translate(this, this, ["areaLabel"]);
    }
 
    /**

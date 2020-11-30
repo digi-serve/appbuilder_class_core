@@ -5,7 +5,7 @@ const ABViewFormCustomPropertyComponentDefaults = {};
 const ABViewFormCustomDefaults = {
    key: "fieldcustom", // {string} unique key for this view
    icon: "object-group", // {string} fa-[icon] reference for this view
-   labelKey: "ab.components.custom" // {string} the multilingual label key for the class label
+   labelKey: "ab.components.custom", // {string} the multilingual label key for the class label
 };
 
 module.exports = class ABViewFormCustom extends ABViewFormComponent {

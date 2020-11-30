@@ -63,6 +63,8 @@ module.exports = class ABFieldDateCore extends ABField {
       return defaultValues;
    }
 
+   static RegEx = "^[0-9]{4}-[0-9]{2}-[0-9]{2}$";
+
    ///
    /// Instance Methods
    ///

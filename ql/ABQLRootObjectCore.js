@@ -19,14 +19,14 @@ var NextQLOps = [QLFind];
 var ParameterDefinitions = [
    {
       type: "objectName",
-      name: "name"
-   }
+      name: "name",
+   },
 ];
 
 class ABQLObjectCore extends ABQL {
-   constructor(attributes, task, application) {
+   constructor(attributes, task, AB) {
       // NOTE: keep this so we can insert the prevOp == null
-      super(attributes, ParameterDefinitions, null, task, application);
+      super(attributes, ParameterDefinitions, null, task, AB);
    }
 
    ///
@@ -59,16 +59,6 @@ class ABQLObjectCore extends ABQL {
       }
       return obj;
    }
-
-   /// ABApplication data methods
-
-   // paramsValid(queryString) {
-   //     if (super.paramsValid(queryString)) {
-   //         this.object = this.objectLookup(this.params["name"]);
-   //         return true;
-   //     }
-   //     return false;
-   // }
 }
 ABQLObjectCore.key = "object";
 ABQLObjectCore.label = "object";

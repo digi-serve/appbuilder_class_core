@@ -7,13 +7,18 @@
 const ABProcessParticipant = require("../../platform/process/ABProcessParticipant");
 
 const ABProcessLaneDefaults = {
-   type: "process.lane" // unique key to reference this specific object
-   // icon: "key" // font-awesome icon reference.  (without the 'fa-').  so 'user'  to reference 'fa-user'
+   type: "process.lane",
+   // {string} .type
+   // unique key to reference this specific object
+
+   // icon: "key"
+   // {string} .icon
+   // font-awesome icon reference.  (without the 'fa-').  so 'user'  to reference 'fa-user'
 };
 
 module.exports = class ABProcessLaneCore extends ABProcessParticipant {
-   constructor(attributes, process, application) {
-      super(attributes, process, application);
+   constructor(attributes, process, AB) {
+      super(attributes, process, AB);
 
       //// Runtime Values
       //// these are not stored in the Definition, but rather
@@ -40,13 +45,8 @@ module.exports = class ABProcessLaneCore extends ABProcessParticipant {
 
    /**
     * @method toObj()
-    *
-    * properly compile the current state of this ABApplication instance
+    * properly compile the current state of this object instance
     * into the values needed for saving to the DB.
-    *
-    * Most of the instance data is stored in .json field, so be sure to
-    * update that from all the current values of our child fields.
-    *
     * @return {json}
     */
    // toObj() {

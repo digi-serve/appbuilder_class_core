@@ -3,13 +3,13 @@ const ABViewWidget = require("../../platform/views/ABViewWidget");
 const ABViewTextPropertyComponentDefaults = {
    text: "",
    height: 0,
-   dataviewID: null
+   dataviewID: null,
 };
 
 const ABViewDefaults = {
    key: "text", // {string} unique key for this view
    icon: "font", // {string} fa-[icon] reference for this view
-   labelKey: "ab.components.text" // {string} the multilingual label key for the class label
+   labelKey: "ab.components.text", // {string} the multilingual label key for the class label
 };
 
 module.exports = class ABViewTextCore extends ABViewWidget {
@@ -38,7 +38,9 @@ module.exports = class ABViewTextCore extends ABViewWidget {
     * @return {json}
     */
    toObj() {
-      this.application.unTranslate(this, this, ["text"]);
+      // NOTE: ABView auto translates/untranslates "label"
+      // add in any additional fields here:
+      this.unTranslate(this, this, ["text"]);
 
       var obj = super.toObj();
       obj.views = [];
@@ -64,7 +66,9 @@ module.exports = class ABViewTextCore extends ABViewWidget {
       // if this is being instantiated on a read from the Property UI,
       this.text = values.text || ABViewTextPropertyComponentDefaults.text;
 
-      this.application.translate(this, this, ["text"]);
+      // NOTE: ABView auto translates/untranslates "label"
+      // add in any additional fields here:
+      this.translate(this, this, ["text"]);
    }
 
    /**
@@ -83,11 +87,11 @@ module.exports = class ABViewTextCore extends ABViewWidget {
     */
    get datacollection() {
       if (this.parent.key == "dataview") {
-         return this.application.datacollections(
+         return this.AB.datacollections(
             (dv) => dv.id == this.parent.settings.dataviewID
          )[0];
       } else {
-         return this.application.datacollections(
+         return this.AB.datacollections(
             (dv) => dv.id == this.settings.dataviewID
          )[0];
       }

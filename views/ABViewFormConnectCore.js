@@ -6,17 +6,17 @@ const ABViewFormConnectPropertyComponentDefaults = {
       filterConditions: {
          // array of filters to apply to the data table
          glue: "and",
-         rules: []
-      }
+         rules: [],
+      },
    },
    popupWidth: 700,
-   popupHeight: 450
+   popupHeight: 450,
 };
 
 const ABViewFormConnectDefaults = {
    key: "connect", // {string} unique key for this view
    icon: "list-ul", // {string} fa-[icon] reference for this view
-   labelKey: "ab.components.connect" // {string} the multilingual label key for the class label
+   labelKey: "ab.components.connect", // {string} the multilingual label key for the class label
 };
 
 module.exports = class ABViewFormConnectCore extends ABViewFormCustom {

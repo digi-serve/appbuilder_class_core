@@ -35,7 +35,7 @@ module.exports = class ABViewDetailComponentCore extends ABViewWidget {
       let object = datacollection.datasource;
       if (object == null) return null;
 
-      let field = object.fields((v) => v.id == this.settings.fieldId, true)[0];
+      let field = object.fields((v) => v.id == this.settings.fieldId)[0];
 
       // set .alias to support queries that contains alias name
       // [aliasName].[columnName]

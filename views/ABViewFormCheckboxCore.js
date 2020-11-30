@@ -5,7 +5,7 @@ const ABViewFormCheckboxPropertyComponentDefaults = {};
 const ABViewFormCheckboxDefaults = {
    key: "checkbox", // {string} unique key for this view
    icon: "check-square-o", // {string} fa-[icon] reference for this view
-   labelKey: "ab.components.checkbox" // {string} the multilingual label key for the class label
+   labelKey: "ab.components.checkbox", // {string} the multilingual label key for the class label
 };
 
 module.exports = class ABViewFormCheckboxCore extends ABViewFormComponent {

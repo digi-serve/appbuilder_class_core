@@ -16,6 +16,7 @@ module.exports = class ABModelCore {
    constructor(object) {
       // link me to my ABObject
       this.object = object;
+      this.AB = object.AB;
 
       this._where = null;
       this._sort = null;
@@ -60,7 +61,7 @@ module.exports = class ABModelCore {
       // if mlFields are inside of the values saved we want to translate otherwise do not because it will reset the translation field and you may loose unchanged translations
       var shouldTranslate = false;
       if (mlFields.length) {
-         mlFields.forEach(function(field) {
+         mlFields.forEach(function (field) {
             if (values[field] != null) {
                shouldTranslate = true;
             }
@@ -177,27 +178,27 @@ module.exports = class ABModelCore {
    urlParamsCreate(values) {
       return {
          url: this.object.urlRest(),
-         params: values
+         params: values,
       };
    }
 
    urlParamsDelete(id) {
       return {
-         url: this.object.urlRestItem(id)
+         url: this.object.urlRestItem(id),
       };
    }
 
    urlParamsFind(cond) {
       return {
          url: this.object.urlRest(),
-         params: cond || {}
+         params: cond || {},
       };
    }
 
    urlParamsUpdate(id, values) {
       return {
          url: this.object.urlRestItem(id),
-         params: values
+         params: values,
       };
    }
 
@@ -210,7 +211,7 @@ module.exports = class ABModelCore {
 
       var params = {
          url: this.object.urlRestCount(),
-         params: cond
+         params: cond,
       };
       return this.request("get", params)
          .then((numberOfRows) => {
@@ -258,7 +259,7 @@ module.exports = class ABModelCore {
          // convert to PK : Promise object:
          var entry = {
             resolve: resolve,
-            reject: reject
+            reject: reject,
          };
          entry[PK] = currID;
 
@@ -627,7 +628,7 @@ module.exports = class ABModelCore {
 
       var params = {
          url: this.object.urlRest(),
-         params: values
+         params: values,
       };
       return this.request("put", params)
          .then((data) => {
@@ -674,7 +675,7 @@ module.exports = class ABModelCore {
     */
    refresh() {
       var params = {
-         url: this.object.urlRestRefresh()
+         url: this.object.urlRestRefresh(),
       };
       return this.request("put", params);
    }
@@ -691,12 +692,12 @@ module.exports = class ABModelCore {
 
       // if this object has some date fields, convert the data to date object:
       var dateFields =
-         this.object.fields(function(f) {
+         this.object.fields(function (f) {
             return f.key == "date" || f.key == "datetime";
          }) || [];
 
       var userFields =
-         this.object.fields(function(f) {
+         this.object.fields(function (f) {
             return f.key == "user";
          }) || [];
 

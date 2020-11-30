@@ -13,29 +13,24 @@ var ABProcessTaskTriggerLifecycleDefaults = {
 
    fields: [
       "objectID",
-      "lifecycleKey" /* , "triggerKey" is tracked in ABProcessTrigger */
+      "lifecycleKey" /* , "triggerKey" is tracked in ABProcessTrigger */,
    ],
    // fields: {array}
    // a list of internal setting values this Element tracks
 
-   icon: "key", // font-awesome icon reference.  (without the 'fa-').  so 'user'  to reference 'fa-user'
+   icon: "key",
    // icon: {string}
    // font-awesome icon reference.  (without the 'fa-').  so 'user'  to reference 'fa-user'
 
-   key: "TriggerLifecycle"
+   key: "TriggerLifecycle",
    // key: {string}
    // unique key to reference this specific Task
 };
 
 module.exports = class ABProcessTriggerLifecycle extends ABProcessTrigger {
-   constructor(attributes, process, application) {
+   constructor(attributes, process, AB) {
       attributes.type = attributes.type || "trigger";
-      super(
-         attributes,
-         process,
-         application,
-         ABProcessTaskTriggerLifecycleDefaults
-      );
+      super(attributes, process, AB, ABProcessTaskTriggerLifecycleDefaults);
 
       // listen
    }
@@ -55,8 +50,8 @@ module.exports = class ABProcessTriggerLifecycle extends ABProcessTrigger {
             type: "bpmn:StartEvent",
             // type: {string} the general bpmn category
             //      "StartEvent", "Task", "EndEvent", "ExclusiveGateway"
-            eventDefinitionType: "ab:SignalLifecycle"
-         }
+            eventDefinitionType: "ab:SignalLifecycle",
+         },
       };
    }
 
@@ -98,30 +93,30 @@ module.exports = class ABProcessTriggerLifecycle extends ABProcessTrigger {
       var fields = null;
       if (this.objectID) {
          fields = [];
-         var object = this.application.objectByID(this.objectID);
+         var object = this.AB.objectByID(this.objectID);
          if (object) {
             var myID = this.diagramID;
             object.fields().forEach((field) => {
                fields.push({
                   key: `${myID}.${field.id}`,
-
                   label: `${this.label}->${object.label}->${field.label}`,
                   field,
-                  object
+                  object,
                });
             });
             fields.push({
                key: `${myID}.uuid`,
                label: `${this.label}->${object.label}`,
                field: null,
-               object
+               object,
             });
          } else {
-            console.error(
-               "ABProcessTriggerLifecycleCore.processDataFields(): could not find referenced object by ID [" +
-                  this.objectID +
-                  "]"
+            // OK, so we have an this.objectID defined, but we can't find it.
+            // that's something we need to alert:
+            var error = new Error(
+               `ABProcessTriggerLifecycleCore.processDataFields():TaskID[${this.id}]: could not find referenced object by ID [${this.objectID}]`
             );
+            this.AB.error(error);
          }
       }
       return fields;
@@ -138,19 +133,22 @@ module.exports = class ABProcessTriggerLifecycle extends ABProcessTrigger {
       if (parts[0] == this.diagramID) {
          var myState = this.myState(instance);
          if (myState["data"]) {
-            var object = this.application.objectByID(this.objectID);
-            var field = object.fields((f) => {
-               return f.id == parts[1];
-            })[0];
-            if (field) {
-               if (parts[2]) {
-                  return field[parts[2]].call(field, myState["data"]);
-               } else {
-                  // instance.context.data[field.column_name];
-                  return myState["data"][field.columnName];
-               }
-            } else if (parts[1] == "uuid") {
+            if (parts[1] === "uuid") {
                return myState["data"]["uuid"];
+            } else {
+               // parts[1] should be a field.id
+               var object = this.AB.objectByID(this.objectID);
+               var field = object.fields((f) => {
+                  return f.id == parts[1];
+               })[0];
+               if (field) {
+                  if (parts[2]) {
+                     return field[parts[2]].call(field, myState["data"]);
+                  } else {
+                     // instance.context.data[field.column_name];
+                     return myState["data"][field.columnName];
+                  }
+               }
             }
          }
       }
@@ -166,9 +164,8 @@ module.exports = class ABProcessTriggerLifecycle extends ABProcessTrigger {
    processDataObjects() {
       var objects = null;
       if (this.objectID) {
-         objects = [this.application.objectByID(this.objectID)];
+         objects = [this.AB.objectByID(this.objectID)];
       }
       return objects;
    }
 };
-

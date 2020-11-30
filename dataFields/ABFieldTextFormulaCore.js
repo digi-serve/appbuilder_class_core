@@ -21,7 +21,7 @@ var ABFieldTextFormulaDefaults = {
    menuName: L("ab.dataField.TextFormula.menuName", "*Text Formula"),
 
    // description: what gets displayed in the Editor description.
-   description: L("ab.dataField.TextFormula.description", "*Text Formula")
+   description: L("ab.dataField.TextFormula.description", "*Text Formula"),
 };
 
 // defaultValues: the keys must match a .name of your elements to set it's default value.
@@ -217,105 +217,105 @@ function getBuildInFunction() {
          id: "left",
          value: "left({COLUMN_NAME}, 1)",
          type: "build-in",
-         parameter_size: 2
+         parameter_size: 2,
       },
       {
          id: "right",
          value: "right({COLUMN_NAME}, 1)",
          type: "build-in",
-         parameter_size: 2
+         parameter_size: 2,
       },
       {
          id: "mid",
          value: "mid({COLUMN_NAME}, 1, 1)",
          type: "build-in",
-         parameter_size: 3
+         parameter_size: 3,
       },
       {
          id: "trim",
          value: "trim({COLUMN_NAME})",
          type: "build-in",
-         parameter_size: 1
+         parameter_size: 1,
       },
       {
          id: "trimLeft",
          value: "trimLeft({COLUMN_NAME})",
          type: "build-in",
-         parameter_size: 1
+         parameter_size: 1,
       },
       {
          id: "trimRight",
          value: "trimRight({COLUMN_NAME})",
          type: "build-in",
-         parameter_size: 1
+         parameter_size: 1,
       },
       {
          id: "length",
          value: "length({COLUMN_NAME})",
          type: "build-in",
-         parameter_size: 1
+         parameter_size: 1,
       },
       {
          id: "regexReplace",
          value: "regexReplace({COLUMN_NAME}, [*], REPLACE_VALUE)",
          type: "build-in",
-         parameter_size: 3
+         parameter_size: 3,
       },
       {
          id: "extractRegex",
          value: "extractRegex({COLUMN_NAME}, [*])",
          type: "build-in",
-         parameter_size: 2
+         parameter_size: 2,
       },
       {
          id: "replace",
          value: "replace({COLUMN_NAME}, SEARCH_VALUE, REPLACE_VALUE)",
          type: "build-in",
-         parameter_size: 3
+         parameter_size: 3,
       },
       {
          id: "lower",
          value: "lower({COLUMN_NAME})",
          type: "build-in",
-         parameter_size: 1
+         parameter_size: 1,
       },
       {
          id: "upper",
          value: "upper({COLUMN_NAME})",
          type: "build-in",
-         parameter_size: 1
+         parameter_size: 1,
       },
       {
          id: "capitalize",
          value: "capitalize({COLUMN_NAME})",
          type: "build-in",
-         parameter_size: 1
+         parameter_size: 1,
       },
       { id: "random", value: "random(1)", type: "build-in", parameter_size: 1 },
       {
          id: "numberToWords",
          value: "numberToWords({NUMBER_COLUMN} or 012...)",
          type: "build-in",
-         parameter_size: 1
+         parameter_size: 1,
       },
       {
          id: "getDateDayOfWeekName",
          value: "getDateDayOfWeekName({DATE_COLUMN})",
          type: "build-in",
-         parameter_size: 1
+         parameter_size: 1,
       },
       {
          id: "getDateMonthOfYearName",
          value: "getDateMonthOfYearName({DATE_COLUMN})",
          type: "build-in",
-         parameter_size: 1
+         parameter_size: 1,
       },
       {
          id: "formatDate",
          value: "formatDate({DATE_COLUMN}, OUTPUT_FORMAT)",
          type: "build-in",
-         parameter_size: 1
-      }
+         parameter_size: 1,
+      },
    ];
    return functionList;
 }
@@ -330,10 +330,7 @@ function getRight(string, endposition) {
 }
 
 function reverseString(string) {
-   return string
-      .split(" ")
-      .reverse()
-      .join(" ");
+   return string.split(" ").reverse().join(" ");
 }
 
 function getMid(string, startPosition, length) {
@@ -439,7 +436,7 @@ function getNumberToWords(number) {
       "sixteen",
       "seventeen",
       "eighteen",
-      "nineteen"
+      "nineteen",
    ];
 
    /* Array of tens as words */
@@ -453,7 +450,7 @@ function getNumberToWords(number) {
       "sixty",
       "seventy",
       "eighty",
-      "ninety"
+      "ninety",
    ];
 
    /* Array of scales as words */
@@ -480,7 +477,7 @@ function getNumberToWords(number) {
       "octodecillion",
       "novemdecillion",
       "vigintillion",
-      "centillion"
+      "centillion",
    ];
 
    /* Split user arguemnt into 3 digit chunks from right to left */
@@ -504,10 +501,7 @@ function getNumberToWords(number) {
 
       if (chunk) {
          /* Split chunk into array of individual integers */
-         ints = chunks[i]
-            .split("")
-            .reverse()
-            .map(parseFloat);
+         ints = chunks[i].split("").reverse().map(parseFloat);
 
          /* If tens integer is 1, i.e. 10, then add 10 to units integer */
          if (ints[1] === 1) {
@@ -588,19 +582,6 @@ module.exports = class ABFieldTextFormulaCore extends ABField {
 
    static defaultValues() {
       return defaultValues;
-   }
-
-   /*
-    * @function propertiesComponent
-    *
-    * return a UI Component that contains the property definitions for this Field.
-    *
-    * @param {App} App the UI App instance passed around the Components.
-    * @param {stirng} idBase
-    * @return {Component}
-    */
-   static propertiesComponent(App, idBase) {
-      return ABFieldTextFormulaComponent.component(App, idBase);
    }
 
    static getBuildInFunction() {
@@ -684,5 +665,3 @@ module.exports = class ABFieldTextFormulaCore extends ABField {
 // webix.DataStore.prototype.sorting.as.[sort_type] = function(a,b){
 //     return a > b ? 1 : -1;
 // }
-
-

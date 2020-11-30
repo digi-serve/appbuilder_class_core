@@ -1,19 +1,22 @@
-// import ABApplication from "./ABApplication"
-
 var ABMLClass = require("../../../platform/ABMLClass");
 
 module.exports = class ABProcessTaskCore extends ABMLClass {
-   constructor(attributes, process, application, defaultValues) {
-      super(["label"]);
+   constructor(attributes, process, AB, defaultValues) {
+      super(["label"], AB);
 
       this.defaults = defaultValues || { key: "core", icon: "core" };
+      // {obj} .defaults
+      // a value hash of default values for an ABProcessTask
+      // NOTE: needs to be set before .fromValues()
+
+      this.fromValues(attributes);
 
       this.process = process;
       if (!this.processID) {
          this.processID = process.id;
       }
-      this.application = application;
-      this.fromValues(attributes);
+      // {ABProcess} .process
+      // The parent ABProcess this process element is a part of.
 
       //// Runtime Values
       //// these are not stored in the Definition, but rather
@@ -23,9 +26,6 @@ module.exports = class ABProcessTaskCore extends ABMLClass {
 
    ///
    /// Static Methods
-   ///
-   /// Available to the Class level object.  These methods are not dependent
-   /// on the instance values of the Application.
    ///
 
    fromValues(attributes) {
@@ -49,9 +49,9 @@ module.exports = class ABProcessTaskCore extends ABMLClass {
       this.laneDiagramID = attributes.laneDiagramID || "?laneID?";
       // laneDiagramID : connects to the parent object that defines any
       //      default User information for the Task.  In our case, it
-      //      might be a Participant object, or a Lane object.  by
-      //      default, a diagram's Participant obj doesn't define any
-      //      lanes, and therefore can provide that info.  Once a lane
+      //      might be a {ABProcessParticipant} object, or a {ABProcessLane}
+      //      object.  by default, a diagram's Participant obj doesn't define
+      //      any lanes, and therefore can provide that info.  Once a lane
       //      is added, however, an object is assigned to it, and the
       //      Lane will provide that info.
 
@@ -98,7 +98,7 @@ module.exports = class ABProcessTaskCore extends ABMLClass {
          "processID",
          "diagramID",
          "laneDiagramID",
-         "key"
+         "key",
       ];
       fieldsToSave.forEach((f) => {
          data[f] = this[f];
@@ -121,9 +121,12 @@ module.exports = class ABProcessTaskCore extends ABMLClass {
    /**
     * initState()
     * setup this task's initial state variables
-    * @param {obj} context  the context data of the process instance
-    * @param {obj} defaults  any values to include from our child classes
-    * @param {obj} val  any values to override the default state
+    * @param {obj} context
+    *        the context data of the process instance
+    * @param {obj} defaults
+    *        any values to include from our child classes
+    * @param {obj} val
+    *        any values to override the default state
     */
    initState(context, defaults, val) {
       defaults = defaults || {};
@@ -145,7 +148,7 @@ module.exports = class ABProcessTaskCore extends ABMLClass {
       if (!context.taskState[this.diagramID]) {
          context.taskState[this.diagramID] = {
             initialized: true,
-            status: "initialized"
+            status: "initialized",
          };
          for (var d in defaults) {
             context.taskState[this.diagramID][d] = defaults[d];
@@ -325,7 +328,7 @@ module.exports = class ABProcessTaskCore extends ABMLClass {
       listDataFields.forEach((f) => {
          currentProcessValues[f.key] = this.process.processData(this, [
             instance,
-            f.key
+            f.key,
          ]);
       });
       return currentProcessValues;

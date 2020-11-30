@@ -22,21 +22,12 @@
 
 // webpack can handle 'require()' statements, but node can't handle import
 // so let's use require():
-const ABObject = require("../platform/ABObject");
-const ABQuery = require("../platform/ABObjectQuery");
-const ABDataCollectionCore = require("./ABDataCollectionCore");
-const ABFieldManager = require("./ABFieldManager");
 const ABViewManager = require("../platform/ABViewManager");
-const ABIndex = require("../platform/ABIndex");
-const ABRole = require("../platform/ABRole");
-
-// const ABViewPageCore = require("./views/ABViewPageCore");
-// const ABQLManager = require("./ABQLManager");
 var ABMLClass = require("../platform/ABMLClass");
 
 module.exports = class ABApplicationCore extends ABMLClass {
-   constructor(attributes) {
-      super(ABApplicationCore.fieldsMultilingual());
+   constructor(attributes, AB) {
+      super(["label", "description"], AB);
 
       // attributes should be in format:
       // {
@@ -48,78 +39,71 @@ module.exports = class ABApplicationCore extends ABMLClass {
 
       // ABApplication Attributes
       this.id = attributes.id;
+      // {string} uuid
+
       this.type = attributes.type || "application";
+      // {string} .type
+      // the ABDefinition.type of this object.
+
       this.json = attributes.json;
       if (typeof this.json == "string") this.json = JSON.parse(this.json);
+      // {obj} .json
+      // the full settings of this ABApplication
+
       this.name = attributes.name || this.json.name || "";
+      // {string} .name
+      // the hard coded name of this ABDefinition Object, not to be confused
+      // with the .label.  The .name is created at design time and is a text
+      // reference for this object.
+
       this.role = attributes.role;
-      this.class = {};
-      this.class.ABRole = ABRole; // This is a temporary fix that we can remove when OpsPortal is removed
+      // ??
+
       this.isAdminApp = JSON.parse(attributes.json.isAdminApp || false);
+      // {bool} .isAdminApp
+      // when set to {true} allows an instance of the AppBuilder Designer to
+      // display this application on the "Live" Display of the site.
+
       this.isAccessManaged = JSON.parse(attributes.isAccessManaged || false);
+      // {bool} .isAccessManaged
+      // does this Application imploy the more sophisticated  Access
+      // permissions, or the simpler Role access permissions.
+      // {true} : allows an administrator to set which role can View|Edit|Delete
+      //          elements of an application.
+      // {false}: indicates users having one of the .role values can have full
+      //          access to this application
+
       this.accessManagers = attributes.accessManagers;
       if (typeof this.accessManagers == "string")
          this.accessManagers = JSON.parse(this.accessManagers);
+      // {??} .accessManagers
+      // if .isAccessManaged == true, then .accessManagers contain the definitions
+      // of the detailed access permissions.
 
       // import all our ABObjects
-      // NOTE: we work with ABObjects on both the client and server sides.
-      // So we provide object methods in the base class.  However, each
-      // ABObject sub class (client and server) needs to implement it's own
-      // .objectNew() method.
-      //    var newObjects = [];
-      //    (attributes.json.objects || []).forEach((obj) => {
-      //       newObjects.push( this.objectNew(obj) );
-      //    })
-      this._objects = [];
       this.objectIDs = attributes.json.objectIDs || [];
-      (this.objectsAll() || attributes.json.objects || []).forEach((obj) => {
-         if (this.objectIDs.indexOf(obj.id) !== -1) {
-            if (obj instanceof ABObject) {
-               this._objects.push(obj);
-            } else {
-               this._objects.push(this.objectNew(obj));
-            }
-         }
-      });
+      // {array} .objectIDs
+      // All the {ABObject.id} values that have been pulled into this
+      // ABApplication for use in it's design environment.  This is how we
+      // determine which {ABObject}s are included or excluded from this app.
 
-      // // NOTE: keep this after ABObjects are loaded
-      // // import our ABObjectQueries
-      // // just like the .objectNew() both ABApplication.js (client and server) need to
-      // // implement .queryNew()
-      // var newQueries = [];
-      // (attributes.json.queries || []).forEach((query) => {
-      //    // prevent processing of null values.
-      //    if (query) {
-      //       newQueries.push( this.queryNew(query) );
-      //    }
-      //    })
-
-      // this._queries = [];
+      // NOTE: keep this after ABObjects are loaded
       this.queryIDs = attributes.json.queryIDs || [];
-      (this.queriesAll() || attributes.json.queries || []).forEach((q) => {
-         // The  Platform ABApplication manages all our live Query Objects
-         // we no longer need to track them internally
-         //// TODO: consider remove this.queriesAll() during our constructor.
-         //// no need for it now since this.queries() already references it.
-      });
+      // {array} .queryIDs
+      // All the {ABObjectQuery.id} values that have been pulled into this
+      // ABApplication for use in it's design environment.  This is how we
+      // determine which {ABObjectQueries}s are included or excluded from
+      // this app.
 
-      // Transition:
-      // _datacollections, _objects, and _queries are now defined
-      // globally.  And not part of the internal definition of an
-      // ABApplication.
-      // this._datacollections = [];
+      // NOTE: keep this after ABObjects are loaded
       this.datacollectionIDs = attributes.json.datacollectionIDs || [];
-      (this.datacollectionsAll() || []).forEach((dc) => {
-         // if (dc) {
-         //    this._datacollections.push(this.datacollectionNew(dc));
-         // }
-      });
+      // {array} .queryIDs
+      // All the {ABObjectQuery.id} values that have been pulled into this
+      // ABApplication for use in it's design environment.  This is how we
+      // determine which {ABObjectQueries}s are included or excluded from
+      // this app.
 
-      // Transition:
-      // _pages, and _mobileApps, are still included in the ABApplication
-      // definition:
-
-      // import all our ABViews
+      // import all our {ABViewPage}s
       let newPages = [];
       (attributes.json.pageIDs || []).forEach((id) => {
          var def = this.definitionForID(id);
@@ -132,19 +116,14 @@ module.exports = class ABApplicationCore extends ABMLClass {
          }
       });
       this._pages = newPages;
+      // {array} ._pages
+      // an array of all the {ABViewPages} this ABApplication offers as
+      // interfaces for working with our Data.
+      // ABViewPages operate within the confines of an ABApplication so
+      // they are created/stored/accessed from within an ABApplication
 
       this._roles = [];
-
-      // // Mobile Apps
-      // // an Application can have one or more Mobile Apps registered.
-      // var newMobileApps = [];
-      // (attributes.json.mobileApps || []).forEach((ma) => {
-      //    // prevent processing of null values.
-      //    if (ma) {
-      //       newMobileApps.push( this.mobileAppNew(ma) );
-      //    }
-      //    })
-      // this._mobileApps = [newMobileApps];
+      // ??
 
       var newProcesses = [];
       var removePIDs = [];
@@ -169,7 +148,12 @@ module.exports = class ABApplicationCore extends ABMLClass {
       }
 
       this._processes = newProcesses;
+      // {array} ._processes
+      // the ABProcess instances created by this ABApplication.
+
       this.processIDs = attributes.json.processIDs || [];
+      // {array} .processIDs
+      // an array of all the {ABProcess.id}s referenced by this Application.
 
       // Object List Settings
       attributes.json.objectListSettings =
@@ -201,23 +185,17 @@ module.exports = class ABApplicationCore extends ABMLClass {
    /// on the instance values of the Application.
    ///
 
-   /**
-    * @method fieldsMultilingual()
-    *
-    * return an array of fields that are considered Multilingual labels for
-    * an ABApplication
-    *
-    * @return {array}
-    */
-   static fieldsMultilingual() {
-      return ["label", "description"];
-   }
-
    ///
    /// Instance Methods
    ///
 
    /// ABApplication data methods
+   isAccessibleForRoles() {
+      console.error(
+         "Transition Code: need to revamp Role collection and checking."
+      );
+      return true;
+   }
 
    /**
     * @method toObj()
@@ -236,12 +214,6 @@ module.exports = class ABApplicationCore extends ABMLClass {
 
       this.json.name = this.name;
 
-      // for each Object: compile to json
-      // var currObjects = [];
-      // this._objects.forEach((obj) => {
-      //     currObjects.push(obj.toObj());
-      // });
-      // this.json.objects = currObjects;
       this.json.objectIDs = this.objectIDs;
 
       this.json.objectListSettings = this.objectListSettings;
@@ -250,18 +222,11 @@ module.exports = class ABApplicationCore extends ABMLClass {
 
       this.json.datacollectionIDs = this.datacollectionIDs;
 
-      // Save our processes.
+      this.json.pageIDs = (this._pages || []).map((p) => p.id);
+
       this.json.processIDs = (this._processes || []).map((p) => {
          return p.id;
       });
-
-      // for each View: compile to json
-      // var currPages = [];
-      // this._pages.forEach((page) => {
-      //    currPages.push(page.toObj());
-      // });
-      // this.json.pages = currPages;
-      this.json.pageIDs = (this._pages || []).map((p) => p.id);
 
       // // for each MobileApp: compile to json
       // var currApps = [];
@@ -279,7 +244,7 @@ module.exports = class ABApplicationCore extends ABMLClass {
          isAdminApp: this.isAdminApp,
          translations: this.json.translations,
          isAccessManaged: this.isAccessManaged,
-         accessManagers: this.accessManagers
+         accessManagers: this.accessManagers,
       };
    }
 
@@ -312,46 +277,14 @@ module.exports = class ABApplicationCore extends ABMLClass {
    //    return new ABDataCollectionCore(values, this);
    // }
 
-   /**
-    * @method datacollections()
-    *
-    * return an array of all the ABDataCollection for this ABApplication.
-    *
-    * @param {fn} filter   a filter fn to return a set of ABDataCollection that
-    *        this fn returns true for.
-    * @return {array}   array of ABDataCollection
-    */
-   datacollections(filter = () => true) {
-      return (this.datacollectionsAll() || []).filter(filter);
-   }
-
-   /**
-    * @method datacollectionByID()
-    * returns a single ABDatacollection that matches the given ID.
-    * @param {string} ID
-    *        the .id/.name/.label of the ABDatacollection we are searching
-    *        for.
-    * @return {ABDatacollection}
-    *        the matching ABDatacollection object if found
-    *        {null} if not found.
-    */
-   datacollectionByID(ID) {
-      // an undefined or null ID should not match any DC.
-      if (!ID) return null;
-
-      return this.datacollections((dc) => {
-         return dc.id == ID || dc.name == ID || dc.label == ID;
-      })[0];
-   }
-
    datacollectionsExcluded(filter = () => true) {
-      return this.datacollections((o) => {
+      return this.AB.datacollections((o) => {
          return this.datacollectionIDs.indexOf(o.id) == -1;
       }).filter(filter);
    }
 
    datacollectionsIncluded(filter = () => true) {
-      return this.datacollections((o) => {
+      return this.AB.datacollections((o) => {
          return this.datacollectionIDs.indexOf(o.id) > -1;
       }).filter(filter);
    }
@@ -360,27 +293,14 @@ module.exports = class ABApplicationCore extends ABMLClass {
    /// Objects
    ///
 
-   /**
-    * @method objects()
-    *
-    * return an array of all the ABObjects for this ABApplication.
-    *
-    * @param {fn} filter   a filter fn to return a set of ABObjects that this fn
-    *                returns true for.
-    * @return {array}   array of ABObject
-    */
-   objects(filter = () => true) {
-      return (this.objectsAll() || []).filter(filter);
-   }
-
    objectsExcluded(filter = () => true) {
-      return this.objects((o) => {
+      return this.AB.objects((o) => {
          return this.objectIDs.indexOf(o.id) == -1;
       }).filter(filter);
    }
 
    objectsIncluded(filter = () => true) {
-      return this.objects((o) => {
+      return this.AB.objects((o) => {
          return this.objectIDs.indexOf(o.id) > -1;
       }).filter(filter);
    }
@@ -398,48 +318,47 @@ module.exports = class ABApplicationCore extends ABMLClass {
       if (obj == "") return [];
 
       // Determine the object from the ID
-      var myObj = this.objects((o) => o.id == obj);
+      var myObj = this.AB.objects((o) => o.id == obj);
 
       // Get all the connected Fields for that object
       var connectedFields = myObj[0].fields((f) => f.key == "connectObject");
       // Store the related fields associatively inside their related Objects ID
       var connectedObj = [];
       connectedFields.forEach((f) => {
-         connectedObj[f.settings.linkObject] = this.objects(
+         connectedObj[f.settings.linkObject] = this.AB.objects(
             (co) => co.id == f.settings.linkObject
          );
       });
       // Look up the objects by their ID and push them in an options array
       var linkedObjects = [];
-      Object.keys(connectedObj).forEach(function(key, index) {
+      Object.keys(connectedObj).forEach(function (key /*, index */) {
          linkedObjects.push({
             id: this[key][0].id,
-            value: this[key][0].label
+            value: this[key][0].label,
          });
-      }, connectedObj);
+      }, connectedObj /* = this. inside fn */);
 
       return linkedObjects;
    }
 
    /**
     * @method connectedFields()
-    *
     * return an array of all the connected ABFields for a given ABObject
-    *
-    * @param {currObj} id     an ID of the current ABObject
-    *
-    * @param {linkedObject} id   an ID of the linked ABObject
-    *
-    * @return {array}         array of options for webix select
+    * @param {string} currObjID
+    *        an ID of the current ABObject
+    * @param {string} linkedObjectID
+    *        an ID of the linked ABObject
+    * @return {array}
+    *        array of options for webix select
     */
-   connectedFields(currObj, linkedObject) {
-      // Determine the object from the currObj
-      var myObj = this.objects((o) => o.id == currObj);
+   connectedFields(currObjID, linkedObjectID) {
+      // Determine the object from the currObjID
+      var myObj = this.AB.objects((o) => o.id == currObjID);
 
-      // Get all the connected Fields for our object that match the linkedObject
+      // Get all the connected Fields for our object that match the linkedObjectID
       var connectedFields = myObj[0].fields(
          (f) =>
-            f.key == "connectObject" && f.settings.linkObject == linkedObject
+            f.key == "connectObject" && f.settings.linkObject == linkedObjectID
       );
       // Build an arry of options for the webix select
       var linkedFields = [];
@@ -450,47 +369,20 @@ module.exports = class ABApplicationCore extends ABMLClass {
       return linkedFields;
    }
 
-   /**
-    * @method objectByID()
-    * return the specific object requested by the provided id.
-    * @param {string} ID
-    * @return {obj}
-    */
-   objectByID(ID) {
-      return this.objects((o) => {
-         return o.id == ID || o.name == ID || o.label == ID;
-      })[0];
-   }
-
-   /**
-    * @method objectNew()
-    *
-    * return an instance of a new (unsaved) ABObject that is tied to this
-    * ABApplication.
-    *
-    * NOTE: this new object is not included in our this.objects until a .save()
-    * is performed on the object.
-    *
-    * @return {ABObject}
-    */
-   objectNew(values) {
-      return new ABObject(values, this);
-   }
-
    ///
    /// Pages
    ///
 
    /**
     * @method pages()
-    *
     * return an array of all the ABViewPages for this ABApplication.
-    *
-    * @param {fn} filter   a filter fn to return a set of ABViewPages that this fn
-    *              returns true for.
-    * @param {boolean} deep  flag to find in sub pages
-    *
-    * @return {array}      array of ABViewPages
+    * @param {fn} filter
+    *        a filter fn to return a set of ABViewPages that this fn
+    *        returns true for.
+    * @param {boolean} deep
+    *        flag to search in sub pages
+    * @return {array}
+    *        array of ABViewPages
     */
    pages(filter = () => true, deep = false) {
       var result = [];
@@ -524,12 +416,12 @@ module.exports = class ABApplicationCore extends ABMLClass {
 
    /**
     * @method processes()
-    *
     * return an array of all the ABProcesses for this ABApplication.
-    *
-    * @param {fn} filter   a filter fn to return a set of ABProcesses that
-    *                      this fn returns true for.
-    * @return {array}  array of ABProcesses
+    * @param {fn} filter
+    *        a filter fn to return a set of ABProcesses that
+    *        this fn returns true for.
+    * @return {array}
+    *        array of ABProcesses
     */
    processes(filter = () => true) {
       return this._processes.filter(filter);
@@ -549,13 +441,12 @@ module.exports = class ABApplicationCore extends ABMLClass {
 
    /**
     * @method views()
-    *
     * return an array of all the Views for this ABApplication.
-    *
-    * @param {fn} filter   a filter fn to return a set of Views that this fn
-    *              returns true for.
-    *
-    * @return {array}      array of Views
+    * @param {fn} filter
+    *        a filter fn to return a set of Views that this fn
+    *        returns true for.
+    * @return {array}
+    *        array of Views
     */
    views(filter) {
       var result = [];
@@ -568,6 +459,31 @@ module.exports = class ABApplicationCore extends ABMLClass {
       )
          return result;
 
+      function lookDeep(view) {
+         if (view._pages && view._pages.length) {
+            view._pages.forEach((p) => {
+               // check the page views recusively
+               var pageViews = p.views(filter, true);
+               // if there was a match store it
+               if (pageViews && pageViews.length > 0) {
+                  result = pageViews;
+               }
+               // if no match move on to the subpages
+               if (result.length < 1) {
+                  // loop through each subpage recursively
+                  var subPages = p.pages(filter, true);
+                  // if there was a match store it
+                  if (subPages && subPages.length > 0) {
+                     result = subPages;
+                  }
+                  if (result.length < 1) {
+                     lookDeep(p);
+                  }
+               }
+            });
+         }
+      }
+
       // look at views recursively
       if (filter) {
          // look at views recursively (views can have subviews and so on)
@@ -579,31 +495,6 @@ module.exports = class ABApplicationCore extends ABMLClass {
                   var subViews = v.views(filter, true);
                   if (subViews && subViews.length > 0) {
                      views = subViews;
-                  }
-               });
-            }
-         }
-
-         function lookDeep(view) {
-            if (view._pages && view._pages.length) {
-               view._pages.forEach((p) => {
-                  // check the page views recusively
-                  var pageViews = p.views(filter, true);
-                  // if there was a match store it
-                  if (pageViews && pageViews.length > 0) {
-                     result = pageViews;
-                  }
-                  // if no match move on to the subpages
-                  if (result.length < 1) {
-                     // loop through each subpage recursively
-                     var subPages = p.pages(filter, true);
-                     // if there was a match store it
-                     if (subPages && subPages.length > 0) {
-                        result = subPages;
-                     }
-                     if (result.length < 1) {
-                        lookDeep(p);
-                     }
                   }
                });
             }
@@ -630,9 +521,7 @@ module.exports = class ABApplicationCore extends ABMLClass {
             views = this._views;
             if (views.length) {
                views.forEach((v) => {
-                  var subViews = v.views(function() {
-                     return true;
-                  }, true);
+                  var subViews = v.views(() => true, true);
                   if (subViews && subViews.length) {
                      views = views.concat(subViews);
                   }
@@ -646,22 +535,16 @@ module.exports = class ABApplicationCore extends ABMLClass {
             if (pages.length) {
                pages.forEach((p) => {
                   // grab all views on this page
-                  var pageViews = p.views(function() {
-                     return true;
-                  }, true);
+                  var pageViews = p.views(() => true, true);
                   if (pageViews && pageViews.length) {
                      views = views.concat(pageViews);
                   }
                   // grab all subpages on this page
-                  var subPages = p.pages(function() {
-                     return true;
-                  }, true);
+                  var subPages = p.pages(() => true, true);
                   if (subPages && subPages.length) {
                      pages = pages.concat(subPages);
                      subPages.forEach((sub) => {
-                        var subViews = sub.views(function() {
-                           return true;
-                        }, true);
+                        var subViews = sub.views(() => true, true);
                         if (subViews && subViews.length) {
                            views = views.concat(subViews);
                         }
@@ -682,44 +565,31 @@ module.exports = class ABApplicationCore extends ABMLClass {
    ///
 
    /**
-    * @method queries()
-    *
-    * return an array of all the ABObjectQueries for this ABApplication.
-    *
+    * queriesExcluded()
+    * return a list of ABObjectQuery(s) that are not included in this
+    * ABApplication.
     * @param {fn} filter
-    *        a filter fn to return a set of ABObjectQueries that this fn
-    *        returns true for.
+    *        a filter fn to further reduce which queries to return.
     * @return {array}
-    *        array of ABObjectQueries
     */
-   queries(filter = () => true) {
-      return (this.queriesAll() || []).filter(filter);
-   }
-
    queriesExcluded(filter = () => true) {
-      return this.queries((q) => {
+      return this.AB.queries((q) => {
          return this.queryIDs.indexOf(q.id) == -1;
       }).filter(filter);
    }
 
+   /**
+    * queriesIncluded()
+    * return a list of ABObjectQuery(s) that are included in this
+    * ABApplication.
+    * @param {fn} filter
+    *        a filter fn to further reduce which queries to return.
+    * @return {array}
+    */
    queriesIncluded(filter = () => true) {
-      return this.queries((q) => {
+      return this.AB.queries((q) => {
          return this.queryIDs.indexOf(q.id) > -1;
       }).filter(filter);
-   }
-
-   /**
-    * @method queryByID()
-    * return the specific query requested by the provided id.
-    * NOTE: this method has been extended to allow .name and .label
-    * as possible lookup values.
-    * @param {string} ID
-    * @return {obj}
-    */
-   queryByID(ID) {
-      return this.queries((q) => {
-         return q.id == ID || q.name == ID || q.label == ID;
-      })[0];
    }
 
    ///
@@ -728,11 +598,9 @@ module.exports = class ABApplicationCore extends ABMLClass {
 
    /**
     * @method roles()
-    *
     * return an array of all the ABRole for this ABApplication.
-    *
-    * @param {fn} filter   a filter fn to return a set of ABRole that
-    *                this fn returns true for.
+    * @param {fn} filter
+    *        a filter fn to further reduce which roles to return.
     * @return {array}   array of ABRole
     */
    roles(filter = () => true) {
@@ -776,7 +644,7 @@ module.exports = class ABApplicationCore extends ABMLClass {
          // if obj is an [], then key should be an .id reference to
          // lookup:
          if (Array.isArray(obj)) {
-            obj = obj.filter(function(o) {
+            obj = obj.filter(function (o) {
                return o.id == key;
             })[0];
             return parseStep(obj, steps);
@@ -887,25 +755,6 @@ module.exports = class ABApplicationCore extends ABMLClass {
    ///
 
    /**
-    * @method fieldNew()
-    *
-    * return an instance of a new (unsaved) ABField that is tied to a given
-    * ABObject.
-    *
-    * NOTE: this new field is not included in our this.fields until a .save()
-    * is performed on the field.
-    *
-    * @param {obj} values  the initial values for this field.
-    *                { key:'{string}'} is required
-    * @param {ABObject} object  the parent object this field belongs to.
-    * @return {ABField}
-    */
-   fieldNew(values, object) {
-      // NOTE: ABFieldManager returns the proper ABFieldXXXX instance.
-      return ABFieldManager.newField(values, object);
-   }
-
-   /**
     * @method pageNew()
     *
     * return an instance of a new (unsaved) ABViewPage that is tied to this
@@ -942,164 +791,21 @@ module.exports = class ABApplicationCore extends ABMLClass {
     *
     * @return {ABView}
     */
-   qlopNew(values, application, parent) {
-      console.error("!!!Where is this called?!!!");
-      return ABQLManager.newOP(values, application || this, parent);
-   }
-
-   /**
-    * @method indexNew()
-    *
-    * return an instance of a new (unsaved) ABIndex.
-    *
-    * @return {ABView}
-    */
-   indexNew(values, object) {
-      return new ABIndex(values, object);
-   }
+   // qlopNew(values, application, parent) {
+   //    console.error("!!!Where is this called?!!!");
+   //    return ABQLManager.newOP(values, application || this, parent);
+   // }
 
    ///
    /// Utilities
    ///
 
-   /**
-    * @function OP.Multilingual.translate
-    *
-    * Given a set of json data, pull out any multilingual translations
-    * and flatten those values to the base object.
-    *
-    * @param {obj} obj  The instance of the object being translated
-    * @param {json} json The json data being used for translation.
-    *                There should be json.translations = [ {transEntry}, ...]
-    *                where transEntry = {
-    *                   language_code:'en',
-    *                   field1:'value',
-    *                   ...
-    *                }
-    * @param {array} fields an Array of multilingual fields to pull to
-    *                 the obj[field] value.
-    *
-    */
-   /*
-    translate(obj, json, fields, languageCode = null) {
-        json = json || {};
-        fields = fields || [];
-
-        if (!json.translations) {
-            json.translations = [];
-        }
-
-        if (typeof json.translations == "string") {
-            json.translations = JSON.parse(json.translations);
-        }
-
-        var currLanguage = languageCode || this.languageDefault();
-
-        if (fields && fields.length > 0) {
-            // [fix] if no matching translation is in our json.translations
-            //        object, then just use the 1st one.
-            var first = null; // the first translation entry encountered
-            var found = false; // did we find a matching translation?
-
-            json.translations.forEach(function(t) {
-                if (!first) first = t;
-
-                // find the translation for the current language code
-                if (t.language_code == currLanguage) {
-                    found = true;
-
-                    // copy each field to the root object
-                    fields.forEach(function(f) {
-                        if (t[f] != null) obj[f] = t[f];
-
-                        obj[f] = t[f] || ""; // default to '' if not found.
-                    });
-                }
-            });
-
-            // if !found, then use the 1st entry we did find.  prepend desired
-            // [language_code] to each of the fields.
-            if (!found && first) {
-                // copy each field to the root object
-                fields.forEach(function(f) {
-                    if (first[f] != null && first[f] != "")
-                        obj[f] = `[${currLanguage}]${first[f]}`;
-                    else obj[f] = ""; // default to '' if not found.
-                });
-            }
-        }
-    }
-    */
-
-   /**
-    * @function OP.Multilingual.unTranslate
-    *
-    * Take the multilingual information in the base obj, and push that
-    * down into the json.translations data.
-    *
-    * @param {obj} obj  The instance of the object with the translation
-    * @param {json} json The json data being used for translation.
-    *                There should be json.translations = [ {transEntry}, ...]
-    *                where transEntry = {
-    *                   language_code:'en',
-    *                   field1:'value',
-    *                   ...
-    *                }
-    * @param {array} fields an Array of multilingual fields to pull from
-    *                 the obj[field] value.
-    *
-    */
-   /*
-    unTranslate(obj, json, fields) {
-        json = json || {};
-        fields = fields || [];
-
-        if (!json.translations) {
-            json.translations = [];
-        }
-
-        var currLanguage = this.languageDefault();
-
-        if (fields && fields.length > 0) {
-            var foundOne = false;
-
-            json.translations.forEach(function(t) {
-                // find the translation for the current language code
-                if (t.language_code == currLanguage) {
-                    // copy each field to the root object
-                    fields.forEach(function(f) {
-                        // verify obj[f] is defined
-                        // --> DONT erase the existing translation
-                        if (obj[f] != null) {
-                            t[f] = obj[f];
-                        }
-                    });
-
-                    foundOne = true;
-                }
-            });
-
-         // if we didn't update an existing translation
-         if (!foundOne) {
-            // create a translation entry:
-            var trans = {};
-
-            // assume current languageCode:
-            trans.language_code = currLanguage;
-
-            fields.forEach(function(field) {
-               if (obj[field] != null) {
-                  trans[field] = obj[field];
-               }
-            });
-
-                json.translations.push(trans);
-            }
-        }
-    }
-*/
-
    cloneDeep(object) {
-      return JSON.parse(JSON.stringify(object));
+      var errorDepreciated = new Error(
+         "ABApplicationCore.cloneDeep(): Depreciated!  Use AB.cloneDeep() instead."
+      );
+      throw errorDepreciated;
+
+      // return JSON.parse(JSON.stringify(object));
    }
 };

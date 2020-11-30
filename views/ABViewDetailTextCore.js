@@ -1,13 +1,13 @@
 const ABViewDetailComponent = require("../../platform/views/ABViewDetailComponent");
 
 const ABViewDetailTextPropertyComponentDefaults = {
-   height: 0
+   height: 0,
 };
 
 const ABViewDetailTextDefaults = {
    key: "detailtext", // {string} unique key for this view
    icon: "etsy", // {string} fa-[icon] reference for this view
-   labelKey: "ab.components.detail.text" // {string} the multilingual label key for the class label
+   labelKey: "ab.components.detail.text", // {string} the multilingual label key for the class label
 };
 
 module.exports = class ABViewDetailTextCore extends ABViewDetailComponent {

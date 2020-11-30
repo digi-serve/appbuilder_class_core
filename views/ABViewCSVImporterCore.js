@@ -5,7 +5,7 @@ const ABRecordRule = require("../../rules/ABViewRuleListFormRecordRules");
 const ABViewCSVImporterDefaults = {
    key: "csvImporter", // unique key identifier for this ABViewForm
    icon: "upload", // icon reference: (without 'fa-' )
-   labelKey: "ab.components.csvImporter" // {string} the multilingual label key for the class label
+   labelKey: "ab.components.csvImporter", // {string} the multilingual label key for the class label
 };
 
 const ABViewCSVImporterPropertyComponentDefaults = {
@@ -29,7 +29,7 @@ const ABViewCSVImporterPropertyComponentDefaults = {
    //			}
    //		]
    //	}]
-   recordRules: []
+   recordRules: [],
 };
 
 module.exports = class ABViewCSVImporterCore extends ABViewWidget {
@@ -109,4 +109,3 @@ module.exports = class ABViewCSVImporterCore extends ABViewWidget {
       return Promise.all(tasks);
    }
 };
-

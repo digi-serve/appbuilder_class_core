@@ -136,13 +136,13 @@ var ABFieldCalculateDefaults = {
 
    // what types of MySql column types can be imported into this data type?
    // https://www.techonthenet.com/mysql/datatypes.php
-   compatibleMysqlTypes: []
+   compatibleMysqlTypes: [],
 };
 
 var defaultValues = {
    formula: "",
    decimalSign: "none", // "none", "comma", "period", "space"
-   decimalPlaces: "none" // "none", 1, 2, 3, 4, 5, 6, 7, 8, 9, 10
+   decimalPlaces: "none", // "none", 1, 2, 3, 4, 5, 6, 7, 8, 9, 10
 };
 
 module.exports = class ABFieldCalculateCore extends ABField {
@@ -280,5 +280,3 @@ module.exports = class ABFieldCalculateCore extends ABField {
       }
    }
 };
-
-

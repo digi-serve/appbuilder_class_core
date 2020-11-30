@@ -11,7 +11,7 @@ const ABMLClass = require("../../platform/ABMLClass");
 
 module.exports = class ABFieldCore extends ABMLClass {
    constructor(values, object, fieldDefaults) {
-      super(["label"]);
+      super(["label"], object.AB);
 
       // NOTE: setup this first so later we can use .fieldType(), .fieldIcon()
       this.defaults = fieldDefaults || {};
@@ -54,7 +54,7 @@ module.exports = class ABFieldCore extends ABMLClass {
          "updated_at",
          "properties",
          "createdAt",
-         "updatedAt"
+         "updatedAt",
       ];
    }
 
@@ -196,7 +196,7 @@ module.exports = class ABFieldCore extends ABMLClass {
          isImported: this.isImported,
          columnName: this.columnName,
          settings: this.settings,
-         translations: obj.translations
+         translations: obj.translations,
       };
    }
 

@@ -10,13 +10,13 @@ const ABViewChartPropertyComponentDefaults = {
    labelPosition: "left",
    labelWidth: 120,
    height: 200,
-   multipleSeries: false
+   multipleSeries: false,
 };
 
 const ABViewChartDefaults = {
    key: "chart", // {string} unique key for this view
    icon: "bar-chart", // {string} fa-[icon] reference for this view
-   labelKey: "ab.components.chart" // {string} the multilingual label key for the class label
+   labelKey: "ab.components.chart", // {string} the multilingual label key for the class label
 };
 
 module.exports = class ABViewChartCore extends ABViewContainer {
@@ -75,7 +75,7 @@ module.exports = class ABViewChartCore extends ABViewContainer {
          this.settings.height || ABViewChartPropertyComponentDefaults.height
       );
 
-      this.application.translate(this, this, ["chartLabel"]);
+      this.translate(this, this, ["chartLabel"]);
    }
 
    /**

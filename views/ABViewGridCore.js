@@ -26,13 +26,13 @@ const ABViewGridPropertyComponentDefaults = {
       frozenColumnID: "", // id of column you want to stop freezing
       hiddenFields: [], // array of [ids] to add hidden:true to
       summaryColumns: [],
-      countColumns: []
+      countColumns: [],
    },
    height: 0,
    gridFilter: {
       filterOption: 1,
       userFilterPosition: "toolbar",
-      isGlobalToolbar: 1
+      isGlobalToolbar: 1,
    },
    summaryFields: [], // array of [field ids] to add the summary column in footer
    countFields: [], // array of [field ids] to add the summary column in footer
@@ -40,13 +40,13 @@ const ABViewGridPropertyComponentDefaults = {
    hideHeader: 0,
    labelAsField: 0,
    hideButtons: 0,
-   groupBy: "" // id of field
+   groupBy: "", // id of field
 };
 
 const ABViewDefaults = {
    key: "grid", // {string} unique key for this view
    icon: "table", // {string} fa-[icon] reference for this view
-   labelKey: "ab.components.grid" // {string} the multilingual label key for the class label
+   labelKey: "ab.components.grid", // {string} the multilingual label key for the class label
 };
 
 module.exports = class ABViewGridCore extends ABViewWidget {

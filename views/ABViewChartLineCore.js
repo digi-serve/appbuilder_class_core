@@ -8,13 +8,13 @@ const ABViewChartLinePropertyComponentDefaults = {
    chartHeight: 200,
    labelFontSize: 12,
    stepValue: 20,
-   maxValue: 100
+   maxValue: 100,
 };
 
 const ABViewDefaults = {
    key: "line", // {string} unique key for this view
    icon: "line-chart", // {string} fa-[icon] reference for this view
-   labelKey: "ab.components.chart.line" // {string} the multilingual label key for the class label
+   labelKey: "ab.components.chart.line", // {string} the multilingual label key for the class label
 };
 
 module.exports = class ABViewChartLineCore extends ABViewChartComponent {
@@ -67,7 +67,7 @@ module.exports = class ABViewChartLineCore extends ABViewChartComponent {
             ABViewChartLinePropertyComponentDefaults.maxValue
       );
 
-      this.application.translate(this, this, ["lineLabel"]);
+      this.translate(this, this, ["lineLabel"]);
    }
 
    /**

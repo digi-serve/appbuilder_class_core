@@ -45,7 +45,7 @@ var ABFieldConnectDefaults = {
    isFilterable: true, // now we can filter using Queries
    useAsLabel: false,
 
-   supportRequire: false
+   supportRequire: false,
 };
 
 var defaultValues = {
@@ -73,16 +73,16 @@ var defaultValues = {
 
    isCustomFK: 0,
    indexField: "", // ABField.id
-   indexField2: "" // ABField.id
+   indexField2: "", // ABField.id
 };
 
 module.exports = class ABFieldConnectCore extends ABFieldSelectivity {
    constructor(values, object) {
       super(values, object, ABFieldConnectDefaults);
 
-      // text to Int:
-      this.settings.isSource = parseInt(this.settings.isSource || 0);
-      this.settings.isCustomFK = parseInt(this.settings.isCustomFK || 0);
+      // // text to Int:
+      // this.settings.isSource = parseInt(this.settings.isSource || 0);
+      // this.settings.isCustomFK = parseInt(this.settings.isCustomFK || 0);
    }
 
    // return the default values for this DataField
@@ -154,9 +154,7 @@ module.exports = class ABFieldConnectCore extends ABFieldSelectivity {
     * @return {ABObject}
     */
    get datasourceLink() {
-      return this.object.application.objects(
-         (obj) => obj.id == this.settings.linkObject
-      )[0];
+      return this.AB.objects((obj) => obj.id == this.settings.linkObject)[0];
    }
 
    /**
@@ -168,10 +166,7 @@ module.exports = class ABFieldConnectCore extends ABFieldSelectivity {
       var objectLink = this.datasourceLink;
       if (!objectLink) return null;
 
-      return objectLink.fields(
-         (f) => f.id == this.settings.linkColumn,
-         true
-      )[0];
+      return objectLink.fields((f) => f.id == this.settings.linkColumn)[0];
    }
 
    /**
@@ -285,8 +280,7 @@ module.exports = class ABFieldConnectCore extends ABFieldSelectivity {
          this.settings.linkViaType == "many"
       ) {
          return this.datasourceLink.fields(
-            (f) => f.id == this.settings.indexField,
-            true
+            (f) => f.id == this.settings.indexField
          )[0];
       }
       // 1:1
@@ -296,13 +290,11 @@ module.exports = class ABFieldConnectCore extends ABFieldSelectivity {
       ) {
          if (this.settings.isSource) {
             return this.datasourceLink.fields(
-               (f) => f.id == this.settings.indexField,
-               true
+               (f) => f.id == this.settings.indexField
             )[0];
          } else {
             return this.object.fields(
-               (f) => f.id == this.settings.indexField,
-               true
+               (f) => f.id == this.settings.indexField
             )[0];
          }
       }
@@ -311,10 +303,7 @@ module.exports = class ABFieldConnectCore extends ABFieldSelectivity {
          this.settings.linkType == "many" &&
          this.settings.linkViaType == "one"
       ) {
-         return this.object.fields(
-            (f) => f.id == this.settings.indexField,
-            true
-         )[0];
+         return this.object.fields((f) => f.id == this.settings.indexField)[0];
       }
       // M:N
       else if (
@@ -322,14 +311,12 @@ module.exports = class ABFieldConnectCore extends ABFieldSelectivity {
          this.settings.linkViaType == "many"
       ) {
          let indexField = this.object.fields(
-            (f) => f.id == this.settings.indexField,
-            true
+            (f) => f.id == this.settings.indexField
          )[0];
 
          if (indexField == null)
             indexField = this.datasourceLink.fields(
-               (f) => f.id == this.settings.indexField,
-               true
+               (f) => f.id == this.settings.indexField
             )[0];
 
          return indexField;
@@ -355,14 +342,12 @@ module.exports = class ABFieldConnectCore extends ABFieldSelectivity {
          this.settings.linkViaType == "many"
       ) {
          indexField = this.object.fields(
-            (f) => f.id == this.settings.indexField2,
-            true
+            (f) => f.id == this.settings.indexField2
          )[0];
 
          if (indexField == null)
             indexField = this.datasourceLink.fields(
-               (f) => f.id == this.settings.indexField2,
-               true
+               (f) => f.id == this.settings.indexField2
             )[0];
       }
 
