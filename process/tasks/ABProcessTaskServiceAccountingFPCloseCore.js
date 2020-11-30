@@ -25,6 +25,7 @@ var AccountingFPCloseDefaults = {
       "processFPValue",
       "objectFP",
       "objectGL",
+      "objectAcc",
       "fieldFPStart",
       "fieldFPOpen",
       "fieldFPStatus",
@@ -32,7 +33,15 @@ var AccountingFPCloseDefaults = {
       "fieldGLStarting",
       "fieldGLRunning",
       "fieldGLAccount",
-      "fieldGLRc"
+      "fieldGLRc",
+      "fieldGLDebit",
+      "fieldGLCredit",
+      "fieldAccType",
+      "fieldAccAsset",
+      "fieldAccExpense",
+      "fieldAccLiabilities",
+      "fieldAccEquity",
+      "fieldAccIncome"
    ]
    // settings: {array}
    // a list of internal setting values this Element tracks. These are the
@@ -155,5 +164,4 @@ module.exports = class AccountingFPCloseCore extends ABProcessElement {
     }
     */
 };
-
 
