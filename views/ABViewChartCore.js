@@ -99,7 +99,7 @@ module.exports = class ABViewChartCore extends ABViewContainer {
       var obj = dc.datasource;
       if (!obj) return null;
 
-      return obj.fields((f) => f.id == this.settings.columnLabel, true)[0];
+      return obj.fields((f) => f.id == this.settings.columnLabel)[0];
    }
 
    valueField() {
@@ -109,7 +109,7 @@ module.exports = class ABViewChartCore extends ABViewContainer {
       var obj = dc.datasource;
       if (!obj) return null;
 
-      return obj.fields((f) => f.id == this.settings.columnValue, true)[0];
+      return obj.fields((f) => f.id == this.settings.columnValue)[0];
    }
 
    valueField2() {
@@ -119,7 +119,6 @@ module.exports = class ABViewChartCore extends ABViewContainer {
       var obj = dc.datasource;
       if (!obj) return null;
 
-      return obj.fields((f) => f.id == this.settings.columnValue2, true)[0];
+      return obj.fields((f) => f.id == this.settings.columnValue2)[0];
    }
 };
-
