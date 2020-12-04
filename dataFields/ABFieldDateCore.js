@@ -394,5 +394,10 @@ module.exports = class ABFieldDateCore extends ABField {
    exportValue(value) {
       return this.convertToMoment(value).format("YYYY-MM-DD");
    }
+
+   dateToString(dateFormat, dateData) {
+      if (dateData && dateData.toString) return dateData.toString();
+      else return "";
+   }
 };
 
