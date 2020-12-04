@@ -185,7 +185,7 @@ module.exports = class ABFieldListCore extends ABField {
          .filter((opt) => val.filter((v) => (v.id || v) == opt.id).length > 0)
          .map((opt) => {
             let text = opt.text;
-            let languageCode = options.languageCode || AD.lang.currentLanguage;
+            let languageCode = options.languageCode || "en";
 
             // Pull text of option with specify language code
             let optTran = (opt.translations || []).filter(
@@ -199,3 +199,4 @@ module.exports = class ABFieldListCore extends ABField {
       return displayOpts.join(", ");
    }
 };
+

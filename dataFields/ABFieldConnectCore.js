@@ -223,12 +223,22 @@ module.exports = class ABFieldConnectCore extends ABFieldSelectivity {
    }
 
    format(rowData) {
-      var val = this.pullRelationValues(rowData);
+      let val = this.pullRelationValues(rowData);
+      let linkedObject = this.datasourceLink;
 
       // array
-      if (Array.isArray(val)) return val.map((v) => v.text).join(", ");
+      if (Array.isArray(val))
+         return val
+            .map((v) => {
+               if (v.text == null) return linkedObject.displayData(v) || "";
+               else return v.text || "";
+            })
+            .join(", ");
       // string
-      else if (val && val.text) return val.text;
+      else if (val) {
+         if (val.text == null) return linkedObject.displayData(val) || "";
+         else if (val.text) return val.text || "";
+      }
       // empty string
       else return "";
    }
@@ -429,3 +439,4 @@ module.exports = class ABFieldConnectCore extends ABFieldSelectivity {
       return result;
    }
 };
+

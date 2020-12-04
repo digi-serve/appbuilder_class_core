@@ -371,7 +371,7 @@ module.exports = class ABFieldDateCore extends ABField {
    getDateDisplay(dateData) {
       let dateFormat = this.getFormat();
 
-      return webix.Date.dateToStr(dateFormat)(dateData);
+      return this.dateToString(dateFormat, dateData);
    }
 
    convertToMoment(string) {
@@ -395,3 +395,4 @@ module.exports = class ABFieldDateCore extends ABField {
       return this.convertToMoment(value).format("YYYY-MM-DD");
    }
 };
+

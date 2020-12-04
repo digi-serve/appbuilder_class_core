@@ -858,4 +858,48 @@ module.exports = class ABObjectCore extends ABMLClass {
 
       return cloneOne;
    }
+
+   // Display data with label format of object
+   displayData(rowData) {
+      if (rowData == null) return "";
+
+      // translate multilingual
+      //// TODO: isn't this a MLObject??  use this.translate()
+      var mlFields = this.multilingualFields();
+      this.application.translate(rowData, rowData, mlFields);
+
+      var labelData = this.labelFormat || "";
+
+      // default label
+      if (!labelData && this.fields().length > 0) {
+         var defaultField = this.fields((f) => f.fieldUseAsLabel())[0];
+         if (defaultField) labelData = "{" + defaultField.id + "}";
+         else
+            labelData = `${this.isUuid(rowData.id) ? "ID: " : ""}${rowData.id}`; // show id of row
+      }
+
+      // get column ids in {colId} template
+      // ['{colId1}', ..., '{colIdN}']
+      var colIds = labelData.match(/\{[^}]+\}/g);
+
+      if (colIds && colIds.forEach) {
+         colIds.forEach((colId) => {
+            var colIdNoBracket = colId.replace("{", "").replace("}", "");
+
+            var field = this.fields((f) => f.id == colIdNoBracket)[0];
+            if (field == null) return;
+
+            labelData = labelData.replace(colId, field.format(rowData) || "");
+         });
+      }
+
+      // if label is empty, then show .id
+      if (!labelData.trim())
+         labelData = labelData = `${this.isUuid(rowData.id) ? "ID: " : ""}${
+            rowData.id
+         }`; // show id of row
+
+      return labelData;
+   }
 };
+
