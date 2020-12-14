@@ -414,7 +414,9 @@ module.exports = class ABModelCore {
             return;
          }
 
-         this.findAll({ where: { id: data.id }, includeRelativeData: true })
+         let cond = {};
+         cond[this.object.PK()] = data.id;
+         this.findAll({ where: cond, includeRelativeData: true })
             .then((results) => {
                if (
                   !results.data ||
@@ -430,7 +432,9 @@ module.exports = class ABModelCore {
 
                // if only 1 field requested, then return that
                if (fields.length == 1) {
-                  let data = myObj[fields[0] + "__relation"];
+                  let data = myObj[fields[0].replace(/[^a-z0-9\.]/gi, "") + "__relation"];
+                  if (!data) return resolve([]);
+
                   if (!Array.isArray(data)) data = [data];
 
                   resolve(data);
@@ -449,7 +453,7 @@ module.exports = class ABModelCore {
 
                var returnData = {};
                fields.forEach((colName) => {
-                  returnData[colName] = myObj[colName + "__relation"];
+                  returnData[colName] = myObj[colName.replace(/[^a-z0-9\.]/gi, "") + "__relation"];
                });
 
                resolve(returnData);
