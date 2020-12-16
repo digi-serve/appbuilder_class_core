@@ -44,7 +44,8 @@ let AccountingJEArchiveDefaults = {
 
 module.exports = class AccountingJEArchiveCore extends ABProcessElement {
    constructor(attributes, process, application) {
-      attributes.type = attributes.type || "[type]";
+      attributes.type =
+         attributes.type || "process.task.service.accounting.jeArchive";
       super(attributes, process, application, AccountingJEArchiveDefaults);
 
       // listen
@@ -158,4 +159,5 @@ module.exports = class AccountingJEArchiveCore extends ABProcessElement {
     }
     */
 };
+
 

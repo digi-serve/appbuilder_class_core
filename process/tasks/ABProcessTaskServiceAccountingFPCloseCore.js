@@ -50,7 +50,8 @@ var AccountingFPCloseDefaults = {
 
 module.exports = class AccountingFPCloseCore extends ABProcessElement {
    constructor(attributes, process, application) {
-      attributes.type = attributes.type || "[type]";
+      attributes.type =
+         attributes.type || "process.task.service.accounting.fpClose";
       super(attributes, process, application, AccountingFPCloseDefaults);
 
       // listen

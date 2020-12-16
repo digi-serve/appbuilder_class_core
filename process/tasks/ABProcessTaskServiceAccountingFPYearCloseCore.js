@@ -51,7 +51,8 @@ var AccountingFPYearCloseDefaults = {
 
 module.exports = class AccountingFPYearCloseCore extends ABProcessElement {
    constructor(attributes, process, application) {
-      attributes.type = attributes.type || "[type]";
+      attributes.type =
+         attributes.type || "process.task.service.accounting.fpYearClose";
       super(attributes, process, application, AccountingFPYearCloseDefaults);
 
       // listen
@@ -165,6 +166,7 @@ module.exports = class AccountingFPYearCloseCore extends ABProcessElement {
     }
     */
 };
+
 
 
 
