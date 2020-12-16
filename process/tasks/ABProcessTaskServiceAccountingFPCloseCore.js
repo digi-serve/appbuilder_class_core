@@ -25,6 +25,7 @@ var AccountingFPCloseDefaults = {
       "processFPValue",
       "objectFP",
       "objectGL",
+      "objectAcc",
       "fieldFPStart",
       "fieldFPOpen",
       "fieldFPStatus",
@@ -32,7 +33,15 @@ var AccountingFPCloseDefaults = {
       "fieldGLStarting",
       "fieldGLRunning",
       "fieldGLAccount",
-      "fieldGLRc"
+      "fieldGLRc",
+      "fieldGLDebit",
+      "fieldGLCredit",
+      "fieldAccType",
+      "fieldAccAsset",
+      "fieldAccExpense",
+      "fieldAccLiabilities",
+      "fieldAccEquity",
+      "fieldAccIncome"
    ]
    // settings: {array}
    // a list of internal setting values this Element tracks. These are the
@@ -41,7 +50,8 @@ var AccountingFPCloseDefaults = {
 
 module.exports = class AccountingFPCloseCore extends ABProcessElement {
    constructor(attributes, process, application) {
-      attributes.type = attributes.type || "[type]";
+      attributes.type =
+         attributes.type || "process.task.service.accounting.fpClose";
       super(attributes, process, application, AccountingFPCloseDefaults);
 
       // listen

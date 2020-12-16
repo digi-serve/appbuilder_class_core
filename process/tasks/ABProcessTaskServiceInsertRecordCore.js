@@ -26,7 +26,7 @@ let InsertRecordDefaults = {
 
 module.exports = class InsertRecordCore extends ABProcessElement {
    constructor(attributes, process, application) {
-      attributes.type = attributes.type || "[type]";
+      attributes.type = attributes.type || "process.task.service.insertRecord";
       super(attributes, process, application, InsertRecordDefaults);
 
       // listen
@@ -151,5 +151,6 @@ module.exports = class InsertRecordCore extends ABProcessElement {
      }
      */
 };
+
 
 

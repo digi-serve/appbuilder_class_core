@@ -44,7 +44,8 @@ var AccountingBatchProcessingDefaults = {
 
 module.exports = class AccountingBatchProcessingCore extends ABProcessElement {
    constructor(attributes, process, application) {
-      attributes.type = attributes.type || "[type]";
+      attributes.type =
+         attributes.type || "process.task.service.accounting.batchProcessing";
       super(
          attributes,
          process,
@@ -163,3 +164,4 @@ module.exports = class AccountingBatchProcessingCore extends ABProcessElement {
     }
     */
 };
+
