@@ -128,7 +128,7 @@ module.exports = class ABViewPageCore extends ABViewContainer {
       // now properly handle our sub pages.
       var pages = [];
       (values.pageIDs || []).forEach((id) => {
-         var def = this.AB.definitionForID(id);
+         var def = this.AB.definitionByID(id);
          if (def) {
             pages.push(this.pageNew(def));
          } else {
@@ -224,39 +224,6 @@ module.exports = class ABViewPageCore extends ABViewContainer {
          .then(() => {
             return this;
          });
-
-      /*
-      return new Promise((resolve, reject) => {
-         // if this is our initial save()
-         if (!this.id) {
-            //// TODO: OP.*  code should be move to platform version of code.
-            this.id = OP.Util.uuid(); // setup default .id
-            this.name = this.name + "_" + this.id.split("-")[1]; // add a unique string to the name so it doesnt collide with a previous page name
-         }
-
-         // if name is empty
-         if (!this.name) {
-            this.name = this.label + "_" + this.id.split("-")[1];
-         }
-
-         this.application
-            .viewSave(this, includeSubViews, updateUi)
-            .then(() => {
-               // persist the current ABViewPage in our list of ._pages.
-               var parent = this.parent || this.application;
-               var isIncluded =
-                  parent.pages((p) => {
-                     return p.id == this.id;
-                  }).length > 0;
-               if (!isIncluded) {
-                  parent._pages.push(this);
-               }
-
-               resolve();
-            })
-            .catch(reject);
-      });
-      */
    }
 
    ///

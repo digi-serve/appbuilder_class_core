@@ -13,9 +13,14 @@ const ABViewFormButtonPropertyComponentDefaults = {
 };
 
 const ABViewFormButtonDefaults = {
-   key: "button", // {string} unique key for this view
-   icon: "square", // {string} fa-[icon] reference for this view
-   labelKey: "ab.components.button", // {string} the multilingual label key for the class label
+   key: "button",
+   // {string} unique key for this view
+
+   icon: "square",
+   // {string} fa-[icon] reference for this view
+
+   labelKey: "ab.components.button",
+   // {string} the multilingual label key for the class label
 };
 
 module.exports = class ABViewFormButtonCore extends ABView {

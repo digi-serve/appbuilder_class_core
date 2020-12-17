@@ -35,7 +35,7 @@ var ABFieldUserDefaults = {
 
    // what types of Sails ORM attributes can be imported into this data type?
    // http://sailsjs.org/documentation/concepts/models-and-orm/attributes#?attribute-options
-   compatibleOrmTypes: []
+   compatibleOrmTypes: [],
 };
 
 var defaultValues = {
@@ -43,7 +43,7 @@ var defaultValues = {
    isMultiple: 0,
    isCurrentUser: 0,
    isShowProfileImage: 0,
-   isShowUsername: 1
+   isShowUsername: 1,
 };
 
 module.exports = class ABFieldUserCore extends ABFieldSelectivity {
@@ -79,27 +79,6 @@ module.exports = class ABFieldUserCore extends ABFieldSelectivity {
    ///
    /// Working with Actual Object Values:
    ///
-
-   /**
-    * @method defaultValue
-    * insert a key=>value pair that represent the default value
-    * for this field.
-    * @param {obj} values a key=>value hash of the current values.
-    */
-   defaultValue(values) {
-      if (this.settings.isCurrentUser) {
-         if (this.settings.isMultiple) {
-            values[this.columnName] = [
-               {
-                  id: OP.User.username(),
-                  text: OP.User.username()
-               }
-            ];
-         } else {
-            values[this.columnName] = OP.User.username();
-         }
-      }
-   }
 
    format(rowData) {
       var val = this.dataValue(rowData) || [];

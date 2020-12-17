@@ -6,14 +6,14 @@ const ABViewCommentPropertyComponentDefaults = {
    columnComment: null,
    columnDate: null,
    height: 300,
-   label: "" // label is required and you can add more if the component needs them
+   label: "", // label is required and you can add more if the component needs them
    // format:0  	// 0 - normal, 1 - title, 2 - description
 };
 
 const ABViewDefaults = {
    key: "comment", // {string} unique key for this view
    icon: "comments", // {string} fa-[icon] reference for this view
-   labelKey: "ab.components.comment" // {string} the multilingual label key for the class label
+   labelKey: "ab.components.comment", // {string} the multilingual label key for the class label
 };
 
 module.exports = class ABViewCommentCore extends ABViewWidget {
@@ -107,60 +107,10 @@ module.exports = class ABViewCommentCore extends ABViewWidget {
       let dv = this.datacollection;
       if (!dv) return null;
 
-      // get ABObject
-      let obj = dv.datasource;
-      if (obj == null) return null;
-
       // get ABModel
       let model = dv.model;
       if (model == null) return null;
 
       return model;
-   }
-
-   saveData(commentText, dateTime) {
-      if (commentText == null || commentText == "") return Promise.resolve();
-
-      let dv = this.datacollection;
-      if (!dv) return null;
-
-      let model = this.model();
-      if (model == null) return Promise.resolve();
-
-      let comment = {};
-
-      let userField = this.getUserField();
-      if (userField) comment[userField.columnName] = OP.User.username();
-
-      let commentField = this.getCommentField();
-      if (commentField) comment[commentField.columnName] = commentText;
-
-      let dateField = this.getDateField();
-      if (dateField) comment[dateField.columnName] = dateTime;
-
-      // add parent cursor to default
-      let dvLink = dv.datacollectionLink;
-      if (dvLink && dvLink.getCursor()) {
-         let objectLink = dvLink.datasource;
-         let fieldLink = dv.fieldLink;
-
-         if (objectLink && fieldLink) {
-            comment[fieldLink.columnName] = {};
-            comment[fieldLink.columnName][
-               objectLink.PK()
-            ] = dvLink.getCursor().id;
-         }
-      }
-
-      return new Promise((resolve, reject) => {
-         model
-            .create(comment)
-            .catch((err) => {
-               reject(err);
-            })
-            .then(() => {
-               resolve();
-            });
-      });
    }
 };

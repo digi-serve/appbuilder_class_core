@@ -34,13 +34,13 @@ const ABFieldDateDefaults = {
 
    // what types of MySql column types can be imported into this data type?
    // https://www.techonthenet.com/mysql/datatypes.php
-   compatibleMysqlTypes: ["datetime"]
+   compatibleMysqlTypes: ["datetime"],
 };
 
 const defaultValues = {
    timeFormat: 2, // 1 (Ignore time), 2, 3
    defaultTime: 1, // 1 (None), 2 (Current Time), 3 (Specific Time)
-   defaultTimeValue: null // {Date}
+   defaultTimeValue: null, // {Date}
 };
 
 module.exports = class ABFieldDateTimeCore extends ABFieldDateCore {
@@ -58,7 +58,9 @@ module.exports = class ABFieldDateTimeCore extends ABFieldDateCore {
       return Object.assign(baseDefault, defaultValues);
    }
 
-   static RegEx = "^[0-9]{4}-[0-9]{2}-[0-9]{2} [0-9]{2}:[0-9]{2}:[0-9]{2}$";
+   // TODO: current webpack install fails here without babel-loader,
+   // so swtich this to old JS method of Static Values (see bottom)
+   // static RegEx = "^[0-9]{4}-[0-9]{2}-[0-9]{2} [0-9]{2}:[0-9]{2}:[0-9]{2}$";
 
    ///
    /// Instance Methods
@@ -182,3 +184,7 @@ module.exports = class ABFieldDateTimeCore extends ABFieldDateCore {
    }
 };
 
+// Transition Code:
+// revert to static RegEx once babel-loader is working locally.
+module.exports.RegEx =
+   "^[0-9]{4}-[0-9]{2}-[0-9]{2} [0-9]{2}:[0-9]{2}:[0-9]{2}$";

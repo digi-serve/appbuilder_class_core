@@ -187,7 +187,7 @@ module.exports = class ABObjectCore extends ABMLClass {
       // pull in field definitions:
       var fields = [];
       (attributes.fieldIDs || []).forEach((id) => {
-         var def = this.AB.definitionForID(id);
+         var def = this.AB.definitionByID(id);
          if (def) {
             fields.push(this.AB.fieldNew(def, this));
          } else {
@@ -228,7 +228,7 @@ module.exports = class ABObjectCore extends ABMLClass {
    importIndexes(indexIDs) {
       var indexes = [];
       (indexIDs || []).forEach((id) => {
-         var def = this.AB.definitionForID(id);
+         var def = this.AB.definitionByID(id);
          if (def) {
             indexes.push(this.AB.indexNew(def, this));
          } else {
@@ -865,4 +865,3 @@ module.exports = class ABObjectCore extends ABMLClass {
       return labelData;
    }
 };
-

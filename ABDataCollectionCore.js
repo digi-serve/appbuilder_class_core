@@ -650,7 +650,7 @@ module.exports = class ABDataCollectionCore extends ABMLClass {
       };
 
       // events
-      this.on("ab.datacollection.create", (msg, data) => {
+      this.on("ab.datacollection.create", (data) => {
          // debugger;
          let obj = this.datasource;
          if (!obj) return;
@@ -878,7 +878,7 @@ module.exports = class ABDataCollectionCore extends ABMLClass {
             });
       });
 
-      this.on("ab.datacollection.update", (msg, data) => {
+      this.on("ab.datacollection.update", (data) => {
          // debugger;
          let obj = this.datasource;
          if (!obj) return;
@@ -952,14 +952,14 @@ module.exports = class ABDataCollectionCore extends ABMLClass {
                   var model = obj.model();
                   model.normalizeData(updatedVals);
 
-                  updatedIds = _.uniq(updatedIds);
+                  updatedIds = this.AB.uniq(updatedIds);
                   updatedIds.forEach((itemId) => {
                      this.__dataCollection.updateItem(itemId, updatedVals);
                   });
 
                   if (this.__treeCollection) {
                      // update data in tree
-                     updatedTreeIds = _.uniq(updatedTreeIds);
+                     updatedTreeIds = this.AB.uniq(updatedTreeIds);
                      updatedTreeIds.forEach((itemId) => {
                         this.__treeCollection.updateItem(itemId, updatedVals);
                      });
@@ -1119,7 +1119,7 @@ module.exports = class ABDataCollectionCore extends ABMLClass {
 
       // We are subscribing to notifications from the server that an item may be stale and needs updating
       // We will improve this later and verify that it needs updating before attempting the update on the client side
-      this.on("ab.datacollection.stale", (msg, data) => {
+      this.on("ab.datacollection.stale", (data) => {
          // debugger;
          // if we don't have a datasource or model, there is nothing we can do here:
          // Verify the datasource has the object we are listening for if not just stop here
@@ -1181,7 +1181,7 @@ module.exports = class ABDataCollectionCore extends ABMLClass {
          this.setStaticCursor();
       });
 
-      this.on("ab.datacollection.delete", (msg, data) => {
+      this.on("ab.datacollection.delete", (data) => {
          // debugger;
          let obj = this.datasource;
          if (!obj) return;
@@ -1383,7 +1383,9 @@ module.exports = class ABDataCollectionCore extends ABMLClass {
                // no break;
 
                // once in the process of initializing
+               /* eslint-disable no-fallthrough*/
                case DC.dataStatusFlag.initializing:
+                  /* eslint-enable no-fallthrough*/
                   // listen for "initializedData" event from the DC
                   // then we can continue.
                   this.eventAdd({
@@ -1567,7 +1569,9 @@ module.exports = class ABDataCollectionCore extends ABMLClass {
                // no break;
 
                // once in the process of initializing
+               /* eslint-disable no-fallthrough*/
                case DC.dataStatusFlag.initializing:
+                  /* eslint-enable no-fallthrough*/
                   // listen for "initializedData" event from the DC
                   // then we can continue.
                   this.eventAdd({

@@ -6,9 +6,9 @@ const ABViewFormFieldPropertyComponentDefaults = {
 };
 
 module.exports = class ABViewFormComponentCore extends ABView {
-   constructor(values, application, parent, defaultValues) {
-      super(values, application, parent, defaultValues);
-   }
+   // constructor(values, application, parent, defaultValues) {
+   //    super(values, application, parent, defaultValues);
+   // }
 
    static defaultValues() {
       return ABViewFormFieldPropertyComponentDefaults;

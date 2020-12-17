@@ -202,11 +202,11 @@ module.exports = class ABViewCore extends ABMLClass {
 
       var views = [];
       (values.viewIDs || []).forEach((id) => {
-         var def = this.AB.definitionForID(id);
+         var def = this.AB.definitionByID(id);
          if (def) {
             views.push(this.application.viewNew(def, this.application, this));
          } else {
-            console.error(
+            this.AB.error(
                `Application[${this.application.name}][${this.application.id}].View[${this.name}][${this.id}] references unknown View[${id}]`
             );
          }
@@ -267,7 +267,7 @@ module.exports = class ABViewCore extends ABMLClass {
          // first check if manager is defined by their role
          if (parseInt(this.application.accessManagers.useRole) == 1) {
             // if so check if any of the user's role match the managers
-            this.application.userRoles().forEach((role) => {
+            this.AB.Account.roles().forEach((role) => {
                if (this.application.accessManagers.role.indexOf(role.id) > -1) {
                   // if so set the access level to full access
                   isAccessManager = true;
@@ -283,7 +283,7 @@ module.exports = class ABViewCore extends ABMLClass {
             // check if the user's account matches the managers
             if (
                this.application.accessManagers.account.indexOf(
-                  OP.User.id() + ""
+                  this.AB.Account.uuid() + ""
                ) > -1
             ) {
                // if so set the access level to full access
@@ -299,7 +299,7 @@ module.exports = class ABViewCore extends ABMLClass {
             !isAccessManager
          ) {
             // check to see if the user's roles matches one of the roles defined
-            this.application.userRoles().forEach((role) => {
+            this.AB.Account.roles().forEach((role) => {
                if (
                   this.accessLevels[role.id] &&
                   parseInt(this.accessLevels[role.id]) > accessLevel

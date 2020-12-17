@@ -33,10 +33,14 @@ function getFieldVal(rowData, field) {
 }
 
 module.exports = class FilterComplexCore extends ABComponent {
-   constructor(App, idBase) {
+   constructor(App, idBase, AB) {
       idBase = idBase || "ab_filter_complex";
 
-      super(App, idBase);
+      if (typeof AB === "undefined") {
+         console.error("FilterComplexCore(): being called without an AB!");
+      }
+
+      super(App, idBase, AB);
 
       this.Account = { username: "??" };
       this._settings = {};

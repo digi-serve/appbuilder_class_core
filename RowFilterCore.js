@@ -39,7 +39,7 @@ module.exports = class RowFilter extends ABComponent {
    constructor(App, idBase, AB) {
       idBase = idBase || "ab_row_filter";
 
-      super(App, idBase);
+      super(App, idBase, AB);
 
       this.AB = AB;
       // {ABFactory} AB

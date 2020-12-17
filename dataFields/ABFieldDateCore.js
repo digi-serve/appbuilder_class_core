@@ -34,7 +34,7 @@ var ABFieldDateDefaults = {
 
    // what types of MySql column types can be imported into this data type?
    // https://www.techonthenet.com/mysql/datatypes.php
-   compatibleMysqlTypes: ["date"]
+   compatibleMysqlTypes: ["date"],
 };
 
 const defaultValues = {
@@ -46,7 +46,7 @@ const defaultValues = {
    validateRangeBefore: 0,
    validateRangeAfter: 0,
    validateStartDate: null,
-   validateEndDate: null
+   validateEndDate: null,
 };
 
 module.exports = class ABFieldDateCore extends ABField {
@@ -63,7 +63,9 @@ module.exports = class ABFieldDateCore extends ABField {
       return defaultValues;
    }
 
-   static RegEx = "^[0-9]{4}-[0-9]{2}-[0-9]{2}$";
+   // TODO: current webpack install fails here without babel-loader,
+   // so swtich this to old JS method of Static Values (see bottom)
+   // static RegEx = "^[0-9]{4}-[0-9]{2}-[0-9]{2}$";
 
    ///
    /// Instance Methods
@@ -383,7 +385,7 @@ module.exports = class ABFieldDateCore extends ABField {
          "DD/MM/YYYY",
          "MM/DD/YYYY",
          "DD-MM-YYYY",
-         "MM-DD-YYYY"
+         "MM-DD-YYYY",
       ];
 
       supportFormats.forEach((format) => {
@@ -403,3 +405,6 @@ module.exports = class ABFieldDateCore extends ABField {
    }
 };
 
+// Transition Code:
+// revert to static RegEx once babel-loader is working locally.
+module.exports.RegEx = "^[0-9]{4}-[0-9]{2}-[0-9]{2}$";

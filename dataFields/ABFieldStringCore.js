@@ -33,12 +33,12 @@ var ABFieldStringDefaults = {
 
    // what types of MySql column types can be imported into this data type?
    // https://www.techonthenet.com/mysql/datatypes.php
-   compatibleMysqlTypes: ["char", "varchar", "tinytext"]
+   compatibleMysqlTypes: ["char", "varchar", "tinytext"],
 };
 
 var defaultValues = {
    default: "",
-   supportMultilingual: 0
+   supportMultilingual: 0,
 };
 
 module.exports = class ABFieldStringCore extends ABField {
@@ -130,7 +130,7 @@ module.exports = class ABFieldStringCore extends ABField {
          // Set default string
          if (this.settings.default) {
             if (this.settings.default.indexOf("{uuid}") >= 0) {
-               values[this.columnName] = OP.Util.uuid();
+               values[this.columnName] = this.AB.uuid();
             } else {
                values[this.columnName] = this.settings.default;
             }
