@@ -1774,7 +1774,7 @@ module.exports = class ABDataCollectionCore extends ABMLClass {
 
       // Set filter of user's scope
       if (this.__filterScope == null)
-         this.__filterScope = this.AB.rowfilterNew()();
+         this.__filterScope = this.AB.rowfilterNew();
 
       if (this.datasource) {
          let scopeList = (this.userScopes || []).filter(
