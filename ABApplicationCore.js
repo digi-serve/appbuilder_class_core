@@ -106,7 +106,7 @@ module.exports = class ABApplicationCore extends ABMLClass {
       // import all our {ABViewPage}s
       let newPages = [];
       (attributes.json.pageIDs || []).forEach((id) => {
-         var def = this.definitionByID(id);
+         var def = this.AB.definitionByID(id);
          if (def) {
             newPages.push(this.pageNew(def));
          } else {
@@ -191,9 +191,10 @@ module.exports = class ABApplicationCore extends ABMLClass {
 
    /// ABApplication data methods
    isAccessibleForRoles() {
-      console.error(
+      var message = new Error(
          "Transition Code: need to revamp Role collection and checking."
       );
+      console.error(message);
       return true;
    }
 

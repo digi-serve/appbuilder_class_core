@@ -1840,9 +1840,10 @@ module.exports = class ABDataCollectionCore extends ABMLClass {
     * @param {Array} data - initial data
     */
    _dataCollectionNew(/*data*/) {
-      console.error(
+      var error = new Error(
          "the platform.ABDataCollection._dataCollectionNew() is expected to return a proper DataCollection!"
       );
+      console.error(error);
       return null;
    }
 
