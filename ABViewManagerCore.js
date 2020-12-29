@@ -19,14 +19,15 @@ const ABViewCSVExporter = require("../platform/views/ABViewCSVExporter");
 const ABViewCSVImporter = require("../platform/views/ABViewCSVImporter");
 const ABViewDataview = require("../platform/views/ABViewDataview");
 const ABViewDocxBuilder = require("../platform/views/ABViewDocxBuilder");
-const ABViewPage = require("../platform/views/ABViewPage");
-const ABViewPivot = require("../platform/views/ABViewPivot");
+const ABViewGrid = require("../platform/views/ABViewGrid");
+const ABViewImage = require("../platform/views/ABViewImage");
 const ABViewLabel = require("../platform/views/ABViewLabel");
 const ABViewLayout = require("../platform/views/ABViewLayout");
 const ABViewList = require("../platform/views/ABViewList");
 const ABViewMenu = require("../platform/views/ABViewMenu");
-const ABViewGrid = require("../platform/views/ABViewGrid");
-const ABViewImage = require("../platform/views/ABViewImage");
+const ABViewPage = require("../platform/views/ABViewPage");
+const ABViewPivot = require("../platform/views/ABViewPivot");
+const ABViewReportsManager = require("../platform/views/ABViewReportsManager");
 const ABViewTab = require("../platform/views/ABViewTab");
 const ABViewText = require("../platform/views/ABViewText");
 const ABViewKanban = require("../platform/views/ABViewKanban");
@@ -74,14 +75,15 @@ Views[ABViewCSVExporter.common().key] = ABViewCSVExporter;
 Views[ABViewCSVImporter.common().key] = ABViewCSVImporter;
 Views[ABViewDataview.common().key] = ABViewDataview;
 Views[ABViewDocxBuilder.common().key] = ABViewDocxBuilder;
-Views[ABViewPage.common().key] = ABViewPage;
-Views[ABViewPivot.common().key] = ABViewPivot;
+Views[ABViewGrid.common().key] = ABViewGrid;
+Views[ABViewImage.common().key] = ABViewImage;
 Views[ABViewLabel.common().key] = ABViewLabel;
 Views[ABViewLayout.common().key] = ABViewLayout;
 Views[ABViewList.common().key] = ABViewList;
+Views[ABViewPage.common().key] = ABViewPage;
+Views[ABViewPivot.common().key] = ABViewPivot;
 Views[ABViewMenu.common().key] = ABViewMenu;
-Views[ABViewGrid.common().key] = ABViewGrid;
-Views[ABViewImage.common().key] = ABViewImage;
+Views[ABViewReportsManager.common().key] = ABViewReportsManager;
 Views[ABViewTab.common().key] = ABViewTab;
 Views[ABViewText.common().key] = ABViewText;
 Views[ABViewKanban.common().key] = ABViewKanban;
@@ -162,4 +164,5 @@ module.exports = class ABViewManagerCore {
       }
    }
 };
+
 
