@@ -1,6 +1,9 @@
 const ABViewWidget = require("../../platform/views/ABViewWidget");
 
-const ABViewReportManagerPropertyComponentDefaults = {};
+const ABViewReportManagerPropertyComponentDefaults = {
+   moduleList: [],
+   queryList: []
+};
 
 const ABViewDefaults = {
    key: "reportsManager", // {string} unique key for this view
@@ -33,6 +36,14 @@ module.exports = class ABViewReportsManagerCore extends ABViewWidget {
     */
    fromValues(values) {
       super.fromValues(values);
+
+      this.settings.moduleList =
+         this.settings.moduleList ||
+         ABViewReportManagerPropertyComponentDefaults.moduleList;
+
+      this.settings.queryList =
+         this.settings.queryList ||
+         ABViewReportManagerPropertyComponentDefaults.queryList;
    }
 
    /**
@@ -59,3 +70,4 @@ module.exports = class ABViewReportsManagerCore extends ABViewWidget {
       return [];
    }
 };
+
