@@ -355,7 +355,7 @@ module.exports = class ABObjectCore extends ABMLClass {
     *
     * @return {array}
     */
-   fields(filter = () => true, getAll = false) {
+   fields(filter = () => true, getAll = true) {
       // NOTE: keep this check here in case we pass in .fields(null, true);
       if (!filter) filter = () => true;
       let result = this._fields.filter(filter);
