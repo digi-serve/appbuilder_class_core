@@ -166,4 +166,3 @@ module.exports = class AccountingFPCloseCore extends ABProcessElement {
     */
 };
 
-
