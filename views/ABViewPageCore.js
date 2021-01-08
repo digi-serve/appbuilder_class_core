@@ -277,10 +277,7 @@ module.exports = class ABViewPageCore extends ABViewContainer {
     * @return {Promise}
     */
    pageInsert(page) {
-      var isIncluded =
-         this.pages(function (o) {
-            return o.id == page.id;
-         }).length > 0;
+      var isIncluded = this.pages((o) => o.id === page.id).length > 0;
       if (!isIncluded) {
          // if not already included, then add and save the Obj definition:
          this._pages.push(page);

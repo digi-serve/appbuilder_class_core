@@ -11,6 +11,8 @@
 const ABApplication = require("../platform/ABApplication");
 const ABDefinition = require("../platform/ABDefinition");
 
+const ABComponent = require("../platform/ABComponent");
+
 const ABFieldManager = require("./ABFieldManager");
 
 const ABIndex = require("../platform/ABIndex");
@@ -76,6 +78,7 @@ class ABFactory extends EventEmitter {
       // Class References
       //
       this.Class = {
+         ABComponent,
          ABDefinition,
          ABObject,
          ABObjectExternal,
