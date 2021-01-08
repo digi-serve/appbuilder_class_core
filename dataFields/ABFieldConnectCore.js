@@ -205,6 +205,8 @@ module.exports = class ABFieldConnectCore extends ABFieldSelectivity {
    }
 
    dataValue(rowData) {
+      if (rowData == null) return "";
+
       let propName = "{objectName}.{relationName}"
          .replace("{objectName}", this.object.name)
          .replace("{relationName}", this.relationName());
@@ -424,4 +426,5 @@ module.exports = class ABFieldConnectCore extends ABFieldSelectivity {
       return result;
    }
 };
+
 
