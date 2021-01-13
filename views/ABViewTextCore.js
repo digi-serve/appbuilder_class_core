@@ -110,7 +110,7 @@ module.exports = class ABViewTextCore extends ABViewWidget {
       var object = dv.datasource;
       if (!object) return clearTemplateValue(result);
 
-      object.fields(null, true).forEach((f) => {
+      object.fields().forEach((f) => {
          var rowData = val || dv.getCursor() || {};
 
          // add \\ in front of the regular expression special charactors
@@ -164,5 +164,3 @@ module.exports = class ABViewTextCore extends ABViewWidget {
       return result;
    }
 };
-
-

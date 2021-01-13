@@ -65,7 +65,7 @@ module.exports = class ABViewMenuCore extends ABViewWidget {
       this.unTranslate(this, this, [
          "menuTextLeft",
          "menuTextCenter",
-         "menuTextRight"
+         "menuTextRight",
       ]);
       if (this.settings.pages) {
          this.settings.pages.forEach((page) => {
@@ -90,7 +90,7 @@ module.exports = class ABViewMenuCore extends ABViewWidget {
       this.translate(this, this, [
          "menuTextLeft",
          "menuTextCenter",
-         "menuTextRight"
+         "menuTextRight",
       ]);
 
       this.settings.pages =
@@ -212,7 +212,7 @@ module.exports = class ABViewMenuCore extends ABViewWidget {
     */
    getAliasname(pageInfo) {
       var translation = pageInfo.translations.filter((t) => {
-         return t.language_code == AD.lang.currentLanguage;
+         return t.language_code == this.AB.Multilingual.currentLanguage();
       });
 
       var label = "";
