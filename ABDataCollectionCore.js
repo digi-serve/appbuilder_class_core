@@ -1907,7 +1907,7 @@ module.exports = class ABDataCollectionCore extends ABMLClass {
    }
 
    parseTreeCollection(data = {}) {
-      console.error("Platform.ABDataCollection.parseTreeCollection() missing!");
+      console.log("Platform.ABDataCollection.parseTreeCollection() missing!");
    }
    // parseTreeCollection(data = {}) {
 
