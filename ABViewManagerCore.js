@@ -26,6 +26,7 @@ AllViews.push(require("../platform/views/ABViewLabel"));
 AllViews.push(require("../platform/views/ABViewLayout"));
 AllViews.push(require("../platform/views/ABViewList"));
 AllViews.push(require("../platform/views/ABViewMenu"));
+AllViews.push(require("../platform/views/ABViewGantt"));
 AllViews.push(require("../platform/views/ABViewGrid"));
 AllViews.push(require("../platform/views/ABViewImage"));
 AllViews.push(require("../platform/views/ABViewTab"));
@@ -162,3 +163,4 @@ module.exports = class ABViewManagerCore {
       }
    }
 };
+
