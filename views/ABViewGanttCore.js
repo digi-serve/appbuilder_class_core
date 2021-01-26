@@ -2,6 +2,7 @@ const ABViewWidget = require("../../platform/views/ABViewWidget");
 
 const ABViewGanttPropertyComponentDefaults = {
    dataviewID: "", // uuid of ABDatacollection
+   titleFieldID: "",
    startDateFieldID: "",
    endDateFieldID: "",
    durationFieldID: "",
@@ -45,6 +46,10 @@ module.exports = class ABViewGanttCore extends ABViewWidget {
       this.settings.dataviewID =
          this.settings.dataviewID ||
          ABViewGanttPropertyComponentDefaults.dataviewID;
+
+      this.settings.titleFieldID =
+         this.settings.titleFieldID ||
+         ABViewGanttPropertyComponentDefaults.titleFieldID;
 
       this.settings.startDateFieldID =
          this.settings.startDateFieldID ||
