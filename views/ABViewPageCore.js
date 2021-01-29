@@ -50,7 +50,8 @@ module.exports = class ABViewPageCore extends ABViewContainer {
       //		translations:[]
       // 	}
 
-      this.parent = null; // will be set by the pageNew() that creates this obj.
+      this.parent = parent;
+      // this.parent = null; // will be set by the pageNew() that creates this obj.
       // {obj} .parent
       // this points to the ABView object that manages this object as a child.
       // this param is shared across ABViews as well as ABViewPage, but has
@@ -487,10 +488,12 @@ module.exports = class ABViewPageCore extends ABViewContainer {
 
       // now continue with the default .copy()
       return super.copy(lookUpIds, parent).then((result) => {
+         // NOTE: move this to ABViewCore because this part is set after save to the server
          // page's name should not be duplicate
-         result.name = result.name +=
-            "_copied_" + this.application.uuid().slice(0, 3);
+         // result.name = result.name +=
+         //    "_copied_" + this.application.uuid().slice(0, 3);
          return result;
       });
    }
 };
+

@@ -224,7 +224,7 @@ module.exports = class ABViewCore extends ABMLClass {
    }
 
    isRoot() {
-      return this.parent == null;
+      return this.parent == null || this.parent == this.application;
    }
 
    /**
@@ -765,6 +765,9 @@ module.exports = class ABViewCore extends ABMLClass {
    copy(lookUpIds, parent, options = {}) {
       lookUpIds = lookUpIds || {};
 
+      // keep the same parent:
+      this.parent = parent || this.parent;
+
       // get settings of the target
       let config = this.toObj();
 
@@ -787,6 +790,15 @@ module.exports = class ABViewCore extends ABMLClass {
       // change id
       result.id = lookUpIds[result.id] || this.application.uuid();
 
+      // page's name should not be duplicate
+      if (this.key == "page") {
+         result.name = `${result.name}_copied_${this.application
+            .uuid()
+            .slice(0, 3)}`;
+
+         result.label = `${result.label} (copied)`;
+      }
+
       return Promise.resolve()
          .then(() => {
             // copy sub pages
@@ -794,7 +806,7 @@ module.exports = class ABViewCore extends ABMLClass {
 
             if (this._pages && !options.ignoreSubPages) {
                result._pages = [];
-               this.pages().forEach((p) => {
+               this.pages((p) => p && p.isRoot()).forEach((p) => {
                   // this prevents result.save() from happening on each of these
                   // p.copy():
                   this.application._pages.push({ id: lookUpIds[p.id] });
@@ -847,3 +859,4 @@ module.exports = class ABViewCore extends ABMLClass {
          });
    }
 };
+
