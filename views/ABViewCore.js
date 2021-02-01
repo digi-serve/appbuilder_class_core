@@ -765,9 +765,6 @@ module.exports = class ABViewCore extends ABMLClass {
    copy(lookUpIds, parent, options = {}) {
       lookUpIds = lookUpIds || {};
 
-      // keep the same parent:
-      this.parent = parent || this.parent;
-
       // get settings of the target
       let config = this.toObj();
 
@@ -786,6 +783,9 @@ module.exports = class ABViewCore extends ABMLClass {
 
       // copy from settings
       let result = this.application.viewNew(config, this.application, parent);
+
+      // keep the parent
+      result.parent = parent || this.parent;
 
       // change id
       result.id = lookUpIds[result.id] || this.application.uuid();
@@ -806,10 +806,12 @@ module.exports = class ABViewCore extends ABMLClass {
 
             if (this._pages && !options.ignoreSubPages) {
                result._pages = [];
-               this.pages((p) => p && p.isRoot()).forEach((p) => {
+               this.pages().forEach((p) => {
                   // this prevents result.save() from happening on each of these
                   // p.copy():
-                  this.application._pages.push({ id: lookUpIds[p.id] });
+                  if (p.isRoot())
+                     this.application._pages.push({ id: lookUpIds[p.id] });
+
                   allSaves.push(
                      p
                         .copy(lookUpIds, result, options)
@@ -839,10 +841,15 @@ module.exports = class ABViewCore extends ABMLClass {
                   allSaves.push(
                      // send a null for parent, so that the .save() wont trigger
                      // a save of the parent.
-                     v.copy(lookUpIds, null, options).then((copiedView) => {
+                     v.copy(lookUpIds, result, options).then((copiedView) => {
                         // now patch up the parent connection:
-                        copiedView.parent = result;
-                        result._views.push(copiedView);
+                        // copiedView.parent = result;
+                        if (
+                           result._views.filter((vi) => vi.id == copiedView.id)
+                              .length < 1
+                        ) {
+                           result._views.push(copiedView);
+                        }
                      })
                   );
                });
