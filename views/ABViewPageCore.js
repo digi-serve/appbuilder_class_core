@@ -487,10 +487,12 @@ module.exports = class ABViewPageCore extends ABViewContainer {
 
       // now continue with the default .copy()
       return super.copy(lookUpIds, parent).then((result) => {
+         // NOTE: move this to ABViewCore because this part is set after save to the server
          // page's name should not be duplicate
-         result.name = result.name +=
-            "_copied_" + this.application.uuid().slice(0, 3);
+         // result.name = result.name +=
+         //    "_copied_" + this.application.uuid().slice(0, 3);
          return result;
       });
    }
 };
+
