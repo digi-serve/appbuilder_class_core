@@ -1559,6 +1559,7 @@ module.exports = class ABDataCollectionCore extends ABMLClass {
          // In order to keep detail and graphs loading properly I had to keep .parse()
          this.__dataCollection.parse(data);
 
+         // this does nothing??? 
          this.parseTreeCollection(data);
 
          // if we are linked, then refresh our cursor
@@ -1907,7 +1908,10 @@ module.exports = class ABDataCollectionCore extends ABMLClass {
    }
 
    parseTreeCollection(data = {}) {
-      console.log("Platform.ABDataCollection.parseTreeCollection() missing!");
+      // TODO all this does is log "is missing?"
+      if (data === {}){
+         console.log("Platform.ABDataCollection.parseTreeCollection() missing!");
+      }   
    }
    // parseTreeCollection(data = {}) {
 
