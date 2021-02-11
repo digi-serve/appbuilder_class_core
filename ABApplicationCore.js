@@ -60,6 +60,12 @@ module.exports = class ABApplicationCore extends ABMLClass {
       this.accessManagers = attributes.accessManagers;
       if (typeof this.accessManagers == "string")
          this.accessManagers = JSON.parse(this.accessManagers);
+      this.isTranslationManaged = JSON.parse(
+         attributes.isTranslationManaged || false
+      );
+      this.translationManagers = attributes.translationManagers;
+      if (typeof this.translationManagers == "string")
+         this.translationManagers = JSON.parse(this.translationManagers);
 
       // import all our ABObjects
       // NOTE: we work with ABObjects on both the client and server sides.
@@ -279,7 +285,9 @@ module.exports = class ABApplicationCore extends ABMLClass {
          isAdminApp: this.isAdminApp,
          translations: this.json.translations,
          isAccessManaged: this.isAccessManaged,
-         accessManagers: this.accessManagers
+         isTranslationManaged: this.isTranslationManaged,
+         accessManagers: this.accessManagers,
+         translationManagers: this.translationManagers
       };
    }
 
