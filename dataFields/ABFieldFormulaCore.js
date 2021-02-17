@@ -48,7 +48,8 @@ var defaultValues = {
    field: "", // id of ABField : NOTE - store our connect field to support when there are multi - linked columns
    objectLink: "", // id of ABObject
    fieldLink: "", // id of ABField
-   type: "sum" // "sum", "average", "max", "min", "count"
+   type: "sum", // "sum", "average", "max", "min", "count"
+   where: ""
 };
 
 module.exports = class ABFieldFormulaCore extends ABField {
@@ -174,4 +175,5 @@ module.exports = class ABFieldFormulaCore extends ABField {
       return field;
    }
 };
+
 
