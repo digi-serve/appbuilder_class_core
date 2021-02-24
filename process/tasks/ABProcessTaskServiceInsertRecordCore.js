@@ -21,7 +21,13 @@ let InsertRecordDefaults = {
    // key: {string}
    // unique key to reference this specific Task
 
-   settings: ["objectID", "fieldValues"]
+   settings: [
+      "objectID",
+      "fieldValues",
+      "isRepeat",
+      "repeatMode",
+      "repeatColumn"
+   ]
 };
 
 module.exports = class InsertRecordCore extends ABProcessElement {
@@ -41,6 +47,12 @@ module.exports = class InsertRecordCore extends ABProcessElement {
       return null;
    }
 
+   fromValues(attributes) {
+      super.fromValues(attributes);
+
+      this.isRepeat = JSON.parse(attributes.isRepeat || false);
+   }
+
    get startElement() {
       let startElem = this.process.elements(
          (elem) => elem && elem.defaults && elem.defaults.category == "start"
@@ -50,6 +62,23 @@ module.exports = class InsertRecordCore extends ABProcessElement {
 
    get previousElement() {
       return this.process.connectionPreviousTask(this)[0];
+   }
+
+   get objectOfStartElement() {
+      let startElem = this.startElement;
+      if (!startElem) return null;
+
+      let startElemObj = this.application.objects(
+         (o) => o.id == startElem.objectID
+      )[0];
+      return startElemObj;
+   }
+
+   get fieldRepeat() {
+      let obj = this.objectOfStartElement;
+      if (!obj) return null;
+
+      return obj.fields((f) => f.id == this.repeatColumn)[0];
    }
 
    /*
@@ -151,6 +180,4 @@ module.exports = class InsertRecordCore extends ABProcessElement {
      }
      */
 };
-
-
 
