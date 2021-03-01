@@ -74,6 +74,24 @@ module.exports = class InsertRecordCore extends ABProcessElement {
       return startElemObj;
    }
 
+   get objectOfPrevElement() {
+      let prevElem = this.previousElement;
+      if (!prevElem) return null;
+
+      let objectID;
+      switch (prevElem.type) {
+         case "process.task.service.query":
+            objectID = prevElem.qlObj ? prevElem.qlObj.objectID : null;
+            break;
+         case "process.task.service.insertRecord":
+         default:
+            objectID = prevElem.objectID;
+            break;
+      }
+
+      return this.application.objects((o) => o.id == objectID)[0];
+   }
+
    get fieldRepeat() {
       let obj = this.objectOfStartElement;
       if (!obj) return null;
@@ -180,4 +198,5 @@ module.exports = class InsertRecordCore extends ABProcessElement {
      }
      */
 };
+
 
