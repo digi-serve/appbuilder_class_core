@@ -789,11 +789,9 @@ module.exports = class ABDataCollectionCore extends ABMLClass {
                // ABObject only
                if (!(obj instanceof this.AB.Class.ABObjectQuery)) {
                   // if it is a linked object
-                  let connectedFields = this.datasource.fields(
+                  let connectedFields = this.datasource.connectFields(
                      (f) =>
-                        f.key == "connectObject" &&
-                        f.datasourceLink &&
-                        f.datasourceLink.id == data.objectId
+                        f.datasourceLink && f.datasourceLink.id == data.objectId
                   );
 
                   // It should always be only one item for ABObject
@@ -1004,11 +1002,8 @@ module.exports = class ABDataCollectionCore extends ABMLClass {
          }
 
          // if it is a linked object
-         let connectedFields = obj.fields(
-            (f) =>
-               f.key == "connectObject" &&
-               f.datasourceLink &&
-               f.datasourceLink.id == data.objectId
+         let connectedFields = obj.connectFields(
+            (f) => f.datasourceLink && f.datasourceLink.id == data.objectId
          );
 
          // update relation data
@@ -1248,11 +1243,8 @@ module.exports = class ABDataCollectionCore extends ABMLClass {
          }
 
          // if it is a linked object
-         let connectedFields = obj.fields(
-            (f) =>
-               f.key == "connectObject" &&
-               f.datasourceLink &&
-               f.datasourceLink.id == data.objectId
+         let connectedFields = obj.connectFields(
+            (f) => f.datasourceLink && f.datasourceLink.id == data.objectId
          );
 
          // update relation data
