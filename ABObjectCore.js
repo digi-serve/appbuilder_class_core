@@ -571,29 +571,13 @@ module.exports = class ABObjectCore extends ABMLClass {
     * this ABObject.
     */
    model() {
-      // NOTE: now that a DataCollection overwrites the context of it's
-      // object's model, it is no longer a good idea to only have a single
-      // instance of this._model per ABObject.  We should provide a new
-      // instance each time.
-
-      // if (!this._model) {
-
-      //// TODO: what do we do with imported Objects?
-      // if (this.isImported) {
-      //     //// TODO:
-      //     var obj = ABApplication.objectFromRef(this.importFromObject);
-      //     this._model = new ABModel(obj);
-      // } else {
-      this._model = new ABModel(this);
-      // }
+      var model = new ABModel(this);
 
       // default the context of this model's operations to this object
-      this._model.contextKey(ABObjectCore.contextKey());
-      this._model.contextValues({ id: this.id }); // the datacollection.id
+      model.contextKey(ABObjectCore.contextKey());
+      model.contextValues({ id: this.id }); // the datacollection.id
 
-      // }
-
-      return this._model;
+      return model;
    }
 
    ///
