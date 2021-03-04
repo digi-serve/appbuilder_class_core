@@ -49,6 +49,7 @@ var defaultValues = {
    objectLink: "", // id of ABObject
    fieldLink: "", // id of ABField
    type: "sum", // "sum", "average", "max", "min", "count"
+   where: "",
 };
 
 module.exports = class ABFieldFormulaCore extends ABField {

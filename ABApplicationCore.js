@@ -80,6 +80,13 @@ module.exports = class ABApplicationCore extends ABMLClass {
       // if .isAccessManaged == true, then .accessManagers contain the definitions
       // of the detailed access permissions.
 
+      this.isTranslationManaged = JSON.parse(
+         attributes.isTranslationManaged || false
+      );
+      this.translationManagers = attributes.translationManagers;
+      if (typeof this.translationManagers == "string")
+         this.translationManagers = JSON.parse(this.translationManagers);
+
       // import all our ABObjects
       this.objectIDs = attributes.json.objectIDs || [];
       // {array} .objectIDs
@@ -245,7 +252,9 @@ module.exports = class ABApplicationCore extends ABMLClass {
          isAdminApp: this.isAdminApp,
          translations: this.json.translations,
          isAccessManaged: this.isAccessManaged,
+         isTranslationManaged: this.isTranslationManaged,
          accessManagers: this.accessManagers,
+         translationManagers: this.translationManagers,
       };
    }
 
@@ -812,7 +821,7 @@ module.exports = class ABApplicationCore extends ABMLClass {
    /// Utilities
    ///
 
-   cloneDeep(object) {
+   cloneDeep(/* object */) {
       var errorDepreciated = new Error(
          "ABApplicationCore.cloneDeep(): Depreciated!  Use AB.cloneDeep() instead."
       );

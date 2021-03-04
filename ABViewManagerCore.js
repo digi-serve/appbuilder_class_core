@@ -34,7 +34,9 @@ var AllViews = [
    //
    // Special Editors
    //
+   require("../platform/views/ABViewGantt"),
    require("../platform/views/ABViewKanban"),
+   require("../platform/views/ABViewReportsManager"),
 
    //
    // Detail Components
