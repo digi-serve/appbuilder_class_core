@@ -503,6 +503,59 @@ class ABFactory extends EventEmitter {
    // Utilities
    //
 
+   /**
+    * notify()
+    * will send alerts to a group of people. These alerts are usually about
+    * configuration errors, or software problems.
+    * @param {string} domain
+    *     which group of people we are sending a notification to.
+    * @param {Error} error
+    *     An error object generated at the point of issue.
+    * @param {json} info
+    *     Additional related information concerning the issue.
+    */
+   notify(...params) {
+      console.error(
+         "ABFactory.notify() is expected to be overwritten by the platform!"
+      );
+   }
+
+   /**
+    * notifyInfo()
+    * a common routine to parse the info parameter provided to .notify() into
+    * a more detailed set of data.
+    * @param {json} info
+    * @return {json}
+    */
+   _notifyInfo(info) {
+      var moreInfo = {};
+      if (this.req) {
+         moreInfo.tenantID = this.req._tenantID || this.req.tenantID;
+      }
+
+      Object.keys(info).forEach((k) => {
+         switch (k) {
+            case "field":
+               moreInfo.objectID = info[k].object.id;
+               moreInfo.objectName = info[k].object.name;
+               moreInfo.fieldID = info[k].id;
+               moreInfo.fieldName = info[k].label;
+               break;
+
+            case "object":
+               moreInfo.objectID = info[k].id;
+               moreInfo.objectName = info[k].name;
+               break;
+
+            default:
+               moreInfo[k] = info[k];
+               break;
+         }
+      });
+
+      return moreInfo;
+   }
+
    // cloneDeep(value) {
    //    return _.cloneDeep(value);
    // }

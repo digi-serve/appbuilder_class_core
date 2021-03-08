@@ -154,7 +154,17 @@ module.exports = class ABFieldConnectCore extends ABFieldSelectivity {
     * @return {ABObject}
     */
    get datasourceLink() {
-      return this.AB.objects((obj) => obj.id == this.settings.linkObject)[0];
+      var linkObj = this.AB.objectByID(this.settings.linkObject);
+      if (!linkObj) {
+         var configError = new Error(
+            `ConnectField[${this.name}][${this.id}] unable to find linkObject[${this.settings.linkObject}]`
+         );
+         this.AB.notify("builder", configError, {
+            field: this,
+            linkObject: this.settings.linkObject,
+         });
+      }
+      return linkObj;
    }
 
    /**
@@ -164,9 +174,21 @@ module.exports = class ABFieldConnectCore extends ABFieldSelectivity {
     */
    get fieldLink() {
       var objectLink = this.datasourceLink;
-      if (!objectLink) return null;
+      if (!objectLink) return null; // note: already Notified
 
-      return objectLink.fields((f) => f.id == this.settings.linkColumn)[0];
+      var linkColumn = objectLink.fields(
+         (f) => f.id == this.settings.linkColumn
+      )[0];
+      if (!linkColumn) {
+         var configError = new Error(
+            `ConnectField[${this.label}][${this.id}] unable to find linkColumn[${this.settings.linkColumn}]`
+         );
+         this.AB.notify("builder", configError, {
+            field: this,
+            linkColumn: this.settings.linkColumn,
+         });
+      }
+      return linkColumn;
    }
 
    /**
@@ -426,5 +448,3 @@ module.exports = class ABFieldConnectCore extends ABFieldSelectivity {
       return result;
    }
 };
-
-
