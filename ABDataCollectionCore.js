@@ -327,6 +327,10 @@ module.exports = class ABDataCollectionCore extends ABMLClass {
     * @return {ABObject|ABObjectQuery}
     */
    get datasource() {
+      if (!this.__datasource) {
+         var err = new Error("DataCollection missing reference datasource");
+         this.AB.notify("builder", err, { datacollection: this });
+      }
       return this.__datasource;
    }
 
@@ -877,6 +881,11 @@ module.exports = class ABDataCollectionCore extends ABMLClass {
       });
 
       this.on("ab.datacollection.update", (data) => {
+         // {json} data
+         // incoming socket payload:
+         // data.objectId {string} uuid of the ABObject's row that was updated
+         // data.data {json} the new updated value of that row entry.
+
          // debugger;
          let obj = this.datasource;
          if (!obj) return;
@@ -989,7 +998,7 @@ module.exports = class ABDataCollectionCore extends ABMLClass {
             // filter before add new record
             else if (this.isValidData(updatedVals)) {
                // this means the updated record was not loaded yet so we are adding it to the top of the grid
-               // the placemet will probably change on the next load of the data
+               // the placement will probably change on the next load of the data
                this.__dataCollection.add(updatedVals, 0);
 
                if (this.__treeCollection)
