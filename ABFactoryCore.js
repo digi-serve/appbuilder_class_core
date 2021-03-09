@@ -529,9 +529,6 @@ class ABFactory extends EventEmitter {
     */
    _notifyInfo(info) {
       var moreInfo = {};
-      if (this.req) {
-         moreInfo.tenantID = this.req._tenantID || this.req.tenantID;
-      }
 
       Object.keys(info).forEach((k) => {
          switch (k) {
@@ -545,6 +542,16 @@ class ABFactory extends EventEmitter {
             case "object":
                moreInfo.objectID = info[k].id;
                moreInfo.objectName = info[k].name;
+               break;
+
+            case "datacollection":
+               moreInfo.datacollectionID = info[k].id;
+               moreInfo.datacollectionName = info[k].label || info[k].name;
+               var ds = info[k].datasource;
+               if (ds) {
+                  moreInfo.datacollectionDSID = ds.id;
+                  moreInfo.datacollectionDSName = ds.name;
+               }
                break;
 
             default:
