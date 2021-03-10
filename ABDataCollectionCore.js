@@ -560,7 +560,7 @@ module.exports = class ABDataCollectionCore extends ABMLClass {
     */
    refreshLinkCursor() {
       // if we are loading the data server side already filtered we do not need to fitler it client side
-      if (this.__reloadWheres) return false;
+      if (this.__reloadWheres && !this.settings.loadAll) return false;
 
       let linkCursor;
       let dvLink = this.datacollectionLink;
@@ -1340,7 +1340,7 @@ module.exports = class ABDataCollectionCore extends ABMLClass {
 
       // add listeners when cursor of link data collection is changed
       let linkDv = this.datacollectionLink;
-      if (linkDv) {
+      if (linkDv && this.settings.loadAll) {
          this.eventAdd({
             emitter: linkDv,
             eventName: "changeCursor",
@@ -1553,7 +1553,14 @@ module.exports = class ABDataCollectionCore extends ABMLClass {
          this.__totalCount = data.total_count;
 
          // In order to get the total_count updated I had to use .load()
-         this.__dataCollection.load(function() {
+         this.__dataCollection.load(() => {
+            // If this dc loads all, then it has to filter data by the parent dc
+            if (this.settings.loadAll) {
+               setTimeout(() => {
+                  this.refreshLinkCursor();
+               }, 500);
+            }
+
             return data;
          });
          // In order to keep detail and graphs loading properly I had to keep .parse()
@@ -1655,10 +1662,10 @@ module.exports = class ABDataCollectionCore extends ABMLClass {
 
             // NOTE: data are filtered from the server side (webix.dataFeed)
             // parent dc filter
-            // var linkDv = this.datacollectionLink;
-            // if (isValid && linkDv) {
-            //    isValid = this.isParentFilterValid(row);
-            // }
+            let linkDv = this.datacollectionLink;
+            if (linkDv && this.settings.loadAll && isValid) {
+               isValid = this.isParentFilterValid(row);
+            }
 
             // addition filter
             if (isValid && filter) {
