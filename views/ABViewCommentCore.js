@@ -105,11 +105,11 @@ module.exports = class ABViewCommentCore extends ABViewWidget {
 
    model() {
       let dv = this.datacollection;
-      if (!dv) return null;
+      if (!dv) return null; // TODO: refactor in v2
 
       // get ABObject
       let obj = dv.datasource;
-      if (obj == null) return null;
+      if (obj == null) return null; // TODO: refactor in v2
 
       // get ABModel
       let model = dv.model;
@@ -164,3 +164,4 @@ module.exports = class ABViewCommentCore extends ABViewWidget {
       });
    }
 };
+

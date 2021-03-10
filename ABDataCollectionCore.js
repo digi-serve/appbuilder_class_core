@@ -1455,7 +1455,7 @@ module.exports = class ABDataCollectionCore extends ABMLClass {
             .then(() => {
                // If we are linked to another datacollection then wait for it
                let linkDc = this.datacollectionLink;
-               if (!linkDc) return Promise.resolve();
+               if (!linkDc) return Promise.resolve(); // TODO: refactor in v2
 
                return waitForDataCollectionToInitialize(linkDc);
             })
@@ -2177,3 +2177,4 @@ module.exports = class ABDataCollectionCore extends ABMLClass {
       return [];
    }
 };
+
