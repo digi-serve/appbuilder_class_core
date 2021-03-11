@@ -78,10 +78,11 @@ function setValueToFormula(object, formulaString, rowData) {
 /**
  * @method setBuildinValueToFormula
  *
+ * @param {ABApplicationCore} application
  * @param {string} formulaString
  */
 
-function setBuildinValueToFormula(formulaString) {
+function setBuildinValueToFormula(application, formulaString) {
    var buildInRegExp = /\w+\(.*?\)/gm;
    var matches_buildin_array = formulaString.match(buildInRegExp);
    if (matches_buildin_array) {
@@ -171,6 +172,7 @@ function setBuildinValueToFormula(formulaString) {
                            element = element + ")";
                         }
                         resultParameters = getDateDayOfWeekName(
+                           application,
                            parameters_array[0]
                         );
                         break;
@@ -179,6 +181,7 @@ function setBuildinValueToFormula(formulaString) {
                            element = element + ")";
                         }
                         resultParameters = getDateMonthOfYearName(
+                           application,
                            parameters_array[0]
                         );
                         break;
@@ -547,16 +550,26 @@ function getNumberToWords(number) {
    return words.reverse().join(" ");
 }
 
-function getDateDayOfWeekName(date) {
-   var localizeDT = moment(date);
-   localizeDT.locale(AD.lang.currentLanguage);
-   return localizeDT.format("dddd");
+function getDateDayOfWeekName(application, date) {
+   // var localizeDT = moment(date);
+   // localizeDT.locale(AD.lang.currentLanguage);
+   // return localizeDT.format("dddd");
+
+   return application.toDateFormat(date, {
+      format: "dddd",
+      localeCode: AD.lang.currentLanguage
+   });
 }
 
-function getDateMonthOfYearName(date) {
-   var localizeDT = moment(date);
-   localizeDT.locale(AD.lang.currentLanguage);
-   return localizeDT.format("MMMM");
+function getDateMonthOfYearName(application, date) {
+   // var localizeDT = moment(date);
+   // localizeDT.locale(AD.lang.currentLanguage);
+   // return localizeDT.format("MMMM");
+
+   return application.toDateFormat(date, {
+      format: "MMMM",
+      localeCode: AD.lang.currentLanguage
+   });
 }
 
 function getFormatDate(date, format) {
@@ -661,7 +674,10 @@ module.exports = class ABFieldTextFormulaCore extends ABField {
          resultFormula = setValueToFormula(this.object, resultFormula, rowData);
 
          //then Check Build-in Function
-         resultFormula = setBuildinValueToFormula(resultFormula);
+         resultFormula = setBuildinValueToFormula(
+            this.object.application,
+            resultFormula
+         );
 
          return resultFormula;
       } catch (err) {
