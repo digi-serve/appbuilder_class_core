@@ -563,6 +563,15 @@ class ABFactory extends EventEmitter {
                }
                break;
 
+            case "view":
+               if (info[k].application) {
+                  moreInfo.applicationID = info[k].application.id;
+                  moreInfo.applicationName =
+                     info[k].application.label || info[k].application.name;
+               }
+               moreInfo.viewID = info[k].id;
+               moreInfo.viewName = info[k].label || info[k].name;
+               moreInfo.viewKey = info[k].key;
             default:
                moreInfo[k] = info[k];
                break;
