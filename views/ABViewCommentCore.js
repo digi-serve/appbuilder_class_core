@@ -105,11 +105,11 @@ module.exports = class ABViewCommentCore extends ABViewWidget {
 
    model() {
       let dv = this.datacollection;
-      if (!dv) return null;
+      if (!dv) return null; // already notified in this.datacollection.
 
       // get ABModel
-      let model = dv.model;
-      if (model == null) return null;
+      let model = dv.model; // already notified
+      if (!model) return null;
 
       return model;
    }

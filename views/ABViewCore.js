@@ -395,9 +395,33 @@ module.exports = class ABViewCore extends ABMLClass {
     */
    get datacollection() {
       let dataviewID = (this.settings || {}).dataviewID;
-      if (!dataviewID) return null;
+      if (!dataviewID) {
+         console.warn("TODO: figure out which ABView* require a .dataviewID:");
+         if (
+            ["form", "grid", "line", "area", "bar", "gantt", "kanban"].indexOf(
+               this.key
+            ) > -1
+         ) {
+            var errNoDCID = new Error("View didn't define a dataviewID.");
+            this.AB.notify.builder(errNoDCID, {
+               view: this,
+               settings: this.settings,
+            });
+         }
+         return null;
+      }
 
-      return this.AB.datacollectionByID(dataviewID);
+      var dc = this.AB.datacollectionByID(dataviewID);
+      if (!dc) {
+         var errNoDC = new Error(
+            `View[${this.label}][${this.id}] is unable to find associated DataCollection`
+         );
+         this.AB.notify.builder(errNoDC, {
+            view: this,
+            dataviewID,
+         });
+      }
+      return dc;
    }
 
    ///
@@ -866,4 +890,3 @@ module.exports = class ABViewCore extends ABMLClass {
          });
    }
 };
-

@@ -86,6 +86,15 @@ class ABFactory extends EventEmitter {
          ABObjectQuery,
          // ABRole      // Do we need this anymore?
       };
+
+      // Notify Helpers
+      this.notify.builder = (...params) => {
+         this.notify("builder", ...params);
+      };
+
+      this.notify.developer = (...params) => {
+         this.notify("developer", ...params);
+      };
    }
 
    init() {

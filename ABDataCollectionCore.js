@@ -390,7 +390,7 @@ module.exports = class ABDataCollectionCore extends ABMLClass {
     * @return ABModel
     */
    get model() {
-      let object = this.datasource;
+      let object = this.datasource; // already notified
 
       return object ? object.model() : null;
    }
