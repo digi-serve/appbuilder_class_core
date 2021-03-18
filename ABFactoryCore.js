@@ -358,6 +358,14 @@ class ABFactory extends EventEmitter {
       return newObj;
    }
 
+   objectProcessForm() {
+      return this.objectByID("d36ae4c8-edef-48d8-bd9c-79a0edcaa067");
+   }
+
+   objectProcessInstance() {
+      return this.objectByID("2ba85be0-78db-4eda-ba43-c2c4e3831849");
+   }
+
    objectRole() {
       return this.objectByID("c33692f3-26b7-4af3-a02e-139fb519296d");
    }
@@ -370,8 +378,23 @@ class ABFactory extends EventEmitter {
       return this.objectByID("228e3d91-5e42-49ec-b37c-59323ae433a1");
    }
 
+   //
+   // Processes
+   //
    processes(filter = () => true) {
       return (this._allProcesses || []).filter(filter);
+   }
+
+   /**
+    * @method processByID()
+    * return the specific process requested by the provided id.
+    * @param {string} ID
+    * @return {obj}
+    */
+   processByID(ID) {
+      return this.processes((p) => {
+         return p.id == ID || p.name == ID || p.label == ID;
+      })[0];
    }
 
    processNew(id) {
@@ -561,6 +584,19 @@ class ABFactory extends EventEmitter {
                   moreInfo.datacollectionDSID = ds.id;
                   moreInfo.datacollectionDSName = ds.name;
                }
+               break;
+
+            case "process":
+               moreInfo.processID = info[k].id;
+               moreInfo.processName = info[k].label || info[k].name;
+               break;
+
+            case "req":
+               moreInfo.req = {
+                  jobID: info[k].jobID,
+                  tenantID: info[k]._tenantID,
+                  user: info[k]._user,
+               };
                break;
 
             case "view":
