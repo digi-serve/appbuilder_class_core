@@ -397,12 +397,8 @@ class ABFactory extends EventEmitter {
       })[0];
    }
 
-   processNew(id) {
-      var processDef = this.definitionByID(id);
-      if (processDef) {
-         return new ABProcess(processDef, this);
-      }
-      return null;
+   processNew(values) {
+      return new ABProcess(values, this);
    }
 
    /**
