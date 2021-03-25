@@ -595,6 +595,16 @@ class ABFactory extends EventEmitter {
                };
                break;
 
+            case "task":
+               if (info[k].process) {
+                  moreInfo.processID = info[k].process.id;
+                  moreInfo.processName =
+                     info[k].process.label || info[k].process.name;
+               }
+               moreInfo.taskID = info[k].id;
+               moreInfo.taskName = info[k].label || info[k].name;
+               break;
+
             case "view":
                if (info[k].application) {
                   moreInfo.applicationID = info[k].application.id;

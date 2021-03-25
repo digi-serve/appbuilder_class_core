@@ -119,6 +119,31 @@ module.exports = class ABProcessTaskCore extends ABMLClass {
    ////
 
    /**
+    * errorConfig()
+    * Respond with an error when expected configuration parameters do not
+    * pull data.
+    * @param {obj} instance
+    *        the instance data of this task
+    * @param {string} msg
+    *        the display message for this error.
+    * @param {array[string]} fields
+    *        an array of parameter keys that should be included in the error
+    *        for additional information.
+    * @return {Promise.reject(error)}
+    */
+   errorConfig(instance, msg, fields = []) {
+      this.log(instance, msg);
+      var error = new Error(`${this.type}: ${msg}`);
+      var info = { task: this };
+      if (!Array.isArray(fields)) fields = [fields];
+      fields.forEach((field) => {
+         info[field] = this[field];
+      });
+      this.AB.notify.builder(error, info);
+      return Promise.reject(error);
+   }
+
+   /**
     * initState()
     * setup this task's initial state variables
     * @param {obj} context
@@ -205,7 +230,7 @@ module.exports = class ABProcessTaskCore extends ABMLClass {
       var myDiagramObj = instance.hashDiagramObjects[this.diagramID];
       if (!myDiagramObj) {
          var error = new Error(
-            `Did not find my definition for dID[${this.diagramID}]`
+            `Configuration Error: Did not find my definition for dID[${this.diagramID}]`
          );
          this.onError(instance, error);
          return null;
@@ -222,8 +247,9 @@ module.exports = class ABProcessTaskCore extends ABMLClass {
       var exitFlows = myDiagramObj["bpmn2:outgoing"];
       if (!exitFlows) {
          var error = new Error(
-            `Did not find any outgoing flows for dID[${this.diagramID}]`
+            `Configuration Error: Did not find any outgoing flows for dID[${this.diagramID}]`
          );
+         this.AB.notify.builder(error, { task: this });
          this.onError(instance, error);
          return null;
       }
@@ -254,8 +280,9 @@ module.exports = class ABProcessTaskCore extends ABMLClass {
                }
             } else {
                var error = new Error(
-                  `No ProcessTask instance for diagramID[${tid}]`
+                  `Configuration Error: No ProcessTask instance for diagramID[${tid}]`
                );
+               this.AB.notify.builder(error, { task: this });
                this.onError(instance, error);
                nextTasks = null;
             }
