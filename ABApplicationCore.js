@@ -135,14 +135,11 @@ module.exports = class ABApplicationCore extends ABMLClass {
       var newProcesses = [];
       var removePIDs = [];
       (attributes.json.processIDs || []).forEach((pID) => {
-         if (pID) {
-            var p = this.AB.processNew(pID);
-            if (p) {
-               newProcesses.push(p);
-            } else {
-               // remove pID from list
-               removePIDs.push(pID);
-            }
+         var p = this.AB.processByID(pID);
+         if (p) {
+            newProcesses.push(p);
+            // } else {
+            //    removePIDs.push(pID);
          }
       });
       if (attributes.json.processIDs) {
