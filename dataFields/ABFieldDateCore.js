@@ -113,8 +113,15 @@ module.exports = class ABFieldDateCore extends ABField {
       }
 
       // if no default value is set, then don't insert a value.
-      if (dateResult != null)
-         values[this.columnName] = moment(dateResult).format("YYYY-MM-DD");
+      if (dateResult != null) {
+         values[this.columnName] = this.object.application.toDateFormat(
+            dateResult,
+            {
+               format: "YYYY-MM-DD"
+            }
+         );
+         // values[this.columnName] = moment(dateResult).format("YYYY-MM-DD");
+      }
    }
 
    /**
@@ -131,7 +138,8 @@ module.exports = class ABFieldDateCore extends ABField {
          var value = data[this.columnName];
 
          if (!(value instanceof Date)) {
-            value = new Date(this.convertToMoment(value));
+            value = this.object.application.toDate(value);
+            // value = new Date(this.convertToMoment(value));
          }
 
          // verify we didn't end up with an InValid Date result.
@@ -154,19 +162,16 @@ module.exports = class ABFieldDateCore extends ABField {
 
                switch (this.settings.validateCondition) {
                   case "dateRange":
-                     var minDate = moment()
-                        .subtract(
-                           this.settings.validateRangeBefore,
-                           this.settings.validateRangeUnit
-                        )
-                        .toDate();
-                     var maxDate = moment()
-                        .add(
-                           this.settings.validateRangeAfter,
-                           this.settings.validateRangeUnit
-                        )
-                        .toDate();
-
+                     var minDate = this.object.application.subtractDate(
+                        new Date(),
+                        this.settings.validateRangeBefore,
+                        this.settings.validateRangeUnit
+                     );
+                     var maxDate = this.object.application.addDate(
+                        new Date(),
+                        this.settings.validateRangeAfter,
+                        this.settings.validateRangeUnit
+                     );
                      if (minDate < value && value < maxDate) isValid = true;
                      else {
                         isValid = false;
@@ -325,8 +330,11 @@ module.exports = class ABFieldDateCore extends ABField {
       }
 
       // pull format from settings.
-      let momentObj = this.convertToMoment(d);
-      return this.getDateDisplay(new Date(momentObj));
+      let dateObj = this.object.application.toDate(d);
+      return this.getDateDisplay(dateObj);
+
+      // let momentObj = this.convertToMoment(d);
+      // return this.getDateDisplay(new Date(momentObj));
    }
 
    getFormat() {
@@ -378,25 +386,28 @@ module.exports = class ABFieldDateCore extends ABField {
       return this.dateToString(dateFormat, dateData);
    }
 
-   convertToMoment(string) {
-      let result = moment(string);
+   // convertToMoment(string) {
+   //    let result = moment(string);
 
-      let supportFormats = [
-         "DD/MM/YYYY",
-         "MM/DD/YYYY",
-         "DD-MM-YYYY",
-         "MM-DD-YYYY",
-      ];
+   //    let supportFormats = [
+   //       "DD/MM/YYYY",
+   //       "MM/DD/YYYY",
+   //       "DD-MM-YYYY",
+   //       "MM-DD-YYYY"
+   //    ];
 
-      supportFormats.forEach((format) => {
-         if (!result || !result.isValid()) result = moment(string, format);
-      });
+   //    supportFormats.forEach((format) => {
+   //       if (!result || !result.isValid()) result = moment(string, format);
+   //    });
 
-      return result;
-   }
+   //    return result;
+   // }
 
    exportValue(value) {
-      return this.convertToMoment(value).format("YYYY-MM-DD");
+      return this.object.application.toDateFormat(value, {
+         format: "YYYY-MM-DD"
+      });
+      // return this.convertToMoment(value).format("YYYY-MM-DD");
    }
 
    dateToString(dateFormat, dateData) {

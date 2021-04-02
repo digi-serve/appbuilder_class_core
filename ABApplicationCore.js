@@ -826,4 +826,44 @@ module.exports = class ABApplicationCore extends ABMLClass {
 
       // return JSON.parse(JSON.stringify(object));
    }
+
+   /**
+    * @method toDate
+    *
+    * @param {string} dateText
+    * @param {Object} options - {
+    *                               format: "string",
+    *                               ignoreTime: boolean
+    *                            }
+    * @return {Date}
+    */
+   toDate(dateText = "", options = {}) {
+      if (!dateText) return;
+      return new Date(dateText);
+   }
+
+   /**
+    * @method toDateFormat
+    *
+    * @param {Date} date
+    * @param {Object} options - {
+    *                               format: "string",
+    *                               localeCode: "string"
+    *                            }
+    *
+    * @return {string}
+    */
+   toDateFormat(date, options) {
+      if (!date) return "";
+
+      return date.toString();
+   }
+
+   subtractDate(date, number, unit) {
+      throw new Error("This function does not implement");
+   }
+
+   addDate(date, number, unit) {
+      throw new Error("This function does not implement");
+   }
 };
