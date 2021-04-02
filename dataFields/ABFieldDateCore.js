@@ -114,7 +114,7 @@ module.exports = class ABFieldDateCore extends ABField {
 
       // if no default value is set, then don't insert a value.
       if (dateResult != null) {
-         values[this.columnName] = this.object.application.toDateFormat(
+         values[this.columnName] = this.AB.toDateFormat(
             dateResult,
             {
                format: "YYYY-MM-DD"
@@ -138,7 +138,7 @@ module.exports = class ABFieldDateCore extends ABField {
          var value = data[this.columnName];
 
          if (!(value instanceof Date)) {
-            value = this.object.application.toDate(value);
+            value = this.AB.toDate(value);
             // value = new Date(this.convertToMoment(value));
          }
 
@@ -162,12 +162,12 @@ module.exports = class ABFieldDateCore extends ABField {
 
                switch (this.settings.validateCondition) {
                   case "dateRange":
-                     var minDate = this.object.application.subtractDate(
+                     var minDate = this.AB.subtractDate(
                         new Date(),
                         this.settings.validateRangeBefore,
                         this.settings.validateRangeUnit
                      );
-                     var maxDate = this.object.application.addDate(
+                     var maxDate = this.AB.addDate(
                         new Date(),
                         this.settings.validateRangeAfter,
                         this.settings.validateRangeUnit
@@ -330,7 +330,7 @@ module.exports = class ABFieldDateCore extends ABField {
       }
 
       // pull format from settings.
-      let dateObj = this.object.application.toDate(d);
+      let dateObj = this.AB.toDate(d);
       return this.getDateDisplay(dateObj);
 
       // let momentObj = this.convertToMoment(d);
@@ -404,7 +404,7 @@ module.exports = class ABFieldDateCore extends ABField {
    // }
 
    exportValue(value) {
-      return this.object.application.toDateFormat(value, {
+      return this.AB.toDateFormat(value, {
          format: "YYYY-MM-DD"
       });
       // return this.convertToMoment(value).format("YYYY-MM-DD");

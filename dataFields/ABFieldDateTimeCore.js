@@ -99,7 +99,7 @@ module.exports = class ABFieldDateTimeCore extends ABFieldDateCore {
 
       // From default value of ABFieldDateCore
       if (values[this.columnName]) {
-         dateResult = this.object.application.toDate(values[this.columnName]);
+         dateResult = this.AB.toDate(values[this.columnName]);
          // let momentVal = this.convertToMoment(values[this.columnName]);
          // if (momentVal.isValid()) {
          //    dateResult = new Date(momentVal);
@@ -155,7 +155,7 @@ module.exports = class ABFieldDateTimeCore extends ABFieldDateCore {
          }
 
          // pull format from settings.
-         let dateObj = this.object.application.toDate(d);
+         let dateObj = this.AB.toDate(d);
          let timeFormat = this.getTimeFormat();
          return webix.Date.dateToStr(timeFormat)(dateObj);
       } else {
