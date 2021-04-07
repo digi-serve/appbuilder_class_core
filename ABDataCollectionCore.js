@@ -1510,29 +1510,31 @@ module.exports = class ABDataCollectionCore extends ABMLClass {
                      resolve: resolve,
                      reject: reject
                   };
-                  //// Core Migration Note:
-                  //// the ABViewDataCollectionCore now manages data in a different way:
-                  //// local data  vs  Remote Data
-                  //// this will need to be updated to reflect that management:
-                  //// (and also explains why we refactored things into .processIncomingData())
-                  model
-                     .findAll(cond)
-                     .then((data) => {
-                        this.processIncomingData(data);
 
-                        ////
-                        //// LEFT OFF: debugging ABDatacollectionCore : why UI isn't updated after
-                        //// data loads?
-                        ////  -->  check the .init() for messing with onAfterChange ...
-
-                        // resolve();
-                     })
-                     .catch((err) => {
-                        reject(err);
-                     });
+                  this.platformFind(model, cond).catch((err) => {
+                     reject(err);
+                  });
                });
             })
       );
+   }
+
+   platformFind(model, cond) {
+      //// Core Migration Note:
+      //// the ABViewDataCollectionCore now manages data in a different way:
+      //// local data  vs  Remote Data
+      //// this will need to be updated to reflect that management:
+      //// (and also explains why we refactored things into .processIncomingData())
+      return model.findAll(cond).then((data) => {
+         this.processIncomingData(data);
+
+         ////
+         //// LEFT OFF: debugging ABDatacollectionCore : why UI isn't updated after
+         //// data loads?
+         ////  -->  check the .init() for messing with onAfterChange ...
+
+         // resolve();
+      });
    }
 
    /**
@@ -1559,7 +1561,7 @@ module.exports = class ABDataCollectionCore extends ABMLClass {
          // In order to keep detail and graphs loading properly I had to keep .parse()
          this.__dataCollection.parse(data);
 
-         // this does nothing??? 
+         // this does nothing???
          this.parseTreeCollection(data);
 
          // if we are linked, then refresh our cursor
@@ -1909,9 +1911,11 @@ module.exports = class ABDataCollectionCore extends ABMLClass {
 
    parseTreeCollection(data = {}) {
       // TODO all this does is log "is missing?"
-      if (data === {}){
-         console.log("Platform.ABDataCollection.parseTreeCollection() missing!");
-      }   
+      if (data === {}) {
+         console.log(
+            "Platform.ABDataCollection.parseTreeCollection() missing!"
+         );
+      }
    }
    // parseTreeCollection(data = {}) {
 
