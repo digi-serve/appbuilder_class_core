@@ -198,16 +198,13 @@ module.exports = class ABViewMenuCore extends ABViewWidget {
 
    /**
     * @method getAliasname
-    * @param pageInfo - an object in settings
-    * {
-    * 	pageId: uuid,
-    * 	tabId: uuid,
-    * 	type: string, - "page" or "tab"
-    * 	isChecked: bool,
-    * 	aliasname: string,
-    *	translations: []
-    *}
-    *
+    * @param {object} pageInfo - an object in settings
+    * @param {uuid} pageInfo.pageId
+    * @param {uuid} pageInfo.tabId
+    * @param {string} pageInfo.type "page" or "tab"
+    * @param {boolean} pageInfo.isChecked
+    * @param {string} pageInfo.aliasname
+    * @param {Array} pageInfo.translations
     * @return {string}
     */
    getAliasname(pageInfo) {

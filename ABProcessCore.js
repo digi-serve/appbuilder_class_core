@@ -263,7 +263,7 @@ module.exports = class ABProcessCore extends ABMLClass {
     * if no filter is provided).
     * @param {fn} fn an iterator that returns true if the provided element
     *                should be returned.
-    * @return {[ABProcessTask, ABProcessParticipant, etc...]}
+    * @return {Array<ABProcessTask | ABProcessParticipant>}
     */
    elements(fn = () => true) {
       var allElements = Object.keys(this._elements).map((e) => {
@@ -286,7 +286,7 @@ module.exports = class ABProcessCore extends ABMLClass {
     * elementForDiagramID()
     * return the object that is tied to the given xml diagram ID.
     * @param {string} dID the diagram ID
-    * @return {ABProcess[OBJ]}
+    * @return {obj} ABProcess[OBJ]
     */
    elementForDiagramID(dID) {
       return this.elements((t) => {
@@ -401,7 +401,7 @@ module.exports = class ABProcessCore extends ABMLClass {
     * taskForTriggerKey()
     * return one or more tasks that respond to the given trigger key
     * @param {string} key a trigger key
-    * @return {[ABProcessTask,...]}
+    * @return {ABProcessTask[]}
     */
    taskForTriggerKey(key) {
       var trigger = this.elements((t) => {

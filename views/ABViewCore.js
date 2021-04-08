@@ -685,13 +685,13 @@ module.exports = class ABViewCore extends ABMLClass {
     * @param {obj} lookUpIds
     *        an { oldID : newID } lookup hash for converting ABView objects
     *        and their setting pointers.
-    * @param {ABView*} parent
+    * @param {ABView} parent
     *        Which ABView should be connected as the parent object of this
     *        copy.
     * @param {obj} options
     *        option settings for the copy command.
-    *        options.ignoreSubPages {bool}
-    *             set to true to skip copying any sub pages of this ABView.
+    * @param {bool} options.ignoreSubPages
+    *         set to true to skip copying any sub pages of this ABView.
     * @return {obj}
     *        obj defs of this ABView
     */
@@ -752,7 +752,7 @@ module.exports = class ABViewCore extends ABMLClass {
     * @param {obj} lookUpIds
     *        an { oldID : newID } lookup hash for converting ABView objects
     *        and their setting pointers.
-    * @param {ABView*} parent
+    * @param {ABView} parent
     *        Which ABView should be connected as the parent object of this
     *        copy.
     * @param {obj} options
@@ -866,4 +866,3 @@ module.exports = class ABViewCore extends ABMLClass {
          });
    }
 };
-

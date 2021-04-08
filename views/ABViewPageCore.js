@@ -410,7 +410,7 @@ module.exports = class ABViewPageCore extends ABViewContainer {
     * @param {obj} lookUpIds
     *        an { oldID : newID } lookup hash for converting ABView objects
     *        and their setting pointers.
-    * @param {ABView*} parent
+    * @param {ABView} parent
     *        Which ABView should be connected as the parent object of this
     *        copy.
     * @return {obj}
@@ -456,7 +456,7 @@ module.exports = class ABViewPageCore extends ABViewContainer {
     * @param {obj} lookUpIds
     *        an { oldID : newID } lookup hash for converting ABView objects
     *        and their setting pointers.
-    * @param {ABView*} parent
+    * @param {ABView} parent
     *        Which ABView should be connected as the parent object of this
     *        copy.
     * @return {Promise}
@@ -495,4 +495,3 @@ module.exports = class ABViewPageCore extends ABViewContainer {
       });
    }
 };
-

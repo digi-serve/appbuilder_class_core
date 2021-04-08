@@ -16,7 +16,7 @@ var ABQLManagerCore = {
     * were saved from the previous .toObj()
     * @param {object} attributes
     *		  the values returned from the previous .toObj() call
-    * @param {ABProcessTask***} task
+    * @param {ABProcessTask} task
     *		  the current ABProcessTaskServiceQuery that contains this QL
     * @param {ABApplication} application
     *		  the current ABApplication we are operating under.

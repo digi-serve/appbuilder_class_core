@@ -160,7 +160,7 @@ module.exports = class ABProcessTaskCore extends ABMLClass {
     * log()
     * enter a log in the current process instance
     * @param {obj} instance  the current ABProcessInstance
-    * @param {...} ...allArgs the remaining parameters sent to the log
+    * @param {...*} allArgs the remaining parameters sent to the log
     */
    log(instance, ...allArgs) {
       var text = `${this.diagramID} : ${
