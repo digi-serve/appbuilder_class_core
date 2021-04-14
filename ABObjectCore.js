@@ -343,16 +343,25 @@ module.exports = class ABObjectCore extends ABMLClass {
 
    /**
     * @method fields()
-    *
     * return an array of all the ABFields for this ABObject.
-    *
-    * @param filter {Object}
-    * @param getAll {Boolean} - [Optional]
-    *
-    * @return {array}
+    * @param {fn} fn
+    *        a filter function that returns {true} if a value should
+    *        be included, or {false} otherwise.
+    * @return {array[ABFieldxxx]}
     */
    fields(fn = () => true) {
       return this._fields.filter(fn);
+   }
+
+   /**
+    * @method fieldByID()
+    * return the object's field from the given {ABField.id}
+    * @param {string} id
+    *        the uuid of the field to return.
+    * @return {ABFieldxxx}
+    */
+   fieldByID(id) {
+      return this.fields((f) => f.id == id)[0];
    }
 
    /**

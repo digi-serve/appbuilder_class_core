@@ -219,6 +219,34 @@ class ABFactory extends EventEmitter {
       return new ABDefinition(values, this);
    }
 
+   /**
+    * definitionsParse()
+    * include the incoming definitions into our ABFactory. These new
+    * definitiosn will replace any existing ones with the same .id.
+    * @param {array[ABDefinitioin]} defs
+    *     the incoming array of ABDefinitions to parse.
+    * @return {Promise}
+    */
+   definitionsParse(defs = []) {
+      if (!Array.isArray(defs)) {
+         defs = [defs];
+      }
+
+      // store/replace the incoming definitions
+      defs.forEach((d) => {
+         this._definitions[d.id] = d;
+      });
+
+      // reset our lists
+      this._allApplications = [];
+      this._allObjects = [];
+      this._allProcesses = [];
+      this._allQueries = [];
+      this._allDatacollections = [];
+
+      return this.init();
+   }
+
    //
    // ABObjects
    //
