@@ -386,6 +386,10 @@ class ABFactory extends EventEmitter {
       return newObj;
    }
 
+   objectFile() {
+      return this.objectByID("4a9d89c9-f4eb-41af-91e4-909eff389f3e");
+   }
+
    objectProcessForm() {
       return this.objectByID("d36ae4c8-edef-48d8-bd9c-79a0edcaa067");
    }
