@@ -77,8 +77,8 @@ var defaultValues = {
 };
 
 module.exports = class ABFieldConnectCore extends ABFieldSelectivity {
-   constructor(values, object) {
-      super(values, object, ABFieldConnectDefaults);
+   constructor(values, object, fieldDefaults = ABFieldConnectDefaults) {
+      super(values, object, fieldDefaults);
 
       // // text to Int:
       // this.settings.isSource = parseInt(this.settings.isSource || 0);

@@ -372,7 +372,7 @@ module.exports = class ABObjectCore extends ABMLClass {
     * @return {array}
     */
    connectFields() {
-      return this.fields((f) => f && f.key == "connectObject");
+      return this.fields((f) => f && (f.key == "connectObject" || f.key == "user"));
    }
 
    /**
