@@ -5,9 +5,7 @@
  *
  */
 
-var ABFieldSelectivity = require("../../platform/dataFields/ABFieldSelectivity");
-// import ABFieldSelectivity from "./ABFieldSelectivity"
-// import ABFieldComponent from "./ABFieldComponent"
+var ABFieldConnect = require("../../platform/dataFields/ABFieldConnect");
 
 function L(key, altText) {
    // TODO:
@@ -46,7 +44,7 @@ var defaultValues = {
    isShowUsername: 1
 };
 
-module.exports = class ABFieldUserCore extends ABFieldSelectivity {
+module.exports = class ABFieldUserCore extends ABFieldConnect {
    constructor(values, object) {
       super(values, object, ABFieldUserDefaults);
    }
@@ -87,25 +85,17 @@ module.exports = class ABFieldUserCore extends ABFieldSelectivity {
     * @param {obj} values a key=>value hash of the current values.
     */
    defaultValue(values) {
-      if (this.settings.isCurrentUser) {
+      if (this.settings.isCurrentUser && !values[this.columnName]) {
          if (this.settings.isMultiple) {
             values[this.columnName] = [
                {
-                  id: OP.User.username(),
-                  text: OP.User.username()
+                  id: OP.User.username() // TODO
                }
             ];
          } else {
-            values[this.columnName] = OP.User.username();
+            values[this.columnName] = OP.User.username(); // TODO
          }
       }
    }
-
-   format(rowData) {
-      var val = this.dataValue(rowData) || [];
-
-      if (!Array.isArray(val) || val) val = [val];
-
-      return val.map((v) => v.text || v).join(", ");
-   }
 };
+
