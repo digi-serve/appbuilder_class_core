@@ -396,7 +396,6 @@ module.exports = class ABViewCore extends ABMLClass {
    get datacollection() {
       let dataviewID = (this.settings || {}).dataviewID;
       if (!dataviewID) {
-         console.warn("TODO: figure out which ABView* require a .dataviewID:");
          if (
             ["form", "grid", "line", "area", "bar", "gantt", "kanban"].indexOf(
                this.key
@@ -407,6 +406,10 @@ module.exports = class ABViewCore extends ABMLClass {
                view: this,
                settings: this.settings,
             });
+         } else {
+            console.warn(
+               `TODO: figure out which ABView* require a .dataviewID: ${this.key}?`
+            );
          }
          return null;
       }

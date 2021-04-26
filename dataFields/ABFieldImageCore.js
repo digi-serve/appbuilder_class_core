@@ -34,7 +34,7 @@ var ABFieldImageDefaults = {
 
    // what types of Sails ORM attributes can be imported into this data type?
    // http://sailsjs.org/documentation/concepts/models-and-orm/attributes#?attribute-options
-   compatibleOrmTypes: []
+   compatibleOrmTypes: [],
 };
 
 var defaultValues = {
@@ -44,12 +44,28 @@ var defaultValues = {
    imageHeight: "",
    removeExistingData: 0,
    useDefaultImage: false,
-   defaultImageUrl: ""
+   defaultImageUrl: "",
 };
 
 module.exports = class ABFieldImageCore extends ABField {
    constructor(values, object) {
       super(values, object, ABFieldImageDefaults);
+
+      // NOTE: our Labels are ready here:
+      if (
+         ABFieldImageDefaults.menuName == "*Image Attachment" &&
+         this.AB.Label
+      ) {
+         var L = this.AB.Label();
+         ABFieldImageDefaults.menuName = L(
+            "ab.dataField.image.menuName",
+            "*Image Attachment"
+         );
+         ABFieldImageDefaults.description = L(
+            "ab.dataField.image.description",
+            "*Attach an image to this object."
+         );
+      }
 
       /*
     	{
