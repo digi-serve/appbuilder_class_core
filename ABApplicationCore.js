@@ -328,7 +328,7 @@ module.exports = class ABApplicationCore extends ABMLClass {
       var myObj = this.AB.objects((o) => o.id == obj);
 
       // Get all the connected Fields for that object
-      var connectedFields = myObj[0].fields((f) => f.key == "connectObject");
+      var connectedFields = myObj[0].connectFields();
       // Store the related fields associatively inside their related Objects ID
       var connectedObj = [];
       connectedFields.forEach((f) => {
