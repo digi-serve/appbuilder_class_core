@@ -84,7 +84,7 @@ module.exports = class ABFieldUserCore extends ABFieldConnect {
     * for this field.
     * @param {obj} values a key=>value hash of the current values.
     */
-/*   defaultValue(values) {
+   /*   defaultValue(values) {
       if (this.settings.isCurrentUser && !values[this.columnName]) {
          if (this.settings.isMultiple) {
             values[this.columnName] = [

@@ -315,33 +315,34 @@ module.exports = class ABApplicationCore extends ABMLClass {
    /**
     * @method connectedObjects()
     *
-    * return an array of all the connected ABObjects for this ABApplication.
+    * return an array of all the connected ABObjects for a given ABObject.
     *
-    * @param {id} id    an ID of an ABObject
-    *
+    * @param {string} id
+    *        an ID of an ABObject
     * @return {array}   array of options for webix select
+    *         [ {id, value}, ... ]
     */
-   connectedObjects(obj) {
-      if (obj == "") return [];
+   connectedObjects(id) {
+      if (id == "") return [];
 
       // Determine the object from the ID
-      var myObj = this.AB.objects((o) => o.id == obj);
+      var myObj = this.AB.objectByID(id);
 
       // Get all the connected Fields for that object
-      var connectedFields = myObj[0].connectFields();
+      var connectedFields = myObj.connectFields();
       // Store the related fields associatively inside their related Objects ID
-      var connectedObj = [];
+      var connectedObj = {};
       connectedFields.forEach((f) => {
-         connectedObj[f.settings.linkObject] = this.AB.objects(
-            (co) => co.id == f.settings.linkObject
+         connectedObj[f.settings.linkObject] = this.AB.objectByID(
+            f.settings.linkObject
          );
       });
       // Look up the objects by their ID and push them in an options array
       var linkedObjects = [];
       Object.keys(connectedObj).forEach(function (key /*, index */) {
          linkedObjects.push({
-            id: this[key][0].id,
-            value: this[key][0].label,
+            id: this[key].id,
+            value: this[key].label,
          });
       }, connectedObj /* = this. inside fn */);
 
@@ -360,10 +361,10 @@ module.exports = class ABApplicationCore extends ABMLClass {
     */
    connectedFields(currObjID, linkedObjectID) {
       // Determine the object from the currObjID
-      var myObj = this.AB.objects((o) => o.id == currObjID);
+      var myObj = this.AB.objectByID(currObjID);
 
       // Get all the connected Fields for our object that match the linkedObjectID
-      var connectedFields = myObj[0].fields(
+      var connectedFields = myObj.fields(
          (f) =>
             f.key == "connectObject" && f.settings.linkObject == linkedObjectID
       );
