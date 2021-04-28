@@ -34,6 +34,11 @@ var ABFieldUserDefaults = {
    // what types of Sails ORM attributes can be imported into this data type?
    // http://sailsjs.org/documentation/concepts/models-and-orm/attributes#?attribute-options
    compatibleOrmTypes: [],
+
+   USERNAME_FIELD_ID: "5760560b-c078-47ca-98bf-e18ac492a561",
+   // {string} .uuid
+   // the ABField.id of the SiteUser.username field.  This is what other
+   // objects will link to in their ABFieldUser connections.
 };
 
 var defaultValues = {
