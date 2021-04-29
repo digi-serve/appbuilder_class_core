@@ -55,7 +55,7 @@ module.exports = class ABProcessTriggerTimer extends ABProcessTrigger {
          label: "Timer Start Event",
          actionName: "replace-with-signal-timer-start",
          // type: {string} a unique key to reference this element
-         className: "bpmn-icon-start-event-signal",
+         className: "bpmn-icon-start-event-timer",
          target: {
             type: "bpmn:StartEvent",
             // type: {string} the general bpmn category
@@ -153,4 +153,5 @@ module.exports = class ABProcessTriggerTimer extends ABProcessTrigger {
       return `${minute} ${hour} ${day} ${month} ${dayWeek}`;
    }
 };
+
 
