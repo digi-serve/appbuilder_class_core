@@ -596,7 +596,7 @@ class ABFactory extends EventEmitter {
                moreInfo.objectID = info[k].object.id;
                moreInfo.objectName = info[k].object.name;
                moreInfo.fieldID = info[k].id;
-               moreInfo.fieldName = info[k].label;
+               moreInfo.fieldName = info[k].label || info[k].name;
                break;
 
             case "object":
