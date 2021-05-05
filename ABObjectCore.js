@@ -288,7 +288,7 @@ module.exports = class ABObjectCore extends ABMLClass {
       var obj = super.toObj();
 
       // track the field .ids of our fields
-      var fieldIDs = this.fields(null, true).map((f) => f.id);
+      var fieldIDs = this.fields().map((f) => f.id);
 
       // track the index .ids of our indexes
       var indexIDs = this.indexes().map((f) => f.id);
@@ -372,7 +372,9 @@ module.exports = class ABObjectCore extends ABMLClass {
     * @return {array}
     */
    connectFields() {
-      return this.fields((f) => f && (f.key == "connectObject" || f.key == "user"));
+      return this.fields(
+         (f) => f && (f.key == "connectObject" || f.key == "user")
+      );
    }
 
    /**
@@ -464,10 +466,7 @@ module.exports = class ABObjectCore extends ABMLClass {
     * @return {Promise}
     */
    fieldSave(field) {
-      var isIncluded =
-         this.fields(function (o) {
-            return o.id == field.id;
-         }).length > 0;
+      var isIncluded = this.fieldByID(field.id);
       if (!isIncluded) {
          this._fields.push(field);
          return this.save();
@@ -486,10 +485,7 @@ module.exports = class ABObjectCore extends ABMLClass {
     * @return {Promise}
     */
    fieldAdd(field) {
-      var isIncluded =
-         this.fields(function (o) {
-            return o.id == field.id;
-         }).length > 0;
+      var isIncluded = this.fieldByID(field.id);
       if (!isIncluded) {
          // if not already included, then add and save the Obj definition:
          this._fields.push(field);
@@ -842,7 +838,7 @@ module.exports = class ABObjectCore extends ABMLClass {
          colIds.forEach((colId) => {
             var colIdNoBracket = colId.replace("{", "").replace("}", "");
 
-            var field = this.fields((f) => f.id == colIdNoBracket)[0];
+            var field = this.fieldByID(colIdNoBracket);
             if (field == null) return;
 
             labelData = labelData.replace(colId, field.format(rowData) || "");
