@@ -14,7 +14,8 @@ var ABProcessTaskTriggerLifecycleDefaults = {
       "repeatTime",
       "repeatDaily",
       "repeatWeekly",
-      "repeatMonthly"
+      "repeatMonthly",
+      "isEnabled"
    ],
    // fields: {array}
    // a list of internal setting values this Element tracks
@@ -31,7 +32,8 @@ var ABProcessTaskTriggerLifecycleDefaults = {
    repeatTime: "01:00",
    repeatDaily: "day",
    repeatWeekly: "FRI",
-   repeatMonthly: "last"
+   repeatMonthly: "last",
+   isEnabled: true
 };
 
 module.exports = class ABProcessTriggerTimer extends ABProcessTrigger {
@@ -94,6 +96,10 @@ module.exports = class ABProcessTriggerTimer extends ABProcessTrigger {
       } else {
          this.repeatTime = ABProcessTaskTriggerLifecycleDefaults.repeatTime;
       }
+
+      this.isEnabled = JSON.parse(
+         attributes.isEnabled || ABProcessTaskTriggerLifecycleDefaults.isEnabled
+      );
    }
 
    /**
@@ -120,6 +126,8 @@ module.exports = class ABProcessTriggerTimer extends ABProcessTrigger {
       if (data.repeatTime && data.repeatTime instanceof Date) {
          data.repeatTime = `${data.repeatTime.getUTCHours()}:${data.repeatTime.getMinutes()}`;
       }
+
+      data.isEnabled = this.isEnabled;
 
       return data;
    }
@@ -153,5 +161,4 @@ module.exports = class ABProcessTriggerTimer extends ABProcessTrigger {
       return `${minute} ${hour} ${day} ${month} ${dayWeek}`;
    }
 };
-
 
