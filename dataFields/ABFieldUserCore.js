@@ -83,25 +83,6 @@ module.exports = class ABFieldUserCore extends ABFieldConnect {
    /// Working with Actual Object Values:
    ///
 
-   relationName() {
-      return this.columnName;
-
-      // there is object name - {objectName}.{columnName}
-      // if (this.columnName.indexOf(".") > -1) {
-      //    let names = this.columnName.split(".");
-
-      //    return (
-      //       names[0] +
-      //       "." +
-      //       (String(names[1]).replace(/[^a-z0-9\.]/gi, "")
-      //    );
-      // } else {
-      //    let relationName =
-      //       String(this.columnName).replace(/[^a-z0-9\.]/gi, "") + "__relation";
-
-      //    return relationName;
-      // }
-   }
    /**
     * @method defaultValue
     * insert a key=>value pair that represent the default value
