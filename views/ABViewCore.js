@@ -407,9 +407,12 @@ module.exports = class ABViewCore extends ABMLClass {
                settings: this.settings,
             });
          } else {
-            console.warn(
-               `TODO: figure out which ABView* require a .dataviewID: ${this.key}?`
-            );
+            // These views shouldn't matter if they don't have a datacollection.
+            if (["page", "viewcontainer"].indexOf(this.key) == -1) {
+               console.warn(
+                  `TODO: figure out which ABView* require a .dataviewID: ${this.key}?`
+               );
+            }
          }
          return null;
       }
