@@ -71,9 +71,27 @@ var defaultValues = {
    // if linkType == one, and isSource = 0, then the linkObject has this obj.id
    //  	in it's connected field (linkColumn)
 
+   // the next 3 Fields are concerning how we connect to other ABObjects when
+   // we are NOT using the .uuid as the connecting Value. Instead, there is an
+   // ABIndex setting we are connecting with.
    isCustomFK: 0,
+   // {bool} truthy [0,1, etc...]
+   // indicates that this connection is using 1 or more custom foreign keys
+   // for the data it is storing in it's relationship.
+
    indexField: "", // ABField.id
+   // {string} {ABField.id}
+   // In a Connection defined between A --> B, this field represents the ABField
+   // that is used for the data being stored.
+   // In 1:1,  1:M  or M:1  relationships, .indexField always refers to the
+   //       field we are pulling the Data FROM.
+   // In M:N relationships:  this will refer to the A.Field.id that is a custom
+   //       key (if any).
+
    indexField2: "", // ABField.id
+   // {string}  {ABField.id}
+   // In the M:N relationship: this field refers to the B.Field.id that is a
+   //       custom Key for the data we are storing.
 };
 
 module.exports = class ABFieldConnectCore extends ABFieldSelectivity {
