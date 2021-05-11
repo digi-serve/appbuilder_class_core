@@ -9,14 +9,15 @@ function getFieldVal(rowData, field) {
    // if rowData is an array, then pull the first element to get value
    if (rowData && rowData[0]) rowData = rowData[0];
 
+   let columnId = field.id;
    let columnName = field.columnName;
 
    let value = null;
    if (columnName.indexOf(".") > -1) {
       let colName = columnName.split(".")[1];
-      value = rowData[columnName] || rowData[colName];
+      value = rowData[columnName] || rowData[colName] || rowData[columnId];
    } else {
-      value = rowData[columnName];
+      value = rowData[columnName] || rowData[columnId];
    }
 
    if (value) {
@@ -731,4 +732,5 @@ module.exports = class RowFilter extends ABComponent {
       this.config_settings.rules = this.config_settings.rules || [];
    }
 };
+
 
