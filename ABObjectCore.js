@@ -368,13 +368,13 @@ module.exports = class ABObjectCore extends ABMLClass {
     * @method connectFields()
     *
     * return an array of the ABFieldConnect that is connect object fields.
-    *
+    * @param {fn} fn
+    *        a filter function that returns {true} if a value should
+    *        be included, or {false} otherwise.
     * @return {array}
     */
-   connectFields() {
-      return this.fields(
-         (f) => f && (f.key == "connectObject" || f.key == "user")
-      );
+   connectFields(fn = () => true) {
+      return this.fields((f) => f && f.isConnection).filter(fn);
    }
 
    /**

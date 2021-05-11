@@ -80,6 +80,13 @@ module.exports = class ABFieldConnectCore extends ABFieldSelectivity {
    constructor(values, object, fieldDefaults = ABFieldConnectDefaults) {
       super(values, object, fieldDefaults);
 
+      this.isConnection = true;
+      // {bool}
+      // is this an ABFieldConnect type of field.
+      // this is a simplified helper to identify if an ABField is a type
+      // of connect field.  Since this is the only place it is defined,
+      // all other field types will be falsy
+
       // // text to Int:
       // this.settings.isSource = parseInt(this.settings.isSource || 0);
       // this.settings.isCustomFK = parseInt(this.settings.isCustomFK || 0);

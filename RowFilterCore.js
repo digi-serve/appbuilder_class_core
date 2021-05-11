@@ -669,7 +669,7 @@ module.exports = class RowFilter extends ABComponent {
    fieldsLoad(fields = [], object = null) {
       this._Fields = fields.filter((f) => f && f.fieldIsFilterable());
       this._QueryFields = this._Fields
-         ? this._Fields.filter((f) => f && f.key == "connectObject")
+         ? this._Fields.filter((f) => f && f.isConnection)
          : [];
 
       // insert our 'this object' entry if an Object was given.
@@ -725,4 +725,3 @@ module.exports = class RowFilter extends ABComponent {
       this.config_settings.rules = this.config_settings.rules || [];
    }
 };
-
