@@ -62,7 +62,7 @@ module.exports = class ABProcessTriggerTimer extends ABProcessTrigger {
             type: "bpmn:StartEvent",
             // type: {string} the general bpmn category
             //      "StartEvent", "Task", "EndEvent", "ExclusiveGateway"
-            eventDefinitionType: "ab:SignalLifecycle"
+            eventDefinitionType: "ab:SignalTriggerTimer"
          }
       };
    }
