@@ -413,6 +413,7 @@ module.exports = class ABFieldConnectCore extends ABFieldSelectivity {
     * @return {Object}
     */
    getRelationValue(rowData, options = {}) {
+      if (rowData == null) return;
       let colName;
       let indexField = this.indexField;
       let datasourceLink = this.datasourceLink;

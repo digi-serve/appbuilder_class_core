@@ -37,6 +37,7 @@ var AllProcessElements = [
    require("../../platform/process/tasks/ABProcessTaskUserApproval"),
    require("../../platform/process/tasks/ABProcessTrigger"),
    require("../../platform/process/tasks/ABProcessTriggerLifecycle"),
+   require("../../platform/process/tasks/ABProcessTriggerTimer")
 ];
 
 AllProcessElements.forEach((ELEMENT) => {
