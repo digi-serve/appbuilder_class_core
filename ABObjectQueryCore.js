@@ -368,7 +368,7 @@ module.exports = class ABObjectQueryCore extends ABObject {
     */
    importJoins(settings) {
       // copy join settings
-      this._joins = _.cloneDeep(settings);
+      this._joins = this.AB.cloneDeep(settings);
 
       var uniqueObjectIDs = {};
       // { obj.id : obj.id }
@@ -473,7 +473,7 @@ module.exports = class ABObjectQueryCore extends ABObject {
     * @param {array} settings
     */
    exportJoins() {
-      return _.cloneDeep(this._joins || {});
+      return this.AB.cloneDeep(this._joins || {});
    }
 
    ///
