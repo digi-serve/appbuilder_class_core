@@ -1721,7 +1721,24 @@ module.exports = class ABDataCollectionCore extends ABMLClass {
       this.__bindComponentIds.splice(index, 1);
    }
 
-   refreshFilterConditions(/* wheres = null */) {
+   /**
+    * @method refreshFilterConditions()
+    * This is called in two primary cases:
+    *    - on initialization of a DC to setup our filters.
+    *    - in the operation of the ABDesigner when using a DC to display data
+    *      in the Work_object_grid and the datacollection_work(?)
+    * In the case of the ABDesigner, new temporary where conditions are provided
+    * from the possible filters we can set, and those need to effect the data
+    * we display.
+    * @param {ABRowFilter.where} wheres
+    *        The filter condition from the ABRowFilter values we are storing.
+    */
+   refreshFilterConditions(wheres = null) {
+      // There are 3 Filters that help us know if our data is Valid:
+      // 1) A filter for any ABObjectQuery we are managing.
+      // 2) A filter for our own filter condition
+      // 3) A filter that represents what our scopes allows
+
       // Set filter of ABObject
       if (this.__filterDatasource == null)
          this.__filterDatasource = this.AB.rowfilterNew();
@@ -1736,12 +1753,15 @@ module.exports = class ABDataCollectionCore extends ABMLClass {
          if (this.datasource instanceof this.AB.Class.ABObjectQuery) {
             filterConditions = this.datasource.where;
          }
+         // Apr 29, 2021 Removed this because we do not want Object filters to
+         // effect validation of DataCollections
          // Object
-         else if (this.datasource instanceof this.AB.Class.ABObject) {
-            let currentView = this.datasource.currentView();
-            if (currentView && currentView.filterConditions)
-               filterConditions = currentView.filterConditions;
-         }
+
+         // else if (this.datasource instanceof ABObject) {
+         //    let currentView = this.datasource.currentView();
+         //    if (currentView && currentView.filterConditions)
+         //       filterConditions = currentView.filterConditions;
+         // }
 
          if (filterConditions)
             this.__filterDatasource.setValue(filterConditions);
@@ -1753,32 +1773,33 @@ module.exports = class ABDataCollectionCore extends ABMLClass {
          );
       }
 
-      // // Set filter of data view
-      // if (this.__filterDatacollection == null)
-      //    this.__filterDatacollection = new RowFilter();
+      // Set filter of data view
+      // Apr 29, 2021 Added this code back to validate with DataCollection Filters
+      if (this.__filterDatacollection == null)
+         this.__filterDatacollection = new RowFilter();
 
-      // this.__filterDatacollection.applicationLoad(
-      //    this.datasource ? this.datasource.application : null
-      // );
-      // this.__filterDatacollection.fieldsLoad(
-      //    this.datasource ? this.datasource.fields() : []
-      // );
+      this.__filterDatacollection.applicationLoad(
+         this.datasource ? this.datasource.application : null
+      );
+      this.__filterDatacollection.fieldsLoad(
+         this.datasource ? this.datasource.fields() : []
+      );
 
-      // if (wheres) this.settings.objectWorkspace.filterConditions = wheres;
+      if (wheres) this.settings.objectWorkspace.filterConditions = wheres;
 
-      // if (
-      //    this.settings &&
-      //    this.settings.objectWorkspace &&
-      //    this.settings.objectWorkspace.filterConditions
-      // ) {
-      //    this.__filterDatacollection.setValue(
-      //       this.settings.objectWorkspace.filterConditions
-      //    );
-      // } else {
-      //    this.__filterDatacollection.setValue(
-      //       DefaultValues.settings.objectWorkspace.filterConditions
-      //    );
-      // }
+      if (
+         this.settings &&
+         this.settings.objectWorkspace &&
+         this.settings.objectWorkspace.filterConditions
+      ) {
+         this.__filterDatacollection.setValue(
+            this.settings.objectWorkspace.filterConditions
+         );
+      } else {
+         this.__filterDatacollection.setValue(
+            DefaultValues.settings.objectWorkspace.filterConditions
+         );
+      }
 
       // Set filter of user's scope
       if (this.__filterScope == null)
@@ -2013,8 +2034,8 @@ module.exports = class ABDataCollectionCore extends ABMLClass {
       if (this.__filterDatasource)
          result = result && this.__filterDatasource.isValid(rowData);
 
-      // if (this.__filterDatacollection)
-      //    result = result && this.__filterDatacollection.isValid(rowData);
+      if (this.__filterDatacollection)
+         result = result && this.__filterDatacollection.isValid(rowData);
 
       if (result && this.__filterScope)
          result = result && this.__filterScope.isValid(rowData);
@@ -2137,4 +2158,3 @@ module.exports = class ABDataCollectionCore extends ABMLClass {
       return [];
    }
 };
-
