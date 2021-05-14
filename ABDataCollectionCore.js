@@ -12,7 +12,7 @@ const ABMLClass = require("../platform/ABMLClass");
 
 // const ABObject = require("../platform/ABObject");
 // const ABObjectQuery = require("../platform/ABObjectQuery");
-// const RowFilter = require("../platform/RowFilter");
+const RowFilter = require("../platform/RowFilter");
 
 function L(key, altText) {
    // TODO:
@@ -1778,9 +1778,9 @@ module.exports = class ABDataCollectionCore extends ABMLClass {
       if (this.__filterDatacollection == null)
          this.__filterDatacollection = new RowFilter();
 
-      this.__filterDatacollection.applicationLoad(
-         this.datasource ? this.datasource.application : null
-      );
+      // this.__filterDatacollection.applicationLoad(
+      //    this.datasource ? this.datasource.application : null
+      // );
       this.__filterDatacollection.fieldsLoad(
          this.datasource ? this.datasource.fields() : []
       );
