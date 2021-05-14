@@ -12,7 +12,7 @@ const ABMLClass = require("../platform/ABMLClass");
 
 // const ABObject = require("../platform/ABObject");
 // const ABObjectQuery = require("../platform/ABObjectQuery");
-const RowFilter = require("../platform/RowFilter");
+// const RowFilter = require("../platform/RowFilter");
 
 function L(key, altText) {
    // TODO:
@@ -1776,7 +1776,7 @@ module.exports = class ABDataCollectionCore extends ABMLClass {
       // Set filter of data view
       // Apr 29, 2021 Added this code back to validate with DataCollection Filters
       if (this.__filterDatacollection == null)
-         this.__filterDatacollection = new RowFilter();
+         this.__filterDatacollection = this.AB.rowfilterNew();
 
       // this.__filterDatacollection.applicationLoad(
       //    this.datasource ? this.datasource.application : null
