@@ -564,7 +564,6 @@ module.exports = class ABDataCollectionCore extends ABMLClass {
       // finally if we tell the data collection that we should reload the data because of an update we should force the reload
       // the final check happens when a data collection doesn't have a new set cursor but one of its children has updated causing it to be stale (ex: calculated fields)
       if (!this.settings.loadAll && shouldReloadData) {
-         console.log("reload data collection: ", this.id);
          this.reloadData();
       } else {
          // this is the original datacollction filter for data already loaded
