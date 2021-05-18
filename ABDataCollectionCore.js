@@ -556,27 +556,34 @@ module.exports = class ABDataCollectionCore extends ABMLClass {
    /**
     * @method refreshLinkCursor
     * filter data in data view by match id of link data view
-    *
+    * @param {bool} shouldReloadData - boolean that is passed if new data should be fetched from server
     */
-   refreshLinkCursor() {
-      // if we are loading the data server side already filtered we do not need to fitler it client side
-      if (this.__reloadWheres && !this.settings.loadAll) return false;
+   refreshLinkCursor(shouldReloadData = false) {
+      // if this data collection is being passed in new where conditions because of server side binding we need to reload the data
+      // and if this data colleciton is not loading all data from the server on init we need to reload data from server
+      // finally if we tell the data collection that we should reload the data because of an update we should force the reload
+      // the final check happens when a data collection doesn't have a new set cursor but one of its children has updated causing it to be stale (ex: calculated fields)
+      if (!this.settings.loadAll && shouldReloadData) {
+         this.reloadData();
+      } else {
+         // this is the original datacollction filter for data already loaded
+         // into a datacollection
+         let linkCursor;
+         let dvLink = this.datacollectionLink;
+         if (dvLink) {
+            linkCursor = dvLink.getCursor();
+         }
 
-      let linkCursor;
-      let dvLink = this.datacollectionLink;
-      if (dvLink) {
-         linkCursor = dvLink.getCursor();
+         let filterData = (rowData) => {
+            // if link dc cursor is null, then show all data
+            if (linkCursor == null) return true;
+            else return this.isParentFilterValid(rowData);
+         };
+
+         if (this.__dataCollection) this.__dataCollection.filter(filterData);
+
+         if (this.__treeCollection) this.__treeCollection.filter(filterData);
       }
-
-      let filterData = (rowData) => {
-         // if link dc cursor is null, then show all data
-         if (linkCursor == null) return true;
-         else return this.isParentFilterValid(rowData);
-      };
-
-      if (this.__dataCollection) this.__dataCollection.filter(filterData);
-
-      if (this.__treeCollection) this.__treeCollection.filter(filterData);
    }
 
    setStaticCursor() {
@@ -929,6 +936,7 @@ module.exports = class ABDataCollectionCore extends ABMLClass {
          let updatedIds = [];
          let updatedTreeIds = [];
          let updatedVals = {};
+         let itemUpdates = []; //track all changes to data
 
          // Query
          if (obj instanceof ABObjectQuery) {
@@ -1058,99 +1066,122 @@ module.exports = class ABDataCollectionCore extends ABMLClass {
             let PK = connectedFields[0].object.PK();
             if (!values.id && PK != "id") values.id = values[PK];
 
-            this.__dataCollection.find({}).forEach((d) => {
-               let updateItemData = {};
+            if (this.__dataCollection.count() == 0) {
+               // push an empty item into the itemUpdates array to let the
+               // datacollection know it has been changed
+               itemUpdates.push({});
+            } else {
+               this.__dataCollection.find({}).forEach((d) => {
+                  let updateItemData = {};
 
-               connectedFields.forEach((f) => {
-                  if (!f) return;
+                  connectedFields.forEach((f) => {
+                     if (!f) return;
 
-                  let updateRelateVal = {};
-                  let rowRelateVal = d[f.relationName()] || {};
+                     let updateRelateVal = {};
+                     let rowRelateVal = d[f.relationName()] || {};
 
-                  if (f.fieldLink)
-                     updateRelateVal = values[f.fieldLink.relationName()] || {};
+                     if (f.fieldLink)
+                        updateRelateVal =
+                           values[f.fieldLink.relationName()] || {};
 
-                  // Unrelate data
-                  if (
-                     Array.isArray(rowRelateVal) &&
-                     rowRelateVal.filter(
-                        (v) => v == values.id || v.id == values.id
-                     ).length > 0 &&
-                     !isRelated(updateRelateVal, d.id, PK)
-                  ) {
-                     updateItemData[f.relationName()] = rowRelateVal.filter(
-                        (v) => (v.id || v) != values.id
-                     );
-                     updateItemData[f.columnName] = updateItemData[
-                        f.relationName()
-                     ].map((v) => v.id || v);
-                  } else if (
-                     !Array.isArray(rowRelateVal) &&
-                     (rowRelateVal == values.id ||
-                        rowRelateVal.id == values.id) &&
-                     !isRelated(updateRelateVal, d.id, PK)
-                  ) {
-                     updateItemData[f.relationName()] = null;
-                     updateItemData[f.columnName] = null;
-                  }
-
-                  // Relate data or Update
-                  if (
-                     Array.isArray(rowRelateVal) &&
-                     isRelated(updateRelateVal, d.id, PK)
-                  ) {
-                     // update relate data
+                     // Unrelate data
                      if (
+                        Array.isArray(rowRelateVal) &&
                         rowRelateVal.filter(
                            (v) => v == values.id || v.id == values.id
-                        ).length > 0
+                        ).length > 0 &&
+                        !isRelated(updateRelateVal, d.id, PK)
                      ) {
-                        rowRelateVal.forEach((v, index) => {
-                           if (v == values.id || v.id == values.id)
-                              rowRelateVal[index] = values;
-                        });
-                     }
-                     // add new relate
-                     else {
-                        rowRelateVal.push(values);
+                        updateItemData[f.relationName()] = rowRelateVal.filter(
+                           (v) => (v.id || v) != values.id
+                        );
+                        updateItemData[f.columnName] = updateItemData[
+                           f.relationName()
+                        ].map((v) => v.id || v);
+                     } else if (
+                        !Array.isArray(rowRelateVal) &&
+                        (rowRelateVal == values.id ||
+                           rowRelateVal.id == values.id) &&
+                        !isRelated(updateRelateVal, d.id, PK)
+                     ) {
+                        updateItemData[f.relationName()] = null;
+                        updateItemData[f.columnName] = null;
                      }
 
-                     updateItemData[f.relationName()] = rowRelateVal;
-                     updateItemData[f.columnName] = updateItemData[
-                        f.relationName()
-                     ].map((v) => v.id || v);
-                  } else if (
-                     !Array.isArray(rowRelateVal) &&
-                     (rowRelateVal != values.id ||
-                        rowRelateVal.id != values.id) &&
-                     isRelated(updateRelateVal, d.id, PK)
-                  ) {
-                     updateItemData[f.relationName()] = values;
-                     updateItemData[f.columnName] = values.id || values;
+                     // Relate data or Update
+                     if (
+                        Array.isArray(rowRelateVal) &&
+                        isRelated(updateRelateVal, d.id, PK)
+                     ) {
+                        // update relate data
+                        if (
+                           rowRelateVal.filter(
+                              (v) => v == values.id || v.id == values.id
+                           ).length > 0
+                        ) {
+                           rowRelateVal.forEach((v, index) => {
+                              if (v == values.id || v.id == values.id)
+                                 rowRelateVal[index] = values;
+                           });
+                        }
+                        // add new relate
+                        else {
+                           rowRelateVal.push(values);
+                        }
+
+                        updateItemData[f.relationName()] = rowRelateVal;
+                        updateItemData[f.columnName] = updateItemData[
+                           f.relationName()
+                        ].map((v) => v.id || v);
+                     } else if (
+                        !Array.isArray(rowRelateVal) &&
+                        (rowRelateVal != values.id ||
+                           rowRelateVal.id != values.id) &&
+                        isRelated(updateRelateVal, d.id, PK)
+                     ) {
+                        updateItemData[f.relationName()] = values;
+                        updateItemData[f.columnName] = values.id || values;
+                     } else {
+                        // this happens when you remove all relations
+                        // but we need to tell the next process about this removal
+                        var emptyVal = "";
+                        if (f.settings.linkType == "many") {
+                           emptyVal = [];
+                        }
+                        updateItemData[f.relationName()] = emptyVal;
+                        updateItemData[f.columnName] = emptyVal;
+                     }
+                  });
+
+                  // If this item needs to update
+                  if (Object.keys(updateItemData).length > 0) {
+                     if (
+                        this.__treeCollection &&
+                        this.__treeCollection.exists(d.id)
+                     )
+                        this.__treeCollection.updateItem(d.id, updateItemData);
+
+                     if (
+                        this.__dataCollection &&
+                        this.__dataCollection.exists(d.id)
+                     ) {
+                        this.__dataCollection.updateItem(d.id, updateItemData);
+                        this.emit(
+                           "update",
+                           this.__dataCollection.getItem(d.id)
+                        );
+                     }
                   }
+                  // push any updates into an array of updates to validate later
+                  itemUpdates.push(updateItemData);
                });
-
-               // If this item needs to update
-               if (Object.keys(updateItemData).length > 0) {
-                  if (
-                     this.__treeCollection &&
-                     this.__treeCollection.exists(d.id)
-                  )
-                     this.__treeCollection.updateItem(d.id, updateItemData);
-
-                  if (
-                     this.__dataCollection &&
-                     this.__dataCollection.exists(d.id)
-                  ) {
-                     this.__dataCollection.updateItem(d.id, updateItemData);
-                     this.emit("update", this.__dataCollection.getItem(d.id));
-                  }
-               }
-            });
+            }
          }
 
          // filter link data collection's cursor
-         this.refreshLinkCursor();
+         // check if there have been updated items
+         var shouldReloadData = itemUpdates.length ? true : false;
+         this.refreshLinkCursor(shouldReloadData);
          this.setStaticCursor();
       });
 
@@ -1642,8 +1673,50 @@ module.exports = class ABDataCollectionCore extends ABMLClass {
             return waitForDataCollectionToInitialize(this);
          })
          .then(() => {
-            this.clearAll();
-            return this.loadData(start, limit);
+            // check if we are currently waiting for more data requests on this datacollection before continuing
+            if (this.reloadTimer) {
+               // if we are already waiting delete the current timer
+               delete this.reloadTimer;
+            }
+
+            // return a promise
+            if (!this.reloadPromise) {
+               this.reloadPromise = new Promise((resolve, reject) => {
+                  this.reloadPromise__resolve = resolve;
+                  this.reloadPromise__reject = reject;
+               });
+            }
+
+            // then create a new timeout to delete current timeout, clear data and load new
+            this.reloadTimer = setTimeout(() => {
+               // clear the data from the dataCollection,
+               this.clearAll();
+               // then loads new data from the server
+               return this.loadData(start, limit)
+                  .then(() => {
+                     if (this.reloadPromise) {
+                        this.reloadPromise__resolve();
+                        delete this.reloadPromise;
+                        delete this.reloadPromise__resolve;
+                        delete this.reloadPromise__reject;
+                     }
+
+                     // delete the current setTimeout
+                     delete this.reloadTimer;
+                  })
+                  .catch((err) => {
+                     if (this.reloadPromise) {
+                        this.reloadPromise__reject(err);
+                        delete this.reloadPromise;
+                        delete this.reloadPromise__resolve;
+                        delete this.reloadPromise__reject;
+                     }
+                     // delete the current setTimeout
+                     delete this.reloadTimer;
+                  });
+            }, 50); // setting to 50ms because right now we do not see many cuncurrent calls we need to increase this if we begin to
+
+            return this.reloadPromise;
          });
    }
 
