@@ -270,20 +270,36 @@ module.exports = class RowFilter extends ABComponent {
                   result = value != this.Account.username;
                   break;
                case "contain_current_user":
+                  if (!value) {
+                     result = false;
+                     break;
+                  }
                   if (!Array.isArray(value)) value = [value];
 
                   result =
-                     (value || []).filter(
-                        (v) => (v.id || v) == this.Account.username
-                     ).length > 0;
+                     (value || []).filter((v) => {
+                        if (v) {
+                           return (v.username || v) == this.Account.username;
+                        } else {
+                           return false;
+                        }
+                     }).length > 0;
                   break;
                case "not_contain_current_user":
+                  if (!value) {
+                     result = false;
+                     break;
+                  }
                   if (!Array.isArray(value)) value = [value];
 
                   result =
-                     (value || []).filter(
-                        (v) => (v.id || v) == this.Account.username
-                     ).length < 1;
+                     (value || []).filter((v) => {
+                        if (v) {
+                           return (v.username || v) == this.Account.username;
+                        } else {
+                           return false;
+                        }
+                     }).length == 0;
                   break;
                case "equals":
                   result = value.indexOf(compareValue) > -1;
