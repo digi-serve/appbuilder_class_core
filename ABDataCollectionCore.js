@@ -563,7 +563,7 @@ module.exports = class ABDataCollectionCore extends ABMLClass {
       // and if this data colleciton is not loading all data from the server on init we need to reload data from server
       // finally if we tell the data collection that we should reload the data because of an update we should force the reload
       // the final check happens when a data collection doesn't have a new set cursor but one of its children has updated causing it to be stale (ex: calculated fields)
-      if (!this.settings.loadAll && shouldReloadData) {
+      if (this.__reloadWheres && !this.settings.loadAll && shouldReloadData) {
          this.reloadData();
       } else {
          // this is the original datacollction filter for data already loaded
