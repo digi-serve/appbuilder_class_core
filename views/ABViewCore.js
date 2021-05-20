@@ -268,7 +268,11 @@ module.exports = class ABViewCore extends ABMLClass {
          if (parseInt(this.application.accessManagers.useRole) == 1) {
             // if so check if any of the user's role match the managers
             this.AB.Account.roles().forEach((role) => {
-               if (this.application.accessManagers.role.indexOf(role.id) > -1) {
+               if (
+                  this.application.accessManagers.role.indexOf(
+                     role.id || role.uuid
+                  ) > -1
+               ) {
                   // if so set the access level to full access
                   isAccessManager = true;
                   accessLevel = 2;
