@@ -85,8 +85,10 @@ module.exports = class ABFieldFormulaCore extends ABField {
     * @method format
     * both calculate and format the data input based of user settings
     * for this field.
-    * @param {obj} rowData a key=>value hash of the current values.
-    * @param {boolean} reCalculate a boolean that signals if we should force recalculation of values
+    * @param {obj} rowData
+    *        a key=>value hash of the current values.
+    * @param {boolean} reCalculate
+    *        a boolean that signals if we should force recalculation of values
     */
    format(rowData, reCalculate = false) {
       var fieldLink = this.fieldLink;
