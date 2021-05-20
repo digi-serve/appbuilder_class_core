@@ -81,7 +81,16 @@ module.exports = class ABFieldFormulaCore extends ABField {
       delete values[this.columnName];
    }
 
-   format(rowData) {
+   /**
+    * @method format
+    * both calculate and format the data input based of user settings
+    * for this field.
+    * @param {obj} rowData
+    *        a key=>value hash of the current values.
+    * @param {boolean} reCalculate
+    *        a boolean that signals if we should force recalculation of values
+    */
+   format(rowData, reCalculate = false) {
       var fieldLink = this.fieldLink;
 
       let reformat = (numData) => {
@@ -96,7 +105,8 @@ module.exports = class ABFieldFormulaCore extends ABField {
       };
 
       // if data exists, then will not calculate on client side
-      if (rowData[this.columnName] != null) {
+      // unless we pass reCalculate=true to force the recalculation
+      if (rowData[this.columnName] != null && !reCalculate) {
          // reformat data
          return reformat(rowData[this.columnName]);
       }
@@ -175,5 +185,3 @@ module.exports = class ABFieldFormulaCore extends ABField {
       return field;
    }
 };
-
-
