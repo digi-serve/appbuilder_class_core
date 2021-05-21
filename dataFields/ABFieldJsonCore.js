@@ -28,7 +28,7 @@ var ABFieldJsonDefaults = {
 
    // what types of MySql column types can be imported into this data type?
    // https://www.techonthenet.com/mysql/datatypes.php
-   compatibleMysqlTypes: ["json"]
+   compatibleMysqlTypes: ["json"],
 };
 
 var defaultValues = {};
@@ -45,5 +45,17 @@ module.exports = class ABFieldJsonCore extends ABField {
 
    static defaultValues() {
       return defaultValues;
+   }
+
+   /**
+    * @method defaultValue
+    * insert a key=>value pair that represent the default value
+    * for this field.
+    * @param {obj} values a key=>value hash of the current values.
+    */
+   defaultValue(values) {
+      // in the case of a JSON data type, we should NOT insert a ""
+      //
+      // values[this.columnName] = "";
    }
 };
