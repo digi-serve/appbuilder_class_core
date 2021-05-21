@@ -703,11 +703,6 @@ module.exports = class ABModelCore {
             return f.key == "date" || f.key == "datetime";
          }) || [];
 
-      var userFields =
-         this.object.fields(function (f) {
-            return f.key == "user";
-         }) || [];
-
       // calculate fields
       var calculatedFields = this.object.fields((f) => f.key == "calculate");
 
@@ -802,29 +797,12 @@ module.exports = class ABModelCore {
                         format: "MM/DD/YYYY",
                         ignoreTime: true,
                      });
-                     // d[date.columnName] = new Date(
-                     //    moment(d[date.columnName].replace(/\T.*/, "")).format(
-                     //       "MM/DD/YYYY"
-                     //    )
-                     // );
                   } else {
                      // Convert UTC to Date
                      d[date.columnName] = this.AB.toDate(d[date.columnName]);
                      // d[date.columnName] = new Date(moment(d[date.columnName]));
                   }
                }
-            }
-         });
-
-         userFields.forEach((user) => {
-            if (
-               d &&
-               d[user.columnName] &&
-               typeof d[user.columnName] == "string"
-            ) {
-               try {
-                  d[user.columnName] = JSON.parse(d[user.columnName]);
-               } catch (err) {}
             }
          });
 

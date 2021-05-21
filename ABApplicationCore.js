@@ -56,8 +56,10 @@ module.exports = class ABApplicationCore extends ABMLClass {
       // with the .label.  The .name is created at design time and is a text
       // reference for this object.
 
-      this.role = attributes.role;
-      // ??
+      this.roleAccess = attributes.roleAccess || [];
+      // {array}
+      // the {ABSiteRole.id}s of the roles allowed to work with this
+      // ABApplication. (see .isAccessManaged for more info)
 
       this.isAdminApp = JSON.parse(attributes.json.isAdminApp || false);
       // {bool} .isAdminApp
@@ -70,8 +72,8 @@ module.exports = class ABApplicationCore extends ABMLClass {
       // permissions, or the simpler Role access permissions.
       // {true} : allows an administrator to set which role can View|Edit|Delete
       //          elements of an application.
-      // {false}: indicates users having one of the .role values can have full
-      //          access to this application
+      // {false}: indicates users having one of the .roleAccess values can have
+      //          full access to this application
 
       this.accessManagers = attributes.accessManagers;
       if (typeof this.accessManagers == "string")
@@ -194,12 +196,50 @@ module.exports = class ABApplicationCore extends ABMLClass {
    ///
 
    /// ABApplication data methods
-   isAccessibleForRoles() {
-      var message = new Error(
-         "Transition Code: need to revamp Role collection and checking."
-      );
-      console.error(message);
-      return true;
+   /**
+    * @method isAccessibleForRoles()
+    * return true/false if this ABApplication is accessible for one of the
+    * passed in ABRoles.
+    * @param {array[ABRole]} roles
+    *        an array of {ABRole} instances.
+    * @return {bool}
+    */
+   isAccessibleForRoles(roles) {
+      var foundRole = false;
+
+      // if we are on the basic Role assignments:
+      if (!this.isAccessManaged) {
+         (roles || []).forEach((r) => {
+            if (this.roleAccess.indexOf(r.uuid || r) > -1) {
+               foundRole = true;
+            }
+         });
+         return foundRole;
+      }
+
+      // isAccessManaged has been set, so 2 kinds of ppl can
+      // see this App
+      // 1) an AccessManager
+      if (parseInt(this.accessManagers.useRole)) {
+         (roles || []).forEach((r) => {
+            if (this.accessManagers.role.indexOf(r.uuid || r) > -1) {
+               foundRole = true;
+            }
+         });
+      }
+
+      // stop here if found.
+      if (foundRole) return foundRole;
+
+      // 2) someone who has a role that can see one of it's pages.
+      // scan each Page of this Application
+      (this.pages() || []).forEach((p) => {
+         // check to see if that page.isAccessibleForRoles()
+         if (p.isAccessibleForRoles(roles)) {
+            foundRole = true;
+         }
+      });
+      return foundRole;
    }
 
    /**
@@ -245,7 +285,7 @@ module.exports = class ABApplicationCore extends ABMLClass {
          type: this.type || "application",
          name: this.name,
          json: this.json,
-         role: this.role,
+         roleAccess: this.roleAccess,
          isAdminApp: this.isAdminApp,
          translations: this.json.translations,
          isAccessManaged: this.isAccessManaged,
@@ -622,9 +662,9 @@ module.exports = class ABApplicationCore extends ABMLClass {
     *        a filter fn to further reduce which roles to return.
     * @return {array}   array of ABRole
     */
-   roles(filter = () => true) {
-      return (this._roles || []).filter(filter);
-   }
+   // roles(filter = () => true) {
+   //    return (this.role || []).filter(filter);
+   // }
 
    /**
     * @method urlResolve()

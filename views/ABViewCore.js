@@ -171,8 +171,10 @@ module.exports = class ABViewCore extends ABMLClass {
 
       this.accessLevels = values.accessLevels || {};
       // {obj} .accessLevels
-      // tracks the Role -> AccessLevel settings of this particual
+      // Hash: { ABRole.id : accessLevel }
+      // tracks the Role -> AccessLevel settings of this particular
       // view.
+      // accessLevel: 0 : no access, 1 : view only, 2: full access
 
       // let the MLClass now process the translations:
       super.fromValues(values);
@@ -248,6 +250,27 @@ module.exports = class ABViewCore extends ABMLClass {
       }
 
       return parents;
+   }
+
+   /**
+    * @method isAccessibleForRoles()
+    * return true/false if this ABViewPage is accessible for one of the
+    * passed in ABRoles.
+    * @param {array[ABRole]} roles
+    *        an array of {ABRole} instances.
+    * @return {bool}
+    */
+   isAccessibleForRoles(roles) {
+      var foundRole = false;
+
+      var accessibleRoles = Object.keys(this.accessLevels) || [];
+      (roles || []).forEach((r) => {
+         if (accessibleRoles.indexOf(r.uuid || r) > -1) {
+            foundRole = true;
+         }
+      });
+
+      return foundRole;
    }
 
    /**
