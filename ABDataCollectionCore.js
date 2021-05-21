@@ -1744,6 +1744,15 @@ module.exports = class ABDataCollectionCore extends ABMLClass {
     *        alreay had as well as the filter for the current cursor set by the
     *        master data collection. We store this in __reloadWheres for when
     *        the data needs to be updated.
+    *        The format of the wheres is our Query Builder Format
+    *        ex: {
+    *              "glue": "and",
+    *              "rules": [{
+    *                "key": "33ba8957-6b9c-4ddb-9533-c46b13878ae1",
+    *                "rule": "contains",
+    *                "value": "1594176994894"
+    *              }]
+    *            }
     */
    reloadWheres(wheres) {
       this.__reloadWheres = wheres;
