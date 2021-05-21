@@ -104,6 +104,8 @@ module.exports = class ABFieldFormulaCore extends ABField {
          }
       };
 
+      // May 21, 2021 Commenting seciton out below to force recaclation
+
       // if data exists, then will not calculate on client side
       // unless we pass reCalculate=true to force the recalculation
       // if (rowData[this.columnName] != null && !reCalculate) {
