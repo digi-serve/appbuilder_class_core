@@ -555,19 +555,29 @@ module.exports = class ABDataCollectionCore extends ABMLClass {
 
    /**
     * @method refreshLinkCursor
-    * filter data in data view by match id of link data view
+    * This function does one of two things.
+    * 1) If the data collection is bound to another and it is the child connection
+    *    it finds it's parents current set cursor and then filters its data
+    *    based off of the cursor.
+    * 2) It determines if the data collection has reloadWhere filters set which
+    *    means it's is a child data collection that is currently fitlered by
+    *    the parent using server side binding. If so and it has been flagged
+    *    that is shouldReloadData it tells the child data collection to update
     * @param {bool} shouldReloadData - boolean that is passed if new data should be fetched from server
     */
    refreshLinkCursor(shouldReloadData = false) {
-      // if this data collection is being passed in new where conditions because of server side binding we need to reload the data
-      // and if this data colleciton is not loading all data from the server on init we need to reload data from server
-      // finally if we tell the data collection that we should reload the data because of an update we should force the reload
-      // the final check happens when a data collection doesn't have a new set cursor but one of its children has updated causing it to be stale (ex: calculated fields)
-      if (!this.settings.loadAll && shouldReloadData) {
+      // check __reloadWheres for server side binding filters
+      // check to ensure that data collection is not marked as loadAll
+      // check to see if the data has been flagged as shouldReloadData because
+      // the data in a connected field has changed.
+      // if all off these pass reload the data using server side binding
+      if (this.__reloadWheres && !this.settings.loadAll && shouldReloadData) {
          this.reloadData();
       } else {
-         // this is the original datacollction filter for data already loaded
-         // into a datacollection
+         // if the checks do not pass we filter the data in the data collection
+         // using its parents current cursor because all the data in this child
+         // data collection has been loaded and the frontend can decide what is
+         // seen or not seen
          let linkCursor;
          let dvLink = this.datacollectionLink;
          if (dvLink) {
@@ -936,7 +946,7 @@ module.exports = class ABDataCollectionCore extends ABMLClass {
          let updatedIds = [];
          let updatedTreeIds = [];
          let updatedVals = {};
-         let itemUpdates = []; //track all changes to data
+         let connectedItemUpdates = []; //track all changes to connected item data
 
          // Query
          if (obj instanceof ABObjectQuery) {
@@ -1067,9 +1077,9 @@ module.exports = class ABDataCollectionCore extends ABMLClass {
             if (!values.id && PK != "id") values.id = values[PK];
 
             if (this.__dataCollection.count() == 0) {
-               // push an empty item into the itemUpdates array to let the
+               // push an empty item into the connectedItemUpdates array to let the
                // datacollection know it has been changed
-               itemUpdates.push({});
+               connectedItemUpdates.push({});
             } else {
                this.__dataCollection.find({}).forEach((d) => {
                   let updateItemData = {};
@@ -1172,15 +1182,19 @@ module.exports = class ABDataCollectionCore extends ABMLClass {
                         );
                      }
                   }
-                  // push any updates into an array of updates to validate later
-                  itemUpdates.push(updateItemData);
+                  // push any connected item updates into this array
+                  // so we can notify refreshLinkCursor that connected items
+                  // were updated
+                  connectedItemUpdates.push(updateItemData);
                });
             }
          }
 
          // filter link data collection's cursor
-         // check if there have been updated items
-         var shouldReloadData = itemUpdates.length ? true : false;
+         // check if there have been updated items on connected fields
+         // if so we need to reload data from the server to get the latest
+         // data
+         var shouldReloadData = connectedItemUpdates.length ? true : false;
          this.refreshLinkCursor(shouldReloadData);
          this.setStaticCursor();
       });
@@ -1719,7 +1733,27 @@ module.exports = class ABDataCollectionCore extends ABMLClass {
             return this.reloadPromise;
          });
    }
-
+   /**
+    * reloadWheres()
+    * stores the child data collections filters for subsequent loads.
+    * It is called from bindParentDc() when child data collections that are not
+    * marked to load all data are initializing. To do this we use webix
+    * server side binding by setting the param of "dataFeed".
+    * @param {obj} wheres  the new filters for the data collection
+    *        This is a combination of any exisiting filters the data collection
+    *        alreay had as well as the filter for the current cursor set by the
+    *        master data collection. We store this in __reloadWheres for when
+    *        the data needs to be updated.
+    *        The format of the wheres is our Query Builder Format
+    *        ex: {
+    *              "glue": "and",
+    *              "rules": [{
+    *                "key": "33ba8957-6b9c-4ddb-9533-c46b13878ae1",
+    *                "rule": "contains",
+    *                "value": "1594176994894"
+    *              }]
+    *            }
+    */
    reloadWheres(wheres) {
       this.__reloadWheres = wheres;
    }
