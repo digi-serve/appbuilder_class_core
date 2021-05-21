@@ -57,6 +57,9 @@ module.exports = class ABApplicationCore extends ABMLClass {
       // reference for this object.
 
       this.roleAccess = attributes.roleAccess || [];
+      if (!Array.isArray(this.roleAccess)) {
+         this.roleAccess = [this.roleAccess];
+      }
       // {array}
       // the {ABSiteRole.id}s of the roles allowed to work with this
       // ABApplication. (see .isAccessManaged for more info)
