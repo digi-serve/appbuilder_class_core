@@ -1155,15 +1155,6 @@ module.exports = class ABDataCollectionCore extends ABMLClass {
                      ) {
                         updateItemData[f.relationName()] = values;
                         updateItemData[f.columnName] = values.id || values;
-                     } else {
-                        // this happens when you remove all relations
-                        // but we need to tell the next process about this removal
-                        var emptyVal = "";
-                        if (f.settings.linkType == "many") {
-                           emptyVal = [];
-                        }
-                        updateItemData[f.relationName()] = emptyVal;
-                        updateItemData[f.columnName] = emptyVal;
                      }
                   });
 
