@@ -906,6 +906,10 @@ module.exports = class ABDataCollectionCore extends ABMLClass {
 
                         // If this item needs to update
                         if (Object.keys(updateItemData).length > 0) {
+                           // normalize data before add to data collection
+                           var model = obj.model();
+                           model.normalizeData(updateItemData);
+
                            this.__dataCollection.updateItem(
                               d.id,
                               updateItemData
@@ -1165,6 +1169,9 @@ module.exports = class ABDataCollectionCore extends ABMLClass {
 
                   // If this item needs to update
                   if (Object.keys(updateItemData).length > 0) {
+                     // normalize data before add to data collection
+                     var model = obj.model();
+                     model.normalizeData(updateItemData);
                      if (
                         this.__treeCollection &&
                         this.__treeCollection.exists(d.id)
@@ -1232,6 +1239,12 @@ module.exports = class ABDataCollectionCore extends ABMLClass {
                this.model.staleRefresh(cond).then((res) => {
                   // check to make sure there is data to work with
                   if (Array.isArray(res.data) && res.data.length) {
+                     // debugger;
+                     let obj = this.datasource;
+                     if (!obj) return;
+                     // normalize data before add to data collection
+                     var model = obj.model();
+                     model.normalizeData(res.data[0]);
                      // tell the webix data collection to update using their API with the row id (values.id) and content (res.data[0])
                      if (this.__dataCollection.exists(values[PK])) {
                         this.__dataCollection.updateItem(
@@ -1372,6 +1385,10 @@ module.exports = class ABDataCollectionCore extends ABMLClass {
 
                // If this item needs to update
                if (Object.keys(updateRelateVals).length > 0) {
+                  // normalize data before add to data collection
+                  var model = obj.model();
+                  model.normalizeData(updateRelateVals);
+
                   this.__dataCollection.updateItem(d.id, updateRelateVals);
 
                   if (this.__treeCollection)
