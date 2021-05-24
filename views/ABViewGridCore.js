@@ -86,39 +86,86 @@ module.exports = class ABViewGridCore extends ABViewWidget {
          ABViewGridPropertyComponentDefaults.dataviewID;
 
       // Convert to boolean
-      this.settings.isEditable = JSON.parse(
-         this.settings.isEditable ||
-            ABViewGridPropertyComponentDefaults.isEditable
-      );
-      this.settings.massUpdate = JSON.parse(
-         this.settings.massUpdate ||
-            ABViewGridPropertyComponentDefaults.massUpdate
-      );
-      this.settings.allowDelete = JSON.parse(
-         this.settings.allowDelete ||
-            ABViewGridPropertyComponentDefaults.allowDelete
-      );
+      // these values are sometimes 0 (number) at this point so the JSON.parse with the || (or) statement was always falling to the default
+      // so I am trying to parse the value...if it fails we use the default value
+      try {
+         this.settings.isEditable = JSON.parse(this.settings.isEditable);
+      } catch (e) {
+         this.settings.isEditable =
+            ABViewGridPropertyComponentDefaults.isEditable;
+      }
+
+      try {
+         this.settings.massUpdate = JSON.parse(this.settings.massUpdate);
+      } catch (e) {
+         this.settings.massUpdate =
+            ABViewGridPropertyComponentDefaults.massUpdate;
+      }
+
+      try {
+         this.settings.allowDelete = JSON.parse(this.settings.allowDelete);
+      } catch (e) {
+         this.settings.allowDelete =
+            ABViewGridPropertyComponentDefaults.allowDelete;
+      }
       // this.settings.isFilterable = JSON.parse(this.settings.isFilterable || ABViewGridPropertyComponentDefaults.isFilterable);
-      this.settings.isSortable = JSON.parse(
-         this.settings.isSortable ||
-            ABViewGridPropertyComponentDefaults.isSortable
-      );
-      this.settings.isExportable = JSON.parse(
-         this.settings.isExportable ||
-            ABViewGridPropertyComponentDefaults.isExportable
-      );
-      this.settings.hideHeader = JSON.parse(
-         this.settings.hideHeader ||
-            ABViewGridPropertyComponentDefaults.hideHeader
-      );
-      this.settings.labelAsField = JSON.parse(
-         this.settings.labelAsField ||
-            ABViewGridPropertyComponentDefaults.labelAsField
-      );
-      this.settings.hideButtons = JSON.parse(
-         this.settings.hideButtons ||
-            ABViewGridPropertyComponentDefaults.hideButtons
-      );
+
+      try {
+         this.settings.isSortable = JSON.parse(this.settings.isSortable);
+      } catch (e) {
+         this.settings.isSortable =
+            ABViewGridPropertyComponentDefaults.isSortable;
+      }
+
+      try {
+         this.settings.isExportable = JSON.parse(this.settings.isExportable);
+      } catch (e) {
+         this.settings.isExportable =
+            ABViewGridPropertyComponentDefaults.isExportable;
+      }
+
+      try {
+         this.settings.hideHeader = JSON.parse(this.settings.hideHeader);
+      } catch (e) {
+         this.settings.hideHeader =
+            ABViewGridPropertyComponentDefaults.hideHeader;
+      }
+
+      try {
+         this.settings.labelAsField = JSON.parse(this.settings.labelAsField);
+      } catch (e) {
+         this.settings.labelAsField =
+            ABViewGridPropertyComponentDefaults.labelAsField;
+      }
+
+      try {
+         this.settings.hideButtons = JSON.parse(this.settings.hideButtons);
+      } catch (e) {
+         this.settings.hideButtons =
+            ABViewGridPropertyComponentDefaults.hideButtons;
+      }
+
+      this.settings.gridFilter =
+         this.settings.gridFilter ||
+         ABViewGridPropertyComponentDefaults.gridFilter;
+
+      try {
+         this.settings.gridFilter.filterOption = JSON.parse(
+            this.settings.gridFilter.filterOption
+         );
+      } catch (e) {
+         this.settings.gridFilter.filterOption =
+            ABViewGridPropertyComponentDefaults.gridFilter.filterOption;
+      }
+
+      try {
+         this.settings.gridFilter.isGlobalToolbar = JSON.parse(
+            this.settings.gridFilter.isGlobalToolbar
+         );
+      } catch (e) {
+         this.settings.gridFilter.isGlobalToolbar =
+            ABViewGridPropertyComponentDefaults.gridFilter.isGlobalToolbar;
+      }
 
       // this.settings.linkedObject = this.settings.linkedObject || ABViewGridPropertyComponentDefaults.linkedObject;
       // this.settings.linkedField = this.settings.linkedField || ABViewGridPropertyComponentDefaults.linkedField;

@@ -81,6 +81,15 @@ module.exports = class ABFieldFormulaCore extends ABField {
       delete values[this.columnName];
    }
 
+   /**
+    * @method format
+    * both calculate and format the data input based of user settings
+    * for this field.
+    * @param {obj} rowData
+    *        a key=>value hash of the current values.
+    * @param {boolean} reCalculate
+    *        a boolean that signals if we should force recalculation of values
+    */
    format(rowData) {
       var fieldLink = this.fieldLink;
 
@@ -95,11 +104,14 @@ module.exports = class ABFieldFormulaCore extends ABField {
          }
       };
 
+      // May 21, 2021 Commenting seciton out below to force recaclation
+
       // if data exists, then will not calculate on client side
-      if (rowData[this.columnName] != null) {
-         // reformat data
-         return reformat(rowData[this.columnName]);
-      }
+      // unless we pass reCalculate=true to force the recalculation
+      // if (rowData[this.columnName] != null && !reCalculate) {
+      //    // reformat data
+      //    return reformat(rowData[this.columnName]);
+      // }
 
       if (!fieldLink) return 0;
 
