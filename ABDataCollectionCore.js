@@ -573,6 +573,10 @@ module.exports = class ABDataCollectionCore extends ABMLClass {
       // if all off these pass reload the data using server side binding
       if (this.__reloadWheres && !this.settings.loadAll && shouldReloadData) {
          this.reloadData();
+      } else if (this.__reloadWheres && !this.settings.loadAll) {
+         // no need to filter the data because it was already filterted and not
+         // marked as shouldReloadData so just move on
+         return false;
       } else {
          // if the checks do not pass we filter the data in the data collection
          // using its parents current cursor because all the data in this child
