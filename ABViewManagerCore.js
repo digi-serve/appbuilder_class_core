@@ -49,7 +49,6 @@ AllViews.push(require("../platform/views/ABViewFormCheckbox"));
 AllViews.push(require("../platform/views/ABViewFormConnect"));
 AllViews.push(require("../platform/views/ABViewFormCustom"));
 AllViews.push(require("../platform/views/ABViewFormDatepicker"));
-AllViews.push(require("../platform/views/ABViewFormJson"));
 AllViews.push(require("../platform/views/ABViewFormNumber"));
 //AllViews.push(require("../platform/views/ABViewFormSelectMultiple"));
 AllViews.push(require("../platform/views/ABViewFormSelectSingle"));
@@ -164,3 +163,4 @@ module.exports = class ABViewManagerCore {
       }
    }
 };
+
