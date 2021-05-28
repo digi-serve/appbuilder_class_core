@@ -164,6 +164,7 @@ class ABFactory extends EventEmitter {
          this._allApplications.push(this.applicationNew(app.json));
       });
 
+      this.emit("init.objects_ready");
       return Promise.resolve();
    }
 
