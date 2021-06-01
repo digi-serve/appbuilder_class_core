@@ -129,6 +129,12 @@ module.exports = class RowFilter extends ABComponent {
                         result = value != val;
                   });
                   break;
+               case "is_empty":
+                  result = value == null || value == "";
+                  break;
+               case "is_not_empty":
+                  result = value != null && value != "";
+                  break;
                default:
                   result = _logic.queryValid(rowData, rule, compareValue);
                   break;
@@ -748,5 +754,6 @@ module.exports = class RowFilter extends ABComponent {
       this.config_settings.rules = this.config_settings.rules || [];
    }
 };
+
 
 
