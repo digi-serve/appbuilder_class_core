@@ -82,4 +82,13 @@ module.exports = class ABFieldUserCore extends ABFieldConnect {
    ///
    /// Working with Actual Object Values:
    ///
+
+   format(rowData) {
+      var val = this.dataValue(rowData) || [];
+
+      if (val && !Array.isArray(val)) val = [val];
+      if (!val) val = [];
+
+      return val.map((v) => v.text || v).join(", ");
+   }
 };
