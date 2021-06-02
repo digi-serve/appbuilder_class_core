@@ -1581,7 +1581,7 @@ module.exports = class ABDataCollectionCore extends ABMLClass {
             if (this.settings.loadAll) {
                setTimeout(() => {
                   this.refreshLinkCursor();
-               }, 500);
+               }, 250);
             }
 
             return data;
