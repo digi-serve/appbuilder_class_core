@@ -66,6 +66,9 @@ module.exports = class ABObjectQueryCore extends ABObject {
 	where: { QBWhere }
 }
 */
+      this.isQuery = true;
+      // {bool}
+      // a property to mark the difference between an ABObject and ABObjectQuery.
 
       // this.fromValues(attributes);
    }
