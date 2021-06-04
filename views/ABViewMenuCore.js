@@ -211,8 +211,9 @@ module.exports = class ABViewMenuCore extends ABViewWidget {
     * @return {string}
     */
    getAliasname(pageInfo) {
+      var lang = this.AB.Multilingual.currentLanguage();
       var translation = pageInfo.translations.filter((t) => {
-         return t.language_code == this.AB.Multilingual.currentLanguage();
+         return t.language_code == lang;
       });
 
       var label = "";
