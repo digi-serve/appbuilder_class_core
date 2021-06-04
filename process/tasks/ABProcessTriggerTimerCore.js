@@ -134,11 +134,13 @@ module.exports = class ABProcessTriggerTimer extends ABProcessTrigger {
 
    getCronExpression() {
       let timeVals = this.repeatTime.split(":");
-      let hour = timeVals[0];
+      let second = "*";
       let minute = timeVals[1];
+      let hour = timeVals[0];
       let day;
       let month;
       let dayWeek;
+      let year = "*";
 
       switch (this.repeatEvery) {
          case "daily":
@@ -152,13 +154,13 @@ module.exports = class ABProcessTriggerTimer extends ABProcessTrigger {
             dayWeek = this.repeatWeekly;
             break;
          case "monthly":
-            day = "*";
+            day = this.repeatMonthly;
             month = "*";
-            dayWeek = this.repeatMonthly;
+            dayWeek = "*";
             break;
       }
 
-      return `${minute} ${hour} ${day} ${month} ${dayWeek}`;
+      return `${second} ${minute} ${hour} ${day} ${month} ${dayWeek} ${year}`;
    }
 };
 
