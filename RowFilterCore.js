@@ -75,10 +75,17 @@ module.exports = class RowFilter extends ABComponent {
          },
 
          removeHtmlTags: function(text) {
-            var div = document.createElement("div");
-            div.innerHTML = text;
+            let result = "";
+            try {
+               let div = document.createElement("div");
+               div.innerHTML = text;
 
-            return div.textContent || div.innerText || "";
+               result = div.textContent || div.innerText || "";
+            } catch (err) {
+               result = (text || "").replace(/(<([^>]+)>)/gi, "");
+            }
+
+            return result;
          },
 
          textValid: function(rowData, field, rule, compareValue) {
@@ -754,6 +761,4 @@ module.exports = class RowFilter extends ABComponent {
       this.config_settings.rules = this.config_settings.rules || [];
    }
 };
-
-
 
