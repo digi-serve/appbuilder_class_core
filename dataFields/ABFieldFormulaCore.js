@@ -6,7 +6,8 @@
  *
  */
 
-var ABField = require("../../platform/dataFields/ABField");
+const ABField = require("../../platform/dataFields/ABField");
+const RowFilter = require("../../platform/RowFilter");
 
 function L(key, altText) {
    return altText; // AD.lang.label.getLabel(key) || altText;
@@ -121,6 +122,19 @@ module.exports = class ABFieldFormulaCore extends ABField {
       var data = rowData[fieldBase.relationName()] || [];
       if (!Array.isArray(data)) data = [data];
 
+      // Filter
+      if (
+         data &&
+         data.length &&
+         this.settings &&
+         this.settings.where &&
+         this.settings.where.rules &&
+         this.settings.where.rules.length
+      ) {
+         this.filterHelper.setValue(this.settings.where);
+         data = data.filter((item) => this.filterHelper.isValid(item));
+      }
+
       var numberList = [];
 
       // pull number from data
@@ -186,4 +200,20 @@ module.exports = class ABFieldFormulaCore extends ABField {
 
       return field;
    }
+
+   get filterHelper() {
+      if (this._rowFilter == null) {
+         this._rowFilter = new RowFilter();
+
+         this._rowFilter.applicationLoad(this.object.application);
+
+         if (this.fieldLink && this.fieldLink.object) {
+            this._rowFilter.fieldsLoad(this.fieldLink.object.fields());
+            this._rowFilter.setValue(this.settings.where);
+         }
+      }
+
+      return this._rowFilter;
+   }
 };
+
