@@ -922,8 +922,20 @@ module.exports = class ABDataCollectionCore extends ABMLClass {
          let needUpdate = false;
          let isExists = false;
          let updatedIds = [];
+         // {array}
+         // an array of the row indexs in our DataCollection that have values
+         // that need to be updated.
+
          let updatedTreeIds = [];
          let updatedVals = {};
+         // {obj}
+         // This mimics the incoming new value of the row that was changed
+         // For DataCollections based upon ABObjects, this is basically
+         // data.data
+         // For DataCollections based upon ABObjectQueries, the incoming
+         // values need to have their Keys prefixed by the expected Alias
+         // for the objects that we are handling.
+
          let connectedItemUpdates = []; //track all changes to connected item data
 
          // Query
@@ -936,8 +948,11 @@ module.exports = class ABDataCollectionCore extends ABMLClass {
                      this.__dataCollection
                         .find((item) => {
                            return (
-                              item[`${o.alias}.${o.PK()}`] ==
-                              (values[o.PK()] || values.id)
+                              item[
+                                 `${this.datasource.objectAlias(
+                                    o.id
+                                 )}.${o.PK()}`
+                              ] == (values[o.PK()] || values.id)
                            );
                         })
                         .map((o) => o.id) || []
@@ -949,8 +964,11 @@ module.exports = class ABDataCollectionCore extends ABMLClass {
                         this.__treeCollection
                            .find((item) => {
                               return (
-                                 item[`${o.alias}.${o.PK()}`] ==
-                                 (values[o.PK()] || values.id)
+                                 item[
+                                    `${this.datasource.objectAlias(
+                                       o.id
+                                    )}.${o.PK()}`
+                                 ] == (values[o.PK()] || values.id)
                               );
                            })
                            .map((o) => o.id) || []
@@ -1005,20 +1023,25 @@ module.exports = class ABDataCollectionCore extends ABMLClass {
                   if (currData && currData.id == updatedVals.id) {
                      this.emit("changeCursor", currData);
                   }
-               } else if (updatedVals.id) {
-                  // If the item is current cursor, then the current cursor should be cleared.
-                  let currData = this.getCursor();
-                  if (currData && currData.id == updatedVals.id)
-                     this.emit("changeCursor", null);
+               } else {
+                  // Johnny: Here we are simply removing the DataCollection Entries that are
+                  // no longer valid.
+                  // Just cycle through the collected updatedIds and remove them.
+                  updatedIds.forEach((id) => {
+                     // If the item is current cursor, then the current cursor should be cleared.
+                     let currData = this.getCursor();
+                     if (currData && currData.id == id)
+                        this.emit("changeCursor", null);
 
-                  this.__dataCollection.remove(updatedVals.id);
+                     this.__dataCollection.remove(id);
 
-                  // TODO: update tree list
-                  // if (this.__treeCollection) {
-                  //  this.__treeCollection.remove(updatedVals.id);
-                  // }
+                     // TODO: update tree list
+                     // if (this.__treeCollection) {
+                     //  this.__treeCollection.remove(id);
+                     // }
 
-                  this.emit("delete", updatedVals.id);
+                     this.emit("delete", id);
+                  });
                }
             }
             // filter before add new record
@@ -2115,7 +2138,7 @@ module.exports = class ABDataCollectionCore extends ABMLClass {
       // Add alias to properties of update data
       Object.keys(values).forEach((key) => {
          objList.forEach((oItem) => {
-            let alias = oItem.alias;
+            let alias = this.datasource.objectAlias(oItem.id);
 
             updatedVals[`${alias}.${key}`] = values[key];
 
