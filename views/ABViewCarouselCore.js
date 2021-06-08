@@ -50,24 +50,34 @@ module.exports = class ABViewCarouselCore extends ABViewWidget {
       super.fromValues(values);
 
       // convert from "0" => 0
-      this.settings.width = parseInt(
-         this.settings.width || ABViewCarouselPropertyComponentDefaults.width
-      );
-      this.settings.height = parseInt(
-         this.settings.height || ABViewCarouselPropertyComponentDefaults.height
-      );
-      this.settings.showLabel = JSON.parse(
-         this.settings.showLabel ||
-            ABViewCarouselPropertyComponentDefaults.showLabel
-      );
-      this.settings.hideItem = JSON.parse(
-         this.settings.hideItem ||
-            ABViewCarouselPropertyComponentDefaults.hideItem
-      );
-      this.settings.hideButton = JSON.parse(
-         this.settings.hideButton ||
-            ABViewCarouselPropertyComponentDefaults.hideButton
-      );
+      if (typeof this.settings.width != "undefined") {
+         this.settings.width = parseInt(this.settings.width);
+      } else {
+         this.settings.width = ABViewCarouselPropertyComponentDefaults.width;
+      }
+      if (typeof this.settings.height != "undefined") {
+         this.settings.height = parseInt(this.settings.height);
+      } else {
+         this.settings.height = ABViewCarouselPropertyComponentDefaults.height;
+      }
+      try {
+         this.settings.showLabel = JSON.parse(this.settings.showLabel);
+      } catch (e) {
+         this.settings.showLabel =
+            ABViewCarouselPropertyComponentDefaults.showLabel;
+      }
+      try {
+         this.settings.hideItem = JSON.parse(this.settings.hideItem);
+      } catch (e) {
+         this.settings.hideItem =
+            ABViewCarouselPropertyComponentDefaults.hideItem;
+      }
+      try {
+         this.settings.hideButton = JSON.parse(this.settings.hideButton);
+      } catch (e) {
+         this.settings.hideButton =
+            ABViewCarouselPropertyComponentDefaults.hideButton;
+      }
       this.settings.navigationType =
          this.settings.navigationType ||
          ABViewCarouselPropertyComponentDefaults.navigationType;
