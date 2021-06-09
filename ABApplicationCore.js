@@ -52,6 +52,13 @@ module.exports = class ABApplicationCore extends ABMLClass {
       this.json = attributes.json;
       if (typeof this.json == "string") this.json = JSON.parse(this.json);
       this.name = attributes.name || this.json.name || "";
+      this.roleAccess = attributes.roleAccess || [];
+      if (!Array.isArray(this.roleAccess)) {
+         this.roleAccess = [this.roleAccess];
+      }
+      // {array}
+      // the {ABSiteRole.id}s of the roles allowed to work with this
+      // ABApplication. (see .isAccessManaged for more info)
       this.role = attributes.role;
       this.class = {};
       this.class.ABRole = ABRole; // This is a temporary fix that we can remove when OpsPortal is removed
@@ -284,6 +291,7 @@ module.exports = class ABApplicationCore extends ABMLClass {
          role: this.role,
          isAdminApp: this.isAdminApp,
          translations: this.json.translations,
+         roleAccess: this.roleAccess,
          isAccessManaged: this.isAccessManaged,
          isTranslationManaged: this.isTranslationManaged,
          accessManagers: this.accessManagers,
