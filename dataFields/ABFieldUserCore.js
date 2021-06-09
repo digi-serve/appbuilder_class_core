@@ -104,7 +104,7 @@ module.exports = class ABFieldUserCore extends ABFieldSelectivity {
    format(rowData) {
       var val = this.dataValue(rowData) || [];
 
-      if (!Array.isArray(val) || val) val = [val];
+      if (val && !Array.isArray(val)) val = [val];
 
       return val.map((v) => v.text || v).join(", ");
    }
