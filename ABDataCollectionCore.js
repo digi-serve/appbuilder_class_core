@@ -1728,7 +1728,7 @@ module.exports = class ABDataCollectionCore extends ABMLClass {
                      }
 
                      // delete the current setTimeout
-                     delete this.reloadTimer;
+                     clearTimeout(this.reloadTimer);
                   })
                   .catch((err) => {
                      if (this.reloadPromise) {
@@ -1738,7 +1738,7 @@ module.exports = class ABDataCollectionCore extends ABMLClass {
                         delete this.reloadPromise__reject;
                      }
                      // delete the current setTimeout
-                     delete this.reloadTimer;
+                     clearTimeout(this.reloadTimer);
                   });
             }, 50); // setting to 50ms because right now we do not see many cuncurrent calls we need to increase this if we begin to
 
