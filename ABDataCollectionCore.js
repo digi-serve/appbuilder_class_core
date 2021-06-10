@@ -1702,7 +1702,7 @@ module.exports = class ABDataCollectionCore extends ABMLClass {
             // check if we are currently waiting for more data requests on this datacollection before continuing
             if (this.reloadTimer) {
                // if we are already waiting delete the current timer
-               delete this.reloadTimer;
+               clearTimeout(this.reloadTimer);
             }
 
             // return a promise
