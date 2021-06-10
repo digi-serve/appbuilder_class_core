@@ -6,7 +6,8 @@
  *
  */
 
-var ABField = require("../../platform/dataFields/ABField");
+const ABField = require("../../platform/dataFields/ABField");
+const RowFilter = require("../../platform/RowFilter");
 
 function L(key, altText) {
    return altText; // AD.lang.label.getLabel(key) || altText;
@@ -81,6 +82,15 @@ module.exports = class ABFieldFormulaCore extends ABField {
       delete values[this.columnName];
    }
 
+   /**
+    * @method format
+    * both calculate and format the data input based of user settings
+    * for this field.
+    * @param {obj} rowData
+    *        a key=>value hash of the current values.
+    * @param {boolean} reCalculate
+    *        a boolean that signals if we should force recalculation of values
+    */
    format(rowData) {
       var fieldLink = this.fieldLink;
 
@@ -95,11 +105,14 @@ module.exports = class ABFieldFormulaCore extends ABField {
          }
       };
 
+      // May 21, 2021 Commenting seciton out below to force recaclation
+
       // if data exists, then will not calculate on client side
-      if (rowData[this.columnName] != null) {
-         // reformat data
-         return reformat(rowData[this.columnName]);
-      }
+      // unless we pass reCalculate=true to force the recalculation
+      // if (rowData[this.columnName] != null && !reCalculate) {
+      //    // reformat data
+      //    return reformat(rowData[this.columnName]);
+      // }
 
       if (!fieldLink) return 0;
 
@@ -108,6 +121,19 @@ module.exports = class ABFieldFormulaCore extends ABField {
 
       var data = rowData[fieldBase.relationName()] || [];
       if (!Array.isArray(data)) data = [data];
+
+      // Filter
+      if (
+         data &&
+         data.length &&
+         this.settings &&
+         this.settings.where &&
+         this.settings.where.rules &&
+         this.settings.where.rules.length
+      ) {
+         this.filterHelper.setValue(this.settings.where);
+         data = data.filter((item) => this.filterHelper.isValid(item));
+      }
 
       var numberList = [];
 
@@ -174,6 +200,20 @@ module.exports = class ABFieldFormulaCore extends ABField {
 
       return field;
    }
-};
 
+   get filterHelper() {
+      if (this._rowFilter == null) {
+         this._rowFilter = new RowFilter();
+
+         this._rowFilter.applicationLoad(this.object.application);
+
+         if (this.fieldLink && this.fieldLink.object) {
+            this._rowFilter.fieldsLoad(this.fieldLink.object.fields());
+            this._rowFilter.setValue(this.settings.where);
+         }
+      }
+
+      return this._rowFilter;
+   }
+};
 

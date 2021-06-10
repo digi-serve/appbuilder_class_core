@@ -75,10 +75,17 @@ module.exports = class RowFilter extends ABComponent {
          },
 
          removeHtmlTags: function(text) {
-            var div = document.createElement("div");
-            div.innerHTML = text;
+            let result = "";
+            try {
+               let div = document.createElement("div");
+               div.innerHTML = text;
 
-            return div.textContent || div.innerText || "";
+               result = div.textContent || div.innerText || "";
+            } catch (err) {
+               result = (text || "").replace(/(<([^>]+)>)/gi, "");
+            }
+
+            return result;
          },
 
          textValid: function(rowData, field, rule, compareValue) {
@@ -420,32 +427,42 @@ module.exports = class RowFilter extends ABComponent {
          },
 
          connectFieldValid: function(rowData, field, rule, compareValue) {
-            let columnName = field.relationName();
+            let relationName = field.relationName();
+            let columnName = field.columnName;
 
             let connectedVal = "";
 
-            if (rowData && rowData[columnName]) {
-               connectedVal = (
-                  (field.indexField
-                     ? rowData[columnName][field.indexField.columnName]
-                     : false) || // custom index
-                  (field.indexField2
-                     ? rowData[columnName][field.indexField2.columnName]
-                     : false) || // custom index 2
-                  rowData[columnName].id ||
-                  rowData[columnName]
-               )
-                  .toString()
-                  .toLowerCase();
+            if (rowData) {
+               if (rowData[relationName]) {
+                  connectedVal = (
+                     (field.indexField
+                        ? rowData[relationName][field.indexField.columnName]
+                        : false) || // custom index
+                     (field.indexField2
+                        ? rowData[relationName][field.indexField2.columnName]
+                        : false) || // custom index 2
+                     rowData[relationName].id ||
+                     rowData[relationName]
+                  )
+                     .toString()
+                     .toLowerCase();
+               } else if (rowData[columnName] != null) {
+                  connectedVal = rowData[columnName];
+               }
             }
 
             let compareValueLowercase = (compareValue || "").toLowerCase();
 
             switch (rule) {
                case "contains":
-                  return connectedVal.indexOf(compareValueLowercase) > -1;
+                  return (
+                     connectedVal.toString().indexOf(compareValueLowercase) > -1
+                  );
                case "not_contains":
-                  return connectedVal.indexOf(compareValueLowercase) == -1;
+                  return (
+                     connectedVal.toString().indexOf(compareValueLowercase) ==
+                     -1
+                  );
                case "equals":
                   return connectedVal == compareValueLowercase;
                case "not_equal":
@@ -454,7 +471,7 @@ module.exports = class RowFilter extends ABComponent {
                case "not_in_query":
                   return _logic.inQueryValid(
                      rowData,
-                     columnName,
+                     relationName,
                      rule,
                      compareValue
                   );
@@ -467,7 +484,7 @@ module.exports = class RowFilter extends ABComponent {
                case "not_in_data_collection":
                   return _logic.dataCollectionValid(
                      rowData,
-                     columnName,
+                     relationName,
                      rule,
                      compareValue
                   );
@@ -754,6 +771,4 @@ module.exports = class RowFilter extends ABComponent {
       this.config_settings.rules = this.config_settings.rules || [];
    }
 };
-
-
 

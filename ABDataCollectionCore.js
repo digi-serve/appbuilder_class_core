@@ -555,28 +555,49 @@ module.exports = class ABDataCollectionCore extends ABMLClass {
 
    /**
     * @method refreshLinkCursor
-    * filter data in data view by match id of link data view
-    *
+    * This function does one of two things.
+    * 1) If the data collection is bound to another and it is the child connection
+    *    it finds it's parents current set cursor and then filters its data
+    *    based off of the cursor.
+    * 2) It determines if the data collection has reloadWhere filters set which
+    *    means it's is a child data collection that is currently fitlered by
+    *    the parent using server side binding. If so and it has been flagged
+    *    that is shouldReloadData it tells the child data collection to update
+    * @param {bool} shouldReloadData - boolean that is passed if new data should be fetched from server
     */
-   refreshLinkCursor() {
-      // if we are loading the data server side already filtered we do not need to fitler it client side
-      if (this.__reloadWheres && !this.settings.loadAll) return false;
+   refreshLinkCursor(shouldReloadData = false) {
+      // check __reloadWheres for server side binding filters
+      // check to ensure that data collection is not marked as loadAll
+      // check to see if the data has been flagged as shouldReloadData because
+      // the data in a connected field has changed.
+      // if all off these pass reload the data using server side binding
+      if (this.__reloadWheres && !this.settings.loadAll && shouldReloadData) {
+         this.reloadData();
+      } else if (this.__reloadWheres && !this.settings.loadAll) {
+         // no need to filter the data because it was already filterted and not
+         // marked as shouldReloadData so just move on
+         return false;
+      } else {
+         // if the checks do not pass we filter the data in the data collection
+         // using its parents current cursor because all the data in this child
+         // data collection has been loaded and the frontend can decide what is
+         // seen or not seen
+         let linkCursor;
+         let dvLink = this.datacollectionLink;
+         if (dvLink) {
+            linkCursor = dvLink.getCursor();
+         }
 
-      let linkCursor;
-      let dvLink = this.datacollectionLink;
-      if (dvLink) {
-         linkCursor = dvLink.getCursor();
+         let filterData = (rowData) => {
+            // if link dc cursor is null, then show all data
+            if (linkCursor == null) return true;
+            else return this.isParentFilterValid(rowData);
+         };
+
+         if (this.__dataCollection) this.__dataCollection.filter(filterData);
+
+         if (this.__treeCollection) this.__treeCollection.filter(filterData);
       }
-
-      let filterData = (rowData) => {
-         // if link dc cursor is null, then show all data
-         if (linkCursor == null) return true;
-         else return this.isParentFilterValid(rowData);
-      };
-
-      if (this.__dataCollection) this.__dataCollection.filter(filterData);
-
-      if (this.__treeCollection) this.__treeCollection.filter(filterData);
    }
 
    setStaticCursor() {
@@ -889,6 +910,10 @@ module.exports = class ABDataCollectionCore extends ABMLClass {
 
                         // If this item needs to update
                         if (Object.keys(updateItemData).length > 0) {
+                           // normalize data before add to data collection
+                           var model = obj.model();
+                           model.normalizeData(updateItemData);
+
                            this.__dataCollection.updateItem(
                               d.id,
                               updateItemData
@@ -929,6 +954,7 @@ module.exports = class ABDataCollectionCore extends ABMLClass {
          let updatedIds = [];
          let updatedTreeIds = [];
          let updatedVals = {};
+         let connectedItemUpdates = []; //track all changes to connected item data
 
          // Query
          if (obj instanceof ABObjectQuery) {
@@ -1058,99 +1084,120 @@ module.exports = class ABDataCollectionCore extends ABMLClass {
             let PK = connectedFields[0].object.PK();
             if (!values.id && PK != "id") values.id = values[PK];
 
-            this.__dataCollection.find({}).forEach((d) => {
-               let updateItemData = {};
+            if (this.__dataCollection.count() == 0) {
+               // push an empty item into the connectedItemUpdates array to let the
+               // datacollection know it has been changed
+               connectedItemUpdates.push({});
+            } else {
+               this.__dataCollection.find({}).forEach((d) => {
+                  let updateItemData = {};
 
-               connectedFields.forEach((f) => {
-                  if (!f) return;
+                  connectedFields.forEach((f) => {
+                     if (!f) return;
 
-                  let updateRelateVal = {};
-                  let rowRelateVal = d[f.relationName()] || {};
+                     let updateRelateVal = {};
+                     let rowRelateVal = d[f.relationName()] || {};
 
-                  if (f.fieldLink)
-                     updateRelateVal = values[f.fieldLink.relationName()] || {};
+                     if (f.fieldLink)
+                        updateRelateVal =
+                           values[f.fieldLink.relationName()] || {};
 
-                  // Unrelate data
-                  if (
-                     Array.isArray(rowRelateVal) &&
-                     rowRelateVal.filter(
-                        (v) => v == values.id || v.id == values.id
-                     ).length > 0 &&
-                     !isRelated(updateRelateVal, d.id, PK)
-                  ) {
-                     updateItemData[f.relationName()] = rowRelateVal.filter(
-                        (v) => (v.id || v) != values.id
-                     );
-                     updateItemData[f.columnName] = updateItemData[
-                        f.relationName()
-                     ].map((v) => v.id || v);
-                  } else if (
-                     !Array.isArray(rowRelateVal) &&
-                     (rowRelateVal == values.id ||
-                        rowRelateVal.id == values.id) &&
-                     !isRelated(updateRelateVal, d.id, PK)
-                  ) {
-                     updateItemData[f.relationName()] = null;
-                     updateItemData[f.columnName] = null;
-                  }
-
-                  // Relate data or Update
-                  if (
-                     Array.isArray(rowRelateVal) &&
-                     isRelated(updateRelateVal, d.id, PK)
-                  ) {
-                     // update relate data
+                     // Unrelate data
                      if (
+                        Array.isArray(rowRelateVal) &&
                         rowRelateVal.filter(
                            (v) => v == values.id || v.id == values.id
-                        ).length > 0
+                        ).length > 0 &&
+                        !isRelated(updateRelateVal, d.id, PK)
                      ) {
-                        rowRelateVal.forEach((v, index) => {
-                           if (v == values.id || v.id == values.id)
-                              rowRelateVal[index] = values;
-                        });
-                     }
-                     // add new relate
-                     else {
-                        rowRelateVal.push(values);
+                        updateItemData[f.relationName()] = rowRelateVal.filter(
+                           (v) => (v.id || v) != values.id
+                        );
+                        updateItemData[f.columnName] = updateItemData[
+                           f.relationName()
+                        ].map((v) => v.id || v);
+                     } else if (
+                        !Array.isArray(rowRelateVal) &&
+                        (rowRelateVal == values.id ||
+                           rowRelateVal.id == values.id) &&
+                        !isRelated(updateRelateVal, d.id, PK)
+                     ) {
+                        updateItemData[f.relationName()] = null;
+                        updateItemData[f.columnName] = null;
                      }
 
-                     updateItemData[f.relationName()] = rowRelateVal;
-                     updateItemData[f.columnName] = updateItemData[
-                        f.relationName()
-                     ].map((v) => v.id || v);
-                  } else if (
-                     !Array.isArray(rowRelateVal) &&
-                     (rowRelateVal != values.id ||
-                        rowRelateVal.id != values.id) &&
-                     isRelated(updateRelateVal, d.id, PK)
-                  ) {
-                     updateItemData[f.relationName()] = values;
-                     updateItemData[f.columnName] = values.id || values;
+                     // Relate data or Update
+                     if (
+                        Array.isArray(rowRelateVal) &&
+                        isRelated(updateRelateVal, d.id, PK)
+                     ) {
+                        // update relate data
+                        if (
+                           rowRelateVal.filter(
+                              (v) => v == values.id || v.id == values.id
+                           ).length > 0
+                        ) {
+                           rowRelateVal.forEach((v, index) => {
+                              if (v == values.id || v.id == values.id)
+                                 rowRelateVal[index] = values;
+                           });
+                        }
+                        // add new relate
+                        else {
+                           rowRelateVal.push(values);
+                        }
+
+                        updateItemData[f.relationName()] = rowRelateVal;
+                        updateItemData[f.columnName] = updateItemData[
+                           f.relationName()
+                        ].map((v) => v.id || v);
+                     } else if (
+                        !Array.isArray(rowRelateVal) &&
+                        (rowRelateVal != values.id ||
+                           rowRelateVal.id != values.id) &&
+                        isRelated(updateRelateVal, d.id, PK)
+                     ) {
+                        updateItemData[f.relationName()] = values;
+                        updateItemData[f.columnName] = values.id || values;
+                     }
+                  });
+
+                  // If this item needs to update
+                  if (Object.keys(updateItemData).length > 0) {
+                     // normalize data before add to data collection
+                     var model = obj.model();
+                     model.normalizeData(updateItemData);
+                     if (
+                        this.__treeCollection &&
+                        this.__treeCollection.exists(d.id)
+                     )
+                        this.__treeCollection.updateItem(d.id, updateItemData);
+
+                     if (
+                        this.__dataCollection &&
+                        this.__dataCollection.exists(d.id)
+                     ) {
+                        this.__dataCollection.updateItem(d.id, updateItemData);
+                        this.emit(
+                           "update",
+                           this.__dataCollection.getItem(d.id)
+                        );
+                     }
                   }
+                  // push any connected item updates into this array
+                  // so we can notify refreshLinkCursor that connected items
+                  // were updated
+                  connectedItemUpdates.push(updateItemData);
                });
-
-               // If this item needs to update
-               if (Object.keys(updateItemData).length > 0) {
-                  if (
-                     this.__treeCollection &&
-                     this.__treeCollection.exists(d.id)
-                  )
-                     this.__treeCollection.updateItem(d.id, updateItemData);
-
-                  if (
-                     this.__dataCollection &&
-                     this.__dataCollection.exists(d.id)
-                  ) {
-                     this.__dataCollection.updateItem(d.id, updateItemData);
-                     this.emit("update", this.__dataCollection.getItem(d.id));
-                  }
-               }
-            });
+            }
          }
 
          // filter link data collection's cursor
-         this.refreshLinkCursor();
+         // check if there have been updated items on connected fields
+         // if so we need to reload data from the server to get the latest
+         // data
+         var shouldReloadData = connectedItemUpdates.length ? true : false;
+         this.refreshLinkCursor(shouldReloadData);
          this.setStaticCursor();
       });
 
@@ -1187,6 +1234,12 @@ module.exports = class ABDataCollectionCore extends ABMLClass {
                this.model.staleRefresh(cond).then((res) => {
                   // check to make sure there is data to work with
                   if (Array.isArray(res.data) && res.data.length) {
+                     // debugger;
+                     let obj = this.datasource;
+                     if (!obj) return;
+                     // normalize data before add to data collection
+                     var model = obj.model();
+                     model.normalizeData(res.data[0]);
                      // tell the webix data collection to update using their API with the row id (values.id) and content (res.data[0])
                      if (this.__dataCollection.exists(values[PK])) {
                         this.__dataCollection.updateItem(
@@ -1327,6 +1380,10 @@ module.exports = class ABDataCollectionCore extends ABMLClass {
 
                // If this item needs to update
                if (Object.keys(updateRelateVals).length > 0) {
+                  // normalize data before add to data collection
+                  var model = obj.model();
+                  model.normalizeData(updateRelateVals);
+
                   this.__dataCollection.updateItem(d.id, updateRelateVals);
 
                   if (this.__treeCollection)
@@ -1642,11 +1699,76 @@ module.exports = class ABDataCollectionCore extends ABMLClass {
             return waitForDataCollectionToInitialize(this);
          })
          .then(() => {
-            this.clearAll();
-            return this.loadData(start, limit);
+            // check if we are currently waiting for more data requests on this datacollection before continuing
+            if (this.reloadTimer) {
+               // if we are already waiting delete the current timer
+               clearTimeout(this.reloadTimer);
+               delete this.reloadTimer;
+            }
+
+            // return a promise
+            if (!this.reloadPromise) {
+               this.reloadPromise = new Promise((resolve, reject) => {
+                  this.reloadPromise__resolve = resolve;
+                  this.reloadPromise__reject = reject;
+               });
+            }
+
+            // then create a new timeout to delete current timeout, clear data and load new
+            this.reloadTimer = setTimeout(() => {
+               // clear the data from the dataCollection,
+               this.clearAll();
+               // then loads new data from the server
+               return this.loadData(start, limit)
+                  .then(() => {
+                     if (this.reloadPromise) {
+                        this.reloadPromise__resolve();
+                        delete this.reloadPromise;
+                        delete this.reloadPromise__resolve;
+                        delete this.reloadPromise__reject;
+                     }
+
+                     // delete the current setTimeout
+                     clearTimeout(this.reloadTimer);
+                     delete this.reloadTimer;
+                  })
+                  .catch((err) => {
+                     if (this.reloadPromise) {
+                        this.reloadPromise__reject(err);
+                        delete this.reloadPromise;
+                        delete this.reloadPromise__resolve;
+                        delete this.reloadPromise__reject;
+                     }
+                     // delete the current setTimeout
+                     clearTimeout(this.reloadTimer);
+                     delete this.reloadTimer;
+                  });
+            }, 50); // setting to 50ms because right now we do not see many cuncurrent calls we need to increase this if we begin to
+
+            return this.reloadPromise;
          });
    }
-
+   /**
+    * reloadWheres()
+    * stores the child data collections filters for subsequent loads.
+    * It is called from bindParentDc() when child data collections that are not
+    * marked to load all data are initializing. To do this we use webix
+    * server side binding by setting the param of "dataFeed".
+    * @param {obj} wheres  the new filters for the data collection
+    *        This is a combination of any exisiting filters the data collection
+    *        alreay had as well as the filter for the current cursor set by the
+    *        master data collection. We store this in __reloadWheres for when
+    *        the data needs to be updated.
+    *        The format of the wheres is our Query Builder Format
+    *        ex: {
+    *              "glue": "and",
+    *              "rules": [{
+    *                "key": "33ba8957-6b9c-4ddb-9533-c46b13878ae1",
+    *                "rule": "contains",
+    *                "value": "1594176994894"
+    *              }]
+    *            }
+    */
    reloadWheres(wheres) {
       this.__reloadWheres = wheres;
    }
@@ -1767,7 +1889,24 @@ module.exports = class ABDataCollectionCore extends ABMLClass {
       this.__bindComponentIds.splice(index, 1);
    }
 
+   /**
+    * @method refreshFilterConditions()
+    * This is called in two primary cases:
+    *    - on initialization of a DC to setup our filters.
+    *    - in the operation of the ABDesigner when using a DC to display data
+    *      in the Work_object_grid and the datacollection_work(?)
+    * In the case of the ABDesigner, new temporary where conditions are provided
+    * from the possible filters we can set, and those need to effect the data
+    * we display.
+    * @param {ABRowFilter.where} wheres
+    *        The filter condition from the ABRowFilter values we are storing.
+    */
    refreshFilterConditions(wheres = null) {
+      // There are 3 Filters that help us know if our data is Valid:
+      // 1) A filter for any ABObjectQuery we are managing.
+      // 2) A filter for our own filter condition
+      // 3) A filter that represents what our scopes allows
+
       // Set filter of ABObject
       if (this.__filterDatasource == null)
          this.__filterDatasource = new RowFilter();
@@ -1782,12 +1921,14 @@ module.exports = class ABDataCollectionCore extends ABMLClass {
          if (this.datasource instanceof ABObjectQuery) {
             filterConditions = this.datasource.where;
          }
+         // Apr 29, 2021 Removed this because we do not want Object filters to
+         // effect validation of DataCollections
          // Object
-         else if (this.datasource instanceof ABObject) {
-            let currentView = this.datasource.currentView();
-            if (currentView && currentView.filterConditions)
-               filterConditions = currentView.filterConditions;
-         }
+         // else if (this.datasource instanceof ABObject) {
+         //    let currentView = this.datasource.currentView();
+         //    if (currentView && currentView.filterConditions)
+         //       filterConditions = currentView.filterConditions;
+         // }
 
          if (filterConditions)
             this.__filterDatasource.setValue(filterConditions);
@@ -1799,32 +1940,33 @@ module.exports = class ABDataCollectionCore extends ABMLClass {
          );
       }
 
-      // // Set filter of data view
-      // if (this.__filterDatacollection == null)
-      //    this.__filterDatacollection = new RowFilter();
+      // Set filter of data view
+      // Apr 29, 2021 Added this code back to validate with DataCollection Filters
+      if (this.__filterDatacollection == null)
+         this.__filterDatacollection = new RowFilter();
 
-      // this.__filterDatacollection.applicationLoad(
-      //    this.datasource ? this.datasource.application : null
-      // );
-      // this.__filterDatacollection.fieldsLoad(
-      //    this.datasource ? this.datasource.fields() : []
-      // );
+      this.__filterDatacollection.applicationLoad(
+         this.datasource ? this.datasource.application : null
+      );
+      this.__filterDatacollection.fieldsLoad(
+         this.datasource ? this.datasource.fields() : []
+      );
 
-      // if (wheres) this.settings.objectWorkspace.filterConditions = wheres;
+      if (wheres) this.settings.objectWorkspace.filterConditions = wheres;
 
-      // if (
-      //    this.settings &&
-      //    this.settings.objectWorkspace &&
-      //    this.settings.objectWorkspace.filterConditions
-      // ) {
-      //    this.__filterDatacollection.setValue(
-      //       this.settings.objectWorkspace.filterConditions
-      //    );
-      // } else {
-      //    this.__filterDatacollection.setValue(
-      //       DefaultValues.settings.objectWorkspace.filterConditions
-      //    );
-      // }
+      if (
+         this.settings &&
+         this.settings.objectWorkspace &&
+         this.settings.objectWorkspace.filterConditions
+      ) {
+         this.__filterDatacollection.setValue(
+            this.settings.objectWorkspace.filterConditions
+         );
+      } else {
+         this.__filterDatacollection.setValue(
+            DefaultValues.settings.objectWorkspace.filterConditions
+         );
+      }
 
       // Set filter of user's scope
       if (this.__filterScope == null) this.__filterScope = new RowFilter();
@@ -2057,8 +2199,8 @@ module.exports = class ABDataCollectionCore extends ABMLClass {
       if (this.__filterDatasource)
          result = result && this.__filterDatasource.isValid(rowData);
 
-      // if (this.__filterDatacollection)
-      //    result = result && this.__filterDatacollection.isValid(rowData);
+      if (this.__filterDatacollection)
+         result = result && this.__filterDatacollection.isValid(rowData);
 
       if (result && this.__filterScope)
          result = result && this.__filterScope.isValid(rowData);
@@ -2184,4 +2326,3 @@ module.exports = class ABDataCollectionCore extends ABMLClass {
       return [];
    }
 };
-
