@@ -53,6 +53,31 @@ module.exports = class ABMLClassCore extends ABEmitter {
    }
 
    /**
+    * @function defaultTranslations()
+    * return an initial .translations entry to initialize the
+    * translations values of a given translateable object.
+    * @param {array} fields  the multilingual fields this obj manages.
+    * @param {json}  values  a default set of values for this object.
+    * @return {array}  of translation entries.
+    */
+   defaultTranslations(fields, values) {
+      values = values || {};
+
+      var entry = {
+         // Question: should this be this.AB.Multilingual.currentLanguage() || "en"
+         // currently since the defaults are sent in programattically, we are
+         // expecting the labels to be in "en"
+         language_code: "en",
+      };
+
+      fields.forEach((f) => {
+         entry[f] = values[f] || f;
+      });
+
+      return [entry];
+   }
+
+   /**
     * @method languageDefault
     * return a default language code.
     * @return {string}
