@@ -717,9 +717,17 @@ module.exports = class ABApplicationCore extends ABMLClass {
             return parseStep(obj[key], steps);
          }
 
+         if (key == "_objects") {
+            console.error(new Error("REFACTOR: old objectBy url reference:"));
+
+            // This can be gotten from our AB
+            var id = steps.shift();
+            return parseStep(this.AB.objectByID(id), steps);
+         }
+
          // if we got here, there is an error!
          // console.error('!!! failed to lookup url:'+pointer);
-         console.warn("!!! failed to lookup url:" + pointer);
+         console.error("!!! failed to lookup url:" + pointer);
          return null;
       };
 
