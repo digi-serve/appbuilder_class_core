@@ -120,42 +120,56 @@ module.exports = class ABViewTextCore extends ABViewWidget {
 
          var template = new RegExp("{" + label + "}", "g");
 
-         var prepend = "";
-         if (f.key == "image") {
-            prepend = "/opsportal/image/" + this.application.name + "/";
-         }
-         var data = prepend + f.format(rowData) || "???"; // "???" default value
+         // IDEA: I'd like to keep all the image url logic INSIDE the ABFieldImage
+         // object.  Is there some way we can simply call: f.imageTemplate(rowData)
+         // and parse the results for the url to display here?
 
-         if (
-            data == prepend &&
-            f.key == "image" &&
-            f.settings.defaultImageUrl &&
-            f.settings.useDefaultImage
-         ) {
-            data = prepend + f.settings.defaultImageUrl;
-            result = result.replace(
-               "img",
-               'img onload=\'AD.comm.hub.publish("component.adjust", {"containerID": "' +
-                  componentID +
-                  "\"});' "
-            );
-         } else if (
-            f.format(rowData) != "" &&
-            f.key == "image" &&
-            result.indexOf("onload") == -1 &&
-            componentID
-         ) {
-            result = result.replace(
-               "img",
-               'img onload=\'AD.comm.hub.publish("component.adjust", {"containerID": "' +
-                  componentID +
-                  "\"});' "
-            );
-         } else if (f.key == "image") {
-            result = result.replace(
-               "img",
-               "img onerror='this.parentNode.removeChild(this);' "
-            );
+         var data = f.format(rowData);
+         if (f.key == "image") {
+            var fData = data;
+            data = f.urlImage(fData);
+
+            // Question: should we change f.urlImage() to return the defaultImageUrl
+            // if fData is "" and .useDefaultImage = true?
+
+            if (
+               !fData &&
+               f.settings.defaultImageUrl &&
+               f.settings.useDefaultImage
+            ) {
+               data = f.urlImage(f.settings.defaultImageUrl);
+
+               ////
+               //// James:  Revisit this and make sure we are handling things ok now.
+               // result = result.replace(
+               //    "img",
+               //    'img onload=\'AD.comm.hub.publish("component.adjust", {"containerID": "' +
+               //       componentID +
+               //       "\"});' "
+               // );
+               // } else if (
+               //    fData != "" &&
+               //    result.indexOf("onload") == -1 &&
+               //    componentID
+               // ) {
+               // result = result.replace(
+               //    "img",
+               //    'img onload=\'AD.comm.hub.publish("component.adjust", {"containerID": "' +
+               //       componentID +
+               //       "\"});' "
+               // );
+            } else {
+               ////
+               //// James: It looks like this routine assumes the this.text template will
+               //// only have 1 <img> tag in it.  Is that necessarilly true?
+               ////
+               //// If NOT, then we need to rethink this next line:
+
+               result = result.replace(
+                  "img",
+                  "img onerror='this.parentNode.removeChild(this);' "
+               );
+            }
          }
 
          result = result.replace(template, data);
