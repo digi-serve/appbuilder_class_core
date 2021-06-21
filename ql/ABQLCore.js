@@ -104,9 +104,8 @@ class ABQLCore {
       return this.application.objects((o) => {
          var quotedLabel = `"${o.label}"`;
          return (
-            o.id == this.objectID ||
-            o.id == objID ||
-            quotedLabel.indexOf(objID) == 0
+            // o.id == this.objectID ||
+            o.id == objID || quotedLabel.indexOf(objID) == 0
          );
       })[0];
    }
