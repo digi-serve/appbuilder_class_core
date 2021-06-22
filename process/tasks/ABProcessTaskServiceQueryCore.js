@@ -128,11 +128,10 @@ module.exports = class ABProcessTaskServiceQueryCore extends ABProcessElement {
       if (this._datasources.length > 0) {
          fields = [];
          this._datasources.forEach((s) => {
-            var param = s.processDataFieldReference();
-            field.push({
-               key: `${this.id}.${param}`,
-               label: `${this.label}->${param}`
-            });
+            var param = s.processDataField(this.id, this.label);
+            if (param) {
+               fields.push(param);
+            }
          });
       }
       return fields;

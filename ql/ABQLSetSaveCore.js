@@ -21,7 +21,10 @@ class ABQLSetSaveCore extends ABQL {
       super(attributes, ParameterDefinitions, prevOP, task, application);
 
       // TODO: register with the task that we can provide data.
-      task.registerDatasource(this);
+      if (this.taskParam) {
+         task.registerDatasource(this);
+         this.registered = true;
+      }
    }
 
    ///
@@ -46,8 +49,36 @@ class ABQLSetSaveCore extends ABQL {
       return obj;
    }
 
-   processDataFieldReference() {
-      return this.taskParam;
+   processDataField(id, label) {
+      // we have to report back on:
+      // key:  id.taskParam
+      // label: label->taskParam
+      // object: ABObject
+      // field: ABField
+      // set : {bool}
+
+      var field = null;
+      // {ABField}
+      // if the value being stored is NOT a connectObject, then it is
+      // a particular field in the previous object.
+
+      // if we are saving a specific field of an Object, pass that
+      // ABField along:
+      if (
+         this.prevOP &&
+         this.prevOP.field &&
+         this.prevOP.field.key != "connectObject"
+      ) {
+         field = this.prevOP.field;
+      }
+
+      return {
+         key: `${id}.${this.taskParam}`,
+         label: `${label}->${this.taskParam}`,
+         field: field,
+         object: this.object,
+         set: true
+      };
    }
 }
 
