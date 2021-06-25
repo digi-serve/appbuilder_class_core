@@ -68,17 +68,25 @@ module.exports = class ABViewDocxBuilderCore extends ABViewWidget {
    }
 
    uploadUrl() {
-      let actionKey =
-         "opstool.AB_" + this.application.name.replace("_", "") + ".view";
-
-      return (
-         "/" +
-         ["opsportal", "file", this.application.name, actionKey, "1"].join("/")
+      // TODO: Convert this to use ABFactory.urlFileUpload() or a ABFieldFile
+      // to get the URL:
+      console.warn(
+         new Error(
+            "TODO: convert ABViewDocxBuilderCore.uploadUrl() to use common url code."
+         )
       );
+      // let actionKey =
+      //    "opstool.AB_" + this.application.name.replace("_", "") + ".view";
+
+      // return (
+      //    "/" +
+      //    ["opsportal", "file", this.application.name, actionKey, "1"].join("/")
+      // );
+      return `/file/upload/DOCX${this.id}/VIEW${this.id}/1`;
    }
 
    downloadUrl() {
-      return `/opsportal/file/${this.application.name}/${this.settings.filename}`;
+      return `/file/${this.settings.filename}`;
    }
 
    get languageCode() {
