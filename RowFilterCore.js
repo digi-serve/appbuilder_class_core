@@ -224,6 +224,7 @@ module.exports = class RowFilter extends ABComponent {
             var result = false;
 
             var value = getFieldVal(rowData, field);
+            if (value && value.toLowerCase) value = value.toLowerCase();
 
             compareValue = compareValue.toLowerCase();
 
