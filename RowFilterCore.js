@@ -415,12 +415,18 @@ module.exports = class RowFilter extends ABComponent {
                case "in_data_collection":
                   if (!dc) return false;
 
-                  result = dc.getData((d) => d.id == rowData.id).length > 0;
+                  result =
+                     dc.getData(
+                        (d) => (d.id || d.uuid) == (rowData.id || rowData.uuid)
+                     ).length > 0;
                   break;
                case "not_in_data_collection":
                   if (!dc) return true;
 
-                  result = dc.getData((d) => d.id == rowData.id).length < 1;
+                  result =
+                     dc.getData(
+                        (d) => (d.id || d.uuid) == (rowData.id || rowData.uuid)
+                     ).length < 1;
                   break;
             }
 
