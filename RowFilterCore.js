@@ -487,6 +487,19 @@ module.exports = class RowFilter extends ABComponent {
                case "contain_current_user":
                case "not_contain_current_user":
                   return _logic.userValid(rowData, field, rule, compareValue);
+               case "is_empty":
+                  return (
+                     rowData[relationName] == null ||
+                     rowData[relationName].length < 1 ||
+                     rowData[relationName] == ""
+                  );
+               case "is_not_empty":
+                  return (
+                     rowData[relationName] != null &&
+                     ((Array.isArray(rowData[relationName]) &&
+                        rowData[relationName].length > 0) ||
+                        rowData[relationName] != "")
+                  );
                case "in_data_collection":
                case "not_in_data_collection":
                   return _logic.dataCollectionValid(
