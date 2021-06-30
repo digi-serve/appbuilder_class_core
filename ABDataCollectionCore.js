@@ -573,10 +573,17 @@ module.exports = class ABDataCollectionCore extends ABMLClass {
       // if all off these pass reload the data using server side binding
       if (this.__reloadWheres && !this.settings.loadAll && shouldReloadData) {
          this.reloadData();
-      } else if (this.__reloadWheres && !this.settings.loadAll) {
-         // no need to filter the data because it was already filterted and not
-         // marked as shouldReloadData so just move on
-         return false;
+
+         // June 30, 2021 - James Duncan
+         // removing this because we were having issues with users working on the
+         // same record and the updates of a record would appear in a filtered
+         // data set would insert a new record in a filtered data set that it
+         // should have been filtered out of
+
+         // } else if (this.__reloadWheres && !this.settings.loadAll) {
+         //    // no need to filter the data because it was already filterted and not
+         //    // marked as shouldReloadData so just move on
+         //    return false;
       } else {
          // if the checks do not pass we filter the data in the data collection
          // using its parents current cursor because all the data in this child
