@@ -893,7 +893,8 @@ module.exports = class ABDataCollectionCore extends ABMLClass {
                               rowRelateVal.filter(
                                  (v) =>
                                     v == updatedVals.id ||
-                                    v.id == updatedVals.id
+                                    v.id == updatedVals.id ||
+                                    v[PK] == updatedVals.id
                               ).length < 1 &&
                               isRelated(updateRelateVal, d.id, PK)
                            ) {
@@ -902,11 +903,12 @@ module.exports = class ABDataCollectionCore extends ABMLClass {
                               updateItemData[f.relationName()] = rowRelateVal;
                               updateItemData[f.columnName] = updateItemData[
                                  f.relationName()
-                              ].map((v) => v.id || v);
+                              ].map((v) => v.id || v[PK] || v);
                            } else if (
                               !Array.isArray(rowRelateVal) &&
                               (rowRelateVal != updatedVals.id ||
-                                 rowRelateVal.id != updatedVals.id) &&
+                                 rowRelateVal.id != updatedVals.id ||
+                                 rowRelateVal[PK] != updatedVals.id) &&
                               isRelated(updateRelateVal, d.id, PK)
                            ) {
                               updateItemData[f.relationName()] = updatedVals;
