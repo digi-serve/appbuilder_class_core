@@ -566,24 +566,12 @@ module.exports = class ABDataCollectionCore extends ABMLClass {
     * @param {bool} shouldReloadData - boolean that is passed if new data should be fetched from server
     */
    refreshLinkCursor(shouldReloadData = false) {
-      // check __reloadWheres for server side binding filters
-      // check to ensure that data collection is not marked as loadAll
-      // check to see if the data has been flagged as shouldReloadData because
-      // the data in a connected field has changed.
-      // if all off these pass reload the data using server side binding
-      if (this.__reloadWheres && !this.settings.loadAll && shouldReloadData) {
-         this.reloadData();
-
-         // June 30, 2021 - James Duncan
-         // removing this because we were having issues with users working on the
-         // same record and the updates of a record would appear in a filtered
-         // data set would insert a new record in a filtered data set that it
-         // should have been filtered out of
-
-         // } else if (this.__reloadWheres && !this.settings.loadAll) {
-         //    // no need to filter the data because it was already filterted and not
-         //    // marked as shouldReloadData so just move on
-         //    return false;
+      // Putting this back the way it was because the core issue was the data DataCollections
+      // were not getting udpates from the socket reponses because we didn't do lookups
+      // off of the PK when it was used.
+      if (this.__reloadWheres && !this.settings.loadAll) {
+         // no need to filter the data because it was already filterted
+         return false;
       } else {
          // if the checks do not pass we filter the data in the data collection
          // using its parents current cursor because all the data in this child
