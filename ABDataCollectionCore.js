@@ -1113,20 +1113,24 @@ module.exports = class ABDataCollectionCore extends ABMLClass {
                      if (
                         Array.isArray(rowRelateVal) &&
                         rowRelateVal.filter(
-                           (v) => v == values.id || v.id == values.id
+                           (v) =>
+                              v == values.id ||
+                              v.id == values.id ||
+                              v[PK] == values.id
                         ).length > 0 &&
                         !isRelated(updateRelateVal, d.id, PK)
                      ) {
                         updateItemData[f.relationName()] = rowRelateVal.filter(
-                           (v) => (v.id || v) != values.id
+                           (v) => (v.id || v || v[PK]) != values.id
                         );
                         updateItemData[f.columnName] = updateItemData[
                            f.relationName()
-                        ].map((v) => v.id || v);
+                        ].map((v) => v.id || v || v[PK]);
                      } else if (
                         !Array.isArray(rowRelateVal) &&
                         (rowRelateVal == values.id ||
-                           rowRelateVal.id == values.id) &&
+                           rowRelateVal.id == values.id ||
+                           rowRelatedVal[PK] == values.id) &&
                         !isRelated(updateRelateVal, d.id, PK)
                      ) {
                         updateItemData[f.relationName()] = null;
@@ -1141,11 +1145,18 @@ module.exports = class ABDataCollectionCore extends ABMLClass {
                         // update relate data
                         if (
                            rowRelateVal.filter(
-                              (v) => v == values.id || v.id == values.id
+                              (v) =>
+                                 v == values.id ||
+                                 v.id == values.id ||
+                                 v[PK] == values.id
                            ).length > 0
                         ) {
                            rowRelateVal.forEach((v, index) => {
-                              if (v == values.id || v.id == values.id)
+                              if (
+                                 v == values.id ||
+                                 v.id == values.id ||
+                                 v[PK] == values.id
+                              )
                                  rowRelateVal[index] = values;
                            });
                         }
@@ -1157,11 +1168,12 @@ module.exports = class ABDataCollectionCore extends ABMLClass {
                         updateItemData[f.relationName()] = rowRelateVal;
                         updateItemData[f.columnName] = updateItemData[
                            f.relationName()
-                        ].map((v) => v.id || v);
+                        ].map((v) => v.id || v || v[PK]);
                      } else if (
                         !Array.isArray(rowRelateVal) &&
                         (rowRelateVal != values.id ||
-                           rowRelateVal.id != values.id) &&
+                           rowRelateVal.id != values.id ||
+                           rowRelateVal[PK] != values.id) &&
                         isRelated(updateRelateVal, d.id, PK)
                      ) {
                         updateItemData[f.relationName()] = values;
