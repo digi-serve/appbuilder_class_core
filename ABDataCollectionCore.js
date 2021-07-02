@@ -1130,7 +1130,7 @@ module.exports = class ABDataCollectionCore extends ABMLClass {
                         !Array.isArray(rowRelateVal) &&
                         (rowRelateVal == values.id ||
                            rowRelateVal.id == values.id ||
-                           rowRelatedVal[PK] == values.id) &&
+                           rowRelateVal[PK] == values.id) &&
                         !isRelated(updateRelateVal, d.id, PK)
                      ) {
                         updateItemData[f.relationName()] = null;
