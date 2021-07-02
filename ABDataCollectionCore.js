@@ -1121,11 +1121,11 @@ module.exports = class ABDataCollectionCore extends ABMLClass {
                         !isRelated(updateRelateVal, d.id, PK)
                      ) {
                         updateItemData[f.relationName()] = rowRelateVal.filter(
-                           (v) => (v.id || v || v[PK]) != values.id
+                           (v) => (v.id || v[PK] || v) != values.id
                         );
                         updateItemData[f.columnName] = updateItemData[
                            f.relationName()
-                        ].map((v) => v.id || v || v[PK]);
+                        ].map((v) => v.id || v[PK] || v);
                      } else if (
                         !Array.isArray(rowRelateVal) &&
                         (rowRelateVal == values.id ||
@@ -1168,7 +1168,7 @@ module.exports = class ABDataCollectionCore extends ABMLClass {
                         updateItemData[f.relationName()] = rowRelateVal;
                         updateItemData[f.columnName] = updateItemData[
                            f.relationName()
-                        ].map((v) => v.id || v || v[PK]);
+                        ].map((v) => v.id || v[PK] || v);
                      } else if (
                         !Array.isArray(rowRelateVal) &&
                         (rowRelateVal != values.id ||
@@ -1370,6 +1370,9 @@ module.exports = class ABDataCollectionCore extends ABMLClass {
             connectedFields &&
             connectedFields.length > 0
          ) {
+            // various PK name
+            let PK = connectedFields[0].object.PK();
+
             this.__dataCollection.find({}).forEach((d) => {
                let updateRelateVals = {};
 
@@ -1379,18 +1382,23 @@ module.exports = class ABDataCollectionCore extends ABMLClass {
 
                   if (
                      Array.isArray(relateVal) &&
-                     relateVal.filter((v) => v == deleteId || v.id == deleteId)
-                        .length > 0
+                     relateVal.filter(
+                        (v) =>
+                           v == deleteId ||
+                           v.id == deleteId ||
+                           v[PK] == deleteId
+                     ).length > 0
                   ) {
                      updateRelateVals[f.relationName()] = relateVal.filter(
-                        (v) => (v.id || v) != deleteId
+                        (v) => (v.id || v[PK] || v) != deleteId
                      );
                      updateRelateVals[f.columnName] = updateRelateVals[
                         f.relationName()
-                     ].map((v) => v.id || v);
+                     ].map((v) => v.id || v[PK] || v);
                   } else if (
                      relateVal == deleteId ||
-                     relateVal.id == deleteId
+                     relateVal.id == deleteId ||
+                     relateVal[PK] == deleteId
                   ) {
                      updateRelateVals[f.relationName()] = null;
                      updateRelateVals[f.columnName] = null;
