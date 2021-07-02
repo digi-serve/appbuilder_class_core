@@ -624,7 +624,7 @@ module.exports = class ABDataCollectionCore extends ABMLClass {
                   if (r[f.columnName].filter) {
                      // Array - isMultiple
                      found =
-                        r[f.colName].filter((data) => data.id == username)
+                        r[f.columnName].filter((data) => data.id == username)
                            .length > 0;
                   } else if (r[f.columnName] == username) {
                      found = true;
