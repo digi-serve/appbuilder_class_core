@@ -555,17 +555,11 @@ module.exports = class ABDataCollectionCore extends ABMLClass {
 
    /**
     * @method refreshLinkCursor
-    * This function does one of two things.
-    * 1) If the data collection is bound to another and it is the child connection
+    *    If the data collection is bound to another and it is the child connection
     *    it finds it's parents current set cursor and then filters its data
     *    based off of the cursor.
-    * 2) It determines if the data collection has reloadWhere filters set which
-    *    means it's is a child data collection that is currently fitlered by
-    *    the parent using server side binding. If so and it has been flagged
-    *    that is shouldReloadData it tells the child data collection to update
-    * @param {bool} shouldReloadData - boolean that is passed if new data should be fetched from server
     */
-   refreshLinkCursor(shouldReloadData = false) {
+   refreshLinkCursor() {
       // Putting this back the way it was because the core issue was the data DataCollections
       // were not getting udpates from the socket reponses because we didn't do lookups
       // off of the PK when it was used.
@@ -951,7 +945,6 @@ module.exports = class ABDataCollectionCore extends ABMLClass {
          let updatedIds = [];
          let updatedTreeIds = [];
          let updatedVals = {};
-         let connectedItemUpdates = []; //track all changes to connected item data
 
          // Query
          if (obj instanceof ABObjectQuery) {
@@ -1081,11 +1074,7 @@ module.exports = class ABDataCollectionCore extends ABMLClass {
             let PK = connectedFields[0].object.PK();
             if (!values.id && PK != "id") values.id = values[PK];
 
-            if (this.__dataCollection.count() == 0) {
-               // push an empty item into the connectedItemUpdates array to let the
-               // datacollection know it has been changed
-               connectedItemUpdates.push({});
-            } else {
+            if (this.__dataCollection.count() > 0) {
                this.__dataCollection.find({}).forEach((d) => {
                   let updateItemData = {};
 
@@ -1193,20 +1182,11 @@ module.exports = class ABDataCollectionCore extends ABMLClass {
                         );
                      }
                   }
-                  // push any connected item updates into this array
-                  // so we can notify refreshLinkCursor that connected items
-                  // were updated
-                  connectedItemUpdates.push(updateItemData);
                });
             }
          }
 
-         // filter link data collection's cursor
-         // check if there have been updated items on connected fields
-         // if so we need to reload data from the server to get the latest
-         // data
-         var shouldReloadData = connectedItemUpdates.length ? true : false;
-         this.refreshLinkCursor(shouldReloadData);
+         this.refreshLinkCursor();
          this.setStaticCursor();
       });
 
