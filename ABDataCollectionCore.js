@@ -560,33 +560,24 @@ module.exports = class ABDataCollectionCore extends ABMLClass {
     *    based off of the cursor.
     */
    refreshLinkCursor() {
-      // Putting this back the way it was because the core issue was the data DataCollections
-      // were not getting udpates from the socket reponses because we didn't do lookups
-      // off of the PK when it was used.
-      if (this.__reloadWheres && !this.settings.loadAll) {
-         // no need to filter the data because it was already filterted
-         return false;
-      } else {
-         // if the checks do not pass we filter the data in the data collection
-         // using its parents current cursor because all the data in this child
-         // data collection has been loaded and the frontend can decide what is
-         // seen or not seen
-         let linkCursor;
-         let dvLink = this.datacollectionLink;
-         if (dvLink) {
-            linkCursor = dvLink.getCursor();
-         }
-
-         let filterData = (rowData) => {
-            // if link dc cursor is null, then show all data
-            if (linkCursor == null) return true;
-            else return this.isParentFilterValid(rowData);
-         };
-
-         if (this.__dataCollection) this.__dataCollection.filter(filterData);
-
-         if (this.__treeCollection) this.__treeCollection.filter(filterData);
+      // filter the data in the data collection
+      // using its parents current cursor because all the data in this child
+      // data collection has been loaded and the frontend can decide what is
+      // seen or not seen
+      let linkCursor;
+      let dvLink = this.datacollectionLink;
+      if (dvLink) {
+         linkCursor = dvLink.getCursor();
       }
+
+      let filterData = (rowData) => {
+         // if link dc cursor is null, then show all data
+         if (linkCursor == null) return true;
+         else return this.isParentFilterValid(rowData);
+      };
+
+      if (this.__dataCollection) this.__dataCollection.filter(filterData);
+      if (this.__treeCollection) this.__treeCollection.filter(filterData);
    }
 
    setStaticCursor() {
