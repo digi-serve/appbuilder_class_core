@@ -91,7 +91,7 @@ module.exports = class ABFieldFormulaCore extends ABField {
     * @param {boolean} reCalculate
     *        a boolean that signals if we should force recalculation of values
     */
-   format(rowData) {
+   format(rowData, reCalculate = false) {
       var fieldLink = this.fieldLink;
 
       let reformat = (numData) => {
@@ -105,14 +105,12 @@ module.exports = class ABFieldFormulaCore extends ABField {
          }
       };
 
-      // May 21, 2021 Commenting seciton out below to force recaclation
-
       // if data exists, then will not calculate on client side
       // unless we pass reCalculate=true to force the recalculation
-      // if (rowData[this.columnName] != null && !reCalculate) {
-      //    // reformat data
-      //    return reformat(rowData[this.columnName]);
-      // }
+      if (rowData[this.columnName] != null && !reCalculate) {
+         // reformat data
+         return reformat(rowData[this.columnName]);
+      }
 
       if (!fieldLink) return 0;
 
