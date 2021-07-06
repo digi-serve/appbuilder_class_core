@@ -224,7 +224,6 @@ module.exports = class RowFilter extends ABComponent {
             var result = false;
 
             var value = getFieldVal(rowData, field);
-            if (value && value.toLowerCase) value = value.toLowerCase();
 
             compareValue = compareValue.toLowerCase();
 
@@ -415,18 +414,12 @@ module.exports = class RowFilter extends ABComponent {
                case "in_data_collection":
                   if (!dc) return false;
 
-                  result =
-                     dc.getData(
-                        (d) => (d.id || d.uuid) == (rowData.id || rowData.uuid)
-                     ).length > 0;
+                  result = dc.getData((d) => d.id == rowData.id).length > 0;
                   break;
                case "not_in_data_collection":
                   if (!dc) return true;
 
-                  result =
-                     dc.getData(
-                        (d) => (d.id || d.uuid) == (rowData.id || rowData.uuid)
-                     ).length < 1;
+                  result = dc.getData((d) => d.id == rowData.id).length < 1;
                   break;
             }
 
@@ -440,16 +433,18 @@ module.exports = class RowFilter extends ABComponent {
             let connectedVal = "";
 
             if (rowData) {
-               if (rowData[relationName]) {
+               let rowVal =
+                  rowData[relationName] || getFieldVal(rowData, field);
+               if (rowVal) {
                   connectedVal = (
                      (field.indexField
-                        ? rowData[relationName][field.indexField.columnName]
+                        ? rowVal[field.indexField.columnName]
                         : false) || // custom index
                      (field.indexField2
-                        ? rowData[relationName][field.indexField2.columnName]
+                        ? rowVal[field.indexField2.columnName]
                         : false) || // custom index 2
-                     rowData[relationName].id ||
-                     rowData[relationName]
+                     rowVal.id ||
+                     rowVal
                   )
                      .toString()
                      .toLowerCase();
