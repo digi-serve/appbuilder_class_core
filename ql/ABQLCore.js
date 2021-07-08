@@ -104,7 +104,7 @@ class ABQLCore {
    availableProcessDataFieldsHash() {
       var availableProcessDataFields = this.task.process.processDataFields(
          this.task
-      );
+      ) || [];
       var hashFieldIDs = {};
       availableProcessDataFields.forEach((f) => {
          if (f.field) {
