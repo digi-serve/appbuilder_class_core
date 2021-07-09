@@ -175,6 +175,8 @@ module.exports = class ABFieldFormulaCore extends ABField {
             break;
       }
 
+      rowData[this.columnName] = result;
+
       // ABFieldCalculate does not need to .format again
       if (fieldLink.key == "calculate") {
          return result;
