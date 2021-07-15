@@ -119,14 +119,12 @@ module.exports = class ABProcessTaskServiceQueryCore extends ABProcessElement {
     * @param {obj} instance
     * @return {mixed} | null
     */
-   /*
-    processData(instance, key) {
-        var parts = key.split(".");
-        if (parts[0] == this.id) {
-            var myState = this.myState(instance);
-            return myState[parts[1]];
-        }
-        return null;
-    }
-    */
+   processData(instance, key) {
+      var parts = key.split(".");
+      if (parts[0] == this.id) {
+         var myState = this.myState(instance);
+         return myState[parts[1]];
+      }
+      return null;
+   }
 };
