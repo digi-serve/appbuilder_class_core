@@ -35,7 +35,7 @@ function getFieldVal(rowData, field) {
    return value;
 }
 
-module.exports = class RowFilter extends ABComponent {
+module.exports = class RowFilterCore extends ABComponent {
    constructor(App, idBase) {
       idBase = idBase || "ab_row_filter";
 
@@ -224,6 +224,7 @@ module.exports = class RowFilter extends ABComponent {
             var result = false;
 
             var value = getFieldVal(rowData, field);
+            if (value && value.toLowerCase) value = value.toLowerCase();
 
             compareValue = compareValue.toLowerCase();
 
@@ -414,12 +415,18 @@ module.exports = class RowFilter extends ABComponent {
                case "in_data_collection":
                   if (!dc) return false;
 
-                  result = dc.getData((d) => d.id == rowData.id).length > 0;
+                  result =
+                     dc.getData(
+                        (d) => (d.id || d.uuid) == (rowData.id || rowData.uuid)
+                     ).length > 0;
                   break;
                case "not_in_data_collection":
                   if (!dc) return true;
 
-                  result = dc.getData((d) => d.id == rowData.id).length < 1;
+                  result =
+                     dc.getData(
+                        (d) => (d.id || d.uuid) == (rowData.id || rowData.uuid)
+                     ).length < 1;
                   break;
             }
 
@@ -480,6 +487,19 @@ module.exports = class RowFilter extends ABComponent {
                case "contain_current_user":
                case "not_contain_current_user":
                   return _logic.userValid(rowData, field, rule, compareValue);
+               case "is_empty":
+                  return (
+                     rowData[relationName] == null ||
+                     rowData[relationName].length < 1 ||
+                     rowData[relationName] == ""
+                  );
+               case "is_not_empty":
+                  return (
+                     rowData[relationName] != null &&
+                     ((Array.isArray(rowData[relationName]) &&
+                        rowData[relationName].length > 0) ||
+                        rowData[relationName] != "")
+                  );
                case "in_data_collection":
                case "not_in_data_collection":
                   return _logic.dataCollectionValid(
