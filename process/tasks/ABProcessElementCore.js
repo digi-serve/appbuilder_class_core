@@ -412,19 +412,20 @@ module.exports = class ABProcessTaskCore extends ABMLClass {
       }
    }
 
-   get startElement() {
-      let startElem = this.process.elements(
-         (elem) => elem && elem.defaults && elem.defaults.category == "start"
-      )[0];
-      return startElem;
+   get startElements() {
+      let startElems =
+         this.process.elements(
+            (elem) => elem && elem.defaults && elem.defaults.category == "start"
+         ) || [];
+      return startElems;
    }
 
-   get previousElement() {
-      return this.process.connectionPreviousTask(this)[0];
+   get previousElements() {
+      return this.process.connectionPreviousTask(this);
    }
 
    get objectOfStartElement() {
-      let startElem = this.startElement;
+      let startElem = this.startElements[0];
       if (!startElem) return null;
 
       let startElemObj = this.application.objects(
@@ -434,7 +435,7 @@ module.exports = class ABProcessTaskCore extends ABMLClass {
    }
 
    get objectOfPrevElement() {
-      let prevElem = this.previousElement;
+      let prevElem = this.previousElements[0];
       if (!prevElem) return null;
 
       let objectID;
