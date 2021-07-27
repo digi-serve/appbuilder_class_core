@@ -147,7 +147,13 @@ module.exports = class ABProcessTriggerLifecycle extends ABProcessTrigger {
                   return field[parts[2]].call(field, myState["data"]);
                } else {
                   // instance.context.data[field.column_name];
-                  return myState["data"][field.columnName];
+                  // if field is "calculate" or "TextFormula" data is not stored
+                  // in data base and we need to run format method
+                  if (["calculate","TextFormula"].indexOf(field.key) != -1 ) {
+                     return field.format(myState["data"]);
+                  } else {
+                     return myState["data"][field.columnName];
+                  }
                }
             } else if (parts[1] == "uuid") {
                return myState["data"]["uuid"];
