@@ -350,7 +350,10 @@ module.exports = class ABFieldNumberCore extends ABField {
       // Decimal
       if (options.decimalDelimiter && options.decimalSize) {
          result = `${negativeSign}${integerValue}${
-            decimalStr ? options.decimalDelimiter + decimalStr : ""
+            decimalStr
+               ? options.decimalDelimiter +
+                 decimalStr.toString().substr(0, options.decimalSize)
+               : ""
          }`;
       }
       // Integer
@@ -360,5 +363,12 @@ module.exports = class ABFieldNumberCore extends ABField {
 
       return result;
    }
-};
 
+   getDecimalSize() {
+      if (this.settings.typeDecimalPlaces != "none") {
+         return parseInt(this.settings.typeDecimalPlaces);
+      } else {
+         return 0;
+      }
+   }
+};
