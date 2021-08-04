@@ -184,7 +184,7 @@ module.exports = class ABFieldFormulaCore extends ABField {
                // divide result by multiplier to get actual value
                result = sum / multiplier;
                // now divide by length to get the average
-               result = sum / numberList.length;
+               result = result / numberList.length;
             }
             break;
 
