@@ -138,6 +138,30 @@ module.exports = class ABProcessTaskServiceQueryCore extends ABProcessElement {
    }
 
    /**
+    * @function getValueParameterNames
+    * 
+    * @returns {array}
+    */
+   getValueParameterNames() {
+      let result = [];
+
+      if (!this.qlObj) return result;
+
+      const SAVE_QL_KEY = "value_save";
+
+      let currQl = this.qlObj;
+      while(currQl) {
+         if (currQl.constructor.key == SAVE_QL_KEY) {
+            result.push(currQl.taskParam || (currQl.params || {}).task_param);
+         }
+
+         currQl = currQl.next;
+      }
+
+      return result;
+   }
+
+   /**
     * processData()
     * return the current value requested for the given data key.
     * @param {obj} instance
