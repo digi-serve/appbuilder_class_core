@@ -159,6 +159,3 @@ module.exports = class InsertRecordCore extends ABProcessElement {
      }
      */
 };
-
-
-

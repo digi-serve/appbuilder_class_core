@@ -73,8 +73,8 @@ class ABQLSetSaveCore extends ABQL {
       }
 
       return {
-         key: `${id}.${this.taskParam}`,
-         label: `${label}->${this.taskParam}`,
+         key: `${id}.${this.taskParam || this.params.task_param}`,
+         label: `${label}->${this.taskParam || this.params.task_param}`,
          field: field,
          object: this.object,
          set: true
