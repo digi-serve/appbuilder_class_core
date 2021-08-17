@@ -403,13 +403,14 @@ module.exports = class ABApplicationCore extends ABMLClass {
     *        array of options for webix select
     */
    connectedFields(currObjID, linkedObjectID) {
+      console.error("!!! Who is calling this?");
+
       // Determine the object from the currObjID
       var myObj = this.AB.objectByID(currObjID);
 
       // Get all the connected Fields for our object that match the linkedObjectID
-      var connectedFields = myObj.fields(
-         (f) =>
-            f.key == "connectObject" && f.settings.linkObject == linkedObjectID
+      var connectedFields = myObj.connectFields(
+         (f) => f.settings.linkObject == linkedObjectID
       );
       // Build an arry of options for the webix select
       var linkedFields = [];
