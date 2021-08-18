@@ -155,36 +155,46 @@ module.exports = class ABFieldFormulaCore extends ABField {
       // calculate
       switch (this.settings.type) {
          case "sum":
-            if (numberList.length > 0) {
+            if (numberList.length > 1) {
                // get power of 10 to the number of decimal places this number
                // is formated to require
                var multiplier = Math.pow(10, decimalSize);
                // multiply values by muliplyier and add them to pervious value
                // because in javascript adding number with decimals can cause issues
                // ex: 9.11 + 222.11 = 231.22000000000003
-               result = numberList.reduce(
-                  (sum, val) => sum + (val * multiplier || 0)
-               );
+               result = numberList.reduce((sum, val, index) => {
+                  if (index == 1) {
+                     sum = sum * multiplier || 0;
+                  }
+                  return sum + (val * multiplier || 0);
+               });
+               // divide result by multiplier to get actual value
+               result = result / multiplier;
+            } else if (numberList.length == 1) {
+               return numberList[0];
             }
-            // divide result by multiplier to get actual value
-            result = result / multiplier;
             break;
 
          case "average":
-            if (numberList.length > 0) {
+            if (numberList.length > 1) {
                // get power of 10 to the number of decimal places this number
                // is formated to require
                var multiplier = Math.pow(10, decimalSize);
                // multiply values by muliplyier and add them to pervious value
                // because in javascript adding number with decimals can cause issues
                // ex: 9.11 + 222.11 = 231.22000000000003
-               let sum = numberList.reduce(
-                  (sum, val) => sum + (val * multiplier || 0)
-               );
+               let sum = numberList.reduce((sum, val, index) => {
+                  if (index == 1) {
+                     sum = sum * multiplier || 0;
+                  }
+                  return sum + (val * multiplier || 0);
+               });
                // divide result by multiplier to get actual value
                result = sum / multiplier;
                // now divide by length to get the average
                result = result / numberList.length;
+            } else if (numberList.length == 1) {
+               return numberList[0];
             }
             break;
 
