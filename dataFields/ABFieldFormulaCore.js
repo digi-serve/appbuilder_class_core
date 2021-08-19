@@ -162,12 +162,13 @@ module.exports = class ABFieldFormulaCore extends ABField {
                // multiply values by muliplyier and add them to pervious value
                // because in javascript adding number with decimals can cause issues
                // ex: 9.11 + 222.11 = 231.22000000000003
-               result = numberList.reduce(
-                  (sum, val) => sum + (val * multiplier || 0)
-               );
+               var sum = 0;
+               numberList.forEach((val) => {
+                  sum += val * multiplier || 0;
+               });
+               // divide result by multiplier to get actual value
+               result = sum / multiplier;
             }
-            // divide result by multiplier to get actual value
-            result = result / multiplier;
             break;
 
          case "average":
@@ -178,13 +179,13 @@ module.exports = class ABFieldFormulaCore extends ABField {
                // multiply values by muliplyier and add them to pervious value
                // because in javascript adding number with decimals can cause issues
                // ex: 9.11 + 222.11 = 231.22000000000003
-               let sum = numberList.reduce(
-                  (sum, val) => sum + (val * multiplier || 0)
-               );
+               var sum = 0;
+               numberList.forEach((val) => {
+                  sum += val * multiplier || 0;
+               });
                // divide result by multiplier to get actual value
-               result = sum / multiplier;
-               // now divide by length to get the average
-               result = result / numberList.length;
+               // and divide by length to get the average
+               result = sum / multiplier / numberList.length;
             }
             break;
 
