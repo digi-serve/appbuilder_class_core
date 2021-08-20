@@ -9,8 +9,7 @@
 
 const ABQLSetSave = require("../../platform/ql/ABQLSetSave.js");
 
-class ABQLValueSaveCore extends ABQLSetSave {
-}
+class ABQLValueSaveCore extends ABQLSetSave {}
 
 ABQLValueSaveCore.key = "value_save";
 ABQLValueSaveCore.label = "save";

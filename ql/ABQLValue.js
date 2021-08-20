@@ -6,6 +6,4 @@
  *
  */
 
-module.exports = [
-    require("../../platform/ql/ABQLValueSave.js")
-];
+module.exports = [require("../../platform/ql/ABQLValueSave.js")];

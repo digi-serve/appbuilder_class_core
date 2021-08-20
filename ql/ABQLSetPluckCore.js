@@ -30,7 +30,7 @@ class ABQLSetPluckCore extends ABQL {
       // #Hack! : when an Operation provides the same .NextQlOps that it
       // was defined in, we can't require it again ==> circular dependency.
       // so we manually set it here from the operation that created us:
-      this.constructor.NextQLOps = (this.constructor.NextQLOps == null || this.constructor.NextQLOps.length < 1 ? this.prevOP.constructor.NextQLOps : this.constructor.NextQLOps);
+      this.constructor.NextQLOps = this.prevOP.constructor.NextQLOps;
 
       // we need to gather our .field and .objectOut before we
       // allow our base class to continue forward:
