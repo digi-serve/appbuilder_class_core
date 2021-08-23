@@ -74,7 +74,7 @@ class ABQLCore {
 
       if (attributes.next) {
          var nextOP = null;
-         this.constructor.NextQLOps.forEach((OP) => {
+         (this.NextQLOps || this.constructor.NextQLOps).forEach((OP) => {
             if (OP.key == attributes.next.key) {
                nextOP = OP;
             }
