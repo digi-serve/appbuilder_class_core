@@ -782,33 +782,50 @@ module.exports = class ABDataCollectionCore extends ABMLClass {
                               }
 
                               // find the position of the data view
-                              var pos = $$(bcids)
-                                 .getParentView()
-                                 .index($$(bcids));
+                              var pos = 0;
+                              var parent = $$(bcids).getParentView();
+                              if ($$(bcids).getParentView().index) {
+                                 pos = $$(bcids)
+                                    .getParentView()
+                                    .index($$(bcids));
+                              } else if (
+                                 $$(bcids)
+                                    .getParentView()
+                                    .getParentView().index
+                              ) {
+                                 // this is a data view and it is inside a
+                                 // scroll view that is inside an accodion
+                                 // so we need to go deeper to add the button
+                                 parent = $$(bcids)
+                                    .getParentView()
+                                    .getParentView();
+                                 pos = $$(bcids)
+                                    .getParentView()
+                                    .getParentView()
+                                    .index($$(bcids).getParentView());
+                              }
 
                               // store the datacollection so we can pass it to the button later
                               var DC = this;
                               // add a button that reloads the view when clicked
-                              $$(bcids)
-                                 .getParentView()
-                                 .addView(
-                                    {
-                                       id: bcids + "_reloadView",
-                                       view: "button",
-                                       value: L(
-                                          "ab.dataCollection.staleTable",
-                                          "*New data available. Click to reload."
-                                       ),
-                                       css: "webix_primary webix_warn",
-                                       click: function(id, event) {
-                                          DC.reloadData();
-                                          $$(id)
-                                             .getParentView()
-                                             .removeView(id);
-                                       }
-                                    },
-                                    pos
-                                 );
+                              parent.addView(
+                                 {
+                                    id: bcids + "_reloadView",
+                                    view: "button",
+                                    value: L(
+                                       "ab.dataCollection.staleTable",
+                                       "*New data available. Click to reload."
+                                    ),
+                                    css: "webix_primary webix_warn",
+                                    click: function(id, event) {
+                                       DC.reloadData();
+                                       $$(id)
+                                          .getParentView()
+                                          .removeView(id);
+                                    }
+                                 },
+                                 pos
+                              );
                            });
                            // this.emit("create", updatedV);
                         }
@@ -996,10 +1013,12 @@ module.exports = class ABDataCollectionCore extends ABMLClass {
                   var model = obj.model();
                   model.normalizeData(updatedVals);
 
-                  updatedIds = _.uniq(updatedIds);
-                  updatedIds.forEach((itemId) => {
-                     this.__dataCollection.updateItem(itemId, updatedVals);
-                  });
+                  if (this.__dataCollection) {
+                     updatedIds = _.uniq(updatedIds);
+                     updatedIds.forEach((itemId) => {
+                        this.__dataCollection.updateItem(itemId, updatedVals);
+                     });
+                  }
 
                   if (this.__treeCollection) {
                      // update data in tree
@@ -1799,11 +1818,12 @@ module.exports = class ABDataCollectionCore extends ABMLClass {
       var fieldLink = this.fieldLink;
       if (fieldLink == null) return true;
 
-      // the parent's cursor is not set.
-      // our DC depends on the value of the parent's cursor,
-      // so until it is set, any data we receive is inValid
+      // if the parent's cursor is not set we have not filted this collection
+      // yet so the data that comes back should be valid
       var linkCursor = linkDv.getCursor();
-      if (linkCursor == null) return false;
+      if (linkCursor == null) {
+         return true;
+      }
 
       var linkVal = rowData[fieldLink.relationName()];
       if (linkVal == null) {
