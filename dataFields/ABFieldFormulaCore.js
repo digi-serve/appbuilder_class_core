@@ -149,18 +149,43 @@ module.exports = class ABFieldFormulaCore extends ABField {
 
       var result = 0;
 
+      // get the decimal size of the numbers being calculated
+      var decimalSize = fieldLink.getDecimalSize();
+
       // calculate
       switch (this.settings.type) {
          case "sum":
             if (numberList.length > 0) {
-               result = numberList.reduce((sum, val) => sum + (val || 0));
+               // get power of 10 to the number of decimal places this number
+               // is formated to require
+               var multiplier = Math.pow(10, decimalSize);
+               // multiply values by muliplyier and add them to pervious value
+               // because in javascript adding number with decimals can cause issues
+               // ex: 9.11 + 222.11 = 231.22000000000003
+               var sum = 0;
+               numberList.forEach((val) => {
+                  sum += val * multiplier || 0;
+               });
+               // divide result by multiplier to get actual value
+               result = sum / multiplier;
             }
             break;
 
          case "average":
             if (numberList.length > 0) {
-               let sum = numberList.reduce((sum, val) => sum + (val || 0)); // sum
-               result = sum / numberList.length;
+               // get power of 10 to the number of decimal places this number
+               // is formated to require
+               var multiplier = Math.pow(10, decimalSize);
+               // multiply values by muliplyier and add them to pervious value
+               // because in javascript adding number with decimals can cause issues
+               // ex: 9.11 + 222.11 = 231.22000000000003
+               var sum = 0;
+               numberList.forEach((val) => {
+                  sum += val * multiplier || 0;
+               });
+               // divide result by multiplier to get actual value
+               // and divide by length to get the average
+               result = sum / multiplier / numberList.length;
             }
             break;
 
@@ -216,4 +241,3 @@ module.exports = class ABFieldFormulaCore extends ABField {
       return this._rowFilter;
    }
 };
-
