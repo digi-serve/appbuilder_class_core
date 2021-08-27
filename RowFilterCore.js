@@ -453,8 +453,11 @@ module.exports = class RowFilterCore extends ABComponent {
                   )
                      .toString()
                      .toLowerCase();
-               } else if (rowData[columnName] != null) {
-                  connectedVal = rowData[columnName];
+               } else {
+                  let fieldVal = getFieldVal(rowData, field);
+                  if (fieldVal != null) {
+                     connectedVal = fieldVal;
+                  }
                }
             }
 
@@ -791,3 +794,4 @@ module.exports = class RowFilterCore extends ABComponent {
       this.config_settings.rules = this.config_settings.rules || [];
    }
 };
+
