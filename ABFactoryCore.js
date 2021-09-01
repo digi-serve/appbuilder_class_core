@@ -110,6 +110,7 @@ class ABFactory extends EventEmitter {
                d.json = JSON.parse(d.json);
             } catch (e) {
                console.log(e);
+               console.error(` Error on definition id[${d.id}]`);
             }
          }
       });
