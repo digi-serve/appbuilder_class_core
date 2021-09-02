@@ -361,6 +361,26 @@ module.exports = class ABViewCore extends ABMLClass {
       return form;
    }
 
+   /**
+    * @method parentDetailComponent
+    * return the closest detail object that this component is on.
+    * @returns {ABViewDetail} detail component
+    */
+   parentDetailComponent() {
+      var detail = null;
+
+      var curr = this;
+      while (curr.key != "detail" && !curr.isRoot() && curr.parent) {
+         curr = curr.parent;
+      }
+
+      if (curr.key == "detail") {
+         detail = curr;
+      }
+
+      return detail;
+   }
+
    pageParent(filterFn) {
       if (filterFn == null) filterFn = () => true;
 
