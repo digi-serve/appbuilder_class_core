@@ -290,7 +290,10 @@ module.exports = class RowFilterCore extends ABComponent {
                   result =
                      (value || []).filter((v) => {
                         if (v) {
-                           return (v.username || v) == this.Account.username;
+                           return (
+                              (v.username || v.id || v.text || v) ==
+                              this.Account.username
+                           );
                         } else {
                            return false;
                         }
@@ -306,7 +309,10 @@ module.exports = class RowFilterCore extends ABComponent {
                   result =
                      (value || []).filter((v) => {
                         if (v) {
-                           return (v.username || v) == this.Account.username;
+                           return (
+                              (v.username || v.id || v.text || v) ==
+                              this.Account.username
+                           );
                         } else {
                            return false;
                         }
