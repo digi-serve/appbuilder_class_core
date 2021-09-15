@@ -299,15 +299,12 @@ module.exports = class ABFieldNumberCore extends ABField {
          data = Math.floor(data * digit) / digit;
       }
 
-      //// TODO: refactor to remove webix.* reference!
-      //// webix is a platform dependent ability: maybe try:  this.formatNumber(data, options)
-
       return "{prefix} {number} {postfix}"
          .replace("{prefix}", prefix)
          .replace("{postfix}", postfix)
          .replace(
             "{number}",
-            webix.Number.format(data, {
+            this.formatNumber(data, {
                groupDelimiter: thousandsSign,
                groupSize: 3,
                decimalDelimiter: decimalSign,
@@ -315,6 +312,63 @@ module.exports = class ABFieldNumberCore extends ABField {
             })
          );
    }
+
+   formatNumber(data, options = {}) {
+      if (data === "" || data == null) return data;
+
+      data = parseFloat(data);
+      let negativeSign = data < 0 ? "-" : "";
+      data = Math.abs(data);
+
+      let dataStr = data.toString();
+      let integerStr = dataStr.split(".")[0];
+      let decimalStr = dataStr.split(".")[1];
+
+      let integerValue = "";
+
+      // Thousands digit sign
+      if (options.groupDelimiter) {
+         let step = 3;
+         let i = integerStr.length;
+
+         do {
+            i -= step;
+            let chunk =
+               i > 0
+                  ? integerStr.substr(i, step)
+                  : integerStr.substr(0, step + i);
+            integerValue = `${chunk}${
+               integerValue ? options.groupDelimiter + integerValue : ""
+            }`;
+         } while (i > 0);
+      } else {
+         integerValue = integerStr;
+      }
+
+      let result = "";
+
+      // Decimal
+      if (options.decimalDelimiter && options.decimalSize) {
+         result = `${negativeSign}${integerValue}${
+            decimalStr
+               ? options.decimalDelimiter +
+                 decimalStr.toString().substr(0, options.decimalSize)
+               : ""
+         }`;
+      }
+      // Integer
+      else {
+         result = `${negativeSign}${integerValue}`;
+      }
+
+      return result;
+   }
+
+   getDecimalSize() {
+      if (this.settings.typeDecimalPlaces != "none") {
+         return parseInt(this.settings.typeDecimalPlaces);
+      } else {
+         return 0;
+      }
+   }
 };
-
-

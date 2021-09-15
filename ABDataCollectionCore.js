@@ -555,49 +555,29 @@ module.exports = class ABDataCollectionCore extends ABMLClass {
 
    /**
     * @method refreshLinkCursor
-    * This function does one of two things.
-    * 1) If the data collection is bound to another and it is the child connection
+    *    If the data collection is bound to another and it is the child connection
     *    it finds it's parents current set cursor and then filters its data
     *    based off of the cursor.
-    * 2) It determines if the data collection has reloadWhere filters set which
-    *    means it's is a child data collection that is currently fitlered by
-    *    the parent using server side binding. If so and it has been flagged
-    *    that is shouldReloadData it tells the child data collection to update
-    * @param {bool} shouldReloadData - boolean that is passed if new data should be fetched from server
     */
-   refreshLinkCursor(shouldReloadData = false) {
-      // check __reloadWheres for server side binding filters
-      // check to ensure that data collection is not marked as loadAll
-      // check to see if the data has been flagged as shouldReloadData because
-      // the data in a connected field has changed.
-      // if all off these pass reload the data using server side binding
-      if (this.__reloadWheres && !this.settings.loadAll && shouldReloadData) {
-         this.reloadData();
-      } else if (this.__reloadWheres && !this.settings.loadAll) {
-         // no need to filter the data because it was already filterted and not
-         // marked as shouldReloadData so just move on
-         return false;
-      } else {
-         // if the checks do not pass we filter the data in the data collection
-         // using its parents current cursor because all the data in this child
-         // data collection has been loaded and the frontend can decide what is
-         // seen or not seen
-         let linkCursor;
-         let dvLink = this.datacollectionLink;
-         if (dvLink) {
-            linkCursor = dvLink.getCursor();
-         }
-
-         let filterData = (rowData) => {
-            // if link dc cursor is null, then show all data
-            if (linkCursor == null) return true;
-            else return this.isParentFilterValid(rowData);
-         };
-
-         if (this.__dataCollection) this.__dataCollection.filter(filterData);
-
-         if (this.__treeCollection) this.__treeCollection.filter(filterData);
+   refreshLinkCursor() {
+      // filter the data in the data collection
+      // using its parents current cursor because all the data in this child
+      // data collection has been loaded and the frontend can decide what is
+      // seen or not seen
+      let linkCursor;
+      let dvLink = this.datacollectionLink;
+      if (dvLink) {
+         linkCursor = dvLink.getCursor();
       }
+
+      let filterData = (rowData) => {
+         // if link dc cursor is null, then show all data
+         if (linkCursor == null) return true;
+         else return this.isParentFilterValid(rowData);
+      };
+
+      if (this.__dataCollection) this.__dataCollection.filter(filterData);
+      if (this.__treeCollection) this.__treeCollection.filter(filterData);
    }
 
    setStaticCursor() {
@@ -617,7 +597,7 @@ module.exports = class ABDataCollectionCore extends ABMLClass {
                   if (r[f.columnName].filter) {
                      // Array - isMultiple
                      found =
-                        r[f.colName].filter((data) => data.id == username)
+                        r[f.columnName].filter((data) => data.id == username)
                            .length > 0;
                   } else if (r[f.columnName] == username) {
                      found = true;
@@ -802,33 +782,50 @@ module.exports = class ABDataCollectionCore extends ABMLClass {
                               }
 
                               // find the position of the data view
-                              var pos = $$(bcids)
-                                 .getParentView()
-                                 .index($$(bcids));
+                              var pos = 0;
+                              var parent = $$(bcids).getParentView();
+                              if ($$(bcids).getParentView().index) {
+                                 pos = $$(bcids)
+                                    .getParentView()
+                                    .index($$(bcids));
+                              } else if (
+                                 $$(bcids)
+                                    .getParentView()
+                                    .getParentView().index
+                              ) {
+                                 // this is a data view and it is inside a
+                                 // scroll view that is inside an accodion
+                                 // so we need to go deeper to add the button
+                                 parent = $$(bcids)
+                                    .getParentView()
+                                    .getParentView();
+                                 pos = $$(bcids)
+                                    .getParentView()
+                                    .getParentView()
+                                    .index($$(bcids).getParentView());
+                              }
 
                               // store the datacollection so we can pass it to the button later
                               var DC = this;
                               // add a button that reloads the view when clicked
-                              $$(bcids)
-                                 .getParentView()
-                                 .addView(
-                                    {
-                                       id: bcids + "_reloadView",
-                                       view: "button",
-                                       value: L(
-                                          "ab.dataCollection.staleTable",
-                                          "*New data available. Click to reload."
-                                       ),
-                                       css: "webix_primary webix_warn",
-                                       click: function(id, event) {
-                                          DC.reloadData();
-                                          $$(id)
-                                             .getParentView()
-                                             .removeView(id);
-                                       }
-                                    },
-                                    pos
-                                 );
+                              parent.addView(
+                                 {
+                                    id: bcids + "_reloadView",
+                                    view: "button",
+                                    value: L(
+                                       "ab.dataCollection.staleTable",
+                                       "*New data available. Click to reload."
+                                    ),
+                                    css: "webix_primary webix_warn",
+                                    click: function(id, event) {
+                                       DC.reloadData();
+                                       $$(id)
+                                          .getParentView()
+                                          .removeView(id);
+                                    }
+                                 },
+                                 pos
+                              );
                            });
                            // this.emit("create", updatedV);
                         }
@@ -886,7 +883,8 @@ module.exports = class ABDataCollectionCore extends ABMLClass {
                               rowRelateVal.filter(
                                  (v) =>
                                     v == updatedVals.id ||
-                                    v.id == updatedVals.id
+                                    v.id == updatedVals.id ||
+                                    v[PK] == updatedVals.id
                               ).length < 1 &&
                               isRelated(updateRelateVal, d.id, PK)
                            ) {
@@ -895,11 +893,12 @@ module.exports = class ABDataCollectionCore extends ABMLClass {
                               updateItemData[f.relationName()] = rowRelateVal;
                               updateItemData[f.columnName] = updateItemData[
                                  f.relationName()
-                              ].map((v) => v.id || v);
+                              ].map((v) => v.id || v[PK] || v);
                            } else if (
                               !Array.isArray(rowRelateVal) &&
                               (rowRelateVal != updatedVals.id ||
-                                 rowRelateVal.id != updatedVals.id) &&
+                                 rowRelateVal.id != updatedVals.id ||
+                                 rowRelateVal[PK] != updatedVals.id) &&
                               isRelated(updateRelateVal, d.id, PK)
                            ) {
                               updateItemData[f.relationName()] = updatedVals;
@@ -954,7 +953,6 @@ module.exports = class ABDataCollectionCore extends ABMLClass {
          let updatedIds = [];
          let updatedTreeIds = [];
          let updatedVals = {};
-         let connectedItemUpdates = []; //track all changes to connected item data
 
          // Query
          if (obj instanceof ABObjectQuery) {
@@ -1015,10 +1013,12 @@ module.exports = class ABDataCollectionCore extends ABMLClass {
                   var model = obj.model();
                   model.normalizeData(updatedVals);
 
-                  updatedIds = _.uniq(updatedIds);
-                  updatedIds.forEach((itemId) => {
-                     this.__dataCollection.updateItem(itemId, updatedVals);
-                  });
+                  if (this.__dataCollection) {
+                     updatedIds = _.uniq(updatedIds);
+                     updatedIds.forEach((itemId) => {
+                        this.__dataCollection.updateItem(itemId, updatedVals);
+                     });
+                  }
 
                   if (this.__treeCollection) {
                      // update data in tree
@@ -1084,11 +1084,7 @@ module.exports = class ABDataCollectionCore extends ABMLClass {
             let PK = connectedFields[0].object.PK();
             if (!values.id && PK != "id") values.id = values[PK];
 
-            if (this.__dataCollection.count() == 0) {
-               // push an empty item into the connectedItemUpdates array to let the
-               // datacollection know it has been changed
-               connectedItemUpdates.push({});
-            } else {
+            if (this.__dataCollection.count() > 0) {
                this.__dataCollection.find({}).forEach((d) => {
                   let updateItemData = {};
 
@@ -1106,20 +1102,24 @@ module.exports = class ABDataCollectionCore extends ABMLClass {
                      if (
                         Array.isArray(rowRelateVal) &&
                         rowRelateVal.filter(
-                           (v) => v == values.id || v.id == values.id
+                           (v) =>
+                              v == values.id ||
+                              v.id == values.id ||
+                              v[PK] == values.id
                         ).length > 0 &&
                         !isRelated(updateRelateVal, d.id, PK)
                      ) {
                         updateItemData[f.relationName()] = rowRelateVal.filter(
-                           (v) => (v.id || v) != values.id
+                           (v) => (v.id || v[PK] || v) != values.id
                         );
                         updateItemData[f.columnName] = updateItemData[
                            f.relationName()
-                        ].map((v) => v.id || v);
+                        ].map((v) => v.id || v[PK] || v);
                      } else if (
                         !Array.isArray(rowRelateVal) &&
                         (rowRelateVal == values.id ||
-                           rowRelateVal.id == values.id) &&
+                           rowRelateVal.id == values.id ||
+                           rowRelateVal[PK] == values.id) &&
                         !isRelated(updateRelateVal, d.id, PK)
                      ) {
                         updateItemData[f.relationName()] = null;
@@ -1134,11 +1134,18 @@ module.exports = class ABDataCollectionCore extends ABMLClass {
                         // update relate data
                         if (
                            rowRelateVal.filter(
-                              (v) => v == values.id || v.id == values.id
+                              (v) =>
+                                 v == values.id ||
+                                 v.id == values.id ||
+                                 v[PK] == values.id
                            ).length > 0
                         ) {
                            rowRelateVal.forEach((v, index) => {
-                              if (v == values.id || v.id == values.id)
+                              if (
+                                 v == values.id ||
+                                 v.id == values.id ||
+                                 v[PK] == values.id
+                              )
                                  rowRelateVal[index] = values;
                            });
                         }
@@ -1150,11 +1157,12 @@ module.exports = class ABDataCollectionCore extends ABMLClass {
                         updateItemData[f.relationName()] = rowRelateVal;
                         updateItemData[f.columnName] = updateItemData[
                            f.relationName()
-                        ].map((v) => v.id || v);
+                        ].map((v) => v.id || v[PK] || v);
                      } else if (
                         !Array.isArray(rowRelateVal) &&
                         (rowRelateVal != values.id ||
-                           rowRelateVal.id != values.id) &&
+                           rowRelateVal.id != values.id ||
+                           rowRelateVal[PK] != values.id) &&
                         isRelated(updateRelateVal, d.id, PK)
                      ) {
                         updateItemData[f.relationName()] = values;
@@ -1184,20 +1192,11 @@ module.exports = class ABDataCollectionCore extends ABMLClass {
                         );
                      }
                   }
-                  // push any connected item updates into this array
-                  // so we can notify refreshLinkCursor that connected items
-                  // were updated
-                  connectedItemUpdates.push(updateItemData);
                });
             }
          }
 
-         // filter link data collection's cursor
-         // check if there have been updated items on connected fields
-         // if so we need to reload data from the server to get the latest
-         // data
-         var shouldReloadData = connectedItemUpdates.length ? true : false;
-         this.refreshLinkCursor(shouldReloadData);
+         this.refreshLinkCursor();
          this.setStaticCursor();
       });
 
@@ -1351,6 +1350,9 @@ module.exports = class ABDataCollectionCore extends ABMLClass {
             connectedFields &&
             connectedFields.length > 0
          ) {
+            // various PK name
+            let PK = connectedFields[0].object.PK();
+
             this.__dataCollection.find({}).forEach((d) => {
                let updateRelateVals = {};
 
@@ -1360,18 +1362,23 @@ module.exports = class ABDataCollectionCore extends ABMLClass {
 
                   if (
                      Array.isArray(relateVal) &&
-                     relateVal.filter((v) => v == deleteId || v.id == deleteId)
-                        .length > 0
+                     relateVal.filter(
+                        (v) =>
+                           v == deleteId ||
+                           v.id == deleteId ||
+                           v[PK] == deleteId
+                     ).length > 0
                   ) {
                      updateRelateVals[f.relationName()] = relateVal.filter(
-                        (v) => (v.id || v) != deleteId
+                        (v) => (v.id || v[PK] || v) != deleteId
                      );
                      updateRelateVals[f.columnName] = updateRelateVals[
                         f.relationName()
-                     ].map((v) => v.id || v);
+                     ].map((v) => v.id || v[PK] || v);
                   } else if (
                      relateVal == deleteId ||
-                     relateVal.id == deleteId
+                     relateVal.id == deleteId ||
+                     relateVal[PK] == deleteId
                   ) {
                      updateRelateVals[f.relationName()] = null;
                      updateRelateVals[f.columnName] = null;
@@ -1811,11 +1818,12 @@ module.exports = class ABDataCollectionCore extends ABMLClass {
       var fieldLink = this.fieldLink;
       if (fieldLink == null) return true;
 
-      // the parent's cursor is not set.
-      // our DC depends on the value of the parent's cursor,
-      // so until it is set, any data we receive is inValid
+      // if the parent's cursor is not set we have not filted this collection
+      // yet so the data that comes back should be valid
       var linkCursor = linkDv.getCursor();
-      if (linkCursor == null) return false;
+      if (linkCursor == null) {
+         return true;
+      }
 
       var linkVal = rowData[fieldLink.relationName()];
       if (linkVal == null) {
@@ -1827,15 +1835,16 @@ module.exports = class ABDataCollectionCore extends ABMLClass {
          }
       }
 
+      let PK = fieldLink.object.PK();
+
       // array - 1:M , M:N
       if (linkVal.filter) {
          return (
-            linkVal.filter(
-               (val) => (val.uuid || val.id || val) == linkCursor.id
-            ).length > 0
+            linkVal.filter((val) => (val.id || val[PK] || val) == linkCursor.id)
+               .length > 0
          );
       } else {
-         return (linkVal.uuid || linkVal.id || linkVal) == linkCursor.id;
+         return (linkVal.id || linkVal[PK] || linkVal) == linkCursor.id;
       }
    }
 

@@ -75,6 +75,16 @@ module.exports = class ABProcessParticipantCore extends ABMLClass {
          this.account = attributes.account;
       }
 
+      this.useField = 0;
+      if (typeof attributes.useField != "undefined") {
+         this.useField = parseInt(attributes.useField);
+      }
+
+      this.fields = [];
+      if (typeof attributes.fields != "undefined") {
+         this.fields = attributes.fields;
+      }
+
       super.fromValues(attributes); // perform translation on this object.
       // NOTE: keep this at the end of .fromValues();
 
@@ -115,6 +125,8 @@ module.exports = class ABProcessParticipantCore extends ABMLClass {
          "role",
          "useAccount",
          "account",
+         "useField",
+         "fields",
          "stashed"
       ];
       fieldsToSave.forEach((f) => {

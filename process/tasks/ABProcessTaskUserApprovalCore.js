@@ -147,6 +147,38 @@ module.exports = class ABProcessTaskUserApprovalCore extends ABProcessElement {
                      }
                   }
                });
+            } else if (c.components && c.components.length) {
+               c.key = c.path;
+               c.components.forEach((o) => {
+                  if (o.abFieldID) {
+                     // these are plucked conneted values
+                     // gather up all their fields to be used
+                     var pluck = fields.filter((f) => {
+                        return f.key == c.path;
+                     })[0];
+                     if (!pluck) return;
+                     pluck.object.fields().filter((entry) => {
+                        if (entry && entry.id == o.abFieldID) {
+                           o.label = entry.label;
+                           o.key = entry.columnName;
+                           if (
+                              o.data &&
+                              o.data.values &&
+                              entry.settings.options
+                           ) {
+                              var vals = [];
+                              entry.settings.options.forEach((opt) => {
+                                 vals.push({
+                                    label: opt.text,
+                                    value: opt.id
+                                 });
+                              });
+                              o.data.values = vals;
+                           }
+                        }
+                     });
+                  }
+               });
             }
          });
       }
