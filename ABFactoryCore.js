@@ -256,6 +256,20 @@ class ABFactory extends EventEmitter {
       return (this._allApplications || []).filter(fn);
    }
 
+   /**
+    * @method applicationByID()
+    * returns a single ABApplication that matches the given ID.
+    * @param {string} ID
+    *        the .id/.name/.label of the ABApplication we are searching
+    *        for.
+    * @return {ABApplication}
+    *        the matching ABApplication object if found
+    *        {null} if not found.
+    */
+   applicationByID(ID) {
+      return this.applications((a) => a.id == ID)[0];
+   }
+
    applicationNew(values) {
       return new ABApplication(values, this);
    }
