@@ -78,12 +78,14 @@ class ABFactory extends EventEmitter {
       // Class References
       //
       this.Class = {
+         ABApplication,
          ABComponent,
          ABDefinition,
          ABObject,
          ABObjectExternal,
          ABObjectImport,
          ABObjectQuery,
+         ABProcessParticipant,
          // ABRole      // Do we need this anymore?
       };
 
@@ -115,58 +117,41 @@ class ABFactory extends EventEmitter {
          }
       });
 
-      //
-      // Prepare our Objects
-      //
-      let allObjects = allDefinitions.filter((def) => {
-         return def.type == "object";
-      });
-      (allObjects || []).forEach((defObj) => {
-         this._allObjects.push(this.objectNew(defObj.json));
-      });
-
-      //
-      // Prepare our Queries
-      //
-      let allQueries = allDefinitions.filter((def) => {
-         return def.type == "query";
-      });
-      (allQueries || []).forEach((defQry) => {
-         this._allQueries.push(this.queryNew(defQry.json));
-      });
-
-      //
-      // Prepare our DataCollections
-      //
-      let allDCs = allDefinitions.filter((def) => {
-         return def.type == "datacollection";
-      });
-      (allDCs || []).forEach((def) => {
-         this._allDatacollections.push(this.datacollectionNew(def.json));
-      });
-
-      //
-      // Prepare our Processes
-      //
-      let allProcesses = allDefinitions.filter((def) => {
-         return def.type == "process";
-      });
-      (allProcesses || []).forEach((def) => {
-         this._allProcesses.push(this.processNew(def.json));
-      });
-
-      //
-      // Prepare our Applications
-      //
-      let appDefs = allDefinitions.filter((def) => {
-         return def.type == "application";
-      });
-      appDefs.forEach((app) => {
-         this._allApplications.push(this.applicationNew(app.json));
+      allDefinitions.forEach((def) => {
+         let { keyList, keyFn } = this.objectKeysByDef(def);
+         if (keyList) {
+            this[keyList].push(this[keyFn](def.json));
+         }
       });
 
       this.emit("init.objects_ready");
       return Promise.resolve();
+   }
+
+   objectKeysByDef(def) {
+      switch (def.type) {
+         case "application":
+            return { keyList: "_allApplications", keyFn: "applicationNew" };
+
+         case "datacollection":
+            return {
+               keyList: "_allDatacollections",
+               keyFn: "datacollectionNew",
+            };
+
+         case "object":
+            return { keyList: "_allObjects", keyFn: "objectNew" };
+
+         case "process":
+            return { keyList: "_allProcesses", keyFn: "processNew" };
+
+         case "query":
+            return { keyList: "_allQueries", keyFn: "queryNew" };
+
+         default:
+            // we don't manage any other
+            return { keyList: null, keyFn: null };
+      }
    }
 
    //
@@ -224,7 +209,7 @@ class ABFactory extends EventEmitter {
    /**
     * definitionsParse()
     * include the incoming definitions into our ABFactory. These new
-    * definitiosn will replace any existing ones with the same .id.
+    * definitions will replace any existing ones with the same .id.
     * @param {array[ABDefinitioin]} defs
     *     the incoming array of ABDefinitions to parse.
     * @return {Promise}

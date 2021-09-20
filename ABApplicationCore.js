@@ -64,11 +64,6 @@ module.exports = class ABApplicationCore extends ABMLClass {
       // the {ABSiteRole.id}s of the roles allowed to work with this
       // ABApplication. (see .isAccessManaged for more info)
 
-      this.isAdminApp = JSON.parse(attributes.json.isAdminApp || false);
-      // {bool} .isAdminApp
-      // when set to {true} allows an instance of the AppBuilder Designer to
-      // display this application on the "Live" Display of the site.
-
       this.isAccessManaged = JSON.parse(attributes.isAccessManaged || false);
       // {bool} .isAccessManaged
       // does this Application imploy the more sophisticated  Access
@@ -133,9 +128,6 @@ module.exports = class ABApplicationCore extends ABMLClass {
       // interfaces for working with our Data.
       // ABViewPages operate within the confines of an ABApplication so
       // they are created/stored/accessed from within an ABApplication
-
-      this._roles = [];
-      // ??
 
       var newProcesses = [];
       var removePIDs = [];
@@ -289,7 +281,6 @@ module.exports = class ABApplicationCore extends ABMLClass {
          name: this.name,
          json: this.json,
          roleAccess: this.roleAccess,
-         isAdminApp: this.isAdminApp,
          translations: this.json.translations,
          isAccessManaged: this.isAccessManaged,
          isTranslationManaged: this.isTranslationManaged,
