@@ -329,7 +329,7 @@ module.exports = class ABDataCollectionCore extends ABMLClass {
    get datasource() {
       if (!this.__datasource) {
          var err = new Error("DataCollection missing reference datasource");
-         this.AB.notify("builder", err, { datacollection: this });
+         this.AB.notify("builder", err, { datacollection: this.toObj() });
       }
       return this.__datasource;
    }
