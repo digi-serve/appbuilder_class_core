@@ -56,10 +56,18 @@ module.exports = class ABApplicationCore extends ABMLClass {
       // with the .label.  The .name is created at design time and is a text
       // reference for this object.
 
+      this.isSystemObj = attributes.isSystemObj ?? false;
+      // {bool} .isSystemObj
+      // is this one of the integrated System Objects used by our framework?
+      // Some ABApplications and ABObjects are central to the running of the
+      // AppBuilder site.  They are marked with .isSystemObj = true;  It
+      // requires the role "System Designer" in order to edit/modify them.
+
       this.roleAccess = attributes.roleAccess || [];
       if (!Array.isArray(this.roleAccess)) {
          this.roleAccess = [this.roleAccess];
       }
+      this.roleAccess = this.roleAccess.filter((r) => r);
       // {array}
       // the {ABSiteRole.id}s of the roles allowed to work with this
       // ABApplication. (see .isAccessManaged for more info)
@@ -87,14 +95,12 @@ module.exports = class ABApplicationCore extends ABMLClass {
       if (typeof this.translationManagers == "string")
          this.translationManagers = JSON.parse(this.translationManagers);
 
-      // import all our ABObjects
       this.objectIDs = attributes.json.objectIDs || [];
       // {array} .objectIDs
       // All the {ABObject.id} values that have been pulled into this
       // ABApplication for use in it's design environment.  This is how we
       // determine which {ABObject}s are included or excluded from this app.
 
-      // NOTE: keep this after ABObjects are loaded
       this.queryIDs = attributes.json.queryIDs || [];
       // {array} .queryIDs
       // All the {ABObjectQuery.id} values that have been pulled into this
@@ -102,12 +108,11 @@ module.exports = class ABApplicationCore extends ABMLClass {
       // determine which {ABObjectQueries}s are included or excluded from
       // this app.
 
-      // NOTE: keep this after ABObjects are loaded
       this.datacollectionIDs = attributes.json.datacollectionIDs || [];
       // {array} .queryIDs
       // All the {ABObjectQuery.id} values that have been pulled into this
       // ABApplication for use in it's design environment.  This is how we
-      // determine which {ABObjectQueries}s are included or excluded from
+      // determine which {ABDataCollection}s are included or excluded from
       // this app.
 
       // import all our {ABViewPage}s
@@ -117,9 +122,17 @@ module.exports = class ABApplicationCore extends ABMLClass {
          if (def) {
             newPages.push(this.pageNew(def));
          } else {
-            console.error(
-               `App[${this.id}] is referenceing an unknown Page[${id}]`
+            this.emit(
+               "warning",
+               `App[${this.id}] is referenceing an unknown Page[${id}]`,
+               {
+                  appID: this.id,
+                  pageID: id,
+               }
             );
+            // console.error(
+            //    `App[${this.id}] is referenceing an unknown Page[${id}]`
+            // );
          }
       });
       this._pages = newPages;
@@ -135,7 +148,12 @@ module.exports = class ABApplicationCore extends ABMLClass {
          var p = this.AB.processByID(pID);
          if (p) {
             newProcesses.push(p);
-            // } else {
+         } else {
+            this.emit(
+               "warning",
+               `Application is referencing an unknown process.`,
+               { appID: this.id, processID: pID }
+            );
             //    removePIDs.push(pID);
          }
       });
@@ -279,6 +297,7 @@ module.exports = class ABApplicationCore extends ABMLClass {
          id: this.id,
          type: this.type || "application",
          name: this.name,
+         isSystemObj: this.isSystemObj,
          json: this.json,
          roleAccess: this.roleAccess,
          translations: this.json.translations,

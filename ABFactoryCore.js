@@ -228,16 +228,33 @@ class ABFactory extends EventEmitter {
       // store/replace the incoming definitions
       defs.forEach((d) => {
          this._definitions[d.id] = d;
+         this.definitionSync("updated", d.id, d);
       });
 
-      // reset our lists
-      this._allApplications = [];
-      this._allObjects = [];
-      this._allProcesses = [];
-      this._allQueries = [];
-      this._allDatacollections = [];
+      // // reset our lists
+      // var oldObjects = [];
+      // [
+      //    "_allApplications",
+      //    "_allObjects",
+      //    "_allProcesses",
+      //    "_allQueries",
+      //    "_allDatacollections",
+      // ].forEach((k) => {
+      //    oldObjects = oldObjects.concat(this[k]);
+      //    this[k] = [];
+      // });
 
-      return this.init();
+      // defs.forEach((d) => {
+      //    this.definitionSync("updated", d.id, d);
+      // });
+
+      // oldObjects.forEach((o) => {
+      //    // NOTE: this should cause any object referencing an ABXXX object to
+      //    // go grab a new instance from our ABFactory.
+      //    o.emit("definition.updated");
+      // });
+
+      return Promise.resolve();
    }
 
    //
