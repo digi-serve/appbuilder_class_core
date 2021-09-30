@@ -720,8 +720,11 @@ module.exports = class ABModelCore {
             // if there is no data we can exit now
             if (d[relationName] == null) return;
 
-            // if relation data is still a string
-            if (typeof d[relationName] == "string") {
+            // if relation data is still a string and isn't empty
+            if (
+               typeof d[relationName] == "string" &&
+               d[relationName].length > 0
+            ) {
                // parse the string into an object
                d[relationName] = JSON.parse(d[relationName]);
             }
