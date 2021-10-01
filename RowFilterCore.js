@@ -374,6 +374,9 @@ module.exports = class RowFilterCore extends ABComponent {
             let result = false;
 
             if (columnName) {
+               if (typeof rowData[columnName] == "undefined") {
+                  return "stale";
+               }
                rowData = rowData[columnName] || {};
             }
 
@@ -617,7 +620,7 @@ module.exports = class RowFilterCore extends ABComponent {
       var result = config_settings.glue === "and" ? true : false;
 
       config_settings.rules.forEach((filter) => {
-         if (!filter.key || !filter.rule) return;
+         if (!filter.key || !filter.rule || result === "stale") return;
 
          var fieldInfo = this._Fields.filter((f) => f.id == filter.key)[0];
          if (!fieldInfo) return;
@@ -694,6 +697,9 @@ module.exports = class RowFilterCore extends ABComponent {
                   filter.rule,
                   filter.value
                );
+               if (condResult === "stale") {
+                  result = condResult;
+               }
                break;
             case "this_object":
                condResult = _logic.thisObjectValid(
@@ -704,10 +710,12 @@ module.exports = class RowFilterCore extends ABComponent {
                break;
          }
 
-         if (config_settings.glue === "and") {
-            result = result && condResult;
-         } else {
-            result = result || condResult;
+         if (result !== "stale") {
+            if (config_settings.glue === "and") {
+               result = result && condResult;
+            } else {
+               result = result || condResult;
+            }
          }
       });
 

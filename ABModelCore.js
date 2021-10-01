@@ -432,7 +432,10 @@ module.exports = class ABModelCore {
 
                // if only 1 field requested, then return that
                if (fields.length == 1) {
-                  let data = myObj[fields[0].replace(/[^a-z0-9\.]/gi, "") + "__relation"];
+                  let data =
+                     myObj[
+                        fields[0].replace(/[^a-z0-9\.]/gi, "") + "__relation"
+                     ];
                   if (!data) return resolve([]);
 
                   if (!Array.isArray(data)) data = [data];
@@ -453,7 +456,8 @@ module.exports = class ABModelCore {
 
                var returnData = {};
                fields.forEach((colName) => {
-                  returnData[colName] = myObj[colName.replace(/[^a-z0-9\.]/gi, "") + "__relation"];
+                  returnData[colName] =
+                     myObj[colName.replace(/[^a-z0-9\.]/gi, "") + "__relation"];
                });
 
                resolve(returnData);
@@ -707,7 +711,8 @@ module.exports = class ABModelCore {
          if (d == null) return;
 
          // various PK name
-         if (!d.id && this.object.PK() != "id") d.id = d[this.object.PK()];
+         if (!d.id && this.object.PK() != "id" && d[this.object.PK()])
+            d.id = d[this.object.PK()];
 
          // loop through data's connected fields
          connectedFields.forEach((c) => {

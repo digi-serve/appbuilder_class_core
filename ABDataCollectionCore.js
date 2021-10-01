@@ -2218,14 +2218,35 @@ module.exports = class ABDataCollectionCore extends ABMLClass {
 
       // NOTE: should we use filter of the current view of object to filter
       //        if yes, update .wheres condition in .loadData too
-      if (this.__filterDatasource)
-         result = result && this.__filterDatasource.isValid(rowData);
+      if (this.__filterDatasource) {
+         var isSourceValid = this.__filterDatasource.isValid(rowData);
+         if (isSourceValid === "stale") {
+            this.loadData();
+            return false;
+         } else {
+            result = result && isSourceValid;
+         }
+      }
 
-      if (this.__filterDatacollection)
-         result = result && this.__filterDatacollection.isValid(rowData);
+      if (this.__filterDatacollection) {
+         var isCollectionValid = this.__filterDatacollection.isValid(rowData);
+         if (isCollectionValid === "stale") {
+            this.loadData();
+            return false;
+         } else {
+            result = result && isCollectionValid;
+         }
+      }
 
-      if (result && this.__filterScope)
-         result = result && this.__filterScope.isValid(rowData);
+      if (result && this.__filterScope) {
+         var isScopeValid = this.__filterScope.isValid(rowData);
+         if (isScopeValid === "stale") {
+            this.loadData();
+            return false;
+         } else {
+            result = result && isScopeValid;
+         }
+      }
 
       return result;
    }
