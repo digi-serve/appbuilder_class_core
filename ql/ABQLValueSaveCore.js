@@ -9,7 +9,18 @@
 
 const ABQLSetSave = require("../../platform/ql/ABQLSetSave.js");
 
-class ABQLValueSaveCore extends ABQLSetSave {}
+class ABQLValueSaveCore extends ABQLSetSave {
+   ///
+   /// Instance Methods
+   ///
+
+   fromAttributes(attributes) {
+      super.fromAttributes(attributes);
+
+      this.constructor.NextQLOps =
+         this.prevOP.NextQLOps || this.prevOP.constructor.NextQLOps;
+   }
+}
 
 ABQLValueSaveCore.key = "value_save";
 ABQLValueSaveCore.label = "save";
@@ -17,3 +28,4 @@ ABQLValueSaveCore.NextQLOps = [];
 // NOTE: currently, this is an ending step. but it doesn't have to be...
 
 module.exports = ABQLValueSaveCore;
+

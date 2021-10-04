@@ -62,6 +62,7 @@ module.exports = class ABDataCollectionCore extends ABMLClass {
       this.refreshFilterConditions();
 
       this.__bindComponentIds = [];
+      this.__flexComponentIds = [];
 
       // refresh a data collection
       // this.init();
@@ -775,7 +776,11 @@ module.exports = class ABDataCollectionCore extends ABMLClass {
                      ) {
                         // debugger;
                         if (this.isParentFilterValid(updatedV)) {
-                           this.__bindComponentIds.forEach((bcids) => {
+                           // we track bound components and flexlayout components
+                           var attachedComponents = this.__bindComponentIds.concat(
+                              this.__flexComponentIds
+                           );
+                           attachedComponents.forEach((bcids) => {
                               // if the reload button already exisits move on
                               if ($$(bcids + "_reloadView")) {
                                  return false;
