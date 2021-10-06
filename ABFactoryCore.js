@@ -580,7 +580,10 @@ class ABFactory extends EventEmitter {
     * @return {RowFilter}
     */
    rowfilterNew(App, idBase) {
-      return new RowFilter(App, idBase, this);
+      if (App) {
+         console.error("!! Who is calling this with an App?");
+      }
+      return new RowFilter(App || this._App, idBase, this);
    }
 
    //

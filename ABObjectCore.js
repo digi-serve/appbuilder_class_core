@@ -191,14 +191,13 @@ module.exports = class ABObjectCore extends ABMLClass {
          if (def) {
             fields.push(this.AB.fieldNew(def, this));
          } else {
-            console.error(
-               "Object [" +
-                  this.name +
-                  "][" +
-                  this.id +
-                  "] referenced an unknown field id [" +
-                  id +
-                  "]"
+            this.emit(
+               "warning",
+               `O[${this.name}] is referenceing an unknown field id[${id}]`,
+               {
+                  obj: this.id,
+                  field: id,
+               }
             );
          }
       });
@@ -232,14 +231,13 @@ module.exports = class ABObjectCore extends ABMLClass {
          if (def) {
             indexes.push(this.AB.indexNew(def, this));
          } else {
-            console.error(
-               "Object [" +
-                  this.name +
-                  "][" +
-                  this.id +
-                  "] referenced an unknown index id [" +
-                  id +
-                  "]"
+            this.emit(
+               "warning",
+               `O[${this.name}] is referenceing an unknown index id[${id}]`,
+               {
+                  obj: this.id,
+                  index: id,
+               }
             );
          }
       });

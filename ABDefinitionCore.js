@@ -67,7 +67,7 @@ module.exports = class ABDefinitionCore {
     * @return {Promise}
     *         .resolve( {this} )
     */
-   save() {
+   async save() {
       if (this.id) {
          return this.AB.definitionUpdate(this.id, this.toObj());
       } else {
