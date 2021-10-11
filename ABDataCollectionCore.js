@@ -2241,14 +2241,25 @@ module.exports = class ABDataCollectionCore extends ABMLClass {
       clonedDatacollection.__datasource = this.__datasource;
       clonedDatacollection._dataStatus = this._dataStatus;
       // clonedDatacollection.__dataCollection = this.__dataCollection.copy();
+      clonedDatacollection.__filterDatacollection.setValue(
+         settings.settings.objectWorkspace.filterConditions
+      );
       if (clonedDatacollection.__dataCollection) {
          clonedDatacollection.__dataCollection.parse(
-            this.__dataCollection.find({})
+            this.__dataCollection
+               .find({})
+               .filter((row) =>
+                  clonedDatacollection.__filterDatacollection.isValid(row)
+               )
          );
       }
       if (clonedDatacollection.__treeCollection) {
          clonedDatacollection.__treeCollection.parse(
-            this.__treeCollection.find({})
+            this.__treeCollection
+               .find({})
+               .filter((row) =>
+                  clonedDatacollection.__filterDatacollection.isValid(row)
+               )
          );
       }
 
@@ -2283,10 +2294,14 @@ module.exports = class ABDataCollectionCore extends ABMLClass {
 
       // check to see that filters are set (this is sometimes helpful to select the first record without doing so at the data collection level)
       if (typeof filters != "undefined") {
-         obj.settings.objectWorkspace.filterConditions = {
-            glue: "and",
-            rules: [obj.settings.objectWorkspace.filterConditions, filters]
-         };
+         if (obj.settings.objectWorkspace.filterConditions.rules.length) {
+            obj.settings.objectWorkspace.filterConditions = {
+               glue: "and",
+               rules: [obj.settings.objectWorkspace.filterConditions, filters]
+            };
+         } else {
+            obj.settings.objectWorkspace.filterConditions = filters;
+         }
       }
 
       return this.clone(obj); // new ABViewDataCollection(settings, this.application, this.parent);
