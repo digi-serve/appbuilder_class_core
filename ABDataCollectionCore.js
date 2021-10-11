@@ -2293,12 +2293,15 @@ module.exports = class ABDataCollectionCore extends ABMLClass {
       var obj = this.toObj();
 
       // check to see that filters are set (this is sometimes helpful to select the first record without doing so at the data collection level)
-      if (typeof filters != "undefined") {
+      if (typeof filters != "undefined" && filters.rules.length) {
          if (obj.settings.objectWorkspace.filterConditions.rules.length) {
-            obj.settings.objectWorkspace.filterConditions = {
-               glue: "and",
-               rules: [obj.settings.objectWorkspace.filterConditions, filters]
-            };
+            obj.settings.objectWorkspace.filterConditions.rules = obj.settings.objectWorkspace.filterConditions.rules.concat(
+               filters.rules
+            );
+            // obj.settings.objectWorkspace.filterConditions = {
+            //    glue: "and",
+            //    rules: [obj.settings.objectWorkspace.filterConditions, filters]
+            // };
          } else {
             obj.settings.objectWorkspace.filterConditions = filters;
          }
