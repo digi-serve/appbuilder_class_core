@@ -2295,10 +2295,16 @@ module.exports = class ABDataCollectionCore extends ABMLClass {
       // check to see that filters are set (this is sometimes helpful to select the first record without doing so at the data collection level)
       if (typeof filters != "undefined" && filters.rules.length) {
          if (obj.settings.objectWorkspace.filterConditions.rules.length) {
-            obj.settings.objectWorkspace.filterConditions = {
-               glue: "and",
-               rules: [obj.settings.objectWorkspace.filterConditions, filters]
-            };
+            // TODO: this supports only combining AND filter conditions with RowFilterCore
+            // in the future we want to migrate this to use FilterComplex to support combining AND and OR conditionals
+            obj.settings.objectWorkspace.filterConditions.rules = obj.settings.objectWorkspace.filterConditions.rules.concat(
+               filters.rules
+            );
+            // This is the format we will use when we switch to FilterComplex
+            // obj.settings.objectWorkspace.filterConditions = {
+            //    glue: "and",
+            //    rules: [obj.settings.objectWorkspace.filterConditions, filters]
+            // };
          } else {
             obj.settings.objectWorkspace.filterConditions = filters;
          }
