@@ -441,4 +441,45 @@ module.exports = class ABProcessTaskCore extends ABMLClass {
          return this.wantToDoSomething(instance);
       }
    }
+
+   get startElements() {
+      let startElems =
+         this.process.elements(
+            (elem) => elem && elem.defaults && elem.defaults.category == "start"
+         ) || [];
+      return startElems;
+   }
+
+   get previousElements() {
+      return this.process.connectionPreviousTask(this);
+   }
+
+   get objectOfStartElement() {
+      let startElem = this.startElements[0];
+      if (!startElem) return null;
+
+      let startElemObj = this.application.objects(
+         (o) => o.id == startElem.objectID
+      )[0];
+      return startElemObj;
+   }
+
+   get objectOfPrevElement() {
+      let prevElem = this.previousElements[0];
+      if (!prevElem) return null;
+
+      let objectID;
+      switch (prevElem.type) {
+         case "process.task.service.query":
+            objectID = prevElem.qlObj ? prevElem.qlObj.objectID : null;
+            break;
+         case "process.task.service.insertRecord":
+         default:
+            objectID = prevElem.objectID;
+            break;
+      }
+
+      return this.application.objects((o) => o.id == objectID)[0];
+   }
 };
+

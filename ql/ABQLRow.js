@@ -7,5 +7,7 @@
  */
 
 const QLUpdate = require("../../platform/ql/ABQLRowUpdate.js");
+const QLSave = require("../../platform/ql/ABQLRowSave");
+const QLPluck = require("../../platform/ql/ABQLRowPluck");
 
-module.exports = [QLUpdate];
+module.exports = [QLUpdate, QLSave, QLPluck];

@@ -17,6 +17,9 @@ var ABFieldTextFormulaDefaults = {
    key: "TextFormula", // unique key to reference this specific DataField
    icon: "question", // font-awesome icon reference.  (without the 'fa-').  so 'user'  to reference 'fa-user'
 
+   isSortable: false,
+   isFilterable: false, // this field does not support filter on server side
+
    // menuName: what gets displayed in the Editor drop list
    menuName: L("ab.dataField.TextFormula.menuName", "*Text Formula"),
 
@@ -551,7 +554,7 @@ function getDateDayOfWeekName(abFactory, date) {
 
    return abFactory.toDateFormat(date, {
       format: "dddd",
-      localeCode: AD.lang.currentLanguage
+      localeCode: AD.lang.currentLanguage,
    });
 }
 
@@ -562,7 +565,7 @@ function getDateMonthOfYearName(abFactory, date) {
 
    return abFactory.toDateFormat(date, {
       format: "MMMM",
-      localeCode: AD.lang.currentLanguage
+      localeCode: AD.lang.currentLanguage,
    });
 }
 
@@ -655,10 +658,7 @@ module.exports = class ABFieldTextFormulaCore extends ABField {
          resultFormula = setValueToFormula(this.object, resultFormula, rowData);
 
          //then Check Build-in Function
-         resultFormula = setBuildinValueToFormula(
-            this.AB,
-            resultFormula
-         );
+         resultFormula = setBuildinValueToFormula(this.AB, resultFormula);
 
          return resultFormula;
       } catch (err) {

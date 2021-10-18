@@ -133,7 +133,29 @@ module.exports = class ABProcessTriggerLifecycle extends ABProcessTrigger {
       if (parts[0] == this.diagramID) {
          var myState = this.myState(instance);
          if (myState["data"]) {
-            if (parts[1] === "uuid") {
+            var object = this.application.objectByID(this.objectID);
+            var field = object.fields((f) => {
+               return f.id == parts[1];
+            })[0];
+            if (field) {
+               if (parts[2]) {
+                  return field[parts[2]].call(field, myState["data"]);
+               } else {
+                  // instance.context.data[field.column_name];
+                  // if field is "calculate" or "TextFormula" data is not stored
+                  // in data base and we need to run format method
+                  if (["calculate", "TextFormula"].indexOf(field.key) != -1) {
+                     return field.format(myState["data"]);
+                  } else if (field.key == "connectObject") {
+                     return (
+                        myState["data"][field.columnName] ||
+                        myState["data"][field.relationName()]
+                     );
+                  } else {
+                     return myState["data"][field.columnName];
+                  }
+               }
+            } else if (parts[1] == "uuid") {
                return myState["data"]["uuid"];
             } else {
                // parts[1] should be a field.id

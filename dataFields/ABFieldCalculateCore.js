@@ -195,14 +195,13 @@ module.exports = class ABFieldCalculateCore extends ABField {
          }
          // calculate and formula fields
          else if (f.key == "calculate" || f.key == "formula") {
-            let calVal = "(#calVal#)".replace(
-               "#calVal#",
-               f.format(rowData) || 0
-            );
+            let calVal = f.format(rowData) || 0;
 
             // pull number only
             if (typeof calVal == "string")
-               calVal = calVal.replace(/[^0-9.]/g, "");
+               calVal = calVal.replace(/[^-0-9.]/g, "");
+
+            calVal = "(#calVal#)".replace("#calVal#", calVal);
 
             formula = formula.replace(
                new RegExp("{" + colName + "}", "g"),

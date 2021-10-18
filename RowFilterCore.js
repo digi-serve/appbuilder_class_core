@@ -35,7 +35,7 @@ function getFieldVal(rowData, field) {
    return value;
 }
 
-module.exports = class RowFilter extends ABComponent {
+module.exports = class RowFilterCore extends ABComponent {
    constructor(App, idBase, AB) {
       idBase = idBase || "ab_row_filter";
 
@@ -227,6 +227,7 @@ module.exports = class RowFilter extends ABComponent {
             var result = false;
 
             var value = getFieldVal(rowData, field);
+            if (value && value.toLowerCase) value = value.toLowerCase();
 
             compareValue = compareValue.toLowerCase();
 
@@ -292,7 +293,10 @@ module.exports = class RowFilter extends ABComponent {
                   result =
                      (value || []).filter((v) => {
                         if (v) {
-                           return (v.username || v) == this.Account.username;
+                           return (
+                              (v.username || v.id || v.text || v) ==
+                              this.Account.username
+                           );
                         } else {
                            return false;
                         }
@@ -308,7 +312,10 @@ module.exports = class RowFilter extends ABComponent {
                   result =
                      (value || []).filter((v) => {
                         if (v) {
-                           return (v.username || v) == this.Account.username;
+                           return (
+                              (v.username || v.id || v.text || v) ==
+                              this.Account.username
+                           );
                         } else {
                            return false;
                         }
@@ -348,7 +355,7 @@ module.exports = class RowFilter extends ABComponent {
             let qIdBase = "{idBase}-query-field-{id}"
                   .replace("{idBase}", idBase)
                   .replace("{id}", query.id),
-               inQueryFieldFilter = new RowFilter(this.App, qIdBase);
+               inQueryFieldFilter = new this.constructor(this.App, qIdBase);
             inQueryFieldFilter.Account = this.Account;
             // inQueryFieldFilter.applicationLoad(this._Application);
             inQueryFieldFilter.fieldsLoad(query.fields());
@@ -382,7 +389,7 @@ module.exports = class RowFilter extends ABComponent {
             let qIdBase = "{idBase}-query-{id}"
                   .replace("{idBase}", idBase)
                   .replace("{id}", query.id),
-               inQueryFilter = new RowFilter(this.App, qIdBase);
+               inQueryFilter = new this.constructor(this.App, qIdBase);
             inQueryFilter.Account = this.Account;
             // inQueryFilter.applicationLoad(this._Application);
             inQueryFilter.fieldsLoad(query.fields());
@@ -415,12 +422,18 @@ module.exports = class RowFilter extends ABComponent {
                case "in_data_collection":
                   if (!dc) return false;
 
-                  result = dc.getData((d) => d.id == rowData.id).length > 0;
+                  result =
+                     dc.getData(
+                        (d) => (d.id || d.uuid) == (rowData.id || rowData.uuid)
+                     ).length > 0;
                   break;
                case "not_in_data_collection":
                   if (!dc) return true;
 
-                  result = dc.getData((d) => d.id == rowData.id).length < 1;
+                  result =
+                     dc.getData(
+                        (d) => (d.id || d.uuid) == (rowData.id || rowData.uuid)
+                     ).length < 1;
                   break;
             }
 
@@ -428,32 +441,45 @@ module.exports = class RowFilter extends ABComponent {
          },
 
          connectFieldValid: function (rowData, field, rule, compareValue) {
-            let columnName = field.relationName();
+            let relationName = field.relationName();
+            let columnName = field.columnName;
 
             let connectedVal = "";
 
-            if (rowData && rowData[columnName]) {
-               connectedVal = (
-                  (field.indexField
-                     ? rowData[columnName][field.indexField.columnName]
-                     : false) || // custom index
-                  (field.indexField2
-                     ? rowData[columnName][field.indexField2.columnName]
-                     : false) || // custom index 2
-                  rowData[columnName].id ||
-                  rowData[columnName]
-               )
-                  .toString()
-                  .toLowerCase();
+            if (rowData) {
+               if (rowData[relationName]) {
+                  connectedVal = (
+                     (field.indexField
+                        ? rowData[relationName][field.indexField.columnName]
+                        : false) || // custom index
+                     (field.indexField2
+                        ? rowData[relationName][field.indexField2.columnName]
+                        : false) || // custom index 2
+                     rowData[relationName].id ||
+                     rowData[relationName]
+                  )
+                     .toString()
+                     .toLowerCase();
+               } else {
+                  let fieldVal = getFieldVal(rowData, field);
+                  if (fieldVal != null) {
+                     connectedVal = fieldVal;
+                  }
+               }
             }
 
             let compareValueLowercase = (compareValue || "").toLowerCase();
 
             switch (rule) {
                case "contains":
-                  return connectedVal.indexOf(compareValueLowercase) > -1;
+                  return (
+                     connectedVal.toString().indexOf(compareValueLowercase) > -1
+                  );
                case "not_contains":
-                  return connectedVal.indexOf(compareValueLowercase) == -1;
+                  return (
+                     connectedVal.toString().indexOf(compareValueLowercase) ==
+                     -1
+                  );
                case "equals":
                   return connectedVal == compareValueLowercase;
                case "not_equal":
@@ -462,7 +488,7 @@ module.exports = class RowFilter extends ABComponent {
                case "not_in_query":
                   return _logic.inQueryValid(
                      rowData,
-                     columnName,
+                     relationName,
                      rule,
                      compareValue
                   );
@@ -471,11 +497,24 @@ module.exports = class RowFilter extends ABComponent {
                case "contain_current_user":
                case "not_contain_current_user":
                   return _logic.userValid(rowData, field, rule, compareValue);
+               case "is_empty":
+                  return (
+                     rowData[relationName] == null ||
+                     rowData[relationName].length < 1 ||
+                     rowData[relationName] == ""
+                  );
+               case "is_not_empty":
+                  return (
+                     rowData[relationName] != null &&
+                     ((Array.isArray(rowData[relationName]) &&
+                        rowData[relationName].length > 0) ||
+                        rowData[relationName] != "")
+                  );
                case "in_data_collection":
                case "not_in_data_collection":
                   return _logic.dataCollectionValid(
                      rowData,
-                     columnName,
+                     relationName,
                      rule,
                      compareValue
                   );

@@ -280,7 +280,7 @@ module.exports = class ABFieldConnectCore extends ABFieldSelectivity {
             .join(", ");
       // string
       else if (val) {
-         if (val.text == null) return linkedObject.displayData(val) || "";
+         if (val.text == null) return linkedObject.displayData(rowData) || "";
          else if (val.text) return val.text || "";
       }
       // empty string

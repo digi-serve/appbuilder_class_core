@@ -1,4 +1,5 @@
 /*
+/*
  * ABQLSetFirstCore
  *
  * An ABQLFind depends on a BASE QL object (Object, Datacollection, Query)

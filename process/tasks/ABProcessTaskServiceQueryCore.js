@@ -49,6 +49,9 @@ module.exports = class ABProcessTaskServiceQueryCore extends ABProcessElement {
    fromValues(attributes) {
       super.fromValues(attributes);
 
+      // Before we make instances of qlObj:
+      this._datasources = [];
+
       // comvert our qlObj into an ABQLxxx instance.
       if (this.qlObj) {
          this.qlObj = ABQLManager.fromAttributes(this.qlObj, this, this.AB);
@@ -70,6 +73,10 @@ module.exports = class ABProcessTaskServiceQueryCore extends ABProcessElement {
       }
 
       return data;
+   }
+
+   registerDatasource(obj) {
+      this._datasources.push(obj);
    }
 
    ////
@@ -101,17 +108,20 @@ module.exports = class ABProcessTaskServiceQueryCore extends ABProcessElement {
     * process Elements.
     * @return {array} | null
     */
-   /*
-    processDataFields() {
-        // in this Task, we can return the Response to the UserForm
-        return [
-            {
-                key: `${this.id}.[someInstanceVariableHere]`,
-                label: `${this.label}->Response`
+   processDataFields() {
+      // in this Task, we can return the Response to the UserForm
+      var fields = null;
+      if (this._datasources.length > 0) {
+         fields = [];
+         this._datasources.forEach((s) => {
+            var param = s.processDataField(this.id, this.label);
+            if (param) {
+               fields.push(param);
             }
-        ];
-    }
-    */
+         });
+      }
+      return fields;
+   }
 
    /**
     * processData()

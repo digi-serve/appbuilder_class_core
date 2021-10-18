@@ -312,7 +312,14 @@ module.exports = class ABFieldCore extends ABMLClass {
          .replace("{objectName}", this.alias || this.object.name)
          .replace("{columnName}", this.columnName);
 
-      return rowData[this.columnName] || rowData[propName] || "";
+      let result = "";
+      if (rowData[this.columnName] != null) {
+         result = rowData[this.columnName];
+      } else if (rowData[propName] != null) {
+         result = rowData[propName];
+      }
+
+      return result;
    }
 
    /**
@@ -349,3 +356,4 @@ module.exports = class ABFieldCore extends ABMLClass {
       return myDef;
    }
 };
+

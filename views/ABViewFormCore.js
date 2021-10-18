@@ -123,7 +123,7 @@ module.exports = class ABViewFormCore extends ABViewContainer {
     * return the list of components available on this view to display in the editor.
     */
    componentList() {
-      var viewsToAllow = ["label", "layout", "button"],
+      var viewsToAllow = ["label", "layout", "button", "text"],
          allComponents = this.application.viewAll();
 
       return allComponents.filter((c) => {
