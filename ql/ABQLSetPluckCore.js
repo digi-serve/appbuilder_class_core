@@ -18,8 +18,8 @@ var ParameterDefinitions = [
 ];
 
 class ABQLSetPluckCore extends ABQL {
-   constructor(attributes, prevOP, task, application) {
-      super(attributes, ParameterDefinitions, prevOP, task, application);
+   constructor(attributes, prevOP, task, AB) {
+      super(attributes, ParameterDefinitions, prevOP, task, AB);
    }
 
    ///
@@ -36,9 +36,8 @@ class ABQLSetPluckCore extends ABQL {
       // allow our base class to continue forward:
 
       this.fieldID = attributes.fieldID;
-      // v2 method:
-      // this.field = this.object.fieldByID(this.fieldID);
-      this.field = this.object.fields((f) => f.id == this.fieldID)[0];
+      this.field = this.object.fieldByID(this.fieldID);
+      
 
       if (attributes.objectOutID) {
          this.objectOut = this.objectLookup(attributes.objectOutID);
@@ -57,13 +56,9 @@ class ABQLSetPluckCore extends ABQL {
          }
       } else {
          obj.fieldID = this.params.field || null;
-         // v2 method:
-         // var field = this.object.fieldByID(obj.fieldID);
-         var field = this.object.fields((f) => f.id == obj.fieldID)[0];
+         var field = this.object.fieldByID(obj.fieldID);
 
-         // v2 method:
-         // if (field && field.isConnected) {
-         if (field && field.key == "connectObject") {
+         if (field?.isConnection) {
             obj.objectOutID = field.datasourceLink.id;
          }
       }
