@@ -134,6 +134,23 @@ class ABFactory extends EventEmitter {
       return Promise.resolve();
    }
 
+   /**
+    * @method objectKeysByDef()
+    * Analyze the provided ABDefinition json and return which set of list and
+    * functions are used to create a new instance of this definition.
+    * @param {json} def
+    *        the ABDefinition json of the definition we are evaluating
+    * @return { keyList, keyFn }
+    *        keyList: {string}  which of our internal lists to store this new
+    *                 object.
+    *        keyFn: {string} which of our methods to call with the def.json
+    *               as the param that will create the new object.
+    *
+    *        ex:  this[keyList].push( this[keyFn](def.json));
+    *
+    *        if this def is not one of the types we track,
+    *        keyList = keyFn = null;
+    */
    objectKeysByDef(def) {
       switch (def.type) {
          case "application":
@@ -163,14 +180,6 @@ class ABFactory extends EventEmitter {
    //
    // Definitions
    //
-   definition(id) {
-      var errDepreciated = new Error(
-         "ABFactoryCore.definition() is Depreciated.  Use .definitionByID() instead."
-      );
-      console.error(errDepreciated);
-
-      return this.definitionByID(id);
-   }
 
    /**
     * definitionByID(id)
@@ -192,13 +201,6 @@ class ABFactory extends EventEmitter {
          }
       }
       return null;
-   }
-
-   definitionForID(id, isRaw = false) {
-      console.error(
-         "ABFactoryCore.definitionForID() depreciated! Use .definitionByID() instead."
-      );
-      return this.definitionByID(id, isRaw);
    }
 
    /**
@@ -231,35 +233,77 @@ class ABFactory extends EventEmitter {
          this.definitionSync("updated", d.id, d);
       });
 
-      // // reset our lists
-      // var oldObjects = [];
-      // [
-      //    "_allApplications",
-      //    "_allObjects",
-      //    "_allProcesses",
-      //    "_allQueries",
-      //    "_allDatacollections",
-      // ].forEach((k) => {
-      //    oldObjects = oldObjects.concat(this[k]);
-      //    this[k] = [];
-      // });
-
-      // defs.forEach((d) => {
-      //    this.definitionSync("updated", d.id, d);
-      // });
-
-      // oldObjects.forEach((o) => {
-      //    // NOTE: this should cause any object referencing an ABXXX object to
-      //    // go grab a new instance from our ABFactory.
-      //    o.emit("definition.updated");
-      // });
-
       return Promise.resolve();
+   }
+
+   /**
+    * definitionSync()
+    * Synchronize an individual definition into our repository of definitions.
+    * @param {string} op
+    *        the type of synchronization this is
+    *        [ "created", "updated", "destroyed"]
+    * @param {uuid} id
+    *        the definition.id of the definition we are synchronizing
+    * @param {json} def
+    *        the ABDefinition attributes we are storing.
+    */
+   definitionSync(op, id, def) {
+      var { keyList, keyFn } = this.objectKeysByDef(def);
+      if (keyList) {
+         var curr;
+         switch (op) {
+            case "created":
+               this[keyList].push(this[keyFn](def.json));
+               this.emit("definition.created", def.json);
+               break;
+
+            case "updated":
+               // get the current object
+               curr = this[keyList].find((d) => d.id == id);
+
+               // remove from list
+               this[keyList] = this[keyList].filter((d) => d.id != id);
+               // add new one:
+               this[keyList].push(this[keyFn](def.json));
+
+               // signal this object needs to be updated:
+               // NOTE: if this is one of the objects we are tracking,
+               // we don't need to this.emit() the message.
+               if (curr) {
+                  curr?.emit?.("definition.updated", def.json);
+               } else {
+                  this.emit("definition.updated", def.json);
+               }
+               break;
+
+            case "destroyed":
+               // get the current object
+               curr = this[keyList].find((d) => d.id == id);
+               if (curr) {
+                  // remove from list
+                  this[keyList] = this[keyList].filter((d) => d.id != id);
+
+                  // signal this object needs to be updated:
+                  curr?.emit?.("definition.deleted", def.json);
+
+                  this.emit("definition.deleted", def.json);
+               }
+               break;
+         }
+      }
    }
 
    //
    // ABObjects
    //
+   /**
+    * @method applications()
+    * return all the ABApplications that match the provided filter.
+    * @param {fn} fn
+    *        A filter function to select specific ABApplications.
+    *        Must return true to include the entry.
+    * @return {array}
+    */
    applications(fn = () => true) {
       return (this._allApplications || []).filter(fn);
    }
@@ -278,6 +322,14 @@ class ABFactory extends EventEmitter {
       return this.applications((a) => a.id == ID)[0];
    }
 
+   /**
+    * @method applicationNew()
+    * Return a new instance of an ABApplication object.
+    * @param {json} values
+    *        the ABDefinition.json of the ABApplication object we are
+    *        creating.
+    * @return {ABApplication}
+    */
    applicationNew(values) {
       return new ABApplication(values, this);
    }
@@ -437,6 +489,14 @@ class ABFactory extends EventEmitter {
    //
    // Processes
    //
+   /**
+    * @method processes()
+    * return all the ABProcess that match the provided filter.
+    * @param {fn} fn
+    *        A filter function to select specific ABProcess.
+    *        Must return true to include the entry.
+    * @return {array}
+    */
    processes(filter = () => true) {
       return (this._allProcesses || []).filter(filter);
    }
@@ -453,6 +513,14 @@ class ABFactory extends EventEmitter {
       })[0];
    }
 
+   /**
+    * @method processNew()
+    * Return a new instance of an ABProcess object.
+    * @param {json} values
+    *        the ABDefinition.json of the ABProcess object we are
+    *        creating.
+    * @return {ABProcess}
+    */
    processNew(values) {
       return new ABProcess(values, this);
    }
@@ -542,12 +610,12 @@ class ABFactory extends EventEmitter {
    queries(filter = () => true) {
       return (this._allQueries || []).filter(filter);
    }
-   queriesAll() {
-      console.error(
-         "ABFactory.queriesAll() Depreciated! Use .queries() instead. "
-      );
-      return this.queries();
-   }
+   // queriesAll() {
+   //    console.error(
+   //       "ABFactory.queriesAll() Depreciated! Use .queries() instead. "
+   //    );
+   //    return this.queries();
+   // }
 
    /**
     * @method queryByID()
@@ -601,7 +669,7 @@ class ABFactory extends EventEmitter {
     * @param {json} info
     *     Additional related information concerning the issue.
     */
-   notify(...params) {
+   notify(/* ...params */) {
       console.error(
          "ABFactory.notify() is expected to be overwritten by the platform!"
       );
@@ -673,6 +741,7 @@ class ABFactory extends EventEmitter {
                moreInfo.viewID = info[k].id;
                moreInfo.viewName = info[k].label || info[k].name;
                moreInfo.viewKey = info[k].key;
+               break;
             default:
                moreInfo[k] = info[k];
                break;
@@ -681,22 +750,6 @@ class ABFactory extends EventEmitter {
 
       return moreInfo;
    }
-
-   // cloneDeep(value) {
-   //    return _.cloneDeep(value);
-   // }
-
-   // error(message) {
-   //    console.error(`ABFactory[${this.req.tenantID()}]:${message.toString()}`);
-   //    if (message instanceof Error) {
-   //       console.error(message);
-   //    }
-   //    this.emit("error", message);
-   // }
-
-   // uuid() {
-   //    return uuidv4();
-   // }
 }
 
 module.exports = ABFactory;
