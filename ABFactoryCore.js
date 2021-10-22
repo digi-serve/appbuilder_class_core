@@ -228,8 +228,13 @@ class ABFactory extends EventEmitter {
       }
 
       // store/replace the incoming definitions
+      // 1st: insert ALL our definitions internally
       defs.forEach((d) => {
          this._definitions[d.id] = d;
+      });
+      // 2nd: Now we can then go through and signal the "updates"
+      // and the related objects can find their dependent definitions.
+      defs.forEach((d) => {
          this.definitionSync("updated", d.id, d);
       });
 
