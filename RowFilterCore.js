@@ -41,7 +41,7 @@ module.exports = class RowFilterCore extends ABComponent {
 
       super(App, idBase, AB);
 
-      this.AB = AB;
+      // this.AB = AB;
       // {ABFactory} AB
 
       this.Account = { username: "??" };
