@@ -182,7 +182,9 @@ module.exports = class ABFieldConnectCore extends ABFieldSelectivity {
       var linkObj = this.AB.objectByID(this.settings.linkObject);
       if (!linkObj) {
          var configError = new Error(
-            `ConnectField[${this.name}][${this.id}] unable to find linkObject[${this.settings.linkObject}]`
+            `ConnectField[${this.name || this.label}][${
+               this.id
+            }] unable to find linkObject[${this.settings.linkObject}]`
          );
          this.AB.notify.builder(configError, {
             field: this,

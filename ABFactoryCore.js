@@ -99,6 +99,17 @@ class ABFactory extends EventEmitter {
       };
    }
 
+   definitionClean(d) {
+      if (typeof d.json == "string") {
+         try {
+            d.json = JSON.parse(d.json);
+         } catch (e) {
+            console.log(e);
+            console.error(` Error on definition id[${d.id}]`);
+         }
+      }
+   }
+
    init() {
       let allDefinitions = Object.keys(this._definitions).map(
          (k) => this._definitions[k]
@@ -107,14 +118,7 @@ class ABFactory extends EventEmitter {
 
       // make sure our definitions.json field is an {} and not string
       allDefinitions.forEach((d) => {
-         if (typeof d.json == "string") {
-            try {
-               d.json = JSON.parse(d.json);
-            } catch (e) {
-               console.log(e);
-               console.error(` Error on definition id[${d.id}]`);
-            }
-         }
+         this.definitionClean(d);
       });
 
       // perform these in order:
@@ -230,6 +234,7 @@ class ABFactory extends EventEmitter {
       // store/replace the incoming definitions
       // 1st: insert ALL our definitions internally
       defs.forEach((d) => {
+         this.definitionClean(d);
          this._definitions[d.id] = d;
       });
       // 2nd: Now we can then go through and signal the "updates"
