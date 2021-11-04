@@ -28,7 +28,7 @@ function getFieldVal(rowData, field) {
    // '[diagramID].[field.id]'
    for (var k in rowData) {
       var key = k.split(".")[1];
-      if (key && key == field.id) {
+      if (key && (key == columnId || key == columnName)) {
          value = rowData[k];
       }
    }
@@ -800,3 +800,4 @@ module.exports = class RowFilterCore extends ABComponent {
       this.config_settings.rules = this.config_settings.rules || [];
    }
 };
+
