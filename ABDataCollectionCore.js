@@ -779,22 +779,24 @@ module.exports = class ABDataCollectionCore extends ABMLClass {
                               // store the datacollection so we can pass it to the button later
                               var DC = this;
                               // add a button that reloads the view when clicked
-                              parent.addView(
-                                 {
-                                    id: bcids + "_reloadView",
-                                    view: "button",
-                                    value: L(
-                                       "ab.dataCollection.staleTable",
-                                       "*New data available. Click to reload."
-                                    ),
-                                    css: "webix_primary webix_warn",
-                                    click: function (id, event) {
-                                       DC.reloadData();
-                                       $$(id).getParentView().removeView(id);
+                              if (parent.addView) {
+                                 parent.addView(
+                                    {
+                                       id: bcids + "_reloadView",
+                                       view: "button",
+                                       value: L(
+                                          "ab.dataCollection.staleTable",
+                                          "*New data available. Click to reload."
+                                       ),
+                                       css: "webix_primary webix_warn",
+                                       click: function (id, event) {
+                                          DC.reloadData();
+                                          $$(id).getParentView().removeView(id);
+                                       },
                                     },
-                                 },
-                                 pos
-                              );
+                                    pos
+                                 );
+                              }
                            });
                            // this.emit("create", updatedV);
                         }
