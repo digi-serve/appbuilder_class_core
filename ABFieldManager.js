@@ -37,26 +37,26 @@ AllFieldClasses.forEach((FIELD) => {
    Fields[FIELD.defaults().key] = FIELD;
 });
 
-module.exports = {
+module.exports = class ABFieldManager {
    /*
     * @function allFields
     * return all the currently defined ABFields in an array.
     * @return [{ABField},...]
     */
-   allFields: function () {
+   static allFields() {
       var fields = [];
       for (var f in Fields) {
          fields.push(Fields[f]);
       }
       return fields;
-   },
+   }
 
    /*
     * @function newField
     * return an instance of an ABField based upon the values.key value.
     * @return {ABField}
     */
-   newField: function (values, object) {
+   static newField(values, object) {
       if (values.key) {
          try {
             return new Fields[values.key](values, object);
@@ -78,5 +78,5 @@ module.exports = {
          );
          //// TODO: what to do here?
       }
-   },
+   }
 };
