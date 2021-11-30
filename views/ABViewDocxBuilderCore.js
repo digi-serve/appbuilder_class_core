@@ -8,7 +8,9 @@ const ABViewDocxBuilderPropertyComponentDefaults = {
    filelabel: "output.docx",
    language: "en", // en
    toolbarBackground: "ab-background-default",
-   buttonPosition: "left"
+   buttonPosition: "left",
+   docx: true,
+   pdf: false
 };
 
 const ABViewDefaults = {
@@ -100,3 +102,4 @@ module.exports = class ABViewDocxBuilderCore extends ABViewWidget {
       );
    }
 };
+
