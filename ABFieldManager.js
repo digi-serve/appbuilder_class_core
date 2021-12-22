@@ -58,9 +58,9 @@ module.exports = class ABFieldManager {
     *        The ABField.key value we are looking for.
     * @return {ABFieldXXX || undefined}
     */
-   fieldByKey(key) {
+   static fieldByKey(key) {
       return Fields[key];
-   },
+   }
 
    /*
     * @function newField
