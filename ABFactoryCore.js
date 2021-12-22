@@ -33,7 +33,7 @@ const ABProcessTaskManager = require("./process/ABProcessTaskManager");
 // const ABObjectWorkspaceViewGantt = require("../platform/workspaceViews/ABObjectWorkspaceViewGantt");
 
 const RowFilter = require("../platform/RowFilter");
-const FilterComplex = require("../platform/FilterComplex");
+// const FilterComplex = require("../platform/FilterComplex");
 
 const EventEmitter = require("../platform/ABEmitter");
 
@@ -100,7 +100,7 @@ class ABFactory extends EventEmitter {
 
          ABFieldManager,
 
-         FilterComplex,
+         // FilterComplex,
       };
 
       // Notify Helpers
