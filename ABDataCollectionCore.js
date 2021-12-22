@@ -14,11 +14,6 @@ const ABMLClass = require("../platform/ABMLClass");
 // const ABObjectQuery = require("../platform/ABObjectQuery");
 // const RowFilter = require("../platform/RowFilter");
 
-function L(key, altText) {
-   // TODO:
-   return altText; // AD.lang.label.getLabel(key) || altText;
-}
-
 var DefaultValues = {
    id: "uuid",
    label: "", // label
@@ -809,13 +804,13 @@ module.exports = class ABDataCollectionCore extends ABMLClass {
                               var DC = this;
                               // add a button that reloads the view when clicked
                               if (parent.addView) {
+                                 var L = this.AB.Label();
                                  parent.addView(
                                     {
                                        id: bcids + "_reloadView",
                                        view: "button",
                                        value: L(
-                                          "ab.dataCollection.staleTable",
-                                          "*New data available. Click to reload."
+                                          "New data available. Click to reload."
                                        ),
                                        css: "webix_primary webix_warn",
                                        click: function (id, event) {
@@ -2314,12 +2309,8 @@ module.exports = class ABDataCollectionCore extends ABMLClass {
       var obj = this.toObj();
 
       // check to see that filters are set (this is sometimes helpful to select the first record without doing so at the data collection level)
-      if (filters && filters.rules && filters.rules.length) {
-         if (
-            obj.settings.objectWorkspace.filterConditions &&
-            obj.settings.objectWorkspace.filterConditions.rules &&
-            obj.settings.objectWorkspace.filterConditions.rules.length
-         ) {
+      if (filters?.rules?.length) {
+         if (obj.settings.objectWorkspace.filterConditions?.rules?.length) {
             obj.settings.objectWorkspace.filterConditions = {
                glue: "and",
                rules: [obj.settings.objectWorkspace.filterConditions, filters],

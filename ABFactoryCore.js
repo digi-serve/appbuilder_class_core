@@ -113,6 +113,12 @@ class ABFactory extends EventEmitter {
       };
    }
 
+   /**
+    * @method definitionClean()
+    * make sure the provided ABDefinition values are properly formatted
+    * @param {ABDefinition} d
+    *        The json settings of an ABDefinition object.
+    */
    definitionClean(d) {
       if (typeof d.json == "string") {
          try {
