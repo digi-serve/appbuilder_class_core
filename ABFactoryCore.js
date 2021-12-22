@@ -440,6 +440,37 @@ class ABFactory extends EventEmitter {
    }
 
    /**
+    * @method Label()
+    * a simple label factory.
+    * It is expected to be called like this:
+    * @codestart
+    *    var L = AB.Label();
+    *    var outputText = L("Hello World");
+    *    var o2 = L("I'm {0} years old", [5]);
+    * @codeend
+    * @return {fn}
+    */
+   Label() {
+      return (key, altText, values = []) => {
+         var label = key;
+         if (altText) {
+            if (Array.isArray(altText)) {
+               values = altText;
+            } else {
+               label = altText;
+            }
+         }
+
+         values.forEach((v, i) => {
+            var sub = `{${i}}`;
+            label = label.replaceAll(sub, v);
+         });
+
+         return label;
+      };
+   }
+
+   /**
     * @method objects()
     * return an array of all the ABObjects for this ABApplication.
     * @param {fn} filter
