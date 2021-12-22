@@ -165,9 +165,7 @@ module.exports = class ABViewCore extends ABMLClass {
       // the property settings for this ABView
 
       // make sure .settings.height is an int and not a string
-      if (this.settings.height) {
-         this.settings.height = parseInt(this.settings.height);
-      }
+      this.settings.height = parseInt(this.settings.height || 0);
 
       this.accessLevels = values.accessLevels || {};
       // {obj} .accessLevels
@@ -208,8 +206,10 @@ module.exports = class ABViewCore extends ABMLClass {
          if (def) {
             views.push(this.application.viewNew(def, this.application, this));
          } else {
-            this.AB.error(
-               `Application[${this.application.name}][${this.application.id}].View[${this.name}][${this.id}] references unknown View[${id}]`
+            this.AB.notify.builder(
+               new Error(
+                  `Application[${this.application.name}][${this.application.id}].View[${this.name}][${this.id}] references unknown View[${id}]`
+               )
             );
          }
       });

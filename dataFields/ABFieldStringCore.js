@@ -7,33 +7,44 @@
 
 var ABField = require("../../platform/dataFields/ABField");
 
-function L(key, altText) {
-   // TODO:
-   return altText; // AD.lang.label.getLabel(key) || altText;
-}
-
 const MAX_CHAR_LENGTH = 255;
 
 var ABFieldStringDefaults = {
-   key: "string", // unique key to reference this specific DataField
-   // type : 'string', // http://sailsjs.org/documentation/concepts/models-and-orm/attributes#?attribute-options
-   icon: "font", // font-awesome icon reference.  (without the 'fa-').  so 'user'  to reference 'fa-user'
+   key: "string",
+   // unique key to reference this specific DataField
 
+   icon: "font",
+   // font-awesome icon reference.  (without the 'fa-').  so 'user'  to reference 'fa-user'
+
+   menuName: "Single line text",
    // menuName: what gets displayed in the Editor drop list
-   menuName: L("ab.dataField.string.menuName", "*Single line text"),
+   // NOTE: this will be displayed using a Label: L(menuName)
 
+   description: "short string value",
    // description: what gets displayed in the Editor description.
-   description: L("ab.dataField.string.description", "*short string value"),
+   // NOTE: this will be displayed using a Label: L(description)
 
    supportRequire: true,
+   // {bool}
+   // does this ABField support the Required setting?
 
+   supportUnique: false,
+   // {bool}
+   // does this ABField support the Unique setting?
+
+   compatibleOrmTypes: ["string"],
+   // {array}
    // what types of Sails ORM attributes can be imported into this data type?
    // http://sailsjs.org/documentation/concepts/models-and-orm/attributes#?attribute-options
-   compatibleOrmTypes: ["string"],
 
+   compatibleMysqlTypes: ["char", "varchar", "tinytext"],
+   // {array}
    // what types of MySql column types can be imported into this data type?
    // https://www.techonthenet.com/mysql/datatypes.php
-   compatibleMysqlTypes: ["char", "varchar", "tinytext"],
+
+   MAX_CHAR_LENGTH,
+   // {integer}
+   // The maximum length our ABFieldString can be.
 };
 
 var defaultValues = {
@@ -149,6 +160,8 @@ module.exports = class ABFieldStringCore extends ABField {
    isValidData(data, validator) {
       super.isValidData(data, validator);
 
+      var L = this.AB.Label();
+
       if (
          data &&
          data[this.columnName] &&
@@ -156,7 +169,7 @@ module.exports = class ABFieldStringCore extends ABField {
       ) {
          validator.addError(
             this.columnName,
-            `should NOT be longer than ${MAX_CHAR_LENGTH} characters`
+            L("should NOT be longer than {0} characters", [MAX_CHAR_LENGTH])
          );
       }
    }

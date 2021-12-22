@@ -28,7 +28,12 @@ const ABProcessParticipant = require("../platform/process/ABProcessParticipant")
 const ABProcessLane = require("../platform/process/ABProcessLane");
 const ABProcessTaskManager = require("./process/ABProcessTaskManager");
 
+// const ABObjectWorkspaceViewGrid = require("../platform/workspaceViews/ABObjectWorkspaceViewGrid");
+// const ABObjectWorkspaceViewKanban = require("../platform/workspaceViews/ABObjectWorkspaceViewKanban");
+// const ABObjectWorkspaceViewGantt = require("../platform/workspaceViews/ABObjectWorkspaceViewGantt");
+
 const RowFilter = require("../platform/RowFilter");
+const FilterComplex = require("../platform/FilterComplex");
 
 const EventEmitter = require("../platform/ABEmitter");
 
@@ -88,6 +93,14 @@ class ABFactory extends EventEmitter {
          ABObjectQuery,
          ABProcessParticipant,
          // ABRole      // Do we need this anymore?
+
+         // ABObjectWorkspaceViewGrid,
+         // ABObjectWorkspaceViewKanban,
+         // ABObjectWorkspaceViewGantt,
+
+         ABFieldManager,
+
+         FilterComplex,
       };
 
       // Notify Helpers

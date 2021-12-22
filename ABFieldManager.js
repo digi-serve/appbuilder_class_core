@@ -51,6 +51,17 @@ module.exports = class ABFieldManager {
       return fields;
    }
 
+   /**
+    * @function fieldByKey()
+    * Return a specific ABField that matches the given key
+    * @param {string} key
+    *        The ABField.key value we are looking for.
+    * @return {ABFieldXXX || undefined}
+    */
+   fieldByKey(key) {
+      return Fields[key];
+   },
+
    /*
     * @function newField
     * return an instance of an ABField based upon the values.key value.
