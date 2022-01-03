@@ -628,6 +628,15 @@ module.exports = class ABObjectCore extends ABMLClass {
    }
 
    /**
+    * @method urlRestLog
+    * return the url to access the logs for this ABObject.
+    * @return {string}
+    */
+   urlRestLog() {
+      return `/app_builder/object/${this.id}/track`;
+   }
+
+   /**
     * @method urlRestRefresh
     * return the url to signal a refresh for this object.
     * @return {string}

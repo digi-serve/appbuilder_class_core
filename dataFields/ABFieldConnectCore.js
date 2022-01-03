@@ -16,17 +16,33 @@ var ABFieldConnectDefaults = {
    key: "connectObject",
    // unique key to reference this specific DataField
 
+   description: "Connect two data objects together",
+   // description: what gets displayed in the Editor description.
+   // NOTE: this will be displayed using a Label: L(description)
+
    icon: "external-link",
    // font-awesome icon reference.  (without the 'fa-').  so 'user'  to
    // reference 'fa-user'
 
+   isFilterable: true,
+   // {bool} / {fn}
+   // determines if the current ABField can be used to filter (FilterComplex
+   // or Query) data.
+   // if a {fn} is provided, it will be called with the ABField as a parameter:
+   //  (field) => field.setting.something == true
+
+   isSortable: (field) => {
+      var linkType = `${field?.settings?.linkType}:${field?.settings?.linkViaType}`;
+      return ["one:many", "one:one"].indexOf(linkType) > -1;
+   },
+   // {bool} / {fn}
+   // determines if the current ABField can be used to Sort data.
+   // if a {fn} is provided, it will be called with the ABField as a parameter:
+   //  (field) => true/false
+
    menuName: "Connect to another record",
    // menuName: what gets displayed in the Editor drop list
    // NOTE: this will be displayed using a Label: L(menuName)
-
-   description: "Connect two data objects together",
-   // description: what gets displayed in the Editor description.
-   // NOTE: this will be displayed using a Label: L(description)
 
    supportRequire: false,
    // {bool}
@@ -36,13 +52,10 @@ var ABFieldConnectDefaults = {
    // {bool}
    // does this ABField support the Unique setting?
 
-   isSortable: (field) => {
-      var linkType = `${field?.settings?.linkType}:${field?.settings?.linkViaType}`;
-      return ["one:many", "one:one"].indexOf(linkType) > -1;
-   },
-
-   isFilterable: true, // now we can filter using Queries
    useAsLabel: false,
+   // {bool} / {fn}
+   // determines if this ABField can be used in the display of an ABObject's
+   // label.
 };
 
 var defaultValues = {

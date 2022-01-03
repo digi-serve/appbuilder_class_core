@@ -13,16 +13,33 @@ var ABFieldStringDefaults = {
    key: "string",
    // unique key to reference this specific DataField
 
+   description: "short string value",
+   // description: what gets displayed in the Editor description.
+   // NOTE: this will be displayed using a Label: L(description)
+
    icon: "font",
-   // font-awesome icon reference.  (without the 'fa-').  so 'user'  to reference 'fa-user'
+   // font-awesome icon reference.  (without the 'fa-').  so 'user'  to
+   // reference 'fa-user'
+
+   isFilterable: true,
+   // {bool} / {fn}
+   // determines if the current ABField can be used to filter (FilterComplex
+   // or Query) data.
+   // if a {fn} is provided, it will be called with the ABField as a parameter:
+   //  (field) => field.setting.something == true
+
+   isSortable: (field) => {
+      var linkType = `${field?.settings?.linkType}:${field?.settings?.linkViaType}`;
+      return ["one:many", "one:one"].indexOf(linkType) > -1;
+   },
+   // {bool} / {fn}
+   // determines if the current ABField can be used to Sort data.
+   // if a {fn} is provided, it will be called with the ABField as a parameter:
+   //  (field) => true/false
 
    menuName: "Single line text",
    // menuName: what gets displayed in the Editor drop list
    // NOTE: this will be displayed using a Label: L(menuName)
-
-   description: "short string value",
-   // description: what gets displayed in the Editor description.
-   // NOTE: this will be displayed using a Label: L(description)
 
    supportRequire: true,
    // {bool}
@@ -31,6 +48,11 @@ var ABFieldStringDefaults = {
    supportUnique: false,
    // {bool}
    // does this ABField support the Unique setting?
+
+   useAsLabel: true,
+   // {bool} / {fn}
+   // determines if this ABField can be used in the display of an ABObject's
+   // label.
 
    compatibleOrmTypes: ["string"],
    // {array}
