@@ -1,6 +1,7 @@
 /* eslint-disable */
 module.exports = {
    /* key : label */
+   "Object name must be unique (\"{0}\" already in use)" : 'Object name must be unique ("{0}" already in use)',
    "Field columnName must be unique ({0} already used in this Application)" : "Field columnName must be unique ({0} already used in this Application)",
    "should be greater than {0}" : "should be greater than {0}",
    "%" : "%",
