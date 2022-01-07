@@ -33,7 +33,7 @@ module.exports = class ABIndexCore extends ABMLClass {
          .map((f) => {
             // NOTE: to prevent a Race Condition on load, we need to
             // send .fields(filter(), TRUE);
-            return this.object.fields((fld) => fld.id == f)[0];
+            return this.object.fields((fld) => fld?.id == f)[0];
          })
          .filter((fId) => fId);
 

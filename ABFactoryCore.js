@@ -28,7 +28,12 @@ const ABProcessParticipant = require("../platform/process/ABProcessParticipant")
 const ABProcessLane = require("../platform/process/ABProcessLane");
 const ABProcessTaskManager = require("./process/ABProcessTaskManager");
 
+// const ABObjectWorkspaceViewGrid = require("../platform/workspaceViews/ABObjectWorkspaceViewGrid");
+// const ABObjectWorkspaceViewKanban = require("../platform/workspaceViews/ABObjectWorkspaceViewKanban");
+// const ABObjectWorkspaceViewGantt = require("../platform/workspaceViews/ABObjectWorkspaceViewGantt");
+
 const RowFilter = require("../platform/RowFilter");
+// const FilterComplex = require("../platform/FilterComplex");
 
 const EventEmitter = require("../platform/ABEmitter");
 
@@ -88,6 +93,14 @@ class ABFactory extends EventEmitter {
          ABObjectQuery,
          ABProcessParticipant,
          // ABRole      // Do we need this anymore?
+
+         // ABObjectWorkspaceViewGrid,
+         // ABObjectWorkspaceViewKanban,
+         // ABObjectWorkspaceViewGantt,
+
+         ABFieldManager,
+
+         // FilterComplex,
       };
 
       // Notify Helpers
@@ -100,6 +113,12 @@ class ABFactory extends EventEmitter {
       };
    }
 
+   /**
+    * @method definitionClean()
+    * make sure the provided ABDefinition values are properly formatted
+    * @param {ABDefinition} d
+    *        The json settings of an ABDefinition object.
+    */
    definitionClean(d) {
       if (typeof d.json == "string") {
          try {
@@ -418,6 +437,37 @@ class ABFactory extends EventEmitter {
     */
    indexNew(values, object) {
       return new ABIndex(values, object);
+   }
+
+   /**
+    * @method Label()
+    * a simple label factory.
+    * It is expected to be called like this:
+    * @codestart
+    *    var L = AB.Label();
+    *    var outputText = L("Hello World");
+    *    var o2 = L("I'm {0} years old", [5]);
+    * @codeend
+    * @return {fn}
+    */
+   Label() {
+      return (key, altText, values = []) => {
+         var label = key;
+         if (altText) {
+            if (Array.isArray(altText)) {
+               values = altText;
+            } else {
+               label = altText;
+            }
+         }
+
+         values.forEach((v, i) => {
+            var sub = `{${i}}`;
+            label = label.replaceAll(sub, v);
+         });
+
+         return label;
+      };
    }
 
    /**

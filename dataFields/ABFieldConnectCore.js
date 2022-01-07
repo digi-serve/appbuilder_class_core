@@ -13,39 +13,36 @@ function L(key, altText) {
 }
 
 var ABFieldConnectDefaults = {
-   key: "connectObject", // unique key to reference this specific DataField
+   key: "connectObject",
+   // unique key to reference this specific DataField
 
-   icon: "external-link", // font-awesome icon reference.  (without the 'fa-').  so 'user'  to reference 'fa-user'
+   icon: "external-link",
+   // font-awesome icon reference.  (without the 'fa-').  so 'user'  to
+   // reference 'fa-user'
 
+   menuName: "Connect to another record",
    // menuName: what gets displayed in the Editor drop list
-   menuName: L(
-      "ab.dataField.connectObject.menuName",
-      "*Connect to another record"
-   ),
+   // NOTE: this will be displayed using a Label: L(menuName)
 
+   description: "Connect two data objects together",
    // description: what gets displayed in the Editor description.
-   description: L(
-      "ab.dataField.connectObject.description",
-      "*Connect two data objects together"
-   ),
-
-   isSortable: (field) => {
-      return (
-         field &&
-         field.settings &&
-         // 1:M
-         ((field.settings.linkType == "one" &&
-            field.settings.linkViaType == "many") ||
-            // 1:1 isSource = true
-            (field.settings.linkType == "one" &&
-               field.settings.linkViaType == "one" &&
-               field.settings.isSource))
-      );
-   },
-   isFilterable: true, // now we can filter using Queries
-   useAsLabel: false,
+   // NOTE: this will be displayed using a Label: L(description)
 
    supportRequire: false,
+   // {bool}
+   // does this ABField support the Required setting?
+
+   supportUnique: false,
+   // {bool}
+   // does this ABField support the Unique setting?
+
+   isSortable: (field) => {
+      var linkType = `${field?.settings?.linkType}:${field?.settings?.linkViaType}`;
+      return ["one:many", "one:one"].indexOf(linkType) > -1;
+   },
+
+   isFilterable: true, // now we can filter using Queries
+   useAsLabel: false,
 };
 
 var defaultValues = {
@@ -203,9 +200,7 @@ module.exports = class ABFieldConnectCore extends ABFieldSelectivity {
       var objectLink = this.datasourceLink;
       if (!objectLink) return null; // note: already Notified
 
-      var linkColumn = objectLink.fields(
-         (f) => f.id == this.settings.linkColumn
-      )[0];
+      var linkColumn = objectLink.fieldByID(this.settings.linkColumn);
       if (!linkColumn) {
          var configError = new Error(
             `ConnectField[${this.label}][${this.id}] unable to find linkColumn[${this.settings.linkColumn}]`
@@ -226,10 +221,6 @@ module.exports = class ABFieldConnectCore extends ABFieldSelectivity {
     */
    pullRelationValues(row) {
       var selectedData = [];
-
-      /// LEFT OFF HERE:
-      /// debug invalid data for JSON.parse() on line 183
-      // debugger;
 
       // Get linked object
       var linkedObject = this.datasourceLink;
@@ -256,9 +247,7 @@ module.exports = class ABFieldConnectCore extends ABFieldSelectivity {
    dataValue(rowData) {
       if (rowData == null) return "";
 
-      let propName = "{objectName}.{relationName}"
-         .replace("{objectName}", this.object.name)
-         .replace("{relationName}", this.relationName());
+      let propName = `${this.object.name}.${this.relationName()}`;
 
       return (
          rowData[this.relationName()] ||

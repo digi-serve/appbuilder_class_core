@@ -7,34 +7,35 @@
 
 var ABField = require("../../platform/dataFields/ABField");
 
-function L(key, altText) {
-   // TODO:
-   return altText; // AD.lang.label.getLabel(key) || altText;
-}
-
 var ABFieldNumberDefaults = {
-   key: "number", // unique key to reference this specific DataField
+   key: "number",
+   // unique key to reference this specific DataField
 
-   icon: "hashtag", // font-awesome icon reference.  (without the 'fa-').  so 'user'  to reference 'fa-user'
+   icon: "hashtag",
+   // font-awesome icon reference.  (without the 'fa-').  so 'user'  to
+   // reference 'fa-user'
 
+   menuName: "Number",
    // menuName: what gets displayed in the Editor drop list
-   menuName: L("ab.dataField.number.menuName", "*Number"),
+   // this is a label key:  L(menuName)
 
+   description: "A Float or Integer Value",
    // description: what gets displayed in the Editor description.
-   description: L(
-      "ab.dataField.number.description",
-      "*A Float or Integer Value"
-   ),
+   // this is a label key:  L(menuName)
 
    supportRequire: true,
-   supportUnique: true,
+   // {bool}
+   // does this ABField support the Required setting?
 
+   supportUnique: true,
+   // {bool}
+   // does this ABField support the Unique setting?
+
+   compatibleOrmTypes: ["integer", "float"],
+   // {array}
    // what types of Sails ORM attributes can be imported into this data type?
    // http://sailsjs.org/documentation/concepts/models-and-orm/attributes#?attribute-options
-   compatibleOrmTypes: ["integer", "float"],
 
-   // what types of MySql column types can be imported into this data type?
-   // https://www.techonthenet.com/mysql/datatypes.php
    compatibleMysqlTypes: [
       "tinyint",
       "smallint",
@@ -47,8 +48,11 @@ var ABFieldNumberDefaults = {
       "numeric",
       "fixed",
       "float",
-      "real"
-   ]
+      "real",
+   ],
+   // {array}
+   // what types of MySql column types can be imported into this data type?
+   // https://www.techonthenet.com/mysql/datatypes.php
 };
 
 var defaultValues = {
@@ -61,8 +65,10 @@ var defaultValues = {
    typeThousands: "none",
    validation: 0,
    validateMinimum: "",
-   validateMaximum: ""
+   validateMaximum: "",
 };
+
+var L = null; //AB.Label();
 
 module.exports = class ABFieldNumberCore extends ABField {
    constructor(values, object) {
@@ -84,6 +90,9 @@ module.exports = class ABFieldNumberCore extends ABField {
 			}
     	}
     	*/
+      if (!L) {
+         L = this.AB.Label();
+      }
    }
 
    // return the default values for this DataField
@@ -97,64 +106,64 @@ module.exports = class ABFieldNumberCore extends ABField {
 
    static formatList() {
       return [
-         { id: "none", value: L("ab.dataField.number.none", "*None") },
+         { id: "none", value: L("None") },
          {
             id: "dollar",
-            value: L("ab.dataField.number.format.dollar", "$"),
+            value: L("$"),
             sign: "$",
-            position: "prefix"
+            position: "prefix",
          },
          {
             id: "yen",
-            value: L("ab.dataField.number.format.yen", "¥"),
+            value: L("¥"),
             sign: "¥",
-            position: "prefix"
+            position: "prefix",
          },
          {
             id: "pound",
-            value: L("ab.dataField.number.format.pound", "£"),
+            value: L("£"),
             sign: "£",
-            position: "prefix"
+            position: "prefix",
          },
          {
             id: "euroBefore",
-            value: L("ab.dataField.number.format.euroBefore", "€ (before)"),
+            value: L("€ (before)"),
             sign: "€",
-            position: "prefix"
+            position: "prefix",
          },
          {
             id: "euroAfter",
-            value: L("ab.dataField.number.format.euroAfter", "€ (after)"),
+            value: L("€ (after)"),
             sign: "€",
-            position: "postfix"
+            position: "postfix",
          },
          {
             id: "percent",
-            value: L("ab.dataField.number.format.percent", "%"),
+            value: L("%"),
             sign: "%",
-            position: "postfix"
-         }
+            position: "postfix",
+         },
       ];
    }
 
    static delimiterList() {
       return [
-         { id: "none", value: L("ab.dataField.number.none", "*None") },
+         { id: "none", value: L("None") },
          {
             id: "comma",
-            value: L("ab.dataField.number.comma", "*Comma"),
-            sign: ","
+            value: L("Comma"),
+            sign: ",",
          },
          {
             id: "period",
-            value: L("ab.dataField.number.period", "*Period"),
-            sign: "."
+            value: L("Period"),
+            sign: ".",
          },
          {
             id: "space",
-            value: L("ab.dataField.number.space", "*Space"),
-            sign: " "
-         }
+            value: L("Space"),
+            sign: " ",
+         },
       ];
    }
 
@@ -198,6 +207,8 @@ module.exports = class ABFieldNumberCore extends ABField {
    isValidData(data, validator) {
       super.isValidData(data, validator);
 
+      var L = this.AB.Label();
+
       if (data[this.columnName] != null && data[this.columnName] != "") {
          var value = data[this.columnName];
 
@@ -213,7 +224,7 @@ module.exports = class ABFieldNumberCore extends ABField {
             return !Number.isNaN(parseFloat(n)) && Number.isFinite(n);
          };
          if (!isNumeric(value)) {
-            validator.addError(this.columnName, "invalid number");
+            validator.addError(this.columnName, L("invalid number"));
          }
 
          // validate Minimum
@@ -222,10 +233,9 @@ module.exports = class ABFieldNumberCore extends ABField {
             this.settings.validateMinimum != null &&
             this.settings.validateMinimum > value
          ) {
-            var errMessage = "should be greater than {min}".replace(
-               "{min}",
-               this.settings.validateMinimum
-            );
+            let errMessage = L("should be greater than {0}", [
+               this.settings.validateMinimum,
+            ]);
 
             validator.addError(this.columnName, errMessage);
          }
@@ -236,10 +246,9 @@ module.exports = class ABFieldNumberCore extends ABField {
             this.settings.validateMaximum != null &&
             this.settings.validateMaximum < value
          ) {
-            var errMessage = "should be less than {max}".replace(
-               "{max}",
-               this.settings.validateMaximum
-            );
+            let errMessage = L("should be less than {0}", [
+               this.settings.validateMaximum,
+            ]);
 
             validator.addError(this.columnName, errMessage);
          }
@@ -299,18 +308,14 @@ module.exports = class ABFieldNumberCore extends ABField {
          data = Math.floor(data * digit) / digit;
       }
 
-      return "{prefix} {number} {postfix}"
-         .replace("{prefix}", prefix)
-         .replace("{postfix}", postfix)
-         .replace(
-            "{number}",
-            this.formatNumber(data, {
-               groupDelimiter: thousandsSign,
-               groupSize: 3,
-               decimalDelimiter: decimalSign,
-               decimalSize: decimalPlaces
-            })
-         );
+      var number = this.formatNumber(data, {
+         groupDelimiter: thousandsSign,
+         groupSize: 3,
+         decimalDelimiter: decimalSign,
+         decimalSize: decimalPlaces,
+      });
+
+      return `${prefix} ${number} ${postfix}`;
    }
 
    formatNumber(data, options = {}) {

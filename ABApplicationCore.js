@@ -376,6 +376,10 @@ module.exports = class ABApplicationCore extends ABMLClass {
     *         [ {id, value}, ... ]
     */
    connectedObjects(id) {
+      console.error(
+         "ABApplicationCore.connectedObjects(): who is calling this?"
+      );
+
       if (id == "") return [];
 
       // Determine the object from the ID

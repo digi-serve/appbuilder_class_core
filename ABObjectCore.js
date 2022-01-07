@@ -495,6 +495,19 @@ module.exports = class ABObjectCore extends ABMLClass {
    }
 
    /**
+    * @method imageFields()
+    *
+    * return an array of the ABFieldImage fields this object has.
+    * @param {fn} fn
+    *        a filter function that returns {true} if a value should
+    *        be included, or {false} otherwise.
+    * @return {array}
+    */
+   imageFields(fn = () => true) {
+      return this.fields((f) => f && f.key == "image").filter(fn);
+   }
+
+   /**
     * @method multilingualFields()
     *
     * return an array of columnnames that are multilingual.
@@ -602,7 +615,7 @@ module.exports = class ABObjectCore extends ABMLClass {
     * @return {string}
     */
    urlRestBatch() {
-      return `/app_builder/model/${this.id}/batch`;
+      return `/app_builder/batch/model/${this.id}`;
    }
 
    /**

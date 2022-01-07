@@ -14,11 +14,6 @@ const ABMLClass = require("../platform/ABMLClass");
 // const ABObjectQuery = require("../platform/ABObjectQuery");
 // const RowFilter = require("../platform/RowFilter");
 
-function L(key, altText) {
-   // TODO:
-   return altText; // AD.lang.label.getLabel(key) || altText;
-}
-
 var DefaultValues = {
    id: "uuid",
    label: "", // label
@@ -73,6 +68,11 @@ module.exports = class ABDataCollectionCore extends ABMLClass {
 
       // mark data status does not be initialized
       this._dataStatus = this.dataStatusFlag.notInitial;
+
+      this.__filterCond = null;
+      // {QueryCondition}
+      // A passed in Query Condition for filtering our DataCollection.
+      // This value is ANDed with our normal filter conditions.
    }
 
    /**
@@ -195,7 +195,7 @@ module.exports = class ABDataCollectionCore extends ABMLClass {
                      this.__treeCollection = this._treeCollectionNew();
                   // {TreeCollection}
                   // This is a webix TreeCollection (or similar)
-                  // keep it's implementation as part of the platform/*
+                  // keep it's implementation as part of the platform
 
                   this.__isGroup = true;
                }
@@ -322,6 +322,15 @@ module.exports = class ABDataCollectionCore extends ABMLClass {
    }
 
    /**
+    * @property $dc
+    * return the underlying webix datacollection
+    * @return {webix.datacollection}
+    */
+   get $dc() {
+      return this.__dataCollection;
+   }
+
+   /**
     * @property datasource
     * return a object of this component.
     *
@@ -331,8 +340,13 @@ module.exports = class ABDataCollectionCore extends ABMLClass {
       if (!this.__datasource) {
          var err = new Error("DataCollection missing reference datasource");
          this.AB.notify("builder", err, { datacollection: this.toObj() });
+         return null;
       }
-      return this.__datasource;
+      var obj = this.AB.objectByID(this.__datasource.id);
+      if (!obj) {
+         obj = this.AB.queryByID(this.__datasource.id);
+      }
+      return obj;
    }
 
    /**
@@ -366,9 +380,7 @@ module.exports = class ABDataCollectionCore extends ABMLClass {
    get datacollectionLink() {
       if (!this.AB) return null;
 
-      return this.AB.datacollections(
-         (dc) => dc.id == this.settings.linkDatacollectionID
-      )[0];
+      return this.AB.datacollectionByID(this.settings.linkDatacollectionID);
    }
 
    /**
@@ -381,7 +393,7 @@ module.exports = class ABDataCollectionCore extends ABMLClass {
       let object = this.datasource;
       if (!object) return null;
 
-      return object.fields((f) => f.id == this.settings.linkFieldID)[0];
+      return object.fieldByID(this.settings.linkFieldID);
    }
 
    /**
@@ -629,19 +641,32 @@ module.exports = class ABDataCollectionCore extends ABMLClass {
    /// Data
    ///
 
+   /**
+    * @method filterCondition()
+    * Provide a temporary filter condition to modify the data we are returning.
+    * Used by User search criterias.
+    * @param {json} cond
+    *        A valid QueryCondition to filter the response.
+    */
+   filterCondition(cond = null) {
+      this.__filterCond = cond;
+   }
+
    init() {
       // prevent initialize many times
       if (this.initialized) return;
       this.initialized = true;
 
       if (!this.__dataCollection.___AD.onAfterCursorChange) {
-         this.__dataCollection.___AD.onAfterCursorChange =
-            this.__dataCollection.attachEvent("onAfterCursorChange", () => {
+         this.__dataCollection.___AD.onAfterCursorChange = this.__dataCollection.attachEvent(
+            "onAfterCursorChange",
+            () => {
                // debugger;
                var currData = this.getCursor();
 
                this.emit("changeCursor", currData);
-            });
+            }
+         );
       }
 
       // relate data functions
@@ -744,10 +769,9 @@ module.exports = class ABDataCollectionCore extends ABMLClass {
                         // debugger;
                         if (this.isParentFilterValid(updatedV)) {
                            // we track bound components and flexlayout components
-                           var attachedComponents =
-                              this.__bindComponentIds.concat(
-                                 this.__flexComponentIds
-                              );
+                           var attachedComponents = this.__bindComponentIds.concat(
+                              this.__flexComponentIds
+                           );
                            attachedComponents.forEach((bcids) => {
                               // if the reload button already exisits move on
                               if ($$(bcids + "_reloadView")) {
@@ -780,13 +804,13 @@ module.exports = class ABDataCollectionCore extends ABMLClass {
                               var DC = this;
                               // add a button that reloads the view when clicked
                               if (parent.addView) {
+                                 var L = this.AB.Label();
                                  parent.addView(
                                     {
                                        id: bcids + "_reloadView",
                                        view: "button",
                                        value: L(
-                                          "ab.dataCollection.staleTable",
-                                          "*New data available. Click to reload."
+                                          "New data available. Click to reload."
                                        ),
                                        css: "webix_primary webix_warn",
                                        click: function (id, event) {
@@ -1428,6 +1452,19 @@ module.exports = class ABDataCollectionCore extends ABMLClass {
          wheres = this.__reloadWheres;
       }
 
+      if (this.__filterCond) {
+         if (wheres.rules.length) {
+            // combine them together:
+            wheres = {
+               glue: "and",
+               rules: [wheres, this.__filterCond],
+            };
+         } else {
+            // simplify to just use filterCond
+            wheres = this.__filterCond;
+         }
+      }
+
       // set query condition
       var cond = {
          where: wheres,
@@ -1529,9 +1566,7 @@ module.exports = class ABDataCollectionCore extends ABMLClass {
                         rule.rule == "in_data_collection" ||
                         rule.rule == "not_in_data_collection"
                      ) {
-                        var dv = this.AB.datacollections(
-                           (dc) => dc.id == rule.value
-                        )[0];
+                        var dv = this.AB.datacollectionByID(rule.value);
                         if (dv) {
                            dcFilters.push(
                               waitForDataCollectionToInitialize(dv)
@@ -1653,6 +1688,15 @@ module.exports = class ABDataCollectionCore extends ABMLClass {
       });
    }
 
+   /**
+    * @method reloadData()
+    * Trigger the DataCollection to reload its data from the server.
+    * @param {int} start
+    *        Start position of where we want the data to load.
+    * @param {int} limit
+    *        How many entries to load at a time.
+    * @return {Promise}
+    */
    reloadData(start, limit) {
       var waitForDataCollectionToInitialize = (DC) => {
          return new Promise((resolve, reject) => {
@@ -1711,7 +1755,8 @@ module.exports = class ABDataCollectionCore extends ABMLClass {
                });
             }
 
-            // then create a new timeout to delete current timeout, clear data and load new
+            // then create a new timeout to delete current timeout, clear data
+            // and load new
             this.reloadTimer = setTimeout(() => {
                // clear the data from the dataCollection,
                this.clearAll();
@@ -1740,11 +1785,14 @@ module.exports = class ABDataCollectionCore extends ABMLClass {
                      clearTimeout(this.reloadTimer);
                      delete this.reloadTimer;
                   });
-            }, 50); // setting to 50ms because right now we do not see many cuncurrent calls we need to increase this if we begin to
+            }, 50);
+            // setting to 50ms because right now we do not see many
+            // concurrent calls,  we need to increase this if we begin to
 
             return this.reloadPromise;
          });
    }
+
    /**
     * reloadWheres()
     * stores the child data collections filters for subsequent loads.
@@ -2261,12 +2309,8 @@ module.exports = class ABDataCollectionCore extends ABMLClass {
       var obj = this.toObj();
 
       // check to see that filters are set (this is sometimes helpful to select the first record without doing so at the data collection level)
-      if (filters && filters.rules && filters.rules.length) {
-         if (
-            obj.settings.objectWorkspace.filterConditions &&
-            obj.settings.objectWorkspace.filterConditions.rules &&
-            obj.settings.objectWorkspace.filterConditions.rules.length
-         ) {
+      if (filters?.rules?.length) {
+         if (obj.settings.objectWorkspace.filterConditions?.rules?.length) {
             obj.settings.objectWorkspace.filterConditions = {
                glue: "and",
                rules: [obj.settings.objectWorkspace.filterConditions, filters],

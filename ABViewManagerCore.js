@@ -73,6 +73,9 @@ var AllViews = [
  */
 var Views = {};
 AllViews.forEach((v) => {
+   if (v.default?.common) {
+      v = v.default;
+   }
    Views[v.common().key] = v;
 });
 
