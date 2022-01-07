@@ -869,7 +869,7 @@ module.exports = class ABViewCore extends ABMLClass {
 
       // page's name should not be duplicate
       if (this.key == "page") {
-         result.name = `${result.name}_copied_${this.application
+         result.name = `${result.name}_copied_${this.AB
             .uuid()
             .slice(0, 3)}`;
 

@@ -854,6 +854,17 @@ module.exports = class ABApplicationCore extends ABMLClass {
       return ABViewManager.newView(values, this, null);
    }
 
+    /**
+    * @method pageByID()
+    * return the object's field from the given {ABField.id}
+    * @param {string} id
+    *        the uuid of the field to return.
+    * @return {ABFieldxxx}
+    */
+    pageByID(id) {
+      return this.pages((f) => f.id == id)[0];
+    }
+
    /**
     * @method viewNew()
     *
