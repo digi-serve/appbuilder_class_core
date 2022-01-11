@@ -207,7 +207,7 @@ module.exports = class ABFieldNumberCore extends ABField {
    isValidData(data, validator) {
       super.isValidData(data, validator);
 
-      var L = this.AB.Label();
+      // var L = this.AB.Label();
 
       if (data[this.columnName] != null && data[this.columnName] != "") {
          var value = data[this.columnName];
