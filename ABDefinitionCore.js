@@ -26,8 +26,14 @@ module.exports = class ABDefinitionCore {
          this.id = attributes.id;
       }
       this.name =
-         attributes.name || attributes.json.name || attributes.json.label || "";
-      this.type = attributes.type || attributes.json.type || "";
+         attributes?.name ||
+         attributes?.json?.name ||
+         attributes?.json?.label ||
+         "";
+      if (!this.name) {
+         console.error("no name");
+      }
+      this.type = attributes.type || attributes?.json?.type || "";
       this.json = attributes.json || null;
    }
 
