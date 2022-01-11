@@ -836,6 +836,8 @@ module.exports = class ABViewCore extends ABMLClass {
     *        option settings for the copy command.
     *        options.ignoreSubPages {bool}
     *             set to true to skip copying any sub pages of this ABView.
+    *        options.newName {string}
+    *             new user determined name for page
     * @return {Promise}
     *        .resolved with the instance of the copied ABView
     */
@@ -869,11 +871,11 @@ module.exports = class ABViewCore extends ABMLClass {
 
       // page's name should not be duplicate
       if (this.key == "page") {
-         result.name = `${result.name}_copied_${this.AB
-            .uuid()
-            .slice(0, 3)}`;
+         result.name =
+            options?.newName ||
+            `${result.name}_copied_${this.AB.uuid().slice(0, 3)}`;
 
-         result.label = `${result.label} (copied)`;
+         result.label = options?.newName || `${result.label} (copied)`;
       }
 
       return Promise.resolve()
