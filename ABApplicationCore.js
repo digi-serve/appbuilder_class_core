@@ -628,13 +628,11 @@ module.exports = class ABApplicationCore extends ABMLClass {
 
    /**
     * @method viewAll()
-    *
     * return a list of all the {ABViewxxx} classes available.
-    *
     * @return {array} of ABView objects
     */
-   viewAll() {
-      return ABViewManager.allViews();
+   viewAll(fn = () => true) {
+      return ABViewManager.allViews(fn);
    }
 
    ///
