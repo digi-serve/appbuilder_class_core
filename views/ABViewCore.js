@@ -795,7 +795,11 @@ module.exports = class ABViewCore extends ABMLClass {
       let result = this.viewNew(config, this.application, parent);
 
       // change id
-      result.id = lookUpIds[result.id] || this.AB.uuid();
+      if (parent == null) {
+         result.id = null;
+      } else {
+         result.id = lookUpIds[result.id] || this.AB.uuid();
+      }
 
       // copy sub pages
       if (this.pages && !options.ignoreSubPages) {
@@ -867,7 +871,11 @@ module.exports = class ABViewCore extends ABMLClass {
       result.parent = parent || this.parent;
 
       // change id
-      result.id = lookUpIds[result.id] || this.AB.uuid();
+      if (parent == null) {
+         result.id = null;
+      } else {
+         result.id = lookUpIds[result.id] || this.AB.uuid();
+      }
 
       // page's name should not be duplicate
       if (this.key == "page") {
