@@ -1,7 +1,18 @@
 /* eslint-disable */
 module.exports = {
    /* key : label */
-   "Object name must be unique (\"{0}\" already in use)" : 'Object name must be unique ("{0}" already in use)',
+   "Column {0}" : "Column {0}",
+   "Import {0} Records" : "Import {0} Records",
+   "Search records..." : "Search records...",
+   "Header on first line" : "Header on first line",
+   "Space ( )" : "Space ( )",
+   "Semicolon (;)" : "Semicolon (;)",
+   "Tab (&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;)" : "Tab (&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;)",
+   "Comma (,)" : "Comma (,)",
+   "Separated by" : "Separated by",
+   "Choose a CSV file" : "Choose a CSV file",
+   "CSV Importer" : "CSV Importer",
+   'Object name must be unique ("{0}" already in use)' : 'Object name must be unique ("{0}" already in use)',
    "Field columnName must be unique ({0} already used in this Application)" : "Field columnName must be unique ({0} already used in this Application)",
    "should be greater than {0}" : "should be greater than {0}",
    "%" : "%",

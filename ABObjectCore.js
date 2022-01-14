@@ -359,7 +359,7 @@ module.exports = class ABObjectCore extends ABMLClass {
     * @return {ABFieldxxx}
     */
    fieldByID(id) {
-      return this.fields((f) => f.id == id)[0];
+      return this.fields((f) => f?.id == id)[0];
    }
 
    /**
