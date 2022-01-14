@@ -87,6 +87,7 @@ class ABFactory extends EventEmitter {
          ABComponent,
          ABDefinition,
          ABFieldManager,
+         ABIndex,
          ABObject,
          ABObjectExternal,
          ABObjectImport,
