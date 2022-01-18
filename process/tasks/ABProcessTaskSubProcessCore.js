@@ -106,12 +106,47 @@ module.exports = class SubProcessCore extends ABProcessElement {
     * @return {array} | null
     */
    processDataFields() {
-      return [
-         {
+      if (this.parameterId == null) return [];
+
+      let dataFieldOpt = (this.process.processDataFields(this) || []).filter(
+         (opt) => opt.key == this.parameterId
+      )[0];
+      if (dataFieldOpt == null) return [];
+
+      let result = [];
+
+      // Connect field type
+      if (
+         dataFieldOpt.field &&
+         dataFieldOpt.field.key == "connectObject" &&
+         dataFieldOpt.field.datasourceLink &&
+         dataFieldOpt.field.datasourceLink.fields
+      ) {
+         result.push({
+            key: `${this.id}.subProcess.id`,
+            label: `${this.label}->Repeat Data.ID`
+         });
+
+         dataFieldOpt.field.datasourceLink.fields().forEach((f) => {
+            result.push({
+               key: `${this.id}.subProcess.${f.id}`,
+               label: `${this.label}->Repeat Data.${f.label}`,
+               field: f,
+               object: f.object
+            });
+         });
+      }
+      // Other field types
+      else {
+         result.push({
             key: `${this.id}.subProcess`,
-            label: `${this.label}->Repeat Data`
-         }
-      ];
+            label: `${this.label}->Repeat Data`,
+            field: dataFieldOpt.field,
+            object: dataFieldOpt.object
+         });
+      }
+
+      return result;
    }
 
    /**
@@ -123,20 +158,48 @@ module.exports = class SubProcessCore extends ABProcessElement {
     * @return {array} | null
     */
    processData(currElement, params) {
-      let data = this.process.processData.call(this, currElement, params);
-      if (data == null) {
-         if (
-            params &&
-            Array.isArray(params) &&
-            params.indexOf(this.processDataFields()[0].key) > -1
-         ) {
-            let instance = params[0];
-            let myState = this.myState(instance);
-            data = myState ? myState.data : null;
-         } else {
-            data = this.process.processData(this, params);
+      let instance = params[0];
+      let key = params[1];
+      let data;
+
+      if (instance && key && key.startsWith && key.startsWith(this.id)) {
+         let fieldId = key.split(".")[2];
+         let myState = this.myState(instance);
+         let stateData = myState ? myState.data : null;
+         data = stateData;
+
+         if (stateData && fieldId) {
+            let dataFieldOpt = (
+               this.process.processDataFields(this) || []
+            ).filter((opt) => opt.key == this.parameterId)[0];
+
+            if (
+               dataFieldOpt &&
+               dataFieldOpt.field &&
+               dataFieldOpt.field.key == "connectObject"
+            ) {
+               if (!Array.isArray(stateData)) stateData = [stateData];
+
+               // Extract data
+               data = stateData.map((item) => {
+                  if (fieldId == "id") {
+                     return item.uuid || item.id;
+                  } else if (dataFieldOpt.field.datasourceLink) {
+                     let returnField = dataFieldOpt.field.datasourceLink.fields(
+                        (f) => f.id == fieldId
+                     )[0];
+                     if (returnField) return item[returnField.columnName];
+                     else return item;
+                  }
+               });
+            }
          }
       }
+
+      if (data == null)
+         data = this.process.processData.call(this, currElement, params);
+
+      if (data == null) data = this.process.processData(this, params);
 
       return data;
    }
