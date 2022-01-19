@@ -109,8 +109,8 @@ module.exports = class ABApplicationCore extends ABMLClass {
       // this app.
 
       this.datacollectionIDs = attributes.json.datacollectionIDs || [];
-      // {array} .queryIDs
-      // All the {ABObjectQuery.id} values that have been pulled into this
+      // {array} .datacollectionIDs
+      // All the {ABDataCollection.id} values that have been pulled into this
       // ABApplication for use in it's design environment.  This is how we
       // determine which {ABDataCollection}s are included or excluded from
       // this app.
