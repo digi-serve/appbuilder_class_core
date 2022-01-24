@@ -10,6 +10,7 @@ const ABViewCarouselPropertyComponentDefaults = {
    hideItem: false,
    hideButton: false,
    navigationType: "corner", // "corner" || "side"
+   filterByCursor: false,
 
    detailsPage: null, // uuid
    detailsTab: null, // uuid
@@ -81,6 +82,14 @@ module.exports = class ABViewCarouselCore extends ABViewWidget {
       this.settings.navigationType =
          this.settings.navigationType ||
          ABViewCarouselPropertyComponentDefaults.navigationType;
+      try {
+         this.settings.filterByCursor = JSON.parse(
+            this.settings.filterByCursor
+         );
+      } catch (e) {
+         this.settings.filterByCursor =
+            ABViewCarouselPropertyComponentDefaults.filterByCursor;
+      }
    }
 
    get imageField() {
