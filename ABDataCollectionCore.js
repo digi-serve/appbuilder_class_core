@@ -2319,7 +2319,6 @@ module.exports = class ABDataCollectionCore extends ABMLClass {
             obj.settings.objectWorkspace.filterConditions = filters;
          }
       }
-
       return this.clone(obj); // new ABViewDataCollection(settings, this.application, this.parent);
    }
 

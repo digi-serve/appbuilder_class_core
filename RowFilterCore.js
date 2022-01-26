@@ -3,7 +3,7 @@ const ABComponent = require("../platform/ABComponent");
 /**
  *  support get data from objects and queries
  */
-function getFieldVal(rowData, field) {
+function getFieldVal(rowData, field, returnSingular = true) {
    if (!field) return null;
    if (!field.columnName) return null;
    // if rowData is an array, then pull the first element to get value
@@ -28,10 +28,17 @@ function getFieldVal(rowData, field) {
    // '[diagramID].[field.id]'
    for (var k in rowData) {
       var key = k.split(".")[1];
-      if (key && key == field.id) {
+      if (key && (key == columnId || key == columnName)) {
          value = rowData[k];
       }
    }
+
+   // if value is an array, filter empty item
+   if (value && Array.isArray(value)) {
+      value = value.filter((v) => v != null);
+      if (returnSingular) value = value[0];
+   }
+
    return value;
 }
 
@@ -94,10 +101,14 @@ module.exports = class RowFilterCore extends ABComponent {
             var value = getFieldVal(rowData, field);
             if (value == null) value = "";
 
-            value = value.trim().toLowerCase();
+            value = value
+               .toString()
+               .trim()
+               .toLowerCase();
             value = _logic.removeHtmlTags(value); // remove html tags - rich text editor
 
             compareValue = compareValue
+               .toString()
                .trim()
                .toLowerCase()
                .replace(/  +/g, " ");
