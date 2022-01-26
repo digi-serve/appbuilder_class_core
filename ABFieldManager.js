@@ -22,7 +22,7 @@ var ABFieldCalculate = require("../platform/dataFields/ABFieldCalculate");
 var ABFieldTextFormula = require("../platform/dataFields/ABFieldTextFormula");
 var ABFieldFormula = require("../platform/dataFields/ABFieldFormula");
 var ABFieldAutoIndex = require("../platform/dataFields/ABFieldAutoIndex");
-var ABFieldJson = require("../platform/dataFields/ABFieldJson");
+var ABFieldJson = require("../platform/dataFields/ABFieldJSON");
 var ABFieldCombine = require("../platform/dataFields/ABFieldCombine");
 
 /*
