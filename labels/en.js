@@ -1,6 +1,10 @@
 /* eslint-disable */
 module.exports = {
    /* key : label */
+   "No template file" : "No template file",
+   "is not empty" : "is not empty",
+   "is empty" : "is empty",
+   'Name must be unique ("{0}" already in use)' : 'Name must be unique ("{0}" already in use)',
    "Column {0}" : "Column {0}",
    "Import {0} Records" : "Import {0} Records",
    "Search records..." : "Search records...",
