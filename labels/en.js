@@ -1,6 +1,9 @@
 /* eslint-disable */
 module.exports = {
    /* key : label */
+   "New data available. Click to reload." : "New data available. Click to reload.",
+   "When" : "When",
+   "This is a required field." : "This is a required field.",
    "No template file" : "No template file",
    "is not empty" : "is not empty",
    "is empty" : "is empty",
