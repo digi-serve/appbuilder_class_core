@@ -39,31 +39,34 @@ module.exports = class ABProcessEngineCore {
          var processDefinitions = this.instance.jsonDefinition[
             "bpmn2:definitions"
          ]["bpmn2:process"];
-         var typeLookup = [
-            { xmlRef: "bpmn2:sequenceFlow", type: "flow" },
-            { xmlRef: "bpmn2:startEvent", type: "start" },
-            { xmlRef: "bpmn2:task", type: "task" },
-            { xmlRef: "bpmn2:sendTask", type: "sendTask" },
-            { xmlRef: "bpmn2:serviceTask", type: "serviceTask" },
-            { xmlRef: "bpmn2:userTask", type: "userTask" },
-            { xmlRef: "bpmn2:endEvent", type: "end" },
-            { xmlRef: "bpmn2:parallelGateway", type: "parallelGateway" }
-         ];
 
-         typeLookup.forEach((lookup) => {
-            if (processDefinitions[lookup.xmlRef]) {
-               var aryDef = processDefinitions[lookup.xmlRef];
-               if (!Array.isArray(aryDef)) {
-                  aryDef = [aryDef];
-               }
-               aryDef.forEach((obj) => {
-                  obj["_type"] = lookup.type;
-                  this.instance.hashDiagramObjects[
-                     obj["_attributes"]["id"]
-                  ] = obj;
-               });
-            }
-         });
+         this.setHashDiagramObjects(processDefinitions);
+
+         // var typeLookup = [
+         //    { xmlRef: "bpmn2:sequenceFlow", type: "flow" },
+         //    { xmlRef: "bpmn2:startEvent", type: "start" },
+         //    { xmlRef: "bpmn2:task", type: "task" },
+         //    { xmlRef: "bpmn2:sendTask", type: "sendTask" },
+         //    { xmlRef: "bpmn2:serviceTask", type: "serviceTask" },
+         //    { xmlRef: "bpmn2:userTask", type: "userTask" },
+         //    { xmlRef: "bpmn2:endEvent", type: "end" },
+         //    { xmlRef: "bpmn2:parallelGateway", type: "parallelGateway" }
+         // ];
+
+         // typeLookup.forEach((lookup) => {
+         //    if (processDefinitions[lookup.xmlRef]) {
+         //       var aryDef = processDefinitions[lookup.xmlRef];
+         //       if (!Array.isArray(aryDef)) {
+         //          aryDef = [aryDef];
+         //       }
+         //       aryDef.forEach((obj) => {
+         //          obj["_type"] = lookup.type;
+         //          this.instance.hashDiagramObjects[
+         //             obj["_attributes"]["id"]
+         //          ] = obj;
+         //       });
+         //    }
+         // });
       }
 
       // listen
@@ -142,5 +145,33 @@ module.exports = class ABProcessEngineCore {
          }
          this.walkGraph(list, pending, cb);
       }
+   }
+
+   setHashDiagramObjects(processDefinitions) {
+      if (processDefinitions == null) return;
+
+      var typeLookup = [
+         { xmlRef: "bpmn2:sequenceFlow", type: "flow" },
+         { xmlRef: "bpmn2:startEvent", type: "start" },
+         { xmlRef: "bpmn2:task", type: "task" },
+         { xmlRef: "bpmn2:sendTask", type: "sendTask" },
+         { xmlRef: "bpmn2:serviceTask", type: "serviceTask" },
+         { xmlRef: "bpmn2:userTask", type: "userTask" },
+         { xmlRef: "bpmn2:endEvent", type: "end" },
+         { xmlRef: "bpmn2:parallelGateway", type: "parallelGateway" }
+      ];
+
+      typeLookup.forEach((lookup) => {
+         if (processDefinitions[lookup.xmlRef]) {
+            var aryDef = processDefinitions[lookup.xmlRef];
+            if (!Array.isArray(aryDef)) {
+               aryDef = [aryDef];
+            }
+            aryDef.forEach((obj) => {
+               obj["_type"] = lookup.type;
+               this.instance.hashDiagramObjects[obj["_attributes"]["id"]] = obj;
+            });
+         }
+      });
    }
 };
