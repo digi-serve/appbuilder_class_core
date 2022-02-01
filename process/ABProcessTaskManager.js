@@ -34,6 +34,7 @@ var AllProcessElements = [
    require("../../platform/process/tasks/ABProcessTaskServiceCalculate"),
    require("../../platform/process/tasks/ABProcessTaskServiceInsertRecord"),
    require("../../platform/process/tasks/ABProcessTaskServiceQuery"),
+   require("../../platform/process/tasks/ABProcessTaskSubProcess"),
    require("../../platform/process/tasks/ABProcessTaskUser"),
    require("../../platform/process/tasks/ABProcessTaskUserApproval"),
    require("../../platform/process/tasks/ABProcessTrigger"),
