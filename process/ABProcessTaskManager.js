@@ -31,6 +31,7 @@ var AllProcessElements = [
    require("../../platform/process/tasks/ABProcessTaskServiceAccountingFPClose"),
    require("../../platform/process/tasks/ABProcessTaskServiceAccountingFPYearClose"),
    require("../../platform/process/tasks/ABProcessTaskServiceAccountingJEArchive"),
+   require("../../platform/process/tasks/ABProcessTaskServiceCalculate"),
    require("../../platform/process/tasks/ABProcessTaskServiceInsertRecord"),
    require("../../platform/process/tasks/ABProcessTaskServiceQuery"),
    require("../../platform/process/tasks/ABProcessTaskUser"),
@@ -131,4 +132,3 @@ module.exports = {
       return DEFINITIONTYPES[key];
    }
 };
-
