@@ -29,7 +29,7 @@ var AllFieldClasses = [
    require("../platform/dataFields/ABFieldTextFormula"),
    require("../platform/dataFields/ABFieldFormula"),
    require("../platform/dataFields/ABFieldAutoIndex"),
-   require("../platform/dataFields/ABFieldJSON"),
+   require("../platform/dataFields/ABFieldJson"),
    require("../platform/dataFields/ABFieldCombine"),
 ];
 
