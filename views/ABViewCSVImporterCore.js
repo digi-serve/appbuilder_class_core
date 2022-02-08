@@ -14,6 +14,7 @@ const ABViewCSVImporterDefaults = {
    labelKey: "ab.components.csvImporter",
    // {string}
    // the multilingual label key for the class label
+   // NOTE: will be used as L(labelKey)
 };
 
 const ABViewCSVImporterPropertyComponentDefaults = {
