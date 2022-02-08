@@ -6,4 +6,8 @@
  *
  */
 
-module.exports = [require("../../platform/ql/ABQLSetFirst.js")];
+module.exports = [
+   require("../../platform/ql/ABQLSetFirst.js"),
+   require("../../platform/ql/ABQLSetPluck.js"),
+   require("../../platform/ql/ABQLSetSave.js")
+];

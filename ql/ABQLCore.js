@@ -17,9 +17,23 @@ class ABQLCore {
       this.parameterDefinitions = parameterDefinitions;
 
       this.object = prevOP ? prevOP.object : null;
+      // {ABObject}
+      // The current {ABObject} the current Query Language Operation is associated
+      // with.
+
+      // if the previous Operation defined an .objectOut then our .object is THAT
+      // one.
+      if (prevOP && prevOP.objectOut) {
+         this.object = prevOP.objectOut;
+      }
 
       this.prevOP = prevOP;
       this.task = task;
+      // {ABProcessTaskxxx}
+      // This is running under a specific ABProcessTaskServiceQuery.  When
+      // searching for data from the Process, we must go through this.task
+      // to do so.
+
       this.application = application;
       this.next = null;
 
@@ -45,9 +59,11 @@ class ABQLCore {
       // super.fromValues(attributes);
 
       // this.entryComplete = attributes.entryComplete || false;
-      this.params = attributes.params || null;
-      // this.currQuery = attributes.currQuery || null;
-      // this.queryValid = attributes.queryValid || false;
+      this.params = attributes.params || {};
+      // {hash}
+      // The configuration values entered by the AppBuilder UI for this
+      // operation.
+
       this.objectID = attributes.objectID || null;
       // be sure to do a hard lookup if an objectID was saved:
       if (this.objectID) {
@@ -58,7 +74,7 @@ class ABQLCore {
 
       if (attributes.next) {
          var nextOP = null;
-         this.constructor.NextQLOps.forEach((OP) => {
+         (this.NextQLOps || this.constructor.NextQLOps).forEach((OP) => {
             if (OP.key == attributes.next.key) {
                nextOP = OP;
             }
@@ -88,9 +104,8 @@ class ABQLCore {
       return this.application.objects((o) => {
          var quotedLabel = `"${o.label}"`;
          return (
-            o.id == this.objectID ||
-            o.id == objID ||
-            quotedLabel.indexOf(objID) == 0
+            // o.id == this.objectID ||
+            o.id == objID || quotedLabel.indexOf(objID) == 0
          );
       })[0];
    }
@@ -104,7 +119,7 @@ class ABQLCore {
    availableProcessDataFieldsHash() {
       var availableProcessDataFields = this.task.process.processDataFields(
          this.task
-      );
+      ) || [];
       var hashFieldIDs = {};
       availableProcessDataFields.forEach((f) => {
          if (f.field) {
@@ -138,10 +153,6 @@ class ABQLCore {
     * @return {json}
     */
    toObj() {
-      // OP.Multilingual.unTranslate(this, this, ["label"]);
-
-      // var result = super.toObj();
-
       var obj = {
          key: this.constructor.key,
          // entryComplete: this.entryComplete,

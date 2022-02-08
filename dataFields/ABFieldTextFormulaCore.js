@@ -17,6 +17,9 @@ var ABFieldTextFormulaDefaults = {
    key: "TextFormula", // unique key to reference this specific DataField
    icon: "question", // font-awesome icon reference.  (without the 'fa-').  so 'user'  to reference 'fa-user'
 
+   isSortable: false,
+   isFilterable: false, // this field does not support filter on server side
+
    // menuName: what gets displayed in the Editor drop list
    menuName: L("ab.dataField.TextFormula.menuName", "*Text Formula"),
 
@@ -700,5 +703,4 @@ module.exports = class ABFieldTextFormulaCore extends ABField {
 // webix.DataStore.prototype.sorting.as.[sort_type] = function(a,b){
 //     return a > b ? 1 : -1;
 // }
-
 
