@@ -448,7 +448,12 @@ module.exports = class ABViewCore extends ABMLClass {
                this.key
             ) > -1
          ) {
-            var errNoDCID = new Error("View didn't define a dataviewID.");
+            // NOTE: ignore kanban side forms where this is the case:
+            if (this.key == "form" && this._currentObject) return null;
+
+            var errNoDCID = new Error(
+               `ABViewCore:get datacollection(): View[${this.key}] didn't define a dataviewID.`
+            );
             this.AB.notify.builder(errNoDCID, {
                view: this,
                settings: this.settings,

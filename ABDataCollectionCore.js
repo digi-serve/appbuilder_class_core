@@ -331,7 +331,9 @@ module.exports = class ABDataCollectionCore extends ABMLClass {
          if (this.id && this.name) {
             // occassionally we have blank DCs (without .id or .name)
             // and I don't want to see errors for those
-            var err = new Error("DataCollection missing reference datasource");
+            var err = new Error(
+               `DataCollection[${this.name}][${this.id}] missing reference datasource`
+            );
             this.AB.notify("builder", err, { datacollection: this.toObj() });
          }
          return null;
