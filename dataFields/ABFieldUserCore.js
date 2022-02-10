@@ -108,4 +108,9 @@ module.exports = class ABFieldUserCore extends ABFieldSelectivity {
 
       return val.map((v) => v.text || v).join(", ");
    }
+   
+   relationName() { 
+      return this.columnName;
+   }
+
 };
