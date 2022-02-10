@@ -21,21 +21,16 @@ var ABProcessGatewayExclusiveDefaults = {
    // key: {string}
    // unique key to reference this specific Task
 
-   settings: ["conditions"]
+   settings: ["conditions"],
    // settings: {array}
    // a list of internal setting values this Element tracks. These are the
    // values set by the platform .propertiesStash()
 };
 
 module.exports = class ABProcessGatewayExclusiveCore extends ABProcessElement {
-   constructor(attributes, process, application) {
+   constructor(attributes, process, AB) {
       attributes.type = attributes.type || "process.gateway.exclusive";
-      super(
-         attributes,
-         process,
-         application,
-         ABProcessGatewayExclusiveDefaults
-      );
+      super(attributes, process, AB, ABProcessGatewayExclusiveDefaults);
 
       // listen
    }
@@ -51,8 +46,8 @@ module.exports = class ABProcessGatewayExclusiveCore extends ABProcessElement {
          actionName: "replace-with-exclusive-gateway",
          className: "bpmn-icon-gateway-xor",
          target: {
-            type: "bpmn:ExclusiveGateway"
-         }
+            type: "bpmn:ExclusiveGateway",
+         },
       };
    }
 

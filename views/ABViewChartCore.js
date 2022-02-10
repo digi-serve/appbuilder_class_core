@@ -10,13 +10,13 @@ const ABViewChartPropertyComponentDefaults = {
    labelPosition: "left",
    labelWidth: 120,
    height: 200,
-   multipleSeries: false
+   multipleSeries: false,
 };
 
 const ABViewChartDefaults = {
    key: "chart", // {string} unique key for this view
    icon: "bar-chart", // {string} fa-[icon] reference for this view
-   labelKey: "ab.components.chart" // {string} the multilingual label key for the class label
+   labelKey: "ab.components.chart", // {string} the multilingual label key for the class label
 };
 
 module.exports = class ABViewChartCore extends ABViewContainer {
@@ -75,7 +75,7 @@ module.exports = class ABViewChartCore extends ABViewContainer {
          this.settings.height || ABViewChartPropertyComponentDefaults.height
       );
 
-      this.application.translate(this, this, ["chartLabel"]);
+      this.translate(this, this, ["chartLabel"]);
    }
 
    /**
@@ -99,7 +99,7 @@ module.exports = class ABViewChartCore extends ABViewContainer {
       var obj = dc.datasource;
       if (!obj) return null;
 
-      return obj.fields((f) => f.id == this.settings.columnLabel, true)[0];
+      return obj.fields((f) => f.id == this.settings.columnLabel)[0];
    }
 
    valueField() {
@@ -109,7 +109,7 @@ module.exports = class ABViewChartCore extends ABViewContainer {
       var obj = dc.datasource;
       if (!obj) return null;
 
-      return obj.fields((f) => f.id == this.settings.columnValue, true)[0];
+      return obj.fields((f) => f.id == this.settings.columnValue)[0];
    }
 
    valueField2() {
@@ -119,7 +119,6 @@ module.exports = class ABViewChartCore extends ABViewContainer {
       var obj = dc.datasource;
       if (!obj) return null;
 
-      return obj.fields((f) => f.id == this.settings.columnValue2, true)[0];
+      return obj.fields((f) => f.id == this.settings.columnValue2)[0];
    }
 };
-

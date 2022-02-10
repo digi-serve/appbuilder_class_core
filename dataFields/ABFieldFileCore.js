@@ -30,13 +30,13 @@ var ABFieldFileDefaults = {
    isFilterable: false,
    useAsLabel: false,
 
-   supportRequire: false
+   supportRequire: false,
 };
 
 var defaultValues = {
    removeExistingData: 0,
    fileSize: 0,
-   fileType: ""
+   fileType: "",
 };
 
 module.exports = class ABFieldFileCore extends ABField {

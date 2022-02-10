@@ -3,7 +3,7 @@ const ABViewContainer = require("../../platform/views/ABViewContainer");
 const ABViewDetailDefaults = {
    key: "detail", // {string} unique key for this view
    icon: "file-text-o", // {string} fa-[icon] reference for this view
-   labelKey: "ab.components.detail" // {string} the multilingual label key for the class label
+   labelKey: "ab.components.detail", // {string} the multilingual label key for the class label
 };
 
 const ABViewDetailPropertyComponentDefaults = {
@@ -11,7 +11,7 @@ const ABViewDetailPropertyComponentDefaults = {
    showLabel: true,
    labelPosition: "left",
    labelWidth: 120,
-   height: 0
+   height: 0,
 };
 
 module.exports = class ABViewDetailCore extends ABViewContainer {

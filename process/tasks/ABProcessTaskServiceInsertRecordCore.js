@@ -26,14 +26,14 @@ let InsertRecordDefaults = {
       "fieldValues",
       "isRepeat",
       "repeatMode",
-      "repeatColumn"
-   ]
+      "repeatColumn",
+   ],
 };
 
 module.exports = class InsertRecordCore extends ABProcessElement {
-   constructor(attributes, process, application) {
+   constructor(attributes, process, AB) {
       attributes.type = attributes.type || "process.task.service.insertRecord";
-      super(attributes, process, application, InsertRecordDefaults);
+      super(attributes, process, AB, InsertRecordDefaults);
 
       // listen
    }
@@ -51,6 +51,43 @@ module.exports = class InsertRecordCore extends ABProcessElement {
       super.fromValues(attributes);
 
       this.isRepeat = JSON.parse(attributes.isRepeat || false);
+   }
+
+   get startElement() {
+      let startElem = this.process.elements(
+         (elem) => elem && elem.defaults && elem.defaults.category == "start"
+      )[0];
+      return startElem;
+   }
+
+   get previousElement() {
+      return this.process.connectionPreviousTask(this)[0];
+   }
+
+   get objectOfStartElement() {
+      let startElem = this.startElement;
+      if (!startElem) return null;
+
+      let startElemObj = this.AB.objectByID(startElem.objectID);
+      return startElemObj;
+   }
+
+   get objectOfPrevElement() {
+      let prevElem = this.previousElement;
+      if (!prevElem) return null;
+
+      let objectID;
+      switch (prevElem.type) {
+         case "process.task.service.query":
+            objectID = prevElem.qlObj ? prevElem.qlObj.objectID : null;
+            break;
+         case "process.task.service.insertRecord":
+         default:
+            objectID = prevElem.objectID;
+            break;
+      }
+
+      return this.AB.objectByID(objectID);
    }
 
    get fieldRepeat() {

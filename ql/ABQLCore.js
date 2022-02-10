@@ -9,7 +9,7 @@
  */
 
 class ABQLCore {
-   constructor(attributes, parameterDefinitions, prevOP, task, application) {
+   constructor(attributes, parameterDefinitions, prevOP, task, AB) {
       // manage the incoming Parameter Definitions
       if (!Array.isArray(parameterDefinitions)) {
          parameterDefinitions = [parameterDefinitions];
@@ -34,7 +34,8 @@ class ABQLCore {
       // searching for data from the Process, we must go through this.task
       // to do so.
 
-      this.application = application;
+      this.AB = AB;
+
       this.next = null;
 
       this.fromAttributes(attributes);
@@ -81,12 +82,7 @@ class ABQLCore {
          });
          if (nextOP) {
             // exact match, so add next:
-            var qlOP = new nextOP(
-               attributes.next,
-               this,
-               this.task,
-               this.application
-            );
+            var qlOP = new nextOP(attributes.next, this, this.task, this.AB);
             this.next = qlOP;
          }
       }
@@ -101,7 +97,7 @@ class ABQLCore {
     * @param {string} objID
     */
    objectLookup(objID) {
-      return this.application.objects((o) => {
+      return this.AB.objects((o) => {
          var quotedLabel = `"${o.label}"`;
          return (
             // o.id == this.objectID ||
@@ -117,9 +113,8 @@ class ABQLCore {
     * @return {obj}
     */
    availableProcessDataFieldsHash() {
-      var availableProcessDataFields = this.task.process.processDataFields(
-         this.task
-      ) || [];
+      var availableProcessDataFields =
+         this.task.process.processDataFields(this.task) || [];
       var hashFieldIDs = {};
       availableProcessDataFields.forEach((f) => {
          if (f.field) {
@@ -143,13 +138,8 @@ class ABQLCore {
 
    /**
     * @method toObj()
-    *
-    * properly compile the current state of this ABApplication instance
+    * properly compile the current state of this ABQL instance
     * into the values needed for saving to the DB.
-    *
-    * Most of the instance data is stored in .json field, so be sure to
-    * update that from all the current values of our child fields.
-    *
     * @return {json}
     */
    toObj() {
@@ -159,7 +149,7 @@ class ABQLCore {
          params: this.params,
          // currQuery: this.currQuery,
          // queryValid: this.queryValid,
-         objectID: this.object ? this.object.id : null
+         objectID: this.object ? this.object.id : null,
       };
 
       if (this.next) {

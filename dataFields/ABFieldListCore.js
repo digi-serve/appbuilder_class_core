@@ -14,25 +14,18 @@ function L(key, altText) {
 }
 
 var ABFieldListDefaults = {
-   key: "list", // unique key to reference this specific DataField
+   key: "list",
+   // unique key to reference this specific DataField
 
-   icon: "th-list", // font-awesome icon reference.  (without the 'fa-').  so 'user'  to reference 'fa-user'
-
-   // menuName: what gets displayed in the Editor drop list
-   menuName: L("ab.dataField.list.menuName", "*Select list"),
-
+   description:
+      "Select list allows you to select predefined options below from a dropdown.",
    // description: what gets displayed in the Editor description.
-   description: L(
-      "ab.dataField.list.description",
-      "*Select list allows you to select predefined options below from a dropdown."
-   ),
-   isSortable: (field) => {
-      if (field.settings.isMultiple) {
-         return false;
-      } else {
-         return true;
-      }
-   },
+   // NOTE: this will be displayed using a Label: L(description)
+
+   icon: "th-list",
+   // font-awesome icon reference.  (without the 'fa-').  so 'user'  to
+   // reference 'fa-user'
+
    isFilterable: (field) => {
       if (field.settings.isMultiple) {
          return false;
@@ -40,6 +33,55 @@ var ABFieldListDefaults = {
          return true;
       }
    },
+   // {bool} / {fn}
+   // determines if the current ABField can be used to filter (FilterComplex
+   // or Query) data.
+   // if a {fn} is provided, it will be called with the ABField as a parameter:
+   //  (field) => field.setting.something == true
+
+   isSortable: (field) => {
+      if (field.settings.isMultiple) {
+         return false;
+      } else {
+         return true;
+      }
+   },
+   // {bool} / {fn}
+   // determines if the current ABField can be used to Sort data.
+   // if a {fn} is provided, it will be called with the ABField as a parameter:
+   //  (field) => true/false
+
+   menuName: "Select list",
+   // menuName: what gets displayed in the Editor drop list
+   // NOTE: this will be displayed using a Label: L(menuName)
+
+   supportRequire: true,
+   // {bool}
+   // does this ABField support the Required setting?
+
+   supportUnique: false,
+   // {bool}
+   // does this ABField support the Unique setting?
+
+   useAsLabel: false,
+   // {bool} / {fn}
+   // determines if this ABField can be used in the display of an ABObject's
+   // label.
+
+   compatibleOrmTypes: [],
+   // {array}
+   // what types of Sails ORM attributes can be imported into this data type?
+   // http://sailsjs.org/documentation/concepts/models-and-orm/attributes#?attribute-options
+
+   compatibleMysqlTypes: [
+      "char",
+      "varchar",
+      "tinytext" /* "text", "mediumtext" */,
+   ],
+   // {array}
+   // what types of MySql column types can be imported into this data type?
+   // https://www.techonthenet.com/mysql/datatypes.php
+
    hasColors: (field) => {
       if (field.settings.hasColors) {
          return true;
@@ -47,20 +89,28 @@ var ABFieldListDefaults = {
          return false;
       }
    },
-
-   supportRequire: true,
-
-   // what types of Sails ORM attributes can be imported into this data type?
-   // http://sailsjs.org/documentation/concepts/models-and-orm/attributes#?attribute-options
-   compatibleOrmTypes: []
 };
 
 var defaultValues = {
    isMultiple: 0,
+   // {bool}
+   // can multiple values be selected?
+
    hasColors: 0,
+   // {bool}
+   // are we to display our values in colors?
+
    options: [],
+   // {array}
+   // The options defined for this list:
+   // [ { id, text, hex, translations },...]
+   //    .id {string} a unique id for this value
+   //    .text {string} the displayed text of this value
+   //    .hex {string} a color hex definition for this value
+   //    .translations {obj} the multilingual definitions for this value.
+
    default: "none",
-   multipleDefault: []
+   multipleDefault: [],
 };
 
 module.exports = class ABFieldListCore extends ABField {
@@ -95,7 +145,7 @@ module.exports = class ABFieldListCore extends ABField {
       // translate options list
       if (this.settings.options && this.settings.options.length > 0) {
          this.settings.options.forEach((opt) => {
-            this.object.translate(opt, opt, ["text"]);
+            this.translate(opt, opt, ["text"]);
          });
       }
 
@@ -119,7 +169,7 @@ module.exports = class ABFieldListCore extends ABField {
 
       // Un-translate options list
       obj.settings.options.forEach((opt) => {
-         this.object.unTranslate(opt, opt, ["text"]);
+         this.unTranslate(opt, opt, ["text"]);
       });
 
       return obj;
@@ -199,4 +249,3 @@ module.exports = class ABFieldListCore extends ABField {
       return displayOpts.join(", ");
    }
 };
-

@@ -3,13 +3,13 @@ const ABViewWidget = require("../../platform/views/ABViewWidget");
 const ABViewTextPropertyComponentDefaults = {
    text: "",
    height: 0,
-   dataviewID: null
+   dataviewID: null,
 };
 
 const ABViewDefaults = {
    key: "text", // {string} unique key for this view
    icon: "font", // {string} fa-[icon] reference for this view
-   labelKey: "ab.components.text" // {string} the multilingual label key for the class label
+   labelKey: "ab.components.text", // {string} the multilingual label key for the class label
 };
 
 module.exports = class ABViewTextCore extends ABViewWidget {
@@ -38,7 +38,9 @@ module.exports = class ABViewTextCore extends ABViewWidget {
     * @return {json}
     */
    toObj() {
-      this.application.unTranslate(this, this, ["text"]);
+      // NOTE: ABView auto translates/untranslates "label"
+      // add in any additional fields here:
+      this.unTranslate(this, this, ["text"]);
 
       var obj = super.toObj();
       obj.views = [];
@@ -64,7 +66,9 @@ module.exports = class ABViewTextCore extends ABViewWidget {
       // if this is being instantiated on a read from the Property UI,
       this.text = values.text || ABViewTextPropertyComponentDefaults.text;
 
-      this.application.translate(this, this, ["text"]);
+      // NOTE: ABView auto translates/untranslates "label"
+      // add in any additional fields here:
+      this.translate(this, this, ["text"]);
    }
 
    /**
@@ -83,11 +87,11 @@ module.exports = class ABViewTextCore extends ABViewWidget {
     */
    get datacollection() {
       if (this.parent.key == "dataview") {
-         return this.application.datacollections(
+         return this.AB.datacollections(
             (dv) => dv.id == this.parent.settings.dataviewID
          )[0];
       } else {
-         return this.application.datacollections(
+         return this.AB.datacollections(
             (dv) => dv.id == this.settings.dataviewID
          )[0];
       }
@@ -106,7 +110,7 @@ module.exports = class ABViewTextCore extends ABViewWidget {
       var object = dv.datasource;
       if (!object) return clearTemplateValue(result);
 
-      object.fields(null, true).forEach((f) => {
+      object.fields().forEach((f) => {
          var rowData = val || dv.getCursor() || {};
 
          // add \\ in front of the regular expression special charactors
@@ -116,42 +120,56 @@ module.exports = class ABViewTextCore extends ABViewWidget {
 
          var template = new RegExp("{" + label + "}", "g");
 
-         var prepend = "";
-         if (f.key == "image") {
-            prepend = "/opsportal/image/" + this.application.name + "/";
-         }
-         var data = prepend + f.format(rowData) || "???"; // "???" default value
+         // IDEA: I'd like to keep all the image url logic INSIDE the ABFieldImage
+         // object.  Is there some way we can simply call: f.imageTemplate(rowData)
+         // and parse the results for the url to display here?
 
-         if (
-            data == prepend &&
-            f.key == "image" &&
-            f.settings.defaultImageUrl &&
-            f.settings.useDefaultImage
-         ) {
-            data = prepend + f.settings.defaultImageUrl;
-            result = result.replace(
-               "img",
-               'img onload=\'AD.comm.hub.publish("component.adjust", {"containerID": "' +
-                  componentID +
-                  "\"});' "
-            );
-         } else if (
-            f.format(rowData) != "" &&
-            f.key == "image" &&
-            result.indexOf("onload") == -1 &&
-            componentID
-         ) {
-            result = result.replace(
-               "img",
-               'img onload=\'AD.comm.hub.publish("component.adjust", {"containerID": "' +
-                  componentID +
-                  "\"});' "
-            );
-         } else if (f.key == "image") {
-            result = result.replace(
-               "img",
-               "img onerror='this.parentNode.removeChild(this);' "
-            );
+         var data = f.format(rowData);
+         if (f.key == "image") {
+            var fData = data;
+            data = f.urlImage(fData);
+
+            // Question: should we change f.urlImage() to return the defaultImageUrl
+            // if fData is "" and .useDefaultImage = true?
+
+            if (
+               !fData &&
+               f.settings.defaultImageUrl &&
+               f.settings.useDefaultImage
+            ) {
+               data = f.urlImage(f.settings.defaultImageUrl);
+
+               ////
+               //// James:  Revisit this and make sure we are handling things ok now.
+               // result = result.replace(
+               //    "img",
+               //    'img onload=\'AD.comm.hub.publish("component.adjust", {"containerID": "' +
+               //       componentID +
+               //       "\"});' "
+               // );
+               // } else if (
+               //    fData != "" &&
+               //    result.indexOf("onload") == -1 &&
+               //    componentID
+               // ) {
+               // result = result.replace(
+               //    "img",
+               //    'img onload=\'AD.comm.hub.publish("component.adjust", {"containerID": "' +
+               //       componentID +
+               //       "\"});' "
+               // );
+            } else {
+               ////
+               //// James: It looks like this routine assumes the this.text template will
+               //// only have 1 <img> tag in it.  Is that necessarilly true?
+               ////
+               //// If NOT, then we need to rethink this next line:
+
+               result = result.replace(
+                  "img",
+                  "img onerror='this.parentNode.removeChild(this);' "
+               );
+            }
          }
 
          result = result.replace(template, data);
@@ -160,5 +178,3 @@ module.exports = class ABViewTextCore extends ABViewWidget {
       return result;
    }
 };
-
-

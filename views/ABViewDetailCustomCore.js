@@ -5,7 +5,7 @@ const ABViewDetailCustomPropertyComponentDefaults = {};
 const ABViewDetailCustomDefaults = {
    key: "detailcustom", // {string} unique key for this view
    icon: "dot-circle-o", // {string} fa-[icon] reference for this view
-   labelKey: "ab.components.detail.custom" // {string} the multilingual label key for the class label
+   labelKey: "ab.components.detail.custom", // {string} the multilingual label key for the class label
 };
 
 module.exports = class ABViewDetailCustomCore extends ABViewDetailComponent {

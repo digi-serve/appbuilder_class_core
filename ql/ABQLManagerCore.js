@@ -18,11 +18,11 @@ var ABQLManagerCore = {
     *		  the values returned from the previous .toObj() call
     * @param {ABProcessTask***} task
     *		  the current ABProcessTaskServiceQuery that contains this QL
-    * @param {ABApplication} application
-    *		  the current ABApplication we are operating under.
+    * @param {ABFactory} AB
+    *		  the current ABFactory we are operating under.
     * @return {ABQL} | null
     */
-   fromAttributes: function(attributes, task, application) {
+   fromAttributes: function (attributes, task, AB) {
       if (!attributes) {
          return null;
       }
@@ -35,7 +35,7 @@ var ABQLManagerCore = {
       if (matchingOPs.length == 1) {
          // let this Operation initialize and return the last OP
          // in the chain
-         var qlOP = new matchingOPs[0](attributes, task, application);
+         var qlOP = new matchingOPs[0](attributes, task, AB);
          return qlOP;
       } else {
          return null;
@@ -46,6 +46,6 @@ var ABQLManagerCore = {
     * @array QLOps
     * An array of the root QL Operations.
     */
-   QLOps: QLOps
+   QLOps: QLOps,
 };
 module.exports = ABQLManagerCore;

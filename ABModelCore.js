@@ -16,6 +16,7 @@ module.exports = class ABModelCore {
    constructor(object) {
       // link me to my ABObject
       this.object = object;
+      this.AB = object.AB;
 
       this._where = null;
       this._sort = null;
@@ -60,7 +61,7 @@ module.exports = class ABModelCore {
       // if mlFields are inside of the values saved we want to translate otherwise do not because it will reset the translation field and you may loose unchanged translations
       var shouldTranslate = false;
       if (mlFields.length) {
-         mlFields.forEach(function(field) {
+         mlFields.forEach(function (field) {
             if (values[field] != null) {
                shouldTranslate = true;
             }
@@ -177,27 +178,27 @@ module.exports = class ABModelCore {
    urlParamsCreate(values) {
       return {
          url: this.object.urlRest(),
-         params: values
+         params: values,
       };
    }
 
    urlParamsDelete(id) {
       return {
-         url: this.object.urlRestItem(id)
+         url: this.object.urlRestItem(id),
       };
    }
 
    urlParamsFind(cond) {
       return {
          url: this.object.urlRest(),
-         params: cond || {}
+         params: cond || {},
       };
    }
 
    urlParamsUpdate(id, values) {
       return {
          url: this.object.urlRestItem(id),
-         params: values
+         params: values,
       };
    }
 
@@ -210,7 +211,7 @@ module.exports = class ABModelCore {
 
       var params = {
          url: this.object.urlRestCount(),
-         params: cond
+         params: cond,
       };
       return this.request("get", params)
          .then((numberOfRows) => {
@@ -240,7 +241,7 @@ module.exports = class ABModelCore {
       // cond should be { where:{ id: X } } format.
       var PK = this.object.PK();
 
-      var currID = cond[PK]; // but just in case we get a { id: X }
+      var currID = cond[PK]; // just in case we get a { id: X }
       if (cond.where) {
          currID = cond.where[PK];
       }
@@ -258,7 +259,7 @@ module.exports = class ABModelCore {
          // convert to PK : Promise object:
          var entry = {
             resolve: resolve,
-            reject: reject
+            reject: reject,
          };
          entry[PK] = currID;
 
@@ -432,7 +433,10 @@ module.exports = class ABModelCore {
 
                // if only 1 field requested, then return that
                if (fields.length == 1) {
-                  let data = myObj[fields[0].replace(/[^a-z0-9\.]/gi, "") + "__relation"];
+                  let data =
+                     myObj[
+                        fields[0].replace(/[^a-z0-9\.]/gi, "") + "__relation"
+                     ];
                   if (!data) return resolve([]);
 
                   if (!Array.isArray(data)) data = [data];
@@ -453,7 +457,8 @@ module.exports = class ABModelCore {
 
                var returnData = {};
                fields.forEach((colName) => {
-                  returnData[colName] = myObj[colName.replace(/[^a-z0-9\.]/gi, "") + "__relation"];
+                  returnData[colName] =
+                     myObj[colName.replace(/[^a-z0-9\.]/gi, "") + "__relation"];
                });
 
                resolve(returnData);
@@ -627,7 +632,7 @@ module.exports = class ABModelCore {
 
       var params = {
          url: this.object.urlRest(),
-         params: values
+         params: values,
       };
       return this.request("put", params)
          .then((data) => {
@@ -673,10 +678,13 @@ module.exports = class ABModelCore {
     * refresh model definition on the server.
     */
    refresh() {
-      var params = {
-         url: this.object.urlRestRefresh()
-      };
-      return this.request("put", params);
+      console.error("!!! Depreciated: where is this being called from?");
+      return Promise.resolve();
+
+      // var params = {
+      //    url: this.object.urlRestRefresh(),
+      // };
+      // return this.request("put", params);
    }
 
    normalizeData(data) {
@@ -691,13 +699,8 @@ module.exports = class ABModelCore {
 
       // if this object has some date fields, convert the data to date object:
       var dateFields =
-         this.object.fields(function(f) {
+         this.object.fields(function (f) {
             return f.key == "date" || f.key == "datetime";
-         }) || [];
-
-      var userFields =
-         this.object.fields(function(f) {
-            return f.key == "user";
          }) || [];
 
       // calculate fields
@@ -793,38 +796,16 @@ module.exports = class ABModelCore {
                   if (date.key == "date") {
                      // if we are ignoring the time it means we ignore timezone as well
                      // so lets trim that off when creating the date so it can be a simple date
-                     d[date.columnName] = this.object.application.toDate(
-                        d[date.columnName],
-                        {
-                           format: "MM/DD/YYYY",
-                           ignoreTime: true
-                        }
-                     );
-                     // d[date.columnName] = new Date(
-                     //    moment(d[date.columnName].replace(/\T.*/, "")).format(
-                     //       "MM/DD/YYYY"
-                     //    )
-                     // );
+                     d[date.columnName] = this.AB.toDate(d[date.columnName], {
+                        format: "MM/DD/YYYY",
+                        ignoreTime: true,
+                     });
                   } else {
                      // Convert UTC to Date
-                     d[date.columnName] = this.object.application.toDate(
-                        d[date.columnName]
-                     );
+                     d[date.columnName] = this.AB.toDate(d[date.columnName]);
                      // d[date.columnName] = new Date(moment(d[date.columnName]));
                   }
                }
-            }
-         });
-
-         userFields.forEach((user) => {
-            if (
-               d &&
-               d[user.columnName] &&
-               typeof d[user.columnName] == "string"
-            ) {
-               try {
-                  d[user.columnName] = JSON.parse(d[user.columnName]);
-               } catch (err) {}
             }
          });
 

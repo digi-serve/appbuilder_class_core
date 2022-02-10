@@ -7,19 +7,21 @@
 const ABMLClass = require("../../platform/ABMLClass");
 
 const ABProcessParticipantDefaults = {
-   type: "process.participant" // unique key to reference this specific Task
+   type: "process.participant",
+   // {string} .type
+   // unique key to reference this specific object
+
    // icon: "key" // font-awesome icon reference.  (without the 'fa-').  so 'user'  to reference 'fa-user'
 };
 
 module.exports = class ABProcessParticipantCore extends ABMLClass {
-   constructor(attributes, process, application) {
-      super(["label"]);
+   constructor(attributes, process, AB) {
+      super(["label"], AB);
 
       this.process = process;
       if (!this.processID) {
          this.processID = process.id;
       }
-      this.application = application;
 
       this.fromValues(attributes);
 
@@ -127,7 +129,7 @@ module.exports = class ABProcessParticipantCore extends ABMLClass {
          "account",
          "useField",
          "fields",
-         "stashed"
+         "stashed",
       ];
       fieldsToSave.forEach((f) => {
          data[f] = this[f];

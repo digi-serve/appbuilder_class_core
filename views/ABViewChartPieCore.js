@@ -6,13 +6,13 @@ const ABViewChartPiePropertyComponentDefaults = {
    // chartWidth: 600,
    height: 200,
    innerFontSize: 12,
-   labelFontSize: 12
+   labelFontSize: 12,
 };
 
 const ABViewDefaults = {
    key: "pie", // {string} unique key for this view
    icon: "pie-chart", // {string} fa-[icon] reference for this view
-   labelKey: "ab.components.chart.pie" // {string} the multilingual label key for the class label
+   labelKey: "ab.components.chart.pie", // {string} the multilingual label key for the class label
 };
 
 module.exports = class ABViewChartPieCore extends ABViewChartComponent {
@@ -60,7 +60,7 @@ module.exports = class ABViewChartPieCore extends ABViewChartComponent {
             ABViewChartPiePropertyComponentDefaults.labelFontSize
       );
 
-      this.application.translate(this, this, ["pieLabel"]);
+      this.translate(this, this, ["pieLabel"]);
    }
 
    /**

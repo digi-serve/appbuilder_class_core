@@ -19,7 +19,7 @@ module.exports = class ABComponentCore extends EventEmitter {
    constructor(App, idBase) {
       super();
 
-      var L = this.Label;
+      var L = this.Label();
 
       if (!App) {
          App = {
@@ -59,9 +59,9 @@ module.exports = class ABComponentCore extends EventEmitter {
              * @param {string} key   The key to modify and return.
              * @return {string}
              */
-            unique: function(key) {
+            unique: function (key) {
                return key + this.uuid;
-            }
+            },
          };
       }
 
@@ -81,8 +81,10 @@ module.exports = class ABComponentCore extends EventEmitter {
       }
    }
 
-   Label(key, altText) {
-      return altText;
+   Label() {
+      return (key, altText, values) => {
+         return altText;
+      };
    }
 
    unique(key) {

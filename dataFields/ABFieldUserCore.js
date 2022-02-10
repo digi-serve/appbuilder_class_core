@@ -5,9 +5,7 @@
  *
  */
 
-var ABFieldSelectivity = require("../../platform/dataFields/ABFieldSelectivity");
-// import ABFieldSelectivity from "./ABFieldSelectivity"
-// import ABFieldComponent from "./ABFieldComponent"
+var ABFieldConnect = require("../../platform/dataFields/ABFieldConnect");
 
 function L(key, altText) {
    // TODO:
@@ -35,7 +33,12 @@ var ABFieldUserDefaults = {
 
    // what types of Sails ORM attributes can be imported into this data type?
    // http://sailsjs.org/documentation/concepts/models-and-orm/attributes#?attribute-options
-   compatibleOrmTypes: []
+   compatibleOrmTypes: [],
+
+   USERNAME_FIELD_ID: "5760560b-c078-47ca-98bf-e18ac492a561",
+   // {string} .uuid
+   // the ABField.id of the SiteUser.username field.  This is what other
+   // objects will link to in their ABFieldUser connections.
 };
 
 var defaultValues = {
@@ -43,10 +46,10 @@ var defaultValues = {
    isMultiple: 0,
    isCurrentUser: 0,
    isShowProfileImage: 0,
-   isShowUsername: 1
+   isShowUsername: 1,
 };
 
-module.exports = class ABFieldUserCore extends ABFieldSelectivity {
+module.exports = class ABFieldUserCore extends ABFieldConnect {
    constructor(values, object) {
       super(values, object, ABFieldUserDefaults);
    }
@@ -80,31 +83,11 @@ module.exports = class ABFieldUserCore extends ABFieldSelectivity {
    /// Working with Actual Object Values:
    ///
 
-   /**
-    * @method defaultValue
-    * insert a key=>value pair that represent the default value
-    * for this field.
-    * @param {obj} values a key=>value hash of the current values.
-    */
-   defaultValue(values) {
-      if (this.settings.isCurrentUser) {
-         if (this.settings.isMultiple) {
-            values[this.columnName] = [
-               {
-                  id: OP.User.username(),
-                  text: OP.User.username()
-               }
-            ];
-         } else {
-            values[this.columnName] = OP.User.username();
-         }
-      }
-   }
-
    format(rowData) {
       var val = this.dataValue(rowData) || [];
 
       if (val && !Array.isArray(val)) val = [val];
+      if (!val) val = [];
 
       return val.map((v) => v.text || v).join(", ");
    }

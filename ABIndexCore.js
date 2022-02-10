@@ -2,7 +2,7 @@ const ABMLClass = require("../platform/ABMLClass");
 
 module.exports = class ABIndexCore extends ABMLClass {
    constructor(attributes, object) {
-      super(/* ["label"] */);
+      super(["label"], object.AB);
       this.object = object;
 
       this.fromValues(attributes);
@@ -33,7 +33,7 @@ module.exports = class ABIndexCore extends ABMLClass {
          .map((f) => {
             // NOTE: to prevent a Race Condition on load, we need to
             // send .fields(filter(), TRUE);
-            return this.object.fields((fld) => fld.id == f, true)[0];
+            return this.object.fieldByID(f);
          })
          .filter((fId) => fId);
 

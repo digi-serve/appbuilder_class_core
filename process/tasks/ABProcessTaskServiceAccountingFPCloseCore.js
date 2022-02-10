@@ -41,18 +41,18 @@ var AccountingFPCloseDefaults = {
       "fieldAccExpense",
       "fieldAccLiabilities",
       "fieldAccEquity",
-      "fieldAccIncome"
-   ]
+      "fieldAccIncome",
+   ],
    // settings: {array}
    // a list of internal setting values this Element tracks. These are the
    // values set by the platform .propertiesStash()
 };
 
 module.exports = class AccountingFPCloseCore extends ABProcessElement {
-   constructor(attributes, process, application) {
+   constructor(attributes, process, AB) {
       attributes.type =
          attributes.type || "process.task.service.accounting.fpClose";
-      super(attributes, process, application, AccountingFPCloseDefaults);
+      super(attributes, process, AB, AccountingFPCloseDefaults);
 
       // listen
    }
@@ -165,4 +165,3 @@ module.exports = class AccountingFPCloseCore extends ABProcessElement {
     }
     */
 };
-
