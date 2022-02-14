@@ -1,6 +1,12 @@
 /* eslint-disable */
 module.exports = {
    /* key : label */
+   "Family" : "Family",
+   "Clients" : "Clients",
+   "Do you want to delete this card?" : "Do you want to delete this card?",
+   "Remove card" : "Remove card",
+   "Edit Record" : "Edit Record",
+   "Other" : "Other",
    "New data available. Click to reload." : "New data available. Click to reload.",
    "When" : "When",
    "This is a required field." : "This is a required field.",
