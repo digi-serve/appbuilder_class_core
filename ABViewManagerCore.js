@@ -127,4 +127,12 @@ module.exports = class ABViewManagerCore {
          return null;
       }
    }
+
+   static viewClass(key) {
+      if (Views[key]) {
+         return Views[key];
+      }
+      console.error(`Unknown View Key[${key}]`);
+      return;
+   }
 };

@@ -867,18 +867,6 @@ module.exports = class ABApplicationCore extends ABMLClass {
       return ABViewManager.newView(values, application, parent);
    }
 
-   /**
-    * @method viewNew()
-    *
-    * return an instance of a new (unsaved) ABView.
-    *
-    * @return {ABView}
-    */
-   // qlopNew(values, application, parent) {
-   //    console.error("!!!Where is this called?!!!");
-   //    return ABQLManager.newOP(values, application || this, parent);
-   // }
-
    ///
    /// Utilities
    ///
