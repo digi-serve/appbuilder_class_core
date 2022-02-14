@@ -327,12 +327,10 @@ module.exports = class ABViewCore extends ABMLClass {
          ) {
             // check to see if the user's roles matches one of the roles defined
             this.AB.Account.roles().forEach((role) => {
-               if (
-                  this.accessLevels[role.id] &&
-                  parseInt(this.accessLevels[role.id]) > accessLevel
-               )
+               var currentRole = this.accessLevels[role.id ?? role.uuid];
+               if (currentRole && parseInt(currentRole) > accessLevel)
                   // if the access level is higher than a previous role set to the new level
-                  accessLevel = parseInt(this.accessLevels[role.id]);
+                  accessLevel = parseInt(currentRole);
             });
          }
       } else {
