@@ -14,7 +14,6 @@ const ABDefinition = require("../platform/ABDefinition");
 const ABComponent = require("../platform/ABComponent");
 
 const ABFieldManager = require("./ABFieldManager");
-const ABViewManager = require("./ABViewManagerCore");
 
 const ABIndex = require("../platform/ABIndex");
 const ABObject = require("../platform/ABObject");
@@ -101,7 +100,6 @@ class ABFactory extends EventEmitter {
          // ABObjectWorkspaceViewGantt,
 
          // FilterComplex
-         ABViewManager,
       };
 
       // Notify Helpers
