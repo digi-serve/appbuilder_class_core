@@ -69,6 +69,18 @@ module.exports = class ABFieldFileCore extends ABField {
       );
    }
 
+   /**
+    * @method dataValue
+    * return the file data stored as part of this field.
+    *
+    * An ABFieldFile column contains a json structure that contains
+    *  .uuid : {string} a file uuid reference
+    *  .filename : {string} the name of the file that was uploaded.
+    *
+    * This will return the json object.
+    * @param {obj} values a key=>value hash of the current values.
+    * @return {obj} { uuid, filename }, or {} if empty.
+    */
    dataValue(rowData) {
       let propName = "{objectName}.{columnName}"
          .replace("{objectName}", this.alias || this.object.name)
@@ -82,6 +94,22 @@ module.exports = class ABFieldFileCore extends ABField {
       }
 
       return result;
+   }
+
+   /**
+    * @method defaultValue
+    * insert a key=>value pair that represent the default value
+    * for this field.
+    *
+    * An ABFieldFile expects a json structure that contains
+    *  .uuid : {string} a file uuid reference
+    *  .filename : {string} the name of the file that was uploaded.
+    *
+    * For a default value, we return an empty json object: "{}"
+    * @param {obj} values a key=>value hash of the current values.
+    */
+   defaultValue(values) {
+      values[this.columnName] = "{}";
    }
 
    format(rowData) {
@@ -98,5 +126,23 @@ module.exports = class ABFieldFileCore extends ABField {
       } else {
          return "";
       }
+   }
+
+   /**
+    * @method requestParam
+    * return the entry in the given input that relates to this field.
+    * @param {obj} allParameters  a key=>value hash of the inputs to parse.
+    * @return {obj} or undefined
+    */
+   requestParam(allParameters) {
+      var myParameter = super.requestParam(allParameters);
+
+      // if we have our default empty object, then remove the entry
+      // and let the DB insert a null value.
+      if (myParameter[this.columnName] == "{}") {
+         delete myParameter[this.columnName];
+      }
+
+      return myParameter;
    }
 };
