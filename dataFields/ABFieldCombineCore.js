@@ -13,12 +13,13 @@ var ABFieldCombinedDefaults = {
    menuName: L("ab.dataField.Combined.menuName", "*Combined Field"),
 
    // description: what gets displayed in the Editor description.
-   description: L("ab.dataField.Combined.description", "*Combined Value")
+   description: L("ab.dataField.Combined.description", "*Combined Value"),
 };
 
 // defaultValues: the keys must match a .name of your elements to set it's default value.
 const defaultValues = {
-   delimiter: "plus" // plus, space, dash, period
+   combinedFields: "",
+   delimiter: "plus", // plus, space, dash, period
 };
 
 module.exports = class ABFieldCombineCore extends ABField {
@@ -53,5 +54,3 @@ module.exports = class ABFieldCombineCore extends ABField {
       delete values[this.columnName];
    }
 };
-
-
