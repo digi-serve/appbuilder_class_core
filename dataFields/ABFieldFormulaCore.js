@@ -42,7 +42,7 @@ var ABFieldFormulaDefaults = {
 
    // what types of MySql column types can be imported into this data type?
    // https://www.techonthenet.com/mysql/datatypes.php
-   compatibleMysqlTypes: []
+   compatibleMysqlTypes: [],
 };
 
 var defaultValues = {
@@ -50,7 +50,7 @@ var defaultValues = {
    objectLink: "", // id of ABObject
    fieldLink: "", // id of ABField
    type: "sum", // "sum", "average", "max", "min", "count"
-   where: ""
+   where: "",
 };
 
 module.exports = class ABFieldFormulaCore extends ABField {
@@ -215,7 +215,7 @@ module.exports = class ABFieldFormulaCore extends ABField {
    }
 
    get fieldLink() {
-      var obj = this.object.application.objects(
+      var obj = this.object.AB.objects(
          (obj) => obj.id == this.settings.object
       )[0];
       if (!obj) return null;

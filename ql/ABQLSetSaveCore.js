@@ -17,8 +17,8 @@ var ParameterDefinitions = [
 ];
 
 class ABQLSetSaveCore extends ABQL {
-   constructor(attributes, prevOP, task, application) {
-      super(attributes, ParameterDefinitions, prevOP, task, application);
+   constructor(attributes, prevOP, task, AB) {
+      super(attributes, ParameterDefinitions, prevOP, task, AB);
 
       // TODO: register with the task that we can provide data.
       if (this.taskParam) {
@@ -65,9 +65,7 @@ class ABQLSetSaveCore extends ABQL {
       // if we are saving a specific field of an Object, pass that
       // ABField along:
       if (
-         this.prevOP &&
-         this.prevOP.field &&
-         this.prevOP.field.key != "connectObject"
+         this.prevOP?.field?.key != "connectObject"
       ) {
          field = this.prevOP.field;
       }

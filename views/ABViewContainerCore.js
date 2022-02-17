@@ -16,12 +16,12 @@ const ABView = require("../../platform/views/ABView");
 const ABViewDefaults = {
    key: "viewcontainer", // {string} unique key for this view
    icon: "braille", // {string} fa-[icon] reference for this view
-   labelKey: "ab.components.container" // {string} the multilingual label key for the class label
+   labelKey: "ab.components.container", // {string} the multilingual label key for the class label
 };
 
 const ABPropertyComponentDefaults = {
    columns: 1,
-   gravity: 1
+   gravity: 1,
 };
 
 module.exports = class ABViewContainerCore extends ABView {
@@ -58,7 +58,7 @@ module.exports = class ABViewContainerCore extends ABView {
       );
 
       if (typeof this.settings.gravity != "undefined") {
-         this.settings.gravity.map(function(gravity) {
+         this.settings.gravity.map(function (gravity) {
             return parseInt(gravity);
          });
       }

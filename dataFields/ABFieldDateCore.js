@@ -34,7 +34,7 @@ var ABFieldDateDefaults = {
 
    // what types of MySql column types can be imported into this data type?
    // https://www.techonthenet.com/mysql/datatypes.php
-   compatibleMysqlTypes: ["date"]
+   compatibleMysqlTypes: ["date"],
 };
 
 const defaultValues = {
@@ -46,7 +46,7 @@ const defaultValues = {
    validateRangeBefore: 0,
    validateRangeAfter: 0,
    validateStartDate: null,
-   validateEndDate: null
+   validateEndDate: null,
 };
 
 module.exports = class ABFieldDateCore extends ABField {
@@ -62,6 +62,10 @@ module.exports = class ABFieldDateCore extends ABField {
    static defaultValues() {
       return defaultValues;
    }
+
+   // TODO: current webpack install fails here without babel-loader,
+   // so swtich this to old JS method of Static Values (see bottom)
+   // static RegEx = "^[0-9]{4}-[0-9]{2}-[0-9]{2}$";
 
    ///
    /// Instance Methods
@@ -110,7 +114,7 @@ module.exports = class ABFieldDateCore extends ABField {
 
       // if no default value is set, then don't insert a value.
       if (dateResult != null) {
-         values[this.columnName] = this.object.application.toDateFormat(
+         values[this.columnName] = this.AB.toDateFormat(
             dateResult,
             {
                format: "YYYY-MM-DD"
@@ -134,7 +138,7 @@ module.exports = class ABFieldDateCore extends ABField {
          var value = data[this.columnName];
 
          if (!(value instanceof Date)) {
-            value = this.object.application.toDate(value);
+            value = this.AB.toDate(value);
             // value = new Date(this.convertToMoment(value));
          }
 
@@ -158,12 +162,12 @@ module.exports = class ABFieldDateCore extends ABField {
 
                switch (this.settings.validateCondition) {
                   case "dateRange":
-                     var minDate = this.object.application.subtractDate(
+                     var minDate = this.AB.subtractDate(
                         new Date(),
                         this.settings.validateRangeBefore,
                         this.settings.validateRangeUnit
                      );
-                     var maxDate = this.object.application.addDate(
+                     var maxDate = this.AB.addDate(
                         new Date(),
                         this.settings.validateRangeAfter,
                         this.settings.validateRangeUnit
@@ -326,7 +330,7 @@ module.exports = class ABFieldDateCore extends ABField {
       }
 
       // pull format from settings.
-      let dateObj = this.object.application.toDate(d);
+      let dateObj = this.AB.toDate(d);
       return this.getDateDisplay(dateObj);
 
       // let momentObj = this.convertToMoment(d);
@@ -400,7 +404,7 @@ module.exports = class ABFieldDateCore extends ABField {
    // }
 
    exportValue(value) {
-      return this.object.application.toDateFormat(value, {
+      return this.AB.toDateFormat(value, {
          format: "YYYY-MM-DD"
       });
       // return this.convertToMoment(value).format("YYYY-MM-DD");
@@ -412,3 +416,6 @@ module.exports = class ABFieldDateCore extends ABField {
    }
 };
 
+// Transition Code:
+// revert to static RegEx once babel-loader is working locally.
+module.exports.RegEx = "^[0-9]{4}-[0-9]{2}-[0-9]{2}$";

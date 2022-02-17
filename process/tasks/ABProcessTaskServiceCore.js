@@ -32,16 +32,16 @@ var ABProcessTaskServiceDefaults = {
    // key: {string}
    // unique key to reference this specific Task
 
-   settings: []
+   settings: [],
    // settings: {array}
    // a list of internal setting values this Element tracks. These are the
    // values set by the platform .propertiesStash()
 };
 
 module.exports = class ABProcessTaskServiceCore extends ABProcessElement {
-   constructor(attributes, process, application) {
+   constructor(attributes, process, AB) {
       attributes.type = attributes.type || "process.task.service";
-      super(attributes, process, application, ABProcessTaskServiceDefaults);
+      super(attributes, process, AB, ABProcessTaskServiceDefaults);
 
       // listen
    }
@@ -57,8 +57,8 @@ module.exports = class ABProcessTaskServiceCore extends ABProcessElement {
          actionName: "replace-with-service-task",
          className: "bpmn-icon-service",
          target: {
-            type: "bpmn:ServiceTask"
-         }
+            type: "bpmn:ServiceTask",
+         },
       };
    }
 

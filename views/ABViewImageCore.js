@@ -3,13 +3,13 @@ const ABViewWidget = require("../../platform/views/ABViewWidget");
 const ABViewImagePropertyComponentDefaults = {
    filename: "",
    width: 200,
-   height: 100
+   height: 100,
 };
 
 const ABViewDefaults = {
    key: "image", // {string} unique key for this view
    icon: "picture-o", // {string} fa-[icon] reference for this view
-   labelKey: "ab.components.image" // {string} the multilingual label key for the class label
+   labelKey: "ab.components.image", // {string} the multilingual label key for the class label
 };
 
 module.exports = class ABViewImageCore extends ABViewWidget {

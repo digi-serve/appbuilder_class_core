@@ -34,13 +34,13 @@ const ABFieldDateDefaults = {
 
    // what types of MySql column types can be imported into this data type?
    // https://www.techonthenet.com/mysql/datatypes.php
-   compatibleMysqlTypes: ["datetime"]
+   compatibleMysqlTypes: ["datetime"],
 };
 
 const defaultValues = {
    timeFormat: 2, // 1 (Ignore time), 2, 3
    defaultTime: 1, // 1 (None), 2 (Current Time), 3 (Specific Time)
-   defaultTimeValue: null // {Date}
+   defaultTimeValue: null, // {Date}
 };
 
 module.exports = class ABFieldDateTimeCore extends ABFieldDateCore {
@@ -57,6 +57,10 @@ module.exports = class ABFieldDateTimeCore extends ABFieldDateCore {
       let baseDefault = super.defaultValues();
       return Object.assign(baseDefault, defaultValues);
    }
+
+   // TODO: current webpack install fails here without babel-loader,
+   // so swtich this to old JS method of Static Values (see bottom)
+   // static RegEx = "^[0-9]{4}-[0-9]{2}-[0-9]{2} [0-9]{2}:[0-9]{2}:[0-9]{2}$";
 
    ///
    /// Instance Methods
@@ -95,7 +99,7 @@ module.exports = class ABFieldDateTimeCore extends ABFieldDateCore {
 
       // From default value of ABFieldDateCore
       if (values[this.columnName]) {
-         dateResult = this.object.application.toDate(values[this.columnName]);
+         dateResult = this.AB.toDate(values[this.columnName]);
          // let momentVal = this.convertToMoment(values[this.columnName]);
          // if (momentVal.isValid()) {
          //    dateResult = new Date(momentVal);
@@ -151,7 +155,7 @@ module.exports = class ABFieldDateTimeCore extends ABFieldDateCore {
          }
 
          // pull format from settings.
-         let dateObj = this.object.application.toDate(d);
+         let dateObj = this.AB.toDate(d);
          let timeFormat = this.getTimeFormat();
          return webix.Date.dateToStr(timeFormat)(dateObj);
       } else {
@@ -181,3 +185,7 @@ module.exports = class ABFieldDateTimeCore extends ABFieldDateCore {
    }
 };
 
+// Transition Code:
+// revert to static RegEx once babel-loader is working locally.
+module.exports.RegEx =
+   "^[0-9]{4}-[0-9]{2}-[0-9]{2} [0-9]{2}:[0-9]{2}:[0-9]{2}$";

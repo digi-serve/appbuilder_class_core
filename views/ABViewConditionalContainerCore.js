@@ -2,18 +2,20 @@ const ABViewContainer = require("../../platform/views/ABViewContainer");
 
 const ABViewPropertyDefaults = {
    dataviewID: null,
-   filterConditions: {}
+   filterConditions: {},
 };
 
 const ABViewDefaults = {
    key: "conditionalcontainer", // unique key identifier for this ABView
    icon: "shield", // icon reference: (without 'fa-' )
-   labelKey: "ab.components.conditionalcontainer" // {string} the multilingual label key for the class label
+   labelKey: "ab.components.conditionalcontainer", // {string} the multilingual label key for the class label
 };
 
 module.exports = class ABViewConditionalContainerCore extends ABViewContainer {
    constructor(values, application, parent, defaultValues) {
       super(values, application, parent, defaultValues || ABViewDefaults);
+
+      var L = this.AB.Multilingual.label;
 
       // the conditional container always has 'If' and 'Else' panels
       if (this.views((v) => v instanceof ABViewContainer).length < 2) {
@@ -21,10 +23,10 @@ module.exports = class ABViewConditionalContainerCore extends ABViewContainer {
          var ifPanel = application.viewNew(
             {
                key: ABViewContainer.common().key,
-               label: "If",
+               label: L("If", "If"),
                settings: {
-                  removable: false
-               }
+                  removable: false,
+               },
             },
             application,
             this
@@ -35,10 +37,10 @@ module.exports = class ABViewConditionalContainerCore extends ABViewContainer {
          var elsePanel = application.viewNew(
             {
                key: ABViewContainer.common().key,
-               label: "Else",
+               label: L("Else", "Else"),
                settings: {
-                  removable: false
-               }
+                  removable: false,
+               },
             },
             application,
             this

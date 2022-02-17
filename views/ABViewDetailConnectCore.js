@@ -1,13 +1,13 @@
 const ABViewDetailSelectivity = require("../../platform/views/ABViewDetailSelectivity");
 
 const ABViewDetailPropertyComponentDefaults = {
-   formView: "" // id of form to add new data
+   formView: "", // id of form to add new data
 };
 
 const ABViewDefaults = {
    key: "detailconnect", // {string} unique key for this view
    icon: "list-ul", // {string} fa-[icon] reference for this view
-   labelKey: "ab.components.detail.connect" // {string} the multilingual label key for the class label
+   labelKey: "ab.components.detail.connect", // {string} the multilingual label key for the class label
 };
 
 module.exports = class ABViewDetailConnectCore extends ABViewDetailSelectivity {

@@ -4,10 +4,8 @@ var ABMLClass = require("../platform/ABMLClass");
 const _concat = require("lodash/concat");
 
 module.exports = class ABProcessCore extends ABMLClass {
-   constructor(attributes, application) {
-      super(/* ["label"] */);
-
-      this.application = application;
+   constructor(attributes, AB) {
+      super(["label"], AB);
 
       this.fromValues(attributes);
    }
@@ -36,7 +34,7 @@ module.exports = class ABProcessCore extends ABMLClass {
       // this.json = attributes.json || null;
       this._elements = {};
       (attributes.elementIDs || []).forEach((eID) => {
-         var ele = this.application.processElementNew(eID, this);
+         var ele = this.AB.processElementNew(eID, this);
          if (ele) {
             this._elements[eID] = ele;
          }
@@ -54,13 +52,8 @@ module.exports = class ABProcessCore extends ABMLClass {
 
    /**
     * @method toObj()
-    *
-    * properly compile the current state of this ABApplication instance
+    * properly compile the current state of this ABProcess instance
     * into the values needed for saving to the DB.
-    *
-    * Most of the instance data is stored in .json field, so be sure to
-    * update that from all the current values of our child fields.
-    *
     * @return {json}
     */
    toObj() {
@@ -235,7 +228,7 @@ module.exports = class ABProcessCore extends ABMLClass {
          id: element.id,
          type: element.type,
          from: from,
-         to: to
+         to: to,
       };
       return connection;
    }

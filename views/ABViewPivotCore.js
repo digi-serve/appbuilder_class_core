@@ -7,13 +7,13 @@ const ABViewPivotPropertyComponentDefaults = {
    separateLabel: 0,
    min: 0,
    max: 0,
-   height: 0
+   height: 0,
 };
 
 const ABViewDefaults = {
    key: "pivot", // {string} unique key for this view
    icon: "cube", // {string} fa-[icon] reference for this view
-   labelKey: "ab.components.pivot" // {string} the multilingual label key for the class label
+   labelKey: "ab.components.pivot", // {string} the multilingual label key for the class label
 };
 
 module.exports = class ABViewPivotCore extends ABViewWidget {

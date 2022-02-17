@@ -5,7 +5,7 @@ const ABViewDetailPropertyComponentDefaults = {};
 const ABViewDetailTreeDefaults = {
    key: "detailtree", // {string} unique key for this view
    icon: "sitemap", // {string} fa-[icon] reference for this view
-   labelKey: "ab.components.detail.tree" // {string} the multilingual label key for the class label
+   labelKey: "ab.components.detail.tree", // {string} the multilingual label key for the class label
 };
 
 module.exports = class ABViewDetailTextCore extends ABViewDetailComponent {

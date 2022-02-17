@@ -13,11 +13,11 @@ const ABViewDefaults = {
    key: "view", // {string} unique key for this view
    icon: "window-maximize", // {string} fa-[icon] reference for this view
    labelKey: "ab.components.view", // {string} the multilingual label key for the class label
-   tabicon: "" // no default tab icons
+   tabicon: "", // no default tab icons
 };
 
 const ABViewPropertyComponentDefaults = {
-   label: ""
+   label: "",
 };
 
 module.exports = class ABViewCore extends ABMLClass {
@@ -27,7 +27,7 @@ module.exports = class ABViewCore extends ABMLClass {
     * @param {ABView} parent the ABView this view is a child of. (can be null)
     */
    constructor(values, application, parent, defaultValues) {
-      super(["label"]);
+      super(["label"], application.AB);
 
       this.__events = [];
       // keep track of any event listeners attached to this ABView object
@@ -104,9 +104,9 @@ module.exports = class ABViewCore extends ABMLClass {
          icon: this.icon,
          tabicon: this.tabicon,
          name: this.name,
-         settings: this.application.cloneDeep(this.settings || {}),
+         settings: this.AB.cloneDeep(this.settings || {}),
          accessLevels: this.accessLevels,
-         translations: obj.translations
+         translations: obj.translations,
       };
 
       // encode our child view references
@@ -165,14 +165,14 @@ module.exports = class ABViewCore extends ABMLClass {
       // the property settings for this ABView
 
       // make sure .settings.height is an int and not a string
-      if (this.settings.height) {
-         this.settings.height = parseInt(this.settings.height);
-      }
+      this.settings.height = parseInt(this.settings.height || 0);
 
       this.accessLevels = values.accessLevels || {};
       // {obj} .accessLevels
-      // tracks the Role -> AccessLevel settings of this particual
+      // Hash: { ABRole.id : accessLevel }
+      // tracks the Role -> AccessLevel settings of this particular
       // view.
+      // accessLevel: 0 : no access, 1 : view only, 2: full access
 
       // let the MLClass now process the translations:
       super.fromValues(values);
@@ -202,12 +202,14 @@ module.exports = class ABViewCore extends ABMLClass {
 
       var views = [];
       (values.viewIDs || []).forEach((id) => {
-         var def = this.application.definitionForID(id);
+         var def = this.AB.definitionByID(id);
          if (def) {
             views.push(this.application.viewNew(def, this.application, this));
          } else {
-            console.error(
-               `Application[${this.application.name}][${this.application.id}].View[${this.name}][${this.id}] references unknown View[${id}]`
+            this.AB.notify.builder(
+               new Error(
+                  `Application[${this.application.name}][${this.application.id}].View[${this.name}][${this.id}] references unknown View[${id}]`
+               )
             );
          }
       });
@@ -251,6 +253,27 @@ module.exports = class ABViewCore extends ABMLClass {
    }
 
    /**
+    * @method isAccessibleForRoles()
+    * return true/false if this ABViewPage is accessible for one of the
+    * passed in ABRoles.
+    * @param {array[ABRole]} roles
+    *        an array of {ABRole} instances.
+    * @return {bool}
+    */
+   isAccessibleForRoles(roles) {
+      var foundRole = false;
+
+      var accessibleRoles = Object.keys(this.accessLevels) || [];
+      (roles || []).forEach((r) => {
+         if (accessibleRoles.indexOf(r.uuid || r) > -1) {
+            foundRole = true;
+         }
+      });
+
+      return foundRole;
+   }
+
+   /**
     * @method getUserAccess()
     *
     * return the access level of the current user on the current view
@@ -267,8 +290,12 @@ module.exports = class ABViewCore extends ABMLClass {
          // first check if manager is defined by their role
          if (parseInt(this.application.accessManagers.useRole) == 1) {
             // if so check if any of the user's role match the managers
-            this.application.userRoles().forEach((role) => {
-               if (this.application.accessManagers.role.indexOf(role.id) > -1) {
+            this.AB.Account.roles().forEach((role) => {
+               if (
+                  this.application.accessManagers.role.indexOf(
+                     role.id || role.uuid
+                  ) > -1
+               ) {
                   // if so set the access level to full access
                   isAccessManager = true;
                   accessLevel = 2;
@@ -283,7 +310,7 @@ module.exports = class ABViewCore extends ABMLClass {
             // check if the user's account matches the managers
             if (
                this.application.accessManagers.account.indexOf(
-                  OP.User.id() + ""
+                  this.AB.Account.uuid() + ""
                ) > -1
             ) {
                // if so set the access level to full access
@@ -299,13 +326,11 @@ module.exports = class ABViewCore extends ABMLClass {
             !isAccessManager
          ) {
             // check to see if the user's roles matches one of the roles defined
-            this.application.userRoles().forEach((role) => {
-               if (
-                  this.accessLevels[role.id] &&
-                  parseInt(this.accessLevels[role.id]) > accessLevel
-               )
+            this.AB.Account.roles().forEach((role) => {
+               var currentRole = this.accessLevels[role.id ?? role.uuid];
+               if (currentRole && parseInt(currentRole) > accessLevel)
                   // if the access level is higher than a previous role set to the new level
-                  accessLevel = parseInt(this.accessLevels[role.id]);
+                  accessLevel = parseInt(currentRole);
             });
          }
       } else {
@@ -332,6 +357,26 @@ module.exports = class ABViewCore extends ABMLClass {
       }
 
       return form;
+   }
+
+   /**
+    * @method parentDetailComponent
+    * return the closest detail object that this component is on.
+    * @returns {ABViewDetail} detail component
+    */
+   parentDetailComponent() {
+      var detail = null;
+
+      var curr = this;
+      while (curr.key != "detail" && !curr.isRoot() && curr.parent) {
+         curr = curr.parent;
+      }
+
+      if (curr.key == "detail") {
+         detail = curr;
+      }
+
+      return detail;
    }
 
    pageParent(filterFn) {
@@ -395,9 +440,44 @@ module.exports = class ABViewCore extends ABMLClass {
     */
    get datacollection() {
       let dataviewID = (this.settings || {}).dataviewID;
-      if (!dataviewID) return null;
+      if (!dataviewID) {
+         if (
+            ["form", "grid", "line", "area", "bar", "gantt", "kanban"].indexOf(
+               this.key
+            ) > -1
+         ) {
+            // NOTE: ignore kanban side forms where this is the case:
+            if (this.key == "form" && this._currentObject) return null;
 
-      return this.application.datacollections((dc) => dc.id == dataviewID)[0];
+            var errNoDCID = new Error(
+               `ABViewCore:get datacollection(): View[${this.key}] didn't define a dataviewID.`
+            );
+            this.AB.notify.builder(errNoDCID, {
+               view: this,
+               settings: this.settings,
+            });
+         } else {
+            // These views shouldn't matter if they don't have a datacollection.
+            if (["page", "viewcontainer"].indexOf(this.key) == -1) {
+               console.warn(
+                  `TODO: figure out which ABView* require a .dataviewID: ${this.key}?`
+               );
+            }
+         }
+         return null;
+      }
+
+      var dc = this.AB.datacollectionByID(dataviewID);
+      if (!dc) {
+         var errNoDC = new Error(
+            `View[${this.label}][${this.id}] is unable to find associated DataCollection`
+         );
+         this.AB.notify.builder(errNoDC, {
+            view: this,
+            dataviewID,
+         });
+      }
+      return dc;
    }
 
    ///
@@ -499,7 +579,7 @@ module.exports = class ABViewCore extends ABMLClass {
     */
    viewRemove(view) {
       var origLen = this._views.length;
-      this._views = this.views(function(v) {
+      this._views = this.views(function (v) {
          return v.id != view.id;
       });
 
@@ -520,7 +600,7 @@ module.exports = class ABViewCore extends ABMLClass {
     */
    viewInsert(view) {
       var isIncluded =
-         this.views(function(v) {
+         this.views(function (v) {
             return v.id == view.id;
          }).length > 0;
       if (!isIncluded) {
@@ -650,7 +730,7 @@ module.exports = class ABViewCore extends ABMLClass {
          this.__events.push({
             emitter: evt.emitter,
             eventName: evt.eventName,
-            listener: evt.listener
+            listener: evt.listener,
          });
 
          // listening this event
@@ -718,7 +798,7 @@ module.exports = class ABViewCore extends ABMLClass {
       let result = this.viewNew(config, this.application, parent);
 
       // change id
-      result.id = lookUpIds[result.id] || OP.Util.uuid();
+      result.id = lookUpIds[result.id] || this.AB.uuid();
 
       // copy sub pages
       if (this.pages && !options.ignoreSubPages) {
@@ -788,7 +868,7 @@ module.exports = class ABViewCore extends ABMLClass {
       result.parent = parent || this.parent;
 
       // change id
-      result.id = lookUpIds[result.id] || this.application.uuid();
+      result.id = lookUpIds[result.id] || this.AB.uuid();
 
       // page's name should not be duplicate
       if (this.key == "page") {
@@ -866,4 +946,3 @@ module.exports = class ABViewCore extends ABMLClass {
          });
    }
 };
-

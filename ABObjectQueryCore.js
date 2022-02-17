@@ -14,11 +14,11 @@
 //
 
 var ABObject = require("../platform/ABObject");
-var ABModel = require("../platform/ABModel");
+var ABModelQuery = require("../platform/ABModelQuery");
 
 module.exports = class ABObjectQueryCore extends ABObject {
-   constructor(attributes, application) {
-      super(attributes, application);
+   constructor(attributes, AB) {
+      super(attributes, AB);
       /*
 {
 	id: uuid(),
@@ -66,6 +66,9 @@ module.exports = class ABObjectQueryCore extends ABObject {
 	where: { QBWhere }
 }
 */
+      this.isQuery = true;
+      // {bool}
+      // a property to mark the difference between an ABObject and ABObjectQuery.
 
       // this.fromValues(attributes);
    }
@@ -189,11 +192,9 @@ module.exports = class ABObjectQueryCore extends ABObject {
          // pull object by alias name
          let object = this.objectByAlias(fieldInfo.alias);
 
-         // Pull object from .application
-         if (!object && this.application) {
-            object = this.application.objects(
-               (obj) => obj.id == fieldInfo.objectID
-            )[0];
+         // Pull object from .AB
+         if (!object && this.AB) {
+            object = this.AB.objects((obj) => obj.id == fieldInfo.objectID)[0];
 
             // keep
             if (object) {
@@ -231,7 +232,7 @@ module.exports = class ABObjectQueryCore extends ABObject {
 
             newFields.push({
                alias: alias,
-               field: clonedField
+               field: clonedField,
             });
          }
       });
@@ -249,7 +250,7 @@ module.exports = class ABObjectQueryCore extends ABObject {
          currFields.push({
             alias: fieldInfo.alias,
             objectID: fieldInfo.field.object.id,
-            fieldID: fieldInfo.field.id
+            fieldID: fieldInfo.field.id,
          });
       });
       return currFields;
@@ -297,9 +298,9 @@ module.exports = class ABObjectQueryCore extends ABObject {
       // FOR proper expected operation, this fn must only return object
       // matches for which this ABQuery is managing objects:
 
-      return this.application
-         .objects((o) => this.objectIDs.indexOf(o.id) > -1)
-         .filter(fn);
+      return this.AB.objects((o) => this.objectIDs.indexOf(o.id) > -1).filter(
+         fn
+      );
    }
 
    /**
@@ -331,8 +332,7 @@ module.exports = class ABObjectQueryCore extends ABObject {
       if (!this._joins.objectID) return null;
 
       return (
-         this.application.objects((obj) => obj.id == this._joins.objectID)[0] ||
-         null
+         this.AB.objects((obj) => obj.id == this._joins.objectID)[0] || null
       );
    }
 
@@ -371,7 +371,7 @@ module.exports = class ABObjectQueryCore extends ABObject {
     */
    importJoins(settings) {
       // copy join settings
-      this._joins = _.cloneDeep(settings);
+      this._joins = this.AB.cloneDeep(settings);
 
       var uniqueObjectIDs = {};
       // { obj.id : obj.id }
@@ -435,7 +435,7 @@ module.exports = class ABObjectQueryCore extends ABObject {
             if (!linkField) return;
 
             // track our linked object
-            var linkObject = this.application.objects(
+            var linkObject = this.AB.objects(
                (obj) => obj.id == linkField.settings.linkObject
             )[0];
             if (!linkObject) return;
@@ -476,7 +476,7 @@ module.exports = class ABObjectQueryCore extends ABObject {
     * @param {array} settings
     */
    exportJoins() {
-      return _.cloneDeep(this._joins || {});
+      return this.AB.cloneDeep(this._joins || {});
    }
 
    ///
@@ -489,21 +489,13 @@ module.exports = class ABObjectQueryCore extends ABObject {
     * this ABObjectQuery.
     */
    model() {
-      // NOTE: now that a DataCollection overwrites the context of it's
-      // object's model, it is no longer a good idea to only have a single
-      // instance of this._model per ABObject.  We should provide a new
-      // instance each time.
-
-      // if (!this._model) {
-
-      this._model = new ABModel(this);
+      var model = new ABModelQuery(this);
 
       // default the context of this model's operations to this object
-      this._model.contextKey(this.constructor.contextKey());
-      this._model.contextValues({ id: this.id }); // the datacollection.id
-      // }
+      model.contextKey(this.constructor.contextKey());
+      model.contextValues({ id: this.id }); // the datacollection.id
 
-      return this._model;
+      return model;
    }
 
    /**
@@ -548,7 +540,7 @@ module.exports = class ABObjectQueryCore extends ABObject {
    /**
     * @method urlPointer()
     * return the url pointer that references this object. This url pointer
-    * should be able to be used by this.application.urlResolve() to return
+    * should be able to be used by this.AB.urlResolve() to return
     * this object.
     *
     * @param {boolean} acrossApp - flag to include application id to url
@@ -556,6 +548,9 @@ module.exports = class ABObjectQueryCore extends ABObject {
     * @return {string}
     */
    urlPointer(acrossApp) {
+      console.error(
+         "ABQueryCore.urlPointer(): Depreciated: Where is this being called?"
+      );
       return this.application.urlQuery(acrossApp) + this.id;
    }
 

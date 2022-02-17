@@ -5,13 +5,13 @@ const ABViewDataviewPropertyComponentDefaults = {
    detailsPage: "",
    detailsTab: "",
    editPage: "",
-   editTab: ""
+   editTab: "",
 };
 
 const ABViewDataviewDefaults = {
    key: "dataview", // {string} unique key for this view
    icon: "th", // {string} fa-[icon] reference for this view
-   labelKey: "ab.components.dataview" // {string} the multilingual label key for the class label
+   labelKey: "ab.components.dataview", // {string} the multilingual label key for the class label
 };
 
 module.exports = class ABViewDataviewCore extends ABViewDetail {

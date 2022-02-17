@@ -8,13 +8,13 @@ const ABViewDocxBuilderPropertyComponentDefaults = {
    filelabel: "output.docx",
    language: "en", // en
    toolbarBackground: "ab-background-default",
-   buttonPosition: "left"
+   buttonPosition: "left",
 };
 
 const ABViewDefaults = {
    key: "docxBuilder", // {string} unique key for this view
    icon: "file-word-o", // {string} fa-[icon] reference for this view
-   labelKey: "ab.components.docxBuilder" // {string} the multilingual label key for the class label
+   labelKey: "ab.components.docxBuilder", // {string} the multilingual label key for the class label
 };
 
 module.exports = class ABViewDocxBuilderCore extends ABViewWidget {
@@ -68,17 +68,25 @@ module.exports = class ABViewDocxBuilderCore extends ABViewWidget {
    }
 
    uploadUrl() {
-      let actionKey =
-         "opstool.AB_" + this.application.name.replace("_", "") + ".view";
-
-      return (
-         "/" +
-         ["opsportal", "file", this.application.name, actionKey, "1"].join("/")
+      // TODO: Convert this to use ABFactory.urlFileUpload() or a ABFieldFile
+      // to get the URL:
+      console.warn(
+         new Error(
+            "TODO: convert ABViewDocxBuilderCore.uploadUrl() to use common url code."
+         )
       );
+      // let actionKey =
+      //    "opstool.AB_" + this.application.name.replace("_", "") + ".view";
+
+      // return (
+      //    "/" +
+      //    ["opsportal", "file", this.application.name, actionKey, "1"].join("/")
+      // );
+      return `/file/upload/DOCX${this.id}/VIEW${this.id}/1`;
    }
 
    downloadUrl() {
-      return `/opsportal/file/${this.application.name}/${this.settings.filename}`;
+      return `/file/${this.settings.filename}`;
    }
 
    get languageCode() {
@@ -94,9 +102,6 @@ module.exports = class ABViewDocxBuilderCore extends ABViewWidget {
 
       let dvList = dataviewID.split(",") || [];
 
-      return (
-         this.application.datacollections((dv) => dvList.indexOf(dv.id) > -1) ||
-         []
-      );
+      return this.AB.datacollections((dv) => dvList.indexOf(dv.id) > -1) || [];
    }
 };

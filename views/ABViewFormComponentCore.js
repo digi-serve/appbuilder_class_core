@@ -2,13 +2,13 @@ const ABView = require("../../platform/views/ABView");
 
 const ABViewFormFieldPropertyComponentDefaults = {
    required: 0,
-   disable: 0
+   disable: 0,
 };
 
 module.exports = class ABViewFormComponentCore extends ABView {
-   constructor(values, application, parent, defaultValues) {
-      super(values, application, parent, defaultValues);
-   }
+   // constructor(values, application, parent, defaultValues) {
+   //    super(values, application, parent, defaultValues);
+   // }
 
    static defaultValues() {
       return ABViewFormFieldPropertyComponentDefaults;
@@ -30,7 +30,7 @@ module.exports = class ABViewFormComponentCore extends ABView {
 
       if (object == null) return null;
 
-      let field = object.fields((v) => v.id == this.settings.fieldId, true)[0];
+      let field = object.fields((v) => v.id == this.settings.fieldId)[0];
       return field;
    }
 };
