@@ -20,12 +20,18 @@ var ABFieldAutoIndexDefaults = {
    menuName: L("ab.dataField.AutoIndex.menuName", "*Auto Index"),
 
    // description: what gets displayed in the Editor description.
-   description: L("ab.dataField.AutoIndex.description", "*Auto Increment Value")
+   description: L(
+      "ab.dataField.AutoIndex.description",
+      "*Auto Increment Value"
+   ),
 };
 
 // defaultValues: the keys must match a .name of your elements to set it's default value.
 var defaultValues = {
-   displayLength: 4
+   prefix: "",
+   delimiter: "dash",
+   displayLength: 4,
+   previewText: "-0000",
 };
 
 module.exports = class ABFieldAutoIndexCore extends ABField {
@@ -56,7 +62,7 @@ module.exports = class ABFieldAutoIndexCore extends ABField {
          { id: "slash", value: "Slash", sign: "/" },
          { id: "space", value: "Space", sign: " " },
          { id: "dash", value: "Dash", sign: "-" },
-         { id: "colon", value: "Colon", sign: ":" }
+         { id: "colon", value: "Colon", sign: ":" },
       ];
    }
 
