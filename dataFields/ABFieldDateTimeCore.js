@@ -138,29 +138,29 @@ module.exports = class ABFieldDateTimeCore extends ABFieldDateCore {
    }
 
    getFormat() {
-      let dateFormatString = super.getFormat();
+      const timeFormat = this.getTimeFormat();
 
-      let timeFormat = this.getTimeFormat();
-      if (timeFormat) dateFormatString += ` ${timeFormat}`;
+      this.settings = this.settings || {};
 
-      return dateFormatString;
+      if (this.settings.dateFormat == 1) {
+         return timeFormat;
+      }
+
+      const dateFormat = super.getFormat();
+
+      return `${dateFormat} ${timeFormat}`;
    }
 
    format(rowData) {
-      this.settings = this.settings || {};
-      if (this.settings.dateFormat == 1) {
-         var d = this.dataValue(rowData);
-         if (d == "" || d == null) {
-            return "";
-         }
+      const datetimeFormat = this.getFormat();
+      const d = this.dataValue(rowData);
+      const dateObj = this.AB.toDate(d);
 
-         // pull format from settings.
-         let dateObj = this.AB.toDate(d);
-         let timeFormat = this.getTimeFormat();
-         return webix.Date.dateToStr(timeFormat)(dateObj);
-      } else {
-         return super.format(rowData);
+      if (d == "" || d == null) {
+         return "";
       }
+
+      return webix.Date.dateToStr(datetimeFormat)(dateObj);
    }
 
    getTimeFormat() {
@@ -181,6 +181,7 @@ module.exports = class ABFieldDateTimeCore extends ABFieldDateCore {
     * @return {string}
     */
    exportValue(date) {
+      console.log(date);
       return date.toISOString();
    }
 };
