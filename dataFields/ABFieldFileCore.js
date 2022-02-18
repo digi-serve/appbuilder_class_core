@@ -90,7 +90,9 @@ module.exports = class ABFieldFileCore extends ABField {
       if (typeof result == "string") {
          try {
             result = JSON.parse(result);
-         } catch (err) {}
+         } catch (err) {
+            // ignore error
+         }
       }
 
       return result;
@@ -118,7 +120,9 @@ module.exports = class ABFieldFileCore extends ABField {
          if (typeof result == "string") {
             try {
                result = JSON.parse(result);
-            } catch (err) {}
+            } catch (err) {
+               // ignore error.
+            }
          }
 
          // return file name
@@ -139,7 +143,7 @@ module.exports = class ABFieldFileCore extends ABField {
 
       // if we have our default empty object, then remove the entry
       // and let the DB insert a null value.
-      if (myParameter[this.columnName] == "{}") {
+      if (myParameter?.[this.columnName] == "{}") {
          delete myParameter[this.columnName];
       }
 
