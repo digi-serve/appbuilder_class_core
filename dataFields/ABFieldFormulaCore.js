@@ -6,8 +6,8 @@
  *
  */
 
-const ABField = require("../../platform/dataFields/ABField");
-const RowFilter = require("../../platform/RowFilter");
+import ABField from "../../platform/dataFields/ABField";
+import RowFilter from "../../platform/RowFilter";
 
 function L(key, altText) {
    return altText; // AD.lang.label.getLabel(key) || altText;
@@ -53,7 +53,7 @@ var defaultValues = {
    where: "",
 };
 
-module.exports = class ABFieldFormulaCore extends ABField {
+export default class ABFieldFormulaCore extends ABField {
    constructor(values, object) {
       super(values, object, ABFieldFormulaDefaults);
    }
@@ -65,6 +65,10 @@ module.exports = class ABFieldFormulaCore extends ABField {
 
    static defaultValues() {
       return defaultValues;
+   }
+
+   static rowFilter(App, idBase, AB) {
+      return new RowFilter(App, idBase, AB);
    }
 
    ///
@@ -175,11 +179,11 @@ module.exports = class ABFieldFormulaCore extends ABField {
             if (numberList.length > 0) {
                // get power of 10 to the number of decimal places this number
                // is formated to require
-               var multiplier = Math.pow(10, decimalSize);
+               const multiplier = Math.pow(10, decimalSize);
                // multiply values by muliplyier and add them to pervious value
                // because in javascript adding number with decimals can cause issues
                // ex: 9.11 + 222.11 = 231.22000000000003
-               var sum = 0;
+               let sum = 0;
                numberList.forEach((val) => {
                   sum += val * multiplier || 0;
                });
@@ -240,4 +244,4 @@ module.exports = class ABFieldFormulaCore extends ABField {
 
       return this._rowFilter;
    }
-};
+}
