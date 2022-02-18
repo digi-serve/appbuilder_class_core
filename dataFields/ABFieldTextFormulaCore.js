@@ -29,7 +29,7 @@ var ABFieldTextFormulaDefaults = {
 
 // defaultValues: the keys must match a .name of your elements to set it's default value.
 var defaultValues = {
-   // 'useWidth':0,
+   textFormula: "",
    // 'imageWidth':'',
    // 'useHeight': 0,
    // 'imageHeight': ''
