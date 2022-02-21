@@ -5,7 +5,7 @@
  *
  */
 
-var ABField = require("../../platform/dataFields/ABField");
+const ABField = require("../../platform/dataFields/ABField");
 
 // import ABFieldComponent from "./ABFieldComponent"
 
@@ -13,7 +13,7 @@ function L(key, altText) {
    return altText; // AD.lang.label.getLabel(key) || altText;
 }
 
-var ABFieldTextFormulaDefaults = {
+const ABFieldTextFormulaDefaults = {
    key: "TextFormula", // unique key to reference this specific DataField
    icon: "question", // font-awesome icon reference.  (without the 'fa-').  so 'user'  to reference 'fa-user'
 
@@ -28,7 +28,7 @@ var ABFieldTextFormulaDefaults = {
 };
 
 // defaultValues: the keys must match a .name of your elements to set it's default value.
-var defaultValues = {
+const defaultValues = {
    textFormula: "",
    // 'imageWidth':'',
    // 'useHeight': 0,
@@ -48,19 +48,19 @@ var defaultValues = {
 function setValueToFormula(object, formulaString, rowData) {
    if (!formulaString) return;
 
-   var fieldRegExp = /{[^{}]+}/gm;
-   var matches_field_array = formulaString.match(fieldRegExp);
+   const fieldRegExp = /{[^{}]+}/gm;
+   const matches_field_array = formulaString.match(fieldRegExp);
    matches_field_array.forEach((element) => {
-      var columnName = element.replace(/{|}|\"/g, "");
+      const columnName = element.replace(/{|}|"/g, "");
       object.fields().forEach((field) => {
          if (field.columnName == columnName) {
             if (field.key == "AutoIndex") {
                //Check AutoIndex Field
-               let autoIndexVal = field.format(rowData) || 0;
+               const autoIndexVal = field.format(rowData) || 0;
                formulaString = formulaString.replace(element, autoIndexVal);
             } else if (field.key == "calculate") {
                //Calculate Field
-               let calVal = "(#calVal#)".replace(
+               const calVal = "(#calVal#)".replace(
                   "#calVal#",
                   field.format(rowData) || 0
                );
@@ -86,19 +86,19 @@ function setValueToFormula(object, formulaString, rowData) {
  */
 
 function setBuildinValueToFormula(abFactory, formulaString) {
-   var buildInRegExp = /\w+\(.*?\)/gm;
-   var matches_buildin_array = formulaString.match(buildInRegExp);
+   const buildInRegExp = /\w+\(.*?\)/gm;
+   const matches_buildin_array = formulaString.match(buildInRegExp);
    if (matches_buildin_array) {
-      var buildinList = getBuildInFunction();
+      const buildinList = getBuildInFunction();
       matches_buildin_array.forEach((element) => {
-         var formula_array = element.split(/\(|\)/);
-         var isBracketInBracket =
+         const formula_array = element.split(/\(|\)/);
+         const isBracketInBracket =
             formula_array.length > 2 && formula_array[2] != "";
-         var functionName = formula_array[0];
-         var parameters_array = formula_array[1].split(",");
-         var isMatch = false;
-         for (var i = 0; i < buildinList.length; i++) {
-            var resultParameters = element;
+         const functionName = formula_array[0];
+         const parameters_array = formula_array[1].split(",");
+         let isMatch = false;
+         for (let i = 0; i < buildinList.length; i++) {
+            let resultParameters = element;
             if (functionName == buildinList[i].id) {
                if (parameters_array.length == buildinList[i].parameter_size) {
                   switch (functionName) {
@@ -218,7 +218,7 @@ function setBuildinValueToFormula(abFactory, formulaString) {
 }
 
 function getBuildInFunction() {
-   var functionList = [
+   const functionList = [
       {
          id: "left",
          value: "left({COLUMN_NAME}, 1)",
@@ -331,7 +331,7 @@ function getLeft(string, endPosition) {
 }
 
 function getRight(string, endposition) {
-   var reverseStr = reverseString(string).substring(0, parseInt(endposition));
+   const reverseStr = reverseString(string).substring(0, parseInt(endposition));
    return reverseString(reverseStr);
 }
 
@@ -368,7 +368,7 @@ function getRegExpReplace(string, regexp, replaceString) {
 }
 
 function getExtractRegex(string, regexp) {
-   var extractResult = string.match(regexp);
+   const extractResult = string.match(regexp);
    if (Array.isArray(extractResult)) {
       return extractResult[0];
    }
@@ -400,8 +400,9 @@ function getRandom(max) {
 }
 
 function getNumberToWords(number) {
-   var string = number.trim(",").toString(),
-      units,
+   const string = number.trim(",").toString();
+
+   let units,
       tens,
       scales,
       start,
@@ -414,7 +415,7 @@ function getNumberToWords(number) {
       word,
       words;
 
-   var and = "";
+   const and = "";
 
    /* Is number zero? */
    if (parseInt(string) === 0) {
@@ -548,29 +549,29 @@ function getNumberToWords(number) {
 }
 
 function getDateDayOfWeekName(abFactory, date) {
-   // var localizeDT = moment(date);
+   // const localizeDT = moment(date);
    // localizeDT.locale(AD.lang.currentLanguage);
    // return localizeDT.format("dddd");
 
    return abFactory.toDateFormat(date, {
       format: "dddd",
-      localeCode: AD.lang.currentLanguage,
+      localeCode: abFactory.Config._config.user.languageCode,
    });
 }
 
 function getDateMonthOfYearName(abFactory, date) {
-   // var localizeDT = moment(date);
+   // const localizeDT = moment(date);
    // localizeDT.locale(AD.lang.currentLanguage);
    // return localizeDT.format("MMMM");
 
    return abFactory.toDateFormat(date, {
       format: "MMMM",
-      localeCode: AD.lang.currentLanguage,
+      localeCode: abFactory.Config._config.user.languageCode,
    });
 }
 
 function getFormatDate(date, format) {
-   var dt = new Date(date);
+   const dt = new Date(date);
    return dt.toString(format);
 }
 
@@ -631,7 +632,7 @@ module.exports = class ABFieldTextFormulaCore extends ABField {
     * @return {array}
     */
    isValidData(data, validator) {
-      var validator = super.isValid();
+      validator = super.isValid();
 
       // validator.addError(this.columnName, L('ab.validation.object.name.unique', 'Field columnName must be unique (#name# already used in this Application)').replace('#name#', this.name) );
 
@@ -652,7 +653,7 @@ module.exports = class ABFieldTextFormulaCore extends ABField {
       try {
          if (!this.settings.textFormula) return "";
 
-         var resultFormula = this.settings.textFormula;
+         let resultFormula = this.settings.textFormula;
 
          //Set Field value first
          resultFormula = setValueToFormula(this.object, resultFormula, rowData);
