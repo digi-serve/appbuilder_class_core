@@ -123,8 +123,9 @@ module.exports = class SubProcessCore extends ABProcessElement {
          dataFieldOpt.field.datasourceLink.fields
       ) {
          result.push({
-            key: `${this.id}.subProcess.id`,
-            label: `${this.label}->Repeat Data.ID`
+            key: `${this.id}.subProcess.uuid`,
+            label: `${this.label}->Repeat Data.ID`,
+            object: dataFieldOpt.field.datasourceLink
          });
 
          dataFieldOpt.field.datasourceLink.fields().forEach((f) => {
@@ -182,7 +183,7 @@ module.exports = class SubProcessCore extends ABProcessElement {
 
                // Extract data
                data = stateData.map((item) => {
-                  if (fieldId == "id") {
+                  if (fieldId == "uuid" || fieldId == "id") {
                      return item.uuid || item.id;
                   } else if (dataFieldOpt.field.datasourceLink) {
                      let returnField = dataFieldOpt.field.datasourceLink.fields(
