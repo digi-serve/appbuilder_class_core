@@ -103,9 +103,11 @@ module.exports = class SubProcessCore extends ABProcessElement {
     * can provide to other ProcessElements.
     * Different Process Elements can make data available to other
     * process Elements.
+    * @param {ABProcessElement} currElement
+    *        the ABProcessElement that is requesting the data.
     * @return {array} | null
     */
-   processDataFields() {
+   processDataFields(currElement) {
       if (this.parameterId == null) return [];
 
       let dataFieldOpt = (this.process.processDataFields(this) || []).filter(
@@ -145,6 +147,11 @@ module.exports = class SubProcessCore extends ABProcessElement {
             field: dataFieldOpt.field,
             object: dataFieldOpt.object
          });
+      }
+
+      let previousFields = this.process.processDataFields.call(this, currElement);
+      if (previousFields && previousFields.length > 0) {
+         result = result.concat(previousFields);
       }
 
       return result;
