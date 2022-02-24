@@ -5,14 +5,14 @@
  *
  */
 
-var ABFieldConnect = require("../../platform/dataFields/ABFieldConnect");
+const ABFieldConnect = require("../../platform/dataFields/ABFieldConnect");
 
 function L(key, altText) {
    // TODO:
    return altText; // AD.lang.label.getLabel(key) || altText;
 }
 
-var ABFieldUserDefaults = {
+const ABFieldUserDefaults = {
    key: "user", // unique key to reference this specific DataField
    icon: "user-o", // font-awesome icon reference.  (without the 'fa-').  so 'user'  to reference 'fa-user'
 
@@ -41,7 +41,7 @@ var ABFieldUserDefaults = {
    // objects will link to in their ABFieldUser connections.
 };
 
-var defaultValues = {
+const defaultValues = {
    editable: 1,
    isMultiple: 0,
    isCurrentUser: 0,
@@ -84,12 +84,11 @@ module.exports = class ABFieldUserCore extends ABFieldConnect {
    ///
 
    format(rowData) {
-      var val = this.dataValue(rowData) || [];
+      let val = this.dataValue(rowData) || [];
 
       if (val && !Array.isArray(val)) val = [val];
       if (!val) val = [];
 
       return val.map((v) => v.text || v).join(", ");
    }
-   
 };

@@ -1,11 +1,11 @@
-let ABField = require("../../platform/dataFields/ABField");
+const ABField = require("../../platform/dataFields/ABField");
 
 function L(key, altText) {
    // TODO:
    return altText; // AD.lang.label.getLabel(key) || altText;
 }
 
-var ABFieldCombinedDefaults = {
+const ABFieldCombinedDefaults = {
    key: "combined", // unique key to reference this specific DataField
    icon: "key", // font-awesome icon reference.  (without the 'fa-').  so 'user'  to reference 'fa-user'
 

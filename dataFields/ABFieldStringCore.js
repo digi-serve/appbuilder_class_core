@@ -5,11 +5,11 @@
  *
  */
 
-var ABField = require("../../platform/dataFields/ABField");
+const ABField = require("../../platform/dataFields/ABField");
 
 const MAX_CHAR_LENGTH = 255;
 
-var ABFieldStringDefaults = {
+const ABFieldStringDefaults = {
    key: "string",
    // unique key to reference this specific DataField
 
@@ -56,7 +56,7 @@ var ABFieldStringDefaults = {
    // what types of Sails ORM attributes can be imported into this data type?
    // http://sailsjs.org/documentation/concepts/models-and-orm/attributes#?attribute-options
 
-   compatibleMysqlTypes: ["char", "varchar", "tinytext"],
+   compatibleMysqlTypes: ["char", "constchar", "tinytext"],
    // {array}
    // what types of MySql column types can be imported into this data type?
    // https://www.techonthenet.com/mysql/datatypes.php
@@ -66,7 +66,7 @@ var ABFieldStringDefaults = {
    // The maximum length our ABFieldString can be.
 };
 
-var defaultValues = {
+const defaultValues = {
    default: "",
    supportMultilingual: 0,
 };
@@ -135,7 +135,7 @@ module.exports = class ABFieldStringCore extends ABField {
     * @return {json}
     */
    toObj() {
-      var obj = super.toObj();
+      const obj = super.toObj();
 
       if (this.settings.supportMultilingual) {
          this.unTranslate(obj.settings, obj.settings, ["default"]);
@@ -179,7 +179,7 @@ module.exports = class ABFieldStringCore extends ABField {
    isValidData(data, validator) {
       super.isValidData(data, validator);
 
-      var L = this.AB.Label();
+      const L = this.AB.Label();
 
       if (
          data &&

@@ -5,14 +5,14 @@
  *
  */
 
-var ABField = require("../../platform/dataFields/ABField");
+const ABField = require("../../platform/dataFields/ABField");
 
 function L(key, altText) {
    // TODO:
    return altText; // AD.lang.label.getLabel(key) || altText;
 }
 
-var ABFieldAutoIndexDefaults = {
+const ABFieldAutoIndexDefaults = {
    key: "AutoIndex", // unique key to reference this specific DataField
    icon: "key", // font-awesome icon reference.  (without the 'fa-').  so 'user'  to reference 'fa-user'
 
@@ -27,11 +27,11 @@ var ABFieldAutoIndexDefaults = {
 };
 
 // defaultValues: the keys must match a .name of your elements to set it's default value.
-var defaultValues = {
+const defaultValues = {
    prefix: "",
-   delimiter: "dash",
+   delimiter: "none",
    displayLength: 4,
-   previewText: "-0000",
+   previewText: "0000",
 };
 
 module.exports = class ABFieldAutoIndexCore extends ABField {
@@ -49,7 +49,7 @@ module.exports = class ABFieldAutoIndexCore extends ABField {
    }
 
    static getDelimiterSign(text) {
-      var delimiterItem = this.delimiterList().filter((item) => {
+      const delimiterItem = this.delimiterList().filter((item) => {
          return item.id == text;
       })[0];
 
@@ -58,6 +58,7 @@ module.exports = class ABFieldAutoIndexCore extends ABField {
 
    static delimiterList() {
       return [
+         { id: "none", value: "None", sign: "" },
          { id: "comma", value: "Comma", sign: ", " },
          { id: "slash", value: "Slash", sign: "/" },
          { id: "space", value: "Space", sign: " " },
@@ -67,7 +68,7 @@ module.exports = class ABFieldAutoIndexCore extends ABField {
    }
 
    static setValueToIndex(prefix, delimiter, displayLength, displayNumber) {
-      var resultIndex =
+      const resultIndex =
          prefix +
          this.getDelimiterSign(delimiter) +
          ("0000000000" + displayNumber).slice(-parseInt(displayLength));
@@ -97,7 +98,7 @@ module.exports = class ABFieldAutoIndexCore extends ABField {
       if (!rowData[this.columnName]) return "";
 
       try {
-         var resultAutoIndex = this.constructor.setValueToIndex(
+         const resultAutoIndex = this.constructor.setValueToIndex(
             this.settings.prefix,
             this.settings.delimiter,
             this.settings.displayLength,

@@ -54,7 +54,7 @@ module.exports = class ABFieldDateTimeCore extends ABFieldDateCore {
    }
 
    static defaultValues() {
-      let baseDefault = super.defaultValues();
+      const baseDefault = super.defaultValues();
       return Object.assign(baseDefault, defaultValues);
    }
 
@@ -100,7 +100,7 @@ module.exports = class ABFieldDateTimeCore extends ABFieldDateCore {
       // From default value of ABFieldDateCore
       if (values[this.columnName]) {
          dateResult = this.AB.toDate(values[this.columnName]);
-         // let momentVal = this.convertToMoment(values[this.columnName]);
+         // const momentVal = this.convertToMoment(values[this.columnName]);
          // if (momentVal.isValid()) {
          //    dateResult = new Date(momentVal);
          // }
@@ -108,7 +108,7 @@ module.exports = class ABFieldDateTimeCore extends ABFieldDateCore {
 
       // Set current time as default
       if (this.settings.defaultTime == 2) {
-         let currDate = new Date();
+         const currDate = new Date();
 
          if (dateResult == null) dateResult = new Date();
 
@@ -122,7 +122,7 @@ module.exports = class ABFieldDateTimeCore extends ABFieldDateCore {
          this.settings.defaultTime == 3 &&
          this.settings.defaultTimeValue
       ) {
-         let defaultTime = new Date(this.settings.defaultTimeValue);
+         const defaultTime = new Date(this.settings.defaultTimeValue);
 
          if (dateResult == null) dateResult = new Date();
 

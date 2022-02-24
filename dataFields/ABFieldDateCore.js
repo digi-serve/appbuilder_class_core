@@ -5,14 +5,14 @@
  *
  */
 
-var ABField = require("../../platform/dataFields/ABField");
+const ABField = require("../../platform/dataFields/ABField");
 
 function L(key, altText) {
    // TODO:
    return altText; // AD.lang.label.getLabel(key) || altText;
 }
 
-var ABFieldDateDefaults = {
+const ABFieldDateDefaults = {
    key: "date", // unique key to reference this specific DataField
 
    icon: "calendar", // font-awesome icon reference.  (without the 'fa-').  so 'user'  to reference 'fa-user'
@@ -114,12 +114,9 @@ module.exports = class ABFieldDateCore extends ABField {
 
       // if no default value is set, then don't insert a value.
       if (dateResult != null) {
-         values[this.columnName] = this.AB.toDateFormat(
-            dateResult,
-            {
-               format: "YYYY-MM-DD"
-            }
-         );
+         values[this.columnName] = this.AB.toDateFormat(dateResult, {
+            format: "YYYY-MM-DD",
+         });
          // values[this.columnName] = moment(dateResult).format("YYYY-MM-DD");
       }
    }
@@ -135,7 +132,7 @@ module.exports = class ABFieldDateCore extends ABField {
       super.isValidData(data, validator);
 
       if (data[this.columnName]) {
-         var value = data[this.columnName];
+         let value = data[this.columnName];
 
          if (!(value instanceof Date)) {
             value = this.AB.toDate(value);
@@ -147,11 +144,11 @@ module.exports = class ABFieldDateCore extends ABField {
             Object.prototype.toString.call(value) === "[object Date]" &&
             isFinite(value)
          ) {
-            var isValid = true;
+            let isValid = true;
 
             // Custom vaildate is here
             if (this.settings && this.settings.validateCondition) {
-               var startDate = this.settings.validateStartDate
+               const startDate = this.settings.validateStartDate
                      ? new Date(this.settings.validateStartDate)
                      : null,
                   endDate = this.settings.validateEndDate
@@ -159,19 +156,18 @@ module.exports = class ABFieldDateCore extends ABField {
                      : null,
                   startDateDisplay = this.getDateDisplay(startDate),
                   endDateDisplay = this.getDateDisplay(endDate);
-
+               const minDate = this.AB.subtractDate(
+                  new Date(),
+                  this.settings.validateRangeBefore,
+                  this.settings.validateRangeUnit
+               );
+               const maxDate = this.AB.addDate(
+                  new Date(),
+                  this.settings.validateRangeAfter,
+                  this.settings.validateRangeUnit
+               );
                switch (this.settings.validateCondition) {
                   case "dateRange":
-                     var minDate = this.AB.subtractDate(
-                        new Date(),
-                        this.settings.validateRangeBefore,
-                        this.settings.validateRangeUnit
-                     );
-                     var maxDate = this.AB.addDate(
-                        new Date(),
-                        this.settings.validateRangeAfter,
-                        this.settings.validateRangeUnit
-                     );
                      if (minDate < value && value < maxDate) isValid = true;
                      else {
                         isValid = false;
@@ -323,24 +319,24 @@ module.exports = class ABFieldDateCore extends ABField {
    }
 
    format(rowData) {
-      var d = this.dataValue(rowData);
+      const d = this.dataValue(rowData);
 
       if (d == "" || d == null) {
          return "";
       }
 
       // pull format from settings.
-      let dateObj = this.AB.toDate(d);
+      const dateObj = this.AB.toDate(d);
       return this.getDateDisplay(dateObj);
 
-      // let momentObj = this.convertToMoment(d);
+      // const momentObj = this.convertToMoment(d);
       // return this.getDateDisplay(new Date(momentObj));
    }
 
    getFormat() {
       let dateFormatString = "";
 
-      let dateFormat =
+      const dateFormat =
          this.settings && this.settings.dateFormat
             ? this.settings.dateFormat
             : "";
@@ -381,15 +377,15 @@ module.exports = class ABFieldDateCore extends ABField {
    }
 
    getDateDisplay(dateData) {
-      let dateFormat = this.getFormat();
+      const dateFormat = this.getFormat();
 
       return this.dateToString(dateFormat, dateData);
    }
 
    // convertToMoment(string) {
-   //    let result = moment(string);
+   //    const result = moment(string);
 
-   //    let supportFormats = [
+   //    const supportFormats = [
    //       "DD/MM/YYYY",
    //       "MM/DD/YYYY",
    //       "DD-MM-YYYY",
@@ -405,7 +401,7 @@ module.exports = class ABFieldDateCore extends ABField {
 
    exportValue(value) {
       return this.AB.toDateFormat(value, {
-         format: "YYYY-MM-DD"
+         format: "YYYY-MM-DD",
       });
       // return this.convertToMoment(value).format("YYYY-MM-DD");
    }

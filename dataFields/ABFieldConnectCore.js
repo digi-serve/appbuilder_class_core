@@ -5,14 +5,14 @@
  *
  */
 
-var ABFieldSelectivity = require("../../platform/dataFields/ABFieldSelectivity");
+const ABFieldSelectivity = require("../../platform/dataFields/ABFieldSelectivity");
 
 function L(key, altText) {
    // TODO:
    return altText; // AD.lang.label.getLabel(key) || altText;
 }
 
-var ABFieldConnectDefaults = {
+const ABFieldConnectDefaults = {
    key: "connectObject",
    // unique key to reference this specific DataField
 
@@ -32,7 +32,7 @@ var ABFieldConnectDefaults = {
    //  (field) => field.setting.something == true
 
    isSortable: (field) => {
-      var linkType = `${field?.settings?.linkType}:${field?.settings?.linkViaType}`;
+      const linkType = `${field?.settings?.linkType}:${field?.settings?.linkViaType}`;
       return ["one:many", "one:one"].indexOf(linkType) > -1;
    },
    // {bool} / {fn}
@@ -58,7 +58,7 @@ var ABFieldConnectDefaults = {
    // label.
 };
 
-var defaultValues = {
+const defaultValues = {
    linkObject: "", // ABObject.id
    // the .id of the ABObject we are connected to
 
@@ -168,16 +168,16 @@ module.exports = class ABFieldConnectCore extends ABFieldSelectivity {
    relationName() {
       // there is object name - {objectName}.{columnName}
       if (this.columnName.indexOf(".") > -1) {
-         let names = this.columnName.split(".");
+         const names = this.columnName.split(".");
 
          return (
             names[0] +
             "." +
-            (String(names[1]).replace(/[^a-z0-9\.]/gi, "") + "__relation")
+            (String(names[1]).replace(/[^a-z0-9.]/gi, "") + "__relation")
          );
       } else {
-         let relationName =
-            String(this.columnName).replace(/[^a-z0-9\.]/gi, "") + "__relation";
+         const relationName =
+            String(this.columnName).replace(/[^a-z0-9.]/gi, "") + "__relation";
 
          return relationName;
       }
@@ -189,9 +189,9 @@ module.exports = class ABFieldConnectCore extends ABFieldSelectivity {
     * @return {ABObject}
     */
    get datasourceLink() {
-      var linkObj = this.AB.objectByID(this.settings.linkObject);
+      const linkObj = this.AB.objectByID(this.settings.linkObject);
       if (!linkObj) {
-         var configError = new Error(
+         const configError = new Error(
             `ConnectField[${this.name || this.label}][${
                this.id
             }] unable to find linkObject[${this.settings.linkObject}]`
@@ -210,12 +210,12 @@ module.exports = class ABFieldConnectCore extends ABFieldSelectivity {
     * @return {ABDataField}  or undefined if not found.
     */
    get fieldLink() {
-      var objectLink = this.datasourceLink;
+      const objectLink = this.datasourceLink;
       if (!objectLink) return null; // note: already Notified
 
-      var linkColumn = objectLink.fieldByID(this.settings.linkColumn);
+      const linkColumn = objectLink.fieldByID(this.settings.linkColumn);
       if (!linkColumn) {
-         var configError = new Error(
+         const configError = new Error(
             `ConnectField[${this.label}][${this.id}] unable to find linkColumn[${this.settings.linkColumn}]`
          );
          this.AB.notify.builder(configError, {
@@ -233,12 +233,12 @@ module.exports = class ABFieldConnectCore extends ABFieldSelectivity {
     * @return {array}
     */
    pullRelationValues(row) {
-      var selectedData = [];
+      let selectedData;
 
       // Get linked object
-      var linkedObject = this.datasourceLink;
+      const linkedObject = this.datasourceLink;
 
-      var data = this.dataValue(row);
+      let data = this.dataValue(row);
       if (data && linkedObject) {
          // convert to JSON
          if (typeof data == "string") {
@@ -260,7 +260,7 @@ module.exports = class ABFieldConnectCore extends ABFieldSelectivity {
    dataValue(rowData) {
       if (rowData == null) return "";
 
-      let propName = `${this.object.name}.${this.relationName()}`;
+      const propName = `${this.object.name}.${this.relationName()}`;
 
       return (
          rowData[this.relationName()] ||
@@ -271,8 +271,8 @@ module.exports = class ABFieldConnectCore extends ABFieldSelectivity {
    }
 
    format(rowData) {
-      let val = this.pullRelationValues(rowData);
-      let linkedObject = this.datasourceLink;
+      const val = this.pullRelationValues(rowData);
+      const linkedObject = this.datasourceLink;
 
       // array
       if (Array.isArray(val))
@@ -419,8 +419,8 @@ module.exports = class ABFieldConnectCore extends ABFieldSelectivity {
    getRelationValue(rowData, options = {}) {
       if (rowData == null) return;
       let colName;
-      let indexField = this.indexField;
-      let datasourceLink = this.datasourceLink;
+      const indexField = this.indexField;
+      const datasourceLink = this.datasourceLink;
 
       // custom index
       // M:N
@@ -428,7 +428,7 @@ module.exports = class ABFieldConnectCore extends ABFieldSelectivity {
          this.settings.linkType == "many" &&
          this.settings.linkViaType == "many"
       ) {
-         let indexField2 = this.indexField2;
+         const indexField2 = this.indexField2;
 
          if (indexField && indexField.object.id == datasourceLink.id) {
             colName = indexField.columnName;

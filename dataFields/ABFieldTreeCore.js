@@ -5,14 +5,14 @@
  *
  */
 
-var ABFieldSelectivity = require("../../platform/dataFields/ABFieldSelectivity");
+const ABFieldSelectivity = require("../../platform/dataFields/ABFieldSelectivity");
 
 function L(key, altText) {
    // TODO:
    return altText; // AD.lang.label.getLabel(key) || altText;
 }
 
-var ABFieldTreeDefaults = {
+const ABFieldTreeDefaults = {
    key: "tree", // unique key to reference this specific DataField
 
    icon: "sitemap", // font-awesome icon reference.  (without the 'fa-').  so 'user'  to reference 'fa-user'
@@ -36,7 +36,7 @@ var ABFieldTreeDefaults = {
    compatibleOrmTypes: [],
 };
 
-var defaultValues = {
+const defaultValues = {
    options: [],
 };
 
@@ -87,7 +87,7 @@ module.exports = class ABFieldTreeCore extends ABFieldSelectivity {
     * @return {json}
     */
    toObj() {
-      var obj = super.toObj();
+      const obj = super.toObj();
 
       // Un-translate options list
       if (obj.settings.options && obj.settings.options.length > 0) {

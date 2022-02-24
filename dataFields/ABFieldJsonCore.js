@@ -5,14 +5,14 @@
  *
  */
 
-var ABField = require("../../platform/dataFields/ABField");
+const ABField = require("../../platform/dataFields/ABField");
 
 function L(key, altText) {
    // TODO:
    return altText; // AD.lang.label.getLabel(key) || altText;
 }
 
-var ABFieldJsonDefaults = {
+const ABFieldJsonDefaults = {
    key: "json", // unique key to reference this specific DataField
    icon: "font", // font-awesome icon reference.  (without the 'fa-').  so 'user'  to reference 'fa-user'
 
@@ -31,7 +31,7 @@ var ABFieldJsonDefaults = {
    compatibleMysqlTypes: ["json"],
 };
 
-var defaultValues = {};
+const defaultValues = {};
 
 module.exports = class ABFieldJsonCore extends ABField {
    constructor(values, object) {

@@ -5,14 +5,14 @@
  *
  */
 
-var ABField = require("../../platform/dataFields/ABField");
+const ABField = require("../../platform/dataFields/ABField");
 
 function L(key, altText) {
    // TODO:
    return altText; // AD.lang.label.getLabel(key) || altText;
 }
 
-var ABFieldBooleanDefaults = {
+const ABFieldBooleanDefaults = {
    key: "boolean", // unique key to reference this specific DataField
 
    icon: "check-square-o", // font-awesome icon reference.  (without the 'fa-').  so 'user'  to reference 'fa-user'
@@ -34,11 +34,11 @@ var ABFieldBooleanDefaults = {
 
    // what types of MySql column types can be imported into this data type?
    // https://www.techonthenet.com/mysql/datatypes.php
-   compatibleMysqlTypes: ["bool", "boolean"]
+   compatibleMysqlTypes: ["bool", "boolean"],
 };
 
-var defaultValues = {
-   default: 0
+const defaultValues = {
+   default: 0,
 };
 
 module.exports = class ABFieldBooleanCore extends ABField {

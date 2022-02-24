@@ -5,14 +5,14 @@
  *
  */
 
-var ABField = require("../../platform/dataFields/ABField");
+const ABField = require("../../platform/dataFields/ABField");
 
 function L(key, altText) {
    // TODO:
    return altText; // AD.lang.label.getLabel(key) || altText;
 }
 
-var ABFieldFileDefaults = {
+const ABFieldFileDefaults = {
    key: "file", // unique key to reference this specific DataField
    // type : 'string', // http://sailsjs.org/documentation/concepts/models-and-orm/attributes#?attribute-options
    icon: "file", // font-awesome icon reference.  (without the 'fa-').  so 'user'  to reference 'fa-user'
@@ -33,10 +33,10 @@ var ABFieldFileDefaults = {
    supportRequire: false,
 };
 
-var defaultValues = {
+const defaultValues = {
    removeExistingData: 0,
    fileSize: 0,
-   fileType: "",
+   ficonstype: "",
 };
 
 module.exports = class ABFieldFileCore extends ABField {
@@ -63,7 +63,7 @@ module.exports = class ABFieldFileCore extends ABField {
       // text to Int:
       this.settings.fileSize = parseInt(this.settings.fileSize);
       this.settings.limitFileSize = parseInt(this.settings.limitFileSize);
-      this.settings.limitFileType = parseInt(this.settings.limitFileType);
+      this.settings.limitFiconstype = parseInt(this.settings.limitFiconstype);
       this.settings.removeExistingData = parseInt(
          this.settings.removeExistingData
       );
@@ -82,7 +82,7 @@ module.exports = class ABFieldFileCore extends ABField {
     * @return {obj} { uuid, filename }, or {} if empty.
     */
    dataValue(rowData) {
-      let propName = "{objectName}.{columnName}"
+      const propName = "{objectName}.{columnName}"
          .replace("{objectName}", this.alias || this.object.name)
          .replace("{columnName}", this.columnName);
 
@@ -90,7 +90,9 @@ module.exports = class ABFieldFileCore extends ABField {
       if (typeof result == "string") {
          try {
             result = JSON.parse(result);
-         } catch (err) {}
+         } catch (err) {
+            // continue regardless of error
+         }
       }
 
       return result;
@@ -118,7 +120,9 @@ module.exports = class ABFieldFileCore extends ABField {
          if (typeof result == "string") {
             try {
                result = JSON.parse(result);
-            } catch (err) {}
+            } catch (err) {
+               // continue regardless of error
+            }
          }
 
          // return file name
@@ -135,10 +139,10 @@ module.exports = class ABFieldFileCore extends ABField {
     * @return {obj} or undefined
     */
    requestParam(allParameters) {
-      var myParameter = super.requestParam(allParameters);
+      const myParameter = super.requestParam(allParameters);
 
       // if we have our default empty object, then remove the entry
-      // and let the DB insert a null value.
+      // and const the DB insert a null value.
       if (myParameter[this.columnName] == "{}") {
          delete myParameter[this.columnName];
       }

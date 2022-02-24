@@ -5,14 +5,14 @@
  *
  */
 
-var ABField = require("../../platform/dataFields/ABField");
+const ABField = require("../../platform/dataFields/ABField");
 
 function L(key, altText) {
    // TODO:
    return altText; // AD.lang.label.getLabel(key) || altText;
 }
 
-var ABFieldImageDefaults = {
+const ABFieldImageDefaults = {
    key: "image", // unique key to reference this specific DataField
    // type : 'string', // http://sailsjs.org/documentation/concepts/models-and-orm/attributes#?attribute-options
    icon: "file-image-o", // font-awesome icon reference.  (without the 'fa-').  so 'user'  to reference 'fa-user'
@@ -37,7 +37,7 @@ var ABFieldImageDefaults = {
    compatibleOrmTypes: [],
 };
 
-var defaultValues = {
+const defaultValues = {
    useWidth: 0,
    imageWidth: "",
    useHeight: 0,
@@ -56,7 +56,7 @@ module.exports = class ABFieldImageCore extends ABField {
          ABFieldImageDefaults.menuName == "*Image Attachment" &&
          this.AB.Label
       ) {
-         var L = this.AB.Label();
+         const L = this.AB.Label();
          ABFieldImageDefaults.menuName = L(
             "ab.dataField.image.menuName",
             "*Image Attachment"

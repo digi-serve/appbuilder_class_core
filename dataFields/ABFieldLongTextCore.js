@@ -5,7 +5,7 @@
  *
  */
 
-var ABField = require("../../platform/dataFields/ABField");
+const ABField = require("../../platform/dataFields/ABField");
 
 function L(key, altText) {
    // TODO:
@@ -14,7 +14,7 @@ function L(key, altText) {
 
 const MAX_CHAR_LENGTH = 5000;
 
-var ABFieldLongTextDefaults = {
+const ABFieldLongTextDefaults = {
    key: "LongText", // unique key to reference this specific DataField
    type: "longtext",
    icon: "align-right", // font-awesome icon reference.  (without the 'fa-').  so 'user'  to reference 'fa-user'
@@ -36,13 +36,13 @@ var ABFieldLongTextDefaults = {
 
    // what types of MySql column types can be imported into this data type?
    // https://www.techonthenet.com/mysql/datatypes.php
-   compatibleMysqlTypes: ["text", "mediumtext", "longtext"]
+   compatibleMysqlTypes: ["text", "mediumtext", "longtext"],
 };
 
 // defaultValues: the keys must match a .name of your elements to set it's default value.
-var defaultValues = {
+const defaultValues = {
    default: "",
-   supportMultilingual: 0
+   supportMultilingual: 0,
 };
 
 module.exports = class ABFieldLongText extends ABField {
@@ -111,7 +111,7 @@ module.exports = class ABFieldLongText extends ABField {
     * @return {json}
     */
    toObj() {
-      var obj = super.toObj();
+      const obj = super.toObj();
 
       if (this.settings.supportMultilingual)
          if (this.object)

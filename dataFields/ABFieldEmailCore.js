@@ -5,14 +5,14 @@
  *
  */
 
-var ABField = require("../../platform/dataFields/ABField");
+const ABField = require("../../platform/dataFields/ABField");
 
 function L(key, altText) {
    // TODO:
    return altText; // AD.lang.label.getLabel(key) || altText;
 }
 
-var ABFieldEmailDefaults = {
+const ABFieldEmailDefaults = {
    key: "email", // unique key to reference this specific DataField
 
    icon: "envelope", // font-awesome icon reference.  (without the 'fa-').  so 'user'  to reference 'fa-user'
@@ -34,11 +34,11 @@ var ABFieldEmailDefaults = {
 
    // what types of MySql column types can be imported into this data type?
    // https://www.techonthenet.com/mysql/datatypes.php
-   compatibleMysqlTypes: []
+   compatibleMysqlTypes: [],
 };
 
-var defaultValues = {
-   default: ""
+const defaultValues = {
+   default: "",
 };
 
 module.exports = class ABFieldEmailCore extends ABField {
@@ -95,9 +95,9 @@ module.exports = class ABFieldEmailCore extends ABField {
     */
    isValidData(data, validator) {
       if (data[this.columnName]) {
-         var Reg = /^(([^<>()\[\]\\.,;:\s@"]+(\.[^<>()\[\]\\.,;:\s@"]+)*)|(".+"))@((\[[0-9]{1,3}\.[0-9]{1,3}\.[0-9]{1,3}\.[0-9]{1,3}\])|(([a-zA-Z\-0-9]+\.)+[a-zA-Z]{2,}))$/;
+         const Reg = /^(([^<>()[\]\\.,;:\s@"]+(\.[^<>()[\]\\.,;:\s@"]+)*)|(".+"))@((\[[0-9]{1,3}\.[0-9]{1,3}\.[0-9]{1,3}\.[0-9]{1,3}\])|(([a-zA-Z\-0-9]+\.)+[a-zA-Z]{2,}))$/;
 
-         var value = data[this.columnName];
+         let value = data[this.columnName];
          value = String(value).toLowerCase();
          if (!Reg.test(value)) {
             validator.addError(this.columnName, "Invalid email");
