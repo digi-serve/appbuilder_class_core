@@ -5,7 +5,7 @@
  *
  */
 
-var ABFieldSelectivity = require("../../platform/dataFields/ABFieldSelectivity");
+var ABField = require("../../platform/dataFields/ABField");
 
 function L(key, altText) {
    // TODO:
@@ -32,7 +32,8 @@ var ABFieldConnectDefaults = {
    //  (field) => field.setting.something == true
 
    isSortable: (field) => {
-      var linkType = `${field?.settings?.linkType}:${field?.settings?.linkViaType}`;
+      var linkType =
+         field?.settings?.linkType + ":" + field?.settings?.linkViaType;
       return ["one:many", "one:one"].indexOf(linkType) > -1;
    },
    // {bool} / {fn}
@@ -104,7 +105,7 @@ var defaultValues = {
    //       custom Key for the data we are storing.
 };
 
-module.exports = class ABFieldConnectCore extends ABFieldSelectivity {
+module.exports = class ABFieldConnectCore extends ABField {
    constructor(values, object, fieldDefaults = ABFieldConnectDefaults) {
       super(values, object, fieldDefaults);
 
