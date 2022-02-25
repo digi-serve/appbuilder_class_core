@@ -181,7 +181,6 @@ module.exports = class ABFieldDateTimeCore extends ABFieldDateCore {
     * @return {string}
     */
    exportValue(date) {
-      console.log(date);
       return date.toISOString();
    }
 };
