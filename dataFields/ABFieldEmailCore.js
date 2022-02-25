@@ -39,6 +39,7 @@ const ABFieldEmailDefaults = {
 
 const defaultValues = {
    default: "",
+   defaultCheckbox: 0,
 };
 
 module.exports = class ABFieldEmailCore extends ABField {

@@ -73,7 +73,7 @@ const defaultValues = {
    default: "",
    typeFormat: "none",
    typeDecimals: "none",
-   typeDecimalPlaces: "none",
+   typeDecimalPlaces: 0,
    typeRounding: "none",
    typeThousands: "none",
    validation: 0,
