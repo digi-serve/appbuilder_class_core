@@ -91,11 +91,7 @@ module.exports = class ABFieldFileCore extends ABField {
          try {
             result = JSON.parse(result);
          } catch (err) {
-<<<<<<< HEAD
-            // continue regardless of error
-=======
             // ignore error
->>>>>>> v2
          }
       }
 
@@ -125,11 +121,7 @@ module.exports = class ABFieldFileCore extends ABField {
             try {
                result = JSON.parse(result);
             } catch (err) {
-<<<<<<< HEAD
-               // continue regardless of error
-=======
                // ignore error.
->>>>>>> v2
             }
          }
 
@@ -150,13 +142,8 @@ module.exports = class ABFieldFileCore extends ABField {
       const myParameter = super.requestParam(allParameters);
 
       // if we have our default empty object, then remove the entry
-<<<<<<< HEAD
-      // and const the DB insert a null value.
-      if (myParameter[this.columnName] == "{}") {
-=======
       // and let the DB insert a null value.
       if (myParameter?.[this.columnName] == "{}") {
->>>>>>> v2
          delete myParameter[this.columnName];
       }
 
