@@ -65,6 +65,13 @@ function setValueToFormula(object, formulaString, rowData) {
                   field.format(rowData) || 0
                );
                formulaString = formulaString.replace(element, eval(calVal));
+            } else if (field.key == "date") {
+               formulaString = formulaString.replace(
+                  element,
+                  rowData[columnName]
+                     ? field.exportValue(rowData[columnName])
+                     : ""
+               );
             } else {
                formulaString = formulaString.replace(
                   element,
@@ -320,7 +327,7 @@ function getBuildInFunction() {
          id: "formatDate",
          value: "formatDate({DATE_COLUMN}, OUTPUT_FORMAT)",
          type: "build-in",
-         parameter_size: 1,
+         parameter_size: 2,
       },
    ];
    return functionList;
