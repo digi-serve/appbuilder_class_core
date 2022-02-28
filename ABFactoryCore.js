@@ -87,6 +87,7 @@ class ABFactory extends EventEmitter {
          ABComponent,
          ABDefinition,
          ABFieldManager,
+         ABIndex,
          ABObject,
          ABObjectExternal,
          ABObjectImport,
@@ -98,9 +99,7 @@ class ABFactory extends EventEmitter {
          // ABObjectWorkspaceViewKanban,
          // ABObjectWorkspaceViewGantt,
 
-         ABFieldManager,
-
-         // FilterComplex,
+         // FilterComplex
       };
 
       // Notify Helpers
@@ -713,6 +712,18 @@ class ABFactory extends EventEmitter {
          console.error("!! Who is calling this with an App?");
       }
       return new RowFilter(App || this._App, idBase, this);
+   }
+
+   /**
+    * @method viewNewDetatched()
+    * Return an instance of a View that is NOT attached to an ABApplication.
+    * @return {ABViewXXX}
+    */
+   viewNewDetatched(values) {
+      if (!this._mockApp) {
+         this._mockApp = this.applicationNew({});
+      }
+      return this._mockApp.viewNew(values, this._mockApp);
    }
 
    //

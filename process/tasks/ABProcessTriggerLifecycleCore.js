@@ -133,7 +133,7 @@ module.exports = class ABProcessTriggerLifecycle extends ABProcessTrigger {
       if (parts[0] == this.diagramID) {
          var myState = this.myState(instance);
          if (myState["data"]) {
-            var object = this.application.objectByID(this.objectID);
+            var object = this.AB.objectByID(this.objectID);
             var field = object.fields((f) => {
                return f.id == parts[1];
             })[0];

@@ -109,8 +109,8 @@ module.exports = class ABApplicationCore extends ABMLClass {
       // this app.
 
       this.datacollectionIDs = attributes.json.datacollectionIDs || [];
-      // {array} .queryIDs
-      // All the {ABObjectQuery.id} values that have been pulled into this
+      // {array} .datacollectionIDs
+      // All the {ABDataCollection.id} values that have been pulled into this
       // ABApplication for use in it's design environment.  This is how we
       // determine which {ABDataCollection}s are included or excluded from
       // this app.
@@ -628,13 +628,11 @@ module.exports = class ABApplicationCore extends ABMLClass {
 
    /**
     * @method viewAll()
-    *
     * return a list of all the {ABViewxxx} classes available.
-    *
     * @return {array} of ABView objects
     */
-   viewAll() {
-      return ABViewManager.allViews();
+   viewAll(fn = () => true) {
+      return ABViewManager.allViews(fn);
    }
 
    ///
@@ -879,18 +877,6 @@ module.exports = class ABApplicationCore extends ABMLClass {
    viewNew(values, application, parent) {
       return ABViewManager.newView(values, application, parent);
    }
-
-   /**
-    * @method viewNew()
-    *
-    * return an instance of a new (unsaved) ABView.
-    *
-    * @return {ABView}
-    */
-   // qlopNew(values, application, parent) {
-   //    console.error("!!!Where is this called?!!!");
-   //    return ABQLManager.newOP(values, application || this, parent);
-   // }
 
    ///
    /// Utilities

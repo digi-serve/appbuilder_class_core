@@ -91,4 +91,5 @@ module.exports = class ABFieldUserCore extends ABFieldConnect {
 
       return val.map((v) => v.text || v).join(", ");
    }
+   
 };

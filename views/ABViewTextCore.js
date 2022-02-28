@@ -2,19 +2,42 @@ const ABViewWidget = require("../../platform/views/ABViewWidget");
 
 const ABViewTextPropertyComponentDefaults = {
    text: "",
+   // {string}
+   // A multilingual text template that is used to display a given set of
+   // values.
+
    height: 0,
+   // {integer}
+   // The default height of this widget.
+
    dataviewID: null,
+   // {uuid}
+   // The {ABDataCollection.id} of the datacollection this ABViewText is
+   // pulling data from.
+   // In most usage situations this ABView is tied to the data in an
+   // ABDataCollection.  However, it is possible for an ABObject to be
+   // directly assigned to the ABView, and that will be used instead.
 };
 
 const ABViewDefaults = {
-   key: "text", // {string} unique key for this view
-   icon: "font", // {string} fa-[icon] reference for this view
-   labelKey: "ab.components.text", // {string} the multilingual label key for the class label
+   key: "text",
+   // {string}
+   // unique key for this view
+
+   icon: "font",
+   // {string}
+   // fa-[icon] reference for this view
+
+   labelKey: "ab.components.text",
+   // {string}
+   // the multilingual label key for the class label
 };
 
 module.exports = class ABViewTextCore extends ABViewWidget {
    constructor(values, application, parent, defaultValues) {
       super(values, application, parent, defaultValues || ABViewDefaults);
+
+      this._object = null;
    }
 
    static common() {
@@ -86,15 +109,18 @@ module.exports = class ABViewTextCore extends ABViewWidget {
     * @return {ABDatacollection}
     */
    get datacollection() {
-      if (this.parent.key == "dataview") {
-         return this.AB.datacollections(
-            (dv) => dv.id == this.parent.settings.dataviewID
-         )[0];
+      if (this.parent?.key == "dataview") {
+         return this.AB.datacollectionByID(this.parent.settings.dataviewID);
       } else {
-         return this.AB.datacollections(
-            (dv) => dv.id == this.settings.dataviewID
-         )[0];
+         return this.AB.datacollectionByID(this.settings.dataviewID);
       }
+   }
+
+   fieldKey(field) {
+      let label = field.label || "";
+      label = label.replace(/\(/g, "\\(");
+      label = label.replace(/\)/g, "\\)");
+      return label;
    }
 
    displayText(val, componentID) {
@@ -105,18 +131,19 @@ module.exports = class ABViewTextCore extends ABViewWidget {
       };
 
       var dv = this.datacollection;
-      if (!dv) return clearTemplateValue(result);
+      // if (!dv) return clearTemplateValue(result);
 
-      var object = dv.datasource;
+      var object = dv?.datasource ?? this._object;
       if (!object) return clearTemplateValue(result);
 
       object.fields().forEach((f) => {
          var rowData = val || dv.getCursor() || {};
 
          // add \\ in front of the regular expression special charactors
-         let label = f.label || "";
-         label = label.replace(/\(/g, "\\(");
-         label = label.replace(/\)/g, "\\)");
+         // let label = f.label || "";
+         // label = label.replace(/\(/g, "\\(");
+         // label = label.replace(/\)/g, "\\)");
+         let label = this.fieldKey(f);
 
          var template = new RegExp("{" + label + "}", "g");
 
@@ -176,5 +203,9 @@ module.exports = class ABViewTextCore extends ABViewWidget {
       });
 
       return result;
+   }
+
+   objectLoad(object) {
+      this._object = object;
    }
 };

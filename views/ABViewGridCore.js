@@ -262,6 +262,7 @@ module.exports = class ABViewGridCore extends ABViewWidget {
       settingsDefault(this.settings, "editPage");
       settingsDefault(this.settings, "detailsTab");
       settingsDefault(this.settings, "editTab");
+      settingsDefaultJSON(this.settings, "trackView");
 
       // TODO: remove objectworkspace!
       // this.settings.objectWorkspace =

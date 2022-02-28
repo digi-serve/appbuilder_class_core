@@ -262,22 +262,12 @@ module.exports = class ABDataCollectionCore extends ABMLClass {
     * @return {Promise}
     *      .resolve( {this} )
     */
-   save() {
+   async save() {
       if (!this.id) {
          this.label = this.label || this.name;
       }
-
-      return Promise.resolve()
-         .then(() => {
-            return super.save();
-         })
-         .then(() => {
-            // transition code:
-            console.error(
-               "Transition to v2: Make sure the ABDesigner performs: application.datacollectionInsert()"
-            );
-            // return this.application.datacollectionInsert(this);
-         });
+      await super.save();
+      return this;
    }
 
    /**
@@ -338,8 +328,14 @@ module.exports = class ABDataCollectionCore extends ABMLClass {
     */
    get datasource() {
       if (!this.__datasource) {
-         var err = new Error("DataCollection missing reference datasource");
-         this.AB.notify("builder", err, { datacollection: this.toObj() });
+         if (this.id && this.name) {
+            // occassionally we have blank DCs (without .id or .name)
+            // and I don't want to see errors for those
+            var err = new Error(
+               `DataCollection[${this.name}][${this.id}] missing reference datasource`
+            );
+            this.AB.notify("builder", err, { datacollection: this.toObj() });
+         }
          return null;
       }
       var obj = this.AB.objectByID(this.__datasource.id);
@@ -2319,7 +2315,6 @@ module.exports = class ABDataCollectionCore extends ABMLClass {
             obj.settings.objectWorkspace.filterConditions = filters;
          }
       }
-
       return this.clone(obj); // new ABViewDataCollection(settings, this.application, this.parent);
    }
 

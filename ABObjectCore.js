@@ -359,7 +359,7 @@ module.exports = class ABObjectCore extends ABMLClass {
     * @return {ABFieldxxx}
     */
    fieldByID(id) {
-      return this.fields((f) => f.id == id)[0];
+      return this.fields((f) => f?.id == id)[0];
    }
 
    /**
@@ -532,12 +532,21 @@ module.exports = class ABObjectCore extends ABMLClass {
    }
 
    /**
+    * @method indexByID()
+    * return the object's index from the given {ABIndex.id}
+    * @param {string} id
+    *        the id of the ABIndex to return.
+    * @return {ABIndex}
+    */
+   indexByID(id) {
+      return this.indexes((f) => f.id == id)[0];
+   }
+
+   /**
     * @method indexRemove()
-    *
     * remove the given ABIndex from our ._indexes array and persist the current
     * values.
-    *
-    * @param {ABIndex}
+    * @param {ABIndex} index
     * @return {Promise}
     */
    indexRemove(index) {
@@ -557,18 +566,13 @@ module.exports = class ABObjectCore extends ABMLClass {
 
    /**
     * @method indexSave()
-    *
     * save the given ABIndex in our ._indexes array and persist the current
     * values.
-    *
-    * @param {ABIndex}
+    * @param {ABIndex} index
     * @return {Promise}
     */
    indexSave(index) {
-      var isIncluded =
-         this.indexes(function (idx) {
-            return idx.id == index.id;
-         }).length > 0;
+      var isIncluded = this.indexByID(index.id);
       if (!isIncluded) {
          this._indexes.push(index);
          return this.save();
@@ -625,6 +629,15 @@ module.exports = class ABObjectCore extends ABMLClass {
     */
    urlRestItem(id) {
       return `/app_builder/model/${this.id}/${id}`;
+   }
+
+   /**
+    * @method urlRestLog
+    * return the url to access the logs for this ABObject.
+    * @return {string}
+    */
+   urlRestLog() {
+      return `/app_builder/object/${this.id}/track`;
    }
 
    /**

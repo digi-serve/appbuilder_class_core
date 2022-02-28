@@ -122,7 +122,16 @@ module.exports = class ABObjectQueryCore extends ABObject {
 
       // import all our ABObjects
       this.importJoins(attributes.joins || {});
-      this.importFields(attributes.fields || []); // import after joins are imported
+
+      // import fields after joins are imported
+      this._fields = null;
+      this.importFields(attributes.fields || []);
+      // {array} [ { alias, field}, {},... ]
+      // an array of field definition structures that mark what fields this
+      // query is interested in pulling data from.
+      //    .alias : {string} matches the alias of the ABObject that the field
+      //             is from
+      //    .field : {ABFieldXXX} the link to the actual ABField instance
 
       // Import our Where condition
       this.where = attributes.where || {}; // .workspaceFilterConditions
@@ -194,7 +203,7 @@ module.exports = class ABObjectQueryCore extends ABObject {
 
          // Pull object from .AB
          if (!object && this.AB) {
-            object = this.AB.objects((obj) => obj.id == fieldInfo.objectID)[0];
+            object = this.AB.objectByID(fieldInfo.objectID);
 
             // keep
             if (object) {
@@ -205,7 +214,7 @@ module.exports = class ABObjectQueryCore extends ABObject {
 
          if (!object) return;
 
-         let field = object.fields((f) => f.id == fieldInfo.fieldID, true)[0];
+         let field = object.fieldByID(fieldInfo.fieldID);
 
          // should be a field of base/join objects
          if (
@@ -218,7 +227,7 @@ module.exports = class ABObjectQueryCore extends ABObject {
             ).length < 1
          ) {
             // add alias to field
-            // refactor _.clone() to actually return a new instance of this same ABDataField obj:
+            // create new instance of this field:
             var def = field.toObj();
             let clonedField = new field.constructor(def, field.object);
 
@@ -292,9 +301,6 @@ module.exports = class ABObjectQueryCore extends ABObject {
     * @return {array}
     */
    objects(fn = () => true) {
-      // TODO: find the case where limiting to this.objectIDs was
-      // problematic, and refactor the code making the call:
-
       // FOR proper expected operation, this fn must only return object
       // matches for which this ABQuery is managing objects:
 
@@ -331,9 +337,7 @@ module.exports = class ABObjectQueryCore extends ABObject {
    objectBase() {
       if (!this._joins.objectID) return null;
 
-      return (
-         this.AB.objects((obj) => obj.id == this._joins.objectID)[0] || null
-      );
+      return this.AB.objectByID(this._joins.objectID) || null;
    }
 
    /**
@@ -428,16 +432,11 @@ module.exports = class ABObjectQueryCore extends ABObject {
             //		]
             //	},
 
-            var linkField = baseObject.fields(
-               (f) => f.id == link.fieldID,
-               true
-            )[0];
+            var linkField = baseObject.fieldByID(link.fieldID);
             if (!linkField) return;
 
             // track our linked object
-            var linkObject = this.AB.objects(
-               (obj) => obj.id == linkField.settings.linkObject
-            )[0];
+            var linkObject = this.AB.objectByID(linkField.settings.linkObject);
             if (!linkObject) return;
 
             storeObject(linkObject, link.alias);

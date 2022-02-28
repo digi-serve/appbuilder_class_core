@@ -11,16 +11,29 @@ var ABFieldNumberDefaults = {
    key: "number",
    // unique key to reference this specific DataField
 
+   description: "A Float or Integer Value",
+   // description: what gets displayed in the Editor description.
+   // this is a label key:  L(menuName)
+
    icon: "hashtag",
    // font-awesome icon reference.  (without the 'fa-').  so 'user'  to
    // reference 'fa-user'
 
+   isFilterable: true,
+   // {bool} / {fn}
+   // determines if the current ABField can be used to filter (FilterComplex
+   // or Query) data.
+   // if a {fn} is provided, it will be called with the ABField as a parameter:
+   //  (field) => field.setting.something == true
+
+   isSortable: true,
+   // {bool} / {fn}
+   // determines if the current ABField can be used to Sort data.
+   // if a {fn} is provided, it will be called with the ABField as a parameter:
+   //  (field) => true/false
+
    menuName: "Number",
    // menuName: what gets displayed in the Editor drop list
-   // this is a label key:  L(menuName)
-
-   description: "A Float or Integer Value",
-   // description: what gets displayed in the Editor description.
    // this is a label key:  L(menuName)
 
    supportRequire: true,
@@ -207,7 +220,7 @@ module.exports = class ABFieldNumberCore extends ABField {
    isValidData(data, validator) {
       super.isValidData(data, validator);
 
-      var L = this.AB.Label();
+      // var L = this.AB.Label();
 
       if (data[this.columnName] != null && data[this.columnName] != "") {
          var value = data[this.columnName];
