@@ -215,7 +215,7 @@ module.exports = class ABFieldListCore extends ABField {
     */
    options() {
       return this.settings.options.map((opt) => {
-         return { id: opt.id, text: opt.text };
+         return { id: opt.id, text: opt.text, hex: opt.hex ? opt.hex : "" };
       });
    }
 
