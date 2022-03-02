@@ -60,7 +60,7 @@ module.exports = class SubProcessCore extends ABProcessElement {
       super.fromValues(attributes);
 
       // Convert string to boolean
-      this.isEnable = this.isEnable == null ? true : this.isEnable == true;
+      this.isEnable = this.isEnable == null ? true : JSON.parse(this.isEnable);
 
       this._elements = {};
       (attributes.elementIDs || []).forEach((eID) => {
