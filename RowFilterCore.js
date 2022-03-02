@@ -262,6 +262,9 @@ module.exports = class RowFilterCore extends ABComponent {
 
             var value = getFieldVal(rowData, field);
 
+            // default value should be false
+            if (value == null) value = false;
+
             switch (rule) {
                case "equals":
                   result = value == compareValue;
