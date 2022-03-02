@@ -31,7 +31,10 @@ module.exports = class ABDefinitionCore {
          attributes?.json?.label ||
          "";
       if (!this.name) {
-         console.error("no name");
+        this.AB.notify.builder(new Error("Attributes for definition had no 'name'"), {
+          context: "ABDefinitionCore.fromValues()",
+          attributes
+        })
       }
       this.type = attributes.type || attributes?.json?.type || "";
       this.json = attributes.json || null;

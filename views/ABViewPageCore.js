@@ -177,12 +177,6 @@ module.exports = class ABViewPageCore extends ABViewContainer {
          .then(() => {
             var parent = this.parent || this.application;
 
-            // Force application to be able to insert page.
-            // This may not be a good solution?
-            if (!this.parent){
-              this.application.pageRemove = this.pageRemove
-            }
-
             return parent.pageRemove(this);
          })
          .then(() => {
@@ -226,12 +220,6 @@ module.exports = class ABViewPageCore extends ABViewContainer {
          .then(() => {
             // now we can persist ourself in our parent
             var parent = this.parent || this.application;
-
-            // Force application to be able to insert page.
-            // This may not be a good solution?
-            if (!this.parent){
-              this.application.pageInsert = this.pageInsert
-            }
 
             return parent.pageInsert(this);
          })

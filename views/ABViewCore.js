@@ -799,6 +799,7 @@ module.exports = class ABViewCore extends ABMLClass {
 
       // change id
       if (parent == null) {
+         // the page is getting cloned to root: there is no parent, as parent is the application
          result.id = null;
       } else {
          result.id = lookUpIds[result.id] || this.AB.uuid();
@@ -875,6 +876,8 @@ module.exports = class ABViewCore extends ABMLClass {
 
       // change id
       if (parent == null) {
+         // the page is getting cloned to root: there is no parent, as parent is the application.
+         // pages with null parent ids default to getting put on root
          result.id = null;
       } else {
          result.id = lookUpIds[result.id] || this.AB.uuid();
