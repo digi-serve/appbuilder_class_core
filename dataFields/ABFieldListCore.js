@@ -117,7 +117,10 @@ module.exports = class ABFieldListCore extends ABField {
    constructor(values, object) {
       super(values, object, ABFieldListDefaults);
 
-      this.pendingDeconstions = [];
+      this.pendingDeletions = [];
+      // {array}
+      // a list of pending option deletions that need to be processed
+      // when this is saved.
    }
 
    // return the default values for this DataField
