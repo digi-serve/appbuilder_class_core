@@ -1606,7 +1606,7 @@ module.exports = class ABDataCollectionCore extends ABMLClass {
       //// this will need to be updated to reflect that management:
       //// (and also explains why we refactored things into .processIncomingData())
       return model.findAll(cond).then((data) => {
-         this.processIncomingData(data);
+         return this.processIncomingData(data);
 
          ////
          //// LEFT OFF: debugging ABDatacollectionCore : why UI isn't updated after
