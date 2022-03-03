@@ -125,14 +125,14 @@ module.exports = class SubProcessCore extends ABProcessElement {
          dataFieldOpt.field.datasourceLink.fields
       ) {
          result.push({
-            key: `${this.id}.subProcess.uuid`,
+            key: `${this.id}.uuid.subProcess`,
             label: `${this.label}->Repeat Data.ID`,
             object: dataFieldOpt.field.datasourceLink
          });
 
          dataFieldOpt.field.datasourceLink.fields().forEach((f) => {
             result.push({
-               key: `${this.id}.subProcess.${f.id}`,
+               key: `${this.id}.${f.id}.subProcess`,
                label: `${this.label}->Repeat Data.${f.label}`,
                field: f,
                object: f.object
@@ -142,7 +142,9 @@ module.exports = class SubProcessCore extends ABProcessElement {
       // Other field types
       else {
          result.push({
-            key: `${this.id}.subProcess`,
+            key: dataFieldOpt.field
+               ? `${this.id}.${dataFieldOpt.field.id}.subProcess`
+               : `${this.id}.subProcess`,
             label: `${this.label}->Repeat Data`,
             field: dataFieldOpt.field,
             object: dataFieldOpt.object
