@@ -125,14 +125,14 @@ module.exports = class SubProcessCore extends ABProcessElement {
          dataFieldOpt.field.datasourceLink.fields
       ) {
          result.push({
-            key: `${this.id}.uuid.subProcess`,
+            key: `${this.id}.uuid`,
             label: `${this.label}->Repeat Data.ID`,
             object: dataFieldOpt.field.datasourceLink
          });
 
          dataFieldOpt.field.datasourceLink.fields().forEach((f) => {
             result.push({
-               key: `${this.id}.${f.id}.subProcess`,
+               key: `${this.id}.${f.id}`,
                label: `${this.label}->Repeat Data.${f.label}`,
                field: f,
                object: f.object
@@ -143,7 +143,7 @@ module.exports = class SubProcessCore extends ABProcessElement {
       else {
          result.push({
             key: dataFieldOpt.field
-               ? `${this.id}.${dataFieldOpt.field.id}.subProcess`
+               ? `${this.id}.${dataFieldOpt.field.id}`
                : `${this.id}.subProcess`,
             label: `${this.label}->Repeat Data`,
             field: dataFieldOpt.field,
@@ -151,7 +151,10 @@ module.exports = class SubProcessCore extends ABProcessElement {
          });
       }
 
-      let previousFields = this.process.processDataFields.call(this, currElement);
+      let previousFields = this.process.processDataFields.call(
+         this,
+         currElement
+      );
       if (previousFields && previousFields.length > 0) {
          result = result.concat(previousFields);
       }
@@ -173,7 +176,7 @@ module.exports = class SubProcessCore extends ABProcessElement {
       let data;
 
       if (instance && key && key.startsWith && key.startsWith(this.id)) {
-         let fieldId = key.split(".")[2];
+         let fieldId = key.split(".")[1];
          let myState = this.myState(instance);
          let stateData = myState ? myState.data : null;
          data = stateData;
@@ -192,7 +195,11 @@ module.exports = class SubProcessCore extends ABProcessElement {
 
                // Extract data
                data = stateData.map((item) => {
-                  if (fieldId == "uuid" || fieldId == "id") {
+                  if (
+                     fieldId == "_PK" ||
+                     fieldId == "uuid" ||
+                     fieldId == "id"
+                  ) {
                      return item.uuid || item.id;
                   } else if (dataFieldOpt.field.datasourceLink) {
                      let returnField = dataFieldOpt.field.datasourceLink.fields(
