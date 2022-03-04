@@ -231,7 +231,7 @@ module.exports = class ABFieldCalculateCore extends ABField {
 
          // number fields
          if (f.key == "number") {
-            const numberVal = "(#numberVal#)".replace("#numberVal#", data || 0); // (number) - NOTE : (-5) to support negative number
+            const numberVal = `(${data || 0})`; // (number) - NOTE : (-5) to support negative number
             formula = formula.replace(
                new RegExp("{" + colName + "}", "g"),
                numberVal
@@ -245,7 +245,7 @@ module.exports = class ABFieldCalculateCore extends ABField {
             if (typeof calVal == "string")
                calVal = calVal.replace(/[^-0-9.]/g, "");
 
-            calVal = "(#calVal#)".replace("#calVal#", calVal);
+            calVal = `(${calVal})`;
 
             formula = formula.replace(
                new RegExp("{" + colName + "}", "g"),
@@ -254,10 +254,7 @@ module.exports = class ABFieldCalculateCore extends ABField {
          }
          // date fields
          else if (f.key == "date") {
-            const dateVal = '"#dataVal#"'.replace(
-               "#dataVal#",
-               data ? data : ""
-            ); // "date"
+            const dateVal = `"${data || ""}"`; // "date"
             formula = formula.replace(
                new RegExp("{" + colName + "}", "g"),
                dateVal
@@ -265,10 +262,7 @@ module.exports = class ABFieldCalculateCore extends ABField {
          }
          // boolean fields
          else if (f.key == "boolean") {
-            const booleanVal = "(#booleanVal#)".replace(
-               "#booleanVal#",
-               data || 0
-            ); // show 1 or 0 for boolean
+            const booleanVal = `(${data || 0})`; // show 1 or 0 for boolean
             formula = formula.replace(
                new RegExp("{" + colName + "}", "g"),
                booleanVal

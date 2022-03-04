@@ -104,10 +104,7 @@ function setValueToFormula(object, formulaString, rowData) {
                formulaString = formulaString.replace(element, autoIndexVal);
             } else if (field.key == "calculate") {
                //Calculate Field
-               const calVal = "(#calVal#)".replace(
-                  "#calVal#",
-                  field.format(rowData) || 0
-               );
+               const calVal = `(${field.format(rowData) || 0})`;
                formulaString = formulaString.replace(element, eval(calVal));
             } else if (field.key == "date") {
                formulaString = formulaString.replace(

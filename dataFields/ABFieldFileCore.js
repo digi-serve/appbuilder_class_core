@@ -120,9 +120,7 @@ module.exports = class ABFieldFileCore extends ABField {
     * @return {obj} { uuid, filename }, or {} if empty.
     */
    dataValue(rowData) {
-      const propName = "{objectName}.{columnName}"
-         .replace("{objectName}", this.alias || this.object.name)
-         .replace("{columnName}", this.columnName);
+      const propName = `${this.alias || this.object.name}.${this.columnName}`;
 
       let result = rowData[this.columnName] || rowData[propName] || {};
       if (typeof result == "string") {

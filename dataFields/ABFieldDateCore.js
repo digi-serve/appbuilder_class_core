@@ -203,16 +203,10 @@ module.exports = class ABFieldDateCore extends ABField {
                            this.columnName,
                            L(
                               "ab.dataField.date.error.dateRange",
-                              "*Should be in between {startdate} and {enddate}"
+                              `*Should be in between ${this.getDateDisplay(
+                                 minDate
+                              )} and ${this.getDateDisplay(maxDate)}`
                            )
-                              .replace(
-                                 "{startdate}",
-                                 this.getDateDisplay(minDate)
-                              )
-                              .replace(
-                                 "{enddate}",
-                                 this.getDateDisplay(maxDate)
-                              )
                         );
                      }
 
@@ -225,10 +219,8 @@ module.exports = class ABFieldDateCore extends ABField {
                            this.columnName,
                            L(
                               "ab.dataField.date.error.between",
-                              "*Should be in between {startdate} and {enddate}"
+                              `*Should be in between ${startDateDisplay} and ${endDateDisplay}`
                            )
-                              .replace("{startdate}", startDateDisplay)
-                              .replace("{enddate}", endDateDisplay)
                         );
                      }
                      break;
@@ -240,10 +232,8 @@ module.exports = class ABFieldDateCore extends ABField {
                            this.columnName,
                            L(
                               "ab.dataField.date.error.notBetween",
-                              "*Should not be in between {startdate} and {enddate}"
+                              `*Should not be in between ${startDateDisplay} and ${endDateDisplay}`
                            )
-                              .replace("{startdate}", startDateDisplay)
-                              .replace("{enddate}", endDateDisplay)
                         );
                      }
                      break;
@@ -257,8 +247,8 @@ module.exports = class ABFieldDateCore extends ABField {
                            this.columnName,
                            L(
                               "ab.dataField.date.error.equal",
-                              "*Should equal {startdate}"
-                           ).replace("{startdate}", startDateDisplay)
+                              `*Should equal ${startDateDisplay}`
+                           )
                         );
                      break;
                   case "<>":
@@ -271,8 +261,8 @@ module.exports = class ABFieldDateCore extends ABField {
                            this.columnName,
                            L(
                               "ab.dataField.date.error.notEqual",
-                              "*Should not equal {startdate}"
-                           ).replace("{startdate}", startDateDisplay)
+                              `*Should not equal ${startDateDisplay}`
+                           )
                         );
                      break;
                   case ">":
@@ -285,8 +275,8 @@ module.exports = class ABFieldDateCore extends ABField {
                            this.columnName,
                            L(
                               "ab.dataField.date.error.after",
-                              "*Should after {startdate}"
-                           ).replace("{startdate}", startDateDisplay)
+                              `*Should after ${startDateDisplay}`
+                           )
                         );
                      break;
                   case "<":
@@ -299,8 +289,8 @@ module.exports = class ABFieldDateCore extends ABField {
                            this.columnName,
                            L(
                               "ab.dataField.date.error.before",
-                              "*Should before {startdate}"
-                           ).replace("{startdate}", startDateDisplay)
+                              `*Should before ${startDateDisplay}`
+                           )
                         );
                      break;
                   case ">=":
@@ -313,8 +303,8 @@ module.exports = class ABFieldDateCore extends ABField {
                            this.columnName,
                            L(
                               "ab.dataField.date.error.afterOrEqual",
-                              "*Should after or equal {startdate}"
-                           ).replace("{startdate}", startDateDisplay)
+                              `*Should after or equal ${startDateDisplay}`
+                           )
                         );
                      break;
                   case "<=":
@@ -327,8 +317,8 @@ module.exports = class ABFieldDateCore extends ABField {
                            this.columnName,
                            L(
                               "ab.dataField.date.error.beforeOrEqual",
-                              "*Should before or equal {startdate}"
-                           ).replace("{startdate}", startDateDisplay)
+                              `*Should before or equal ${startDateDisplay}`
+                           )
                         );
                      break;
                }

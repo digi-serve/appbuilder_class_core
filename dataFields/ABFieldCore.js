@@ -308,9 +308,7 @@ module.exports = class ABFieldCore extends ABMLClass {
    }
 
    dataValue(rowData) {
-      const propName = "{objectName}.{columnName}"
-         .replace("{objectName}", this.alias || this.object.name)
-         .replace("{columnName}", this.columnName);
+      const propName = `${this.alias || this.object.name}.${this.columnName}`;
 
       let result = "";
       if (rowData[this.columnName] != null) {
