@@ -842,7 +842,7 @@ module.exports = class ABObjectCore extends ABMLClass {
       // translate multilingual
       //// TODO: isn't this a MLObject??  use this.translate()
       var mlFields = this.multilingualFields();
-      this.application.translate(rowData, rowData, mlFields);
+      this.translate(rowData, rowData, mlFields);
 
       var labelData = this.labelFormat || "";
 
