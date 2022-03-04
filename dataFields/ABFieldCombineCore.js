@@ -1,4 +1,13 @@
+/*
+ * ABFieldCombine
+ *
+ * An ABFieldCombine defines a combined field type.
+ *
+ */
+
 const ABField = require("../../platform/dataFields/ABField");
+
+const MAX_CHAR_LENGTH = 5000;
 
 function L(key, altText) {
    // TODO:
@@ -6,14 +15,60 @@ function L(key, altText) {
 }
 
 const ABFieldCombinedDefaults = {
-   key: "combined", // unique key to reference this specific DataField
-   icon: "key", // font-awesome icon reference.  (without the 'fa-').  so 'user'  to reference 'fa-user'
+   key: "combined",
+   // unique key to reference this specific DataField
 
-   // menuName: what gets displayed in the Editor drop list
-   menuName: L("ab.dataField.Combined.menuName", "*Combined Field"),
-
+   description: "Combined Value",
    // description: what gets displayed in the Editor description.
-   description: L("ab.dataField.Combined.description", "*Combined Value"),
+   // NOTE: this will be displayed using a Label: L(description)
+
+   icon: "key",
+   // font-awesome icon reference.  (without the 'fa-').  so 'key'  to
+   // reference 'fa-key'
+
+   isFilterable: true,
+   // {bool} / {fn}
+   // determines if the current ABField can be used to filter (FilterComplex
+   // or Query) data.
+   // if a {fn} is provided, it will be called with the ABField as a parameter:
+   //  (field) => field.setting.something == true
+
+   isSortable: true,
+   // {bool} / {fn}
+   // determines if the current ABField can be used to Sort data.
+   // if a {fn} is provided, it will be called with the ABField as a parameter:
+   //  (field) => true/false
+
+   menuName: "Combined Field",
+   // menuName: what gets displayed in the Editor drop list
+   // NOTE: this will be displayed using a Label: L(menuName)
+
+   supportRequire: false,
+   // {bool}
+   // does this ABField support the Required setting?
+
+   supportUnique: false,
+   // {bool}
+   // does this ABField support the Unique setting?
+
+   useAsLabel: true,
+   // {bool} / {fn}
+   // determines if this ABField can be used in the display of an ABObject's
+   // label.
+
+   compatibleOrmTypes: ["string"],
+   // {array}
+   // what types of Sails ORM attributes can be imported into this data type?
+   // http://sailsjs.org/documentation/concepts/models-and-orm/attributes#?attribute-options
+
+   compatibleMysqlTypes: ["text", "mediumtext", "longtext"],
+   // {array}
+   // what types of MySql column types can be imported into this data type?
+   // https://www.techonthenet.com/mysql/datatypes.php
+
+   MAX_CHAR_LENGTH,
+   // {integer}
+   // The maximum length our ABFieldString can be.
 };
 
 // defaultValues: the keys must match a .name of your elements to set it's default value.

@@ -18,8 +18,8 @@ const ABFieldStringDefaults = {
    // NOTE: this will be displayed using a Label: L(description)
 
    icon: "font",
-   // font-awesome icon reference.  (without the 'fa-').  so 'user'  to
-   // reference 'fa-user'
+   // font-awesome icon reference.  (without the 'fa-').  so 'font'  to
+   // reference 'fa-font'
 
    isFilterable: true,
    // {bool} / {fn}
@@ -56,7 +56,7 @@ const ABFieldStringDefaults = {
    // what types of Sails ORM attributes can be imported into this data type?
    // http://sailsjs.org/documentation/concepts/models-and-orm/attributes#?attribute-options
 
-   compatibleMysqlTypes: ["char", "constchar", "tinytext"],
+   compatibleMysqlTypes: ["char", "varchar", "tinytext"],
    // {array}
    // what types of MySql column types can be imported into this data type?
    // https://www.techonthenet.com/mysql/datatypes.php

@@ -7,33 +7,69 @@
 
 const ABFieldSelectivity = require("../../platform/dataFields/ABFieldSelectivity");
 
+const MAX_CHAR_LENGTH = 255;
+
 function L(key, altText) {
    // TODO:
    return altText; // AD.lang.label.getLabel(key) || altText;
 }
 
 const ABFieldTreeDefaults = {
-   key: "tree", // unique key to reference this specific DataField
+   key: "tree",
+   // unique key to reference this specific DataField
 
-   icon: "sitemap", // font-awesome icon reference.  (without the 'fa-').  so 'user'  to reference 'fa-user'
-
-   // menuName: what gets displayed in the Editor drop list
-   menuName: L("ab.dataField.tree.menuName", "*Data Tree"),
-
+   description:
+      "Data tree allows you to build a hierarchical set of selectable data. (ex: Categories and sub-categories)",
    // description: what gets displayed in the Editor description.
-   description: L(
-      "ab.dataField.tree.description",
-      "*Data tree allows you to build a hierarchical set of selectable data. (ex: Categories and sub-categories)"
-   ),
-   isSortable: false,
+   // NOTE: this will be displayed using a Label: L(description)
+
+   icon: "sitemap",
+   // font-awesome icon reference.  (without the 'fa-').  so 'sitemap'  to
+   // reference 'fa-sitemap'
+
    isFilterable: false,
-   useAsLabel: false,
+   // {bool} / {fn}
+   // determines if the current ABField can be used to filter (FilterComplex
+   // or Query) data.
+   // if a {fn} is provided, it will be called with the ABField as a parameter:
+   //  (field) => field.setting.something == true
+
+   isSortable: false,
+   // {bool} / {fn}
+   // determines if the current ABField can be used to Sort data.
+   // if a {fn} is provided, it will be called with the ABField as a parameter:
+   //  (field) => true/false
+
+   menuName: "Data Tree",
+   // menuName: what gets displayed in the Editor drop list
+   // NOTE: this will be displayed using a Label: L(menuName)
 
    supportRequire: false,
+   // {bool}
+   // does this ABField support the Required setting?
 
+   supportUnique: false,
+   // {bool}
+   // does this ABField support the Unique setting?
+
+   useAsLabel: false,
+   // {bool} / {fn}
+   // determines if this ABField can be used in the display of an ABObject's
+   // label.
+
+   compatibleOrmTypes: ["string"],
+   // {array}
    // what types of Sails ORM attributes can be imported into this data type?
    // http://sailsjs.org/documentation/concepts/models-and-orm/attributes#?attribute-options
-   compatibleOrmTypes: [],
+
+   compatibleMysqlTypes: ["text", "mediumtext", "longtext"],
+   // {array}
+   // what types of MySql column types can be imported into this data type?
+   // https://www.techonthenet.com/mysql/datatypes.php
+
+   MAX_CHAR_LENGTH,
+   // {integer}
+   // The maximum length our ABFieldString can be.
 };
 
 const defaultValues = {

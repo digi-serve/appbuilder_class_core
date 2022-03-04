@@ -8,6 +8,7 @@
 const ABField = require("../../platform/dataFields/ABField");
 
 function L(key, altText) {
+   // TODO:
    return altText; // AD.lang.label.getLabel(key) || altText;
 }
 
@@ -117,26 +118,69 @@ function MINUTE_TO_HOUR(mins) {
 }
 
 const ABFieldCalculateDefaults = {
-   key: "calculate", // unique key to reference this specific DataField
+   key: "calculate",
+   // unique key to reference this specific DataField
 
-   icon: "calculator", // font-awesome icon reference.  (without the 'fa-').  so 'user'  to reference 'fa-user'
-
-   // menuName: what gets displayed in the Editor drop list
-   menuName: L("ab.dataField.calculate.menuName", "*Calculate"),
-
+   description: "*",
    // description: what gets displayed in the Editor description.
-   description: L("ab.dataField.calculate.description", "*"),
+   // NOTE: this will be displayed using a Label: L(description)
 
-   isSortable: false,
-   isFilterable: false, // this field does not support filter on server side
+   icon: "calculator",
+   // font-awesome icon reference.  (without the 'fa-').  so 'calculator'  to
+   // reference 'fa-calculator'
 
+   isFilterable: true,
+   // {bool} / {fn}
+   // determines if the current ABField can be used to filter (FilterComplex
+   // or Query) data.
+   // if a {fn} is provided, it will be called with the ABField as a parameter:
+   //  (field) => field.setting.something == true
+
+   isSortable: true,
+   // {bool} / {fn}
+   // determines if the current ABField can be used to Sort data.
+   // if a {fn} is provided, it will be called with the ABField as a parameter:
+   //  (field) => true/false
+
+   menuName: "Calculate",
+   // menuName: what gets displayed in the Editor drop list
+   // NOTE: this will be displayed using a Label: L(menuName)
+
+   supportRequire: false,
+   // {bool}
+   // does this ABField support the Required setting?
+
+   supportUnique: false,
+   // {bool}
+   // does this ABField support the Unique setting?
+
+   useAsLabel: true,
+   // {bool} / {fn}
+   // determines if this ABField can be used in the display of an ABObject's
+   // label.
+
+   compatibleOrmTypes: ["number"],
+   // {array}
    // what types of Sails ORM attributes can be imported into this data type?
    // http://sailsjs.org/documentation/concepts/models-and-orm/attributes#?attribute-options
-   compatibleOrmTypes: [],
 
+   compatibleMysqlTypes: [
+      "tinyint",
+      "smallint",
+      "mediumint",
+      "int",
+      "integer",
+      "bigint",
+      "decimal",
+      "dec",
+      "numeric",
+      "fixed",
+      "float",
+      "real",
+   ],
+   // {array}
    // what types of MySql column types can be imported into this data type?
    // https://www.techonthenet.com/mysql/datatypes.php
-   compatibleMysqlTypes: [],
 };
 
 const defaultValues = {

@@ -7,24 +7,68 @@
 
 const ABField = require("../../platform/dataFields/ABField");
 
-// import ABFieldComponent from "./ABFieldComponent"
+const MAX_CHAR_LENGTH = 5000;
 
 function L(key, altText) {
+   // TODO:
    return altText; // AD.lang.label.getLabel(key) || altText;
 }
 
 const ABFieldTextFormulaDefaults = {
-   key: "TextFormula", // unique key to reference this specific DataField
-   icon: "question", // font-awesome icon reference.  (without the 'fa-').  so 'user'  to reference 'fa-user'
+   key: "TextFormula",
+   // unique key to reference this specific DataField
+
+   description: "Text Formula",
+   // description: what gets displayed in the Editor description.
+   // NOTE: this will be displayed using a Label: L(description)
+
+   icon: "question",
+   // font-awesome icon reference.  (without the 'fa-').  so 'question'  to
+   // reference 'fa-question'
+
+   isFilterable: false,
+   // {bool} / {fn}
+   // determines if the current ABField can be used to filter (FilterComplex
+   // or Query) data.
+   // if a {fn} is provided, it will be called with the ABField as a parameter:
+   //  (field) => field.setting.something == true
 
    isSortable: false,
-   isFilterable: false, // this field does not support filter on server side
+   // {bool} / {fn}
+   // determines if the current ABField can be used to Sort data.
+   // if a {fn} is provided, it will be called with the ABField as a parameter:
+   //  (field) => true/false
 
+   menuName: "Text Formula",
    // menuName: what gets displayed in the Editor drop list
-   menuName: L("ab.dataField.TextFormula.menuName", "*Text Formula"),
+   // NOTE: this will be displayed using a Label: L(menuName)
 
-   // description: what gets displayed in the Editor description.
-   description: L("ab.dataField.TextFormula.description", "*Text Formula"),
+   supportRequire: false,
+   // {bool}
+   // does this ABField support the Required setting?
+
+   supportUnique: false,
+   // {bool}
+   // does this ABField support the Unique setting?
+
+   useAsLabel: false,
+   // {bool} / {fn}
+   // determines if this ABField can be used in the display of an ABObject's
+   // label.
+
+   compatibleOrmTypes: ["string"],
+   // {array}
+   // what types of Sails ORM attributes can be imported into this data type?
+   // http://sailsjs.org/documentation/concepts/models-and-orm/attributes#?attribute-options
+
+   compatibleMysqlTypes: ["text", "mediumtext", "longtext"],
+   // {array}
+   // what types of MySql column types can be imported into this data type?
+   // https://www.techonthenet.com/mysql/datatypes.php
+
+   MAX_CHAR_LENGTH,
+   // {integer}
+   // The maximum length our ABFieldString can be.
 };
 
 // defaultValues: the keys must match a .name of your elements to set it's default value.

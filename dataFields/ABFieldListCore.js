@@ -8,6 +8,8 @@
 // const ABFieldSelectivity = require("../../platform/dataFields/ABFieldSelectivity");
 const ABField = require("../../platform/dataFields/ABField");
 
+const MAX_CHAR_LENGTH = 255;
+
 function L(key, altText) {
    // TODO:
    return altText; // AD.lang.label.getLabel(key) || altText;
@@ -23,8 +25,8 @@ const ABFieldListDefaults = {
    // NOTE: this will be displayed using a Label: L(description)
 
    icon: "th-list",
-   // font-awesome icon reference.  (without the 'fa-').  so 'user'  to
-   // reference 'fa-user'
+   // font-awesome icon reference.  (without the 'fa-').  so 'th-list'  to
+   // reference 'fa-th-list'
 
    isFilterable: (field) => {
       if (field.settings.isMultiple) {
@@ -68,14 +70,14 @@ const ABFieldListDefaults = {
    // determines if this ABField can be used in the display of an ABObject's
    // label.
 
-   compatibleOrmTypes: [],
+   compatibleOrmTypes: ["string"],
    // {array}
    // what types of Sails ORM attributes can be imported into this data type?
    // http://sailsjs.org/documentation/concepts/models-and-orm/attributes#?attribute-options
 
    compatibleMysqlTypes: [
       "char",
-      "constchar",
+      "varchar",
       "tinytext" /* "text", "mediumtext" */,
    ],
    // {array}
@@ -89,6 +91,10 @@ const ABFieldListDefaults = {
          return false;
       }
    },
+
+   MAX_CHAR_LENGTH,
+   // {integer}
+   // The maximum length our ABFieldString can be.
 };
 
 const defaultValues = {

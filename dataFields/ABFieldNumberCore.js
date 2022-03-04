@@ -13,11 +13,11 @@ const ABFieldNumberDefaults = {
 
    description: "A Float or Integer Value",
    // description: what gets displayed in the Editor description.
-   // this is a label key:  L(menuName)
+   // NOTE: this will be displayed using a Label: L(description)
 
    icon: "hashtag",
-   // font-awesome icon reference.  (without the 'fa-').  so 'user'  to
-   // reference 'fa-user'
+   // font-awesome icon reference.  (without the 'fa-').  so 'hashtag'  to
+   // reference 'fa-hashtag'
 
    isFilterable: true,
    // {bool} / {fn}
@@ -34,7 +34,7 @@ const ABFieldNumberDefaults = {
 
    menuName: "Number",
    // menuName: what gets displayed in the Editor drop list
-   // this is a label key:  L(menuName)
+   // NOTE: this will be displayed using a Label: L(menuName)
 
    supportRequire: true,
    // {bool}
@@ -44,7 +44,12 @@ const ABFieldNumberDefaults = {
    // {bool}
    // does this ABField support the Unique setting?
 
-   compatibleOrmTypes: ["integer", "float"],
+   useAsLabel: false,
+   // {bool} / {fn}
+   // determines if this ABField can be used in the display of an ABObject's
+   // label.
+
+   compatibleOrmTypes: ["number"],
    // {array}
    // what types of Sails ORM attributes can be imported into this data type?
    // http://sailsjs.org/documentation/concepts/models-and-orm/attributes#?attribute-options
