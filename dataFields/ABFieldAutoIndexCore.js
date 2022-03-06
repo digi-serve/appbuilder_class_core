@@ -99,12 +99,12 @@ module.exports = class ABFieldAutoIndexCore extends ABField {
 
    static delimiterList() {
       return [
-         { id: "none", value: "None", sign: "" },
-         { id: "comma", value: "Comma", sign: ", " },
-         { id: "slash", value: "Slash", sign: "/" },
-         { id: "space", value: "Space", sign: " " },
-         { id: "dash", value: "Dash", sign: "-" },
-         { id: "colon", value: "Colon", sign: ":" },
+         { id: "none", value: L("None"), sign: "" },
+         { id: "comma", value: L("Comma"), sign: ", " },
+         { id: "slash", value: L("Slash"), sign: "/" },
+         { id: "space", value: L("Space"), sign: " " },
+         { id: "dash", value: L("Dash"), sign: "-" },
+         { id: "colon", value: L("Colon"), sign: ":" },
       ];
    }
 
