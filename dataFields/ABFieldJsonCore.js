@@ -7,11 +7,6 @@
 
 const ABField = require("../../platform/dataFields/ABField");
 
-function L(key, altText) {
-   // TODO:
-   return altText; // AD.lang.label.getLabel(key) || altText;
-}
-
 const ABFieldJsonDefaults = {
    key: "json",
    // unique key to reference this specific DataField
