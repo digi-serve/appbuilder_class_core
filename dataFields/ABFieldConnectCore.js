@@ -7,8 +7,6 @@
 
 const ABFieldSelectivity = require("../../platform/dataFields/ABFieldSelectivity");
 
-const MAX_CHAR_LENGTH = 255;
-
 function L(key, altText) {
    // TODO:
    return altText; // AD.lang.label.getLabel(key) || altText;
@@ -68,10 +66,6 @@ const ABFieldConnectDefaults = {
    // {array}
    // what types of MySql column types can be imported into this data type?
    // https://www.techonthenet.com/mysql/datatypes.php
-
-   MAX_CHAR_LENGTH,
-   // {integer}
-   // The maximum length our ABFieldString can be.
 };
 
 const defaultValues = {

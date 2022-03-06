@@ -65,10 +65,6 @@ const ABFieldAutoIndexDefaults = {
    // {array}
    // what types of MySql column types can be imported into this data type?
    // https://www.techonthenet.com/mysql/datatypes.php
-
-   MAX_CHAR_LENGTH,
-   // {integer}
-   // The maximum length our ABFieldString can be.
 };
 
 // defaultValues: the keys must match a .name of your elements to set it's default value.

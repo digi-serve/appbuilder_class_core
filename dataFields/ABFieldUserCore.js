@@ -7,8 +7,6 @@
 
 const ABFieldConnect = require("../../platform/dataFields/ABFieldConnect");
 
-const MAX_CHAR_LENGTH = 255;
-
 function L(key, altText) {
    // TODO:
    return altText; // AD.lang.label.getLabel(key) || altText;
@@ -76,10 +74,6 @@ const ABFieldUserDefaults = {
    // {string} .uuid
    // the ABField.id of the SiteUser.username field.  This is what other
    // objects will link to in their ABFieldUser connections.
-
-   MAX_CHAR_LENGTH,
-   // {integer}
-   // The maximum length our ABFieldString can be.
 };
 
 const defaultValues = {
