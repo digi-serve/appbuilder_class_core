@@ -123,11 +123,11 @@ function setValueToFormula(object, formulaString, rowData) {
 /**
  * @method setBuildinValueToFormula
  *
- * @param {ABFactory} abFactory
+ * @param {ABFactory} AB
  * @param {string} formulaString
  */
 
-function setBuildinValueToFormula(abFactory, formulaString) {
+function setBuildinValueToFormula(AB, formulaString) {
    const buildInRegExp = /\w+\(.*?\)/gm;
    const matches_buildin_array = formulaString.match(buildInRegExp);
    if (matches_buildin_array) {
@@ -217,7 +217,7 @@ function setBuildinValueToFormula(abFactory, formulaString) {
                            element = element + ")";
                         }
                         resultParameters = getDateDayOfWeekName(
-                           abFactory,
+                           AB,
                            parameters_array[0]
                         );
                         break;
@@ -226,7 +226,7 @@ function setBuildinValueToFormula(abFactory, formulaString) {
                            element = element + ")";
                         }
                         resultParameters = getDateMonthOfYearName(
-                           abFactory,
+                           AB,
                            parameters_array[0]
                         );
                         break;
@@ -590,25 +590,25 @@ function getNumberToWords(number) {
    return words.reverse().join(" ");
 }
 
-function getDateDayOfWeekName(abFactory, date) {
+function getDateDayOfWeekName(AB, date) {
    // const localizeDT = moment(date);
    // localizeDT.locale(AD.lang.currentLanguage);
    // return localizeDT.format("dddd");
 
-   return abFactory.toDateFormat(date, {
+   return AB.toDateFormat(date, {
       format: "dddd",
-      localeCode: abFactory.Config._config.user.languageCode,
+      localeCode: AB.Account.language(),
    });
 }
 
-function getDateMonthOfYearName(abFactory, date) {
+function getDateMonthOfYearName(AB, date) {
    // const localizeDT = moment(date);
    // localizeDT.locale(AD.lang.currentLanguage);
    // return localizeDT.format("MMMM");
 
-   return abFactory.toDateFormat(date, {
+   return AB.toDateFormat(date, {
       format: "MMMM",
-      localeCode: abFactory.Config._config.user.languageCode,
+      localeCode: AB.Account.language(),
    });
 }
 
