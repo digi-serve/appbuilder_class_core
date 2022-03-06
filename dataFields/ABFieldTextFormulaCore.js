@@ -68,6 +68,10 @@ const ABFieldTextFormulaDefaults = {
 // defaultValues: the keys must match a .name of your elements to set it's default value.
 const defaultValues = {
    textFormula: "",
+   // {string} "some text or text with formula ..."
+   // This tells us what the formula we need to do with text included text string.
+   // if we don't have this, the old value which we filled out won't be cleared when we do "Add field" this type again.
+
    // 'imageWidth':'',
    // 'useHeight': 0,
    // 'imageHeight': ''

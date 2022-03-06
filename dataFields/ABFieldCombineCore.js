@@ -68,6 +68,10 @@ const ABFieldCombinedDefaults = {
 // defaultValues: the keys must match a .name of your elements to set it's default value.
 const defaultValues = {
    combinedFields: "",
+   // {string} "field's uuid1, field's uuid2, field's uuid3, ..."
+   // This tells us what fields will be combined.
+   // if we don't have this, the old value which we filled out won't be cleared when we do "Add field" this type again.
+
    delimiter: "plus", // plus, space, dash, period
 };
 

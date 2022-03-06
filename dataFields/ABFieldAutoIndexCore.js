@@ -7,8 +7,6 @@
 
 const ABField = require("../../platform/dataFields/ABField");
 
-const MAX_CHAR_LENGTH = 255;
-
 function L(key, altText) {
    // TODO:
    return altText; // AD.lang.label.getLabel(key) || altText;
