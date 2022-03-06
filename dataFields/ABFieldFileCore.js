@@ -68,7 +68,7 @@ const ABFieldFileDefaults = {
 const defaultValues = {
    removeExistingData: 0,
    fileSize: 0,
-   ficonstype: "",
+   fileType: "",
 };
 
 module.exports = class ABFieldFileCore extends ABField {
@@ -95,7 +95,7 @@ module.exports = class ABFieldFileCore extends ABField {
       // text to Int:
       this.settings.fileSize = parseInt(this.settings.fileSize);
       this.settings.limitFileSize = parseInt(this.settings.limitFileSize);
-      this.settings.limitFiconstype = parseInt(this.settings.limitFiconstype);
+      this.settings.limitFileType = parseInt(this.settings.limitFileType);
       this.settings.removeExistingData = parseInt(
          this.settings.removeExistingData
       );
