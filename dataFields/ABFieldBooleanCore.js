@@ -24,7 +24,7 @@ const ABFieldBooleanDefaults = {
    // font-awesome icon reference.  (without the 'fa-').  so 'check-square-o'  to
    // reference 'fa-check-square-o'
 
-   isFilterable: true,
+   isFilterable: false,
    // {bool} / {fn}
    // determines if the current ABField can be used to filter (FilterComplex
    // or Query) data.
@@ -41,7 +41,7 @@ const ABFieldBooleanDefaults = {
    // menuName: what gets displayed in the Editor drop list
    // NOTE: this will be displayed using a Label: L(menuName)
 
-   supportRequire: false,
+   supportRequire: true,
    // {bool}
    // does this ABField support the Required setting?
 
@@ -49,7 +49,7 @@ const ABFieldBooleanDefaults = {
    // {bool}
    // does this ABField support the Unique setting?
 
-   useAsLabel: true,
+   useAsLabel: false,
    // {bool} / {fn}
    // determines if this ABField can be used in the display of an ABObject's
    // label.

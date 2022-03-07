@@ -24,14 +24,14 @@ const ABFieldEmailDefaults = {
    // font-awesome icon reference.  (without the 'fa-').  so 'envelope'  to
    // reference 'fa-envelope'
 
-   isFilterable: true,
+   isFilterable: false,
    // {bool} / {fn}
    // determines if the current ABField can be used to filter (FilterComplex
    // or Query) data.
    // if a {fn} is provided, it will be called with the ABField as a parameter:
    //  (field) => field.setting.something == true
 
-   isSortable: true,
+   isSortable: false,
    // {bool} / {fn}
    // determines if the current ABField can be used to Sort data.
    // if a {fn} is provided, it will be called with the ABField as a parameter:
@@ -49,7 +49,7 @@ const ABFieldEmailDefaults = {
    // {bool}
    // does this ABField support the Unique setting?
 
-   useAsLabel: true,
+   useAsLabel: false,
    // {bool} / {fn}
    // determines if this ABField can be used in the display of an ABObject's
    // label.
