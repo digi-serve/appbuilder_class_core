@@ -17,7 +17,8 @@ const ABFieldFormulaDefaults = {
    key: "formula",
    // unique key to reference this specific DataField
 
-   description: "*",
+   description:
+      "Perform a calculation by a formula type based upon existing values",
    // description: what gets displayed in the Editor description.
    // NOTE: this will be displayed using a Label: L(description)
 

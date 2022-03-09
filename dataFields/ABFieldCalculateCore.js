@@ -121,7 +121,7 @@ const ABFieldCalculateDefaults = {
    key: "calculate",
    // unique key to reference this specific DataField
 
-   description: "*",
+   description: "Perform a calculation based upon existing values",
    // description: what gets displayed in the Editor description.
    // NOTE: this will be displayed using a Label: L(description)
 
