@@ -201,12 +201,10 @@ module.exports = class ABFieldDateCore extends ABField {
                         isValid = false;
                         validator.addError(
                            this.columnName,
-                           L(
-                              "ab.dataField.date.error.dateRange",
-                              `*Should be in between ${this.getDateDisplay(
-                                 minDate
-                              )} and ${this.getDateDisplay(maxDate)}`
-                           )
+                           L("Should be in between {0} and {1}", [
+                              this.getDateDisplay(minDate),
+                              this.getDateDisplay(maxDate),
+                           ])
                         );
                      }
 
@@ -217,10 +215,10 @@ module.exports = class ABFieldDateCore extends ABField {
                         isValid = false;
                         validator.addError(
                            this.columnName,
-                           L(
-                              "ab.dataField.date.error.between",
-                              `*Should be in between ${startDateDisplay} and ${endDateDisplay}`
-                           )
+                           L("Should be in between {0} and {1}", [
+                              startDateDisplay,
+                              endDateDisplay,
+                           ])
                         );
                      }
                      break;
@@ -230,10 +228,10 @@ module.exports = class ABFieldDateCore extends ABField {
                         isValid = false;
                         validator.addError(
                            this.columnName,
-                           L(
-                              "ab.dataField.date.error.notBetween",
-                              `*Should not be in between ${startDateDisplay} and ${endDateDisplay}`
-                           )
+                           L("Should not be in between {0} and {1}", [
+                              startDateDisplay,
+                              endDateDisplay,
+                           ])
                         );
                      }
                      break;
@@ -245,10 +243,7 @@ module.exports = class ABFieldDateCore extends ABField {
                      if (!isValid)
                         validator.addError(
                            this.columnName,
-                           L(
-                              "ab.dataField.date.error.equal",
-                              `*Should equal ${startDateDisplay}`
-                           )
+                           L("Should equal {0}", [startDateDisplay])
                         );
                      break;
                   case "<>":
@@ -259,10 +254,7 @@ module.exports = class ABFieldDateCore extends ABField {
                      if (!isValid)
                         validator.addError(
                            this.columnName,
-                           L(
-                              "ab.dataField.date.error.notEqual",
-                              `*Should not equal ${startDateDisplay}`
-                           )
+                           L("Should not equal {0}", [startDateDisplay])
                         );
                      break;
                   case ">":
@@ -273,10 +265,7 @@ module.exports = class ABFieldDateCore extends ABField {
                      if (!isValid)
                         validator.addError(
                            this.columnName,
-                           L(
-                              "ab.dataField.date.error.after",
-                              `*Should after ${startDateDisplay}`
-                           )
+                           L("Should after {0}", [startDateDisplay])
                         );
                      break;
                   case "<":
@@ -287,10 +276,7 @@ module.exports = class ABFieldDateCore extends ABField {
                      if (!isValid)
                         validator.addError(
                            this.columnName,
-                           L(
-                              "ab.dataField.date.error.before",
-                              `*Should before ${startDateDisplay}`
-                           )
+                           L("Should before {0}", [startDateDisplay])
                         );
                      break;
                   case ">=":
@@ -301,10 +287,7 @@ module.exports = class ABFieldDateCore extends ABField {
                      if (!isValid)
                         validator.addError(
                            this.columnName,
-                           L(
-                              "ab.dataField.date.error.afterOrEqual",
-                              `*Should after or equal ${startDateDisplay}`
-                           )
+                           L("Should after or equal {0}", [startDateDisplay])
                         );
                      break;
                   case "<=":
@@ -315,10 +298,7 @@ module.exports = class ABFieldDateCore extends ABField {
                      if (!isValid)
                         validator.addError(
                            this.columnName,
-                           L(
-                              "ab.dataField.date.error.beforeOrEqual",
-                              `*Should before or equal ${startDateDisplay}`
-                           )
+                           L("Should before or equal {0}", [startDateDisplay])
                         );
                      break;
                }
