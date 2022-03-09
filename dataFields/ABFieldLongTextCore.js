@@ -55,7 +55,7 @@ const ABFieldLongTextDefaults = {
    // determines if this ABField can be used in the display of an ABObject's
    // label.
 
-   compatibleOrmTypes: ["string"],
+   compatibleOrmTypes: ["longtext", "mediumtext", "text"],
    // {array}
    // what types of Sails ORM attributes can be imported into this data type?
    // http://sailsjs.org/documentation/concepts/models-and-orm/attributes#?attribute-options

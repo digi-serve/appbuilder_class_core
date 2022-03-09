@@ -54,12 +54,12 @@ const ABFieldAutoIndexDefaults = {
    // determines if this ABField can be used in the display of an ABObject's
    // label.
 
-   compatibleOrmTypes: ["string"],
+   compatibleOrmTypes: ["number"],
    // {array}
    // what types of Sails ORM attributes can be imported into this data type?
    // http://sailsjs.org/documentation/concepts/models-and-orm/attributes#?attribute-options
 
-   compatibleMysqlTypes: ["char", "varchar", "tinytext"],
+   compatibleMysqlTypes: ["tinyint", "smallint", "mediumint", "int", "integer"],
    // {array}
    // what types of MySql column types can be imported into this data type?
    // https://www.techonthenet.com/mysql/datatypes.php

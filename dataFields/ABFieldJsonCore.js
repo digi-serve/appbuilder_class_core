@@ -54,7 +54,7 @@ const ABFieldJsonDefaults = {
    // what types of Sails ORM attributes can be imported into this data type?
    // http://sailsjs.org/documentation/concepts/models-and-orm/attributes#?attribute-options
 
-   compatibleMysqlTypes: ["longtext"],
+   compatibleMysqlTypes: ["json"],
    // {array}
    // what types of MySql column types can be imported into this data type?
    // https://www.techonthenet.com/mysql/datatypes.php
