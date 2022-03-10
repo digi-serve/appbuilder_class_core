@@ -1,6 +1,12 @@
 /* eslint-disable */
 module.exports = {
    /* key : label */
+   "Year" : "Year",
+   "Month" : "Month",
+   "Week" : "Week",
+   "Day" : "Day",
+   "Please wait..." : "Please wait...",
+   "Upload CSV" : "Upload CSV",
    "Okay" : "Okay",
    "Email Sent" : "Email Sent",
    "<p>An email with instructions on how to reset your password has been sent to <b>{0}</b>.</p><p>Check your spam or junk folder if you don’t see the email in your inbox.</p>" : "<p>An email with instructions on how to reset your password has been sent to <b>{0}</b>.</p><p>Check your spam or junk folder if you don’t see the email in your inbox.</p>",
