@@ -5,40 +5,69 @@
  *
  */
 
-var ABField = require("../../platform/dataFields/ABField");
+const ABField = require("../../platform/dataFields/ABField");
 
 function L(key, altText) {
    // TODO:
    return altText; // AD.lang.label.getLabel(key) || altText;
 }
 
-var ABFieldEmailDefaults = {
-   key: "email", // unique key to reference this specific DataField
+const ABFieldEmailDefaults = {
+   key: "email",
+   // unique key to reference this specific DataField
 
-   icon: "envelope", // font-awesome icon reference.  (without the 'fa-').  so 'user'  to reference 'fa-user'
-
-   // menuName: what gets displayed in the Editor drop list
-   menuName: L("ab.dataField.email.menuName", "*Email"),
-
+   description: "Email fields are used to store email addresses.",
    // description: what gets displayed in the Editor description.
-   description: L(
-      "ab.dataField.email.description",
-      "*Email fields are used to store email addresses."
-   ),
+   // NOTE: this will be displayed using a Label: L(description)
+
+   icon: "envelope",
+   // font-awesome icon reference.  (without the 'fa-').  so 'envelope'  to
+   // reference 'fa-envelope'
+
+   isFilterable: false,
+   // {bool} / {fn}
+   // determines if the current ABField can be used to filter (FilterComplex
+   // or Query) data.
+   // if a {fn} is provided, it will be called with the ABField as a parameter:
+   //  (field) => field.setting.something == true
+
+   isSortable: false,
+   // {bool} / {fn}
+   // determines if the current ABField can be used to Sort data.
+   // if a {fn} is provided, it will be called with the ABField as a parameter:
+   //  (field) => true/false
+
+   menuName: "Email",
+   // menuName: what gets displayed in the Editor drop list
+   // NOTE: this will be displayed using a Label: L(menuName)
 
    supportRequire: true,
+   // {bool}
+   // does this ABField support the Required setting?
 
+   supportUnique: true,
+   // {bool}
+   // does this ABField support the Unique setting?
+
+   useAsLabel: false,
+   // {bool} / {fn}
+   // determines if this ABField can be used in the display of an ABObject's
+   // label.
+
+   compatibleOrmTypes: ["string"],
+   // {array}
    // what types of Sails ORM attributes can be imported into this data type?
    // http://sailsjs.org/documentation/concepts/models-and-orm/attributes#?attribute-options
-   compatibleOrmTypes: [],
 
+   compatibleMysqlTypes: ["char", "varchar", "tinytext"],
+   // {array}
    // what types of MySql column types can be imported into this data type?
    // https://www.techonthenet.com/mysql/datatypes.php
-   compatibleMysqlTypes: []
 };
 
-var defaultValues = {
-   default: ""
+const defaultValues = {
+   default: "",
+   defaultCheckbox: 0,
 };
 
 module.exports = class ABFieldEmailCore extends ABField {
@@ -95,9 +124,9 @@ module.exports = class ABFieldEmailCore extends ABField {
     */
    isValidData(data, validator) {
       if (data[this.columnName]) {
-         var Reg = /^(([^<>()\[\]\\.,;:\s@"]+(\.[^<>()\[\]\\.,;:\s@"]+)*)|(".+"))@((\[[0-9]{1,3}\.[0-9]{1,3}\.[0-9]{1,3}\.[0-9]{1,3}\])|(([a-zA-Z\-0-9]+\.)+[a-zA-Z]{2,}))$/;
+         const Reg = /^(([^<>()[\]\\.,;:\s@"]+(\.[^<>()[\]\\.,;:\s@"]+)*)|(".+"))@((\[[0-9]{1,3}\.[0-9]{1,3}\.[0-9]{1,3}\.[0-9]{1,3}\])|(([a-zA-Z\-0-9]+\.)+[a-zA-Z]{2,}))$/;
 
-         var value = data[this.columnName];
+         let value = data[this.columnName];
          value = String(value).toLowerCase();
          if (!Reg.test(value)) {
             validator.addError(this.columnName, "Invalid email");

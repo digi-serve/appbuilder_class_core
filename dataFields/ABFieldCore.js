@@ -186,7 +186,7 @@ module.exports = class ABFieldCore extends ABMLClass {
     * @return {json}
     */
    toObj() {
-      var obj = super.toObj();
+      const obj = super.toObj();
 
       return {
          id: this.id,
@@ -201,7 +201,7 @@ module.exports = class ABFieldCore extends ABMLClass {
    }
 
    defaultCheck(val, defaultVal) {
-      var returnVal = defaultVal;
+      let returnVal = defaultVal;
       if (typeof val != "undefined") {
          returnVal = val;
       }
@@ -242,15 +242,15 @@ module.exports = class ABFieldCore extends ABMLClass {
       this.settings.width = parseInt(this.settings.width);
 
       // we're responsible for setting up our specific settings:
-      let defaultValues = this.constructor.defaultValues() || {};
-      for (let dv in defaultValues) {
+      const defaultValues = this.constructor.defaultValues() || {};
+      for (const dv in defaultValues) {
          this.settings[dv] = this.defaultCheck(
             values.settings[dv],
             defaultValues[dv]
          );
       }
 
-      // let the MLClass now process the Translations
+      // const the MLClass now process the Translations
       super.fromValues(values);
 
       // final validity check: columnName really should have a value:
@@ -308,9 +308,7 @@ module.exports = class ABFieldCore extends ABMLClass {
    }
 
    dataValue(rowData) {
-      let propName = "{objectName}.{columnName}"
-         .replace("{objectName}", this.alias || this.object.name)
-         .replace("{columnName}", this.columnName);
+      const propName = `${this.alias || this.object.name}.${this.columnName}`;
 
       let result = "";
       if (rowData[this.columnName] != null) {
@@ -342,7 +340,7 @@ module.exports = class ABFieldCore extends ABMLClass {
     * @return {ABDefinition}
     */
    toDefinition() {
-      var myDef = super.toDefinition();
+      const myDef = super.toDefinition();
 
       // attempt to provide a more descriptive name:
       // [obj]->[fieldName]
@@ -356,4 +354,3 @@ module.exports = class ABFieldCore extends ABMLClass {
       return myDef;
    }
 };
-

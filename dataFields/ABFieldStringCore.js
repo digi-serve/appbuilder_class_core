@@ -5,11 +5,11 @@
  *
  */
 
-var ABField = require("../../platform/dataFields/ABField");
+const ABField = require("../../platform/dataFields/ABField");
 
 const MAX_CHAR_LENGTH = 255;
 
-var ABFieldStringDefaults = {
+const ABFieldStringDefaults = {
    key: "string",
    // unique key to reference this specific DataField
 
@@ -18,8 +18,8 @@ var ABFieldStringDefaults = {
    // NOTE: this will be displayed using a Label: L(description)
 
    icon: "font",
-   // font-awesome icon reference.  (without the 'fa-').  so 'user'  to
-   // reference 'fa-user'
+   // font-awesome icon reference.  (without the 'fa-').  so 'font'  to
+   // reference 'fa-font'
 
    isFilterable: true,
    // {bool} / {fn}
@@ -66,7 +66,7 @@ var ABFieldStringDefaults = {
    // The maximum length our ABFieldString can be.
 };
 
-var defaultValues = {
+const defaultValues = {
    default: "",
    supportMultilingual: 0,
 };
@@ -135,7 +135,7 @@ module.exports = class ABFieldStringCore extends ABField {
     * @return {json}
     */
    toObj() {
-      var obj = super.toObj();
+      const obj = super.toObj();
 
       if (this.settings.supportMultilingual) {
          this.unTranslate(obj.settings, obj.settings, ["default"]);
@@ -179,7 +179,7 @@ module.exports = class ABFieldStringCore extends ABField {
    isValidData(data, validator) {
       super.isValidData(data, validator);
 
-      var L = this.AB.Label();
+      const L = this.AB.Label();
 
       if (
          data &&

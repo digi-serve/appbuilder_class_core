@@ -13,28 +13,56 @@ function L(key, altText) {
 }
 
 const ABFieldDateDefaults = {
-   key: "datetime", // unique key to reference this specific DataField
+   key: "datetime",
+   // unique key to reference this specific DataField
 
-   icon: "clock-o", // font-awesome icon reference.  (without the 'fa-').  so 'user'  to reference 'fa-user'
-
-   // menuName: what gets displayed in the Editor drop list
-   menuName: L("ab.dataField.datetime.menuName", "*Date & Time"),
-
+   description: "Pick one from date & time.",
    // description: what gets displayed in the Editor description.
-   description: L(
-      "ab.dataField.datetime.description",
-      "*Pick one from date & time."
-   ),
+   // NOTE: this will be displayed using a Label: L(description)
+
+   icon: "clock-o",
+   // font-awesome icon reference.  (without the 'fa-').  so 'clock-o'  to
+   // reference 'clock-o'
+
+   isFilterable: false,
+   // {bool} / {fn}
+   // determines if the current ABField can be used to filter (FilterComplex
+   // or Query) data.
+   // if a {fn} is provided, it will be called with the ABField as a parameter:
+   //  (field) => field.setting.something == true
+
+   isSortable: false,
+   // {bool} / {fn}
+   // determines if the current ABField can be used to Sort data.
+   // if a {fn} is provided, it will be called with the ABField as a parameter:
+   //  (field) => true/false
+
+   menuName: "Date & Time",
+   // menuName: what gets displayed in the Editor drop list
+   // NOTE: this will be displayed using a Label: L(menuName)
 
    supportRequire: true,
+   // {bool}
+   // does this ABField support the Required setting?
 
+   supportUnique: false,
+   // {bool}
+   // does this ABField support the Unique setting?
+
+   useAsLabel: false,
+   // {bool} / {fn}
+   // determines if this ABField can be used in the display of an ABObject's
+   // label.
+
+   compatibleOrmTypes: ["datetime"],
+   // {array}
    // what types of Sails ORM attributes can be imported into this data type?
    // http://sailsjs.org/documentation/concepts/models-and-orm/attributes#?attribute-options
-   compatibleOrmTypes: ["datetime"],
 
+   compatibleMysqlTypes: ["datetime"],
+   // {array}
    // what types of MySql column types can be imported into this data type?
    // https://www.techonthenet.com/mysql/datatypes.php
-   compatibleMysqlTypes: ["datetime"],
 };
 
 const defaultValues = {
@@ -54,7 +82,7 @@ module.exports = class ABFieldDateTimeCore extends ABFieldDateCore {
    }
 
    static defaultValues() {
-      let baseDefault = super.defaultValues();
+      const baseDefault = super.defaultValues();
       return Object.assign(baseDefault, defaultValues);
    }
 
@@ -100,7 +128,7 @@ module.exports = class ABFieldDateTimeCore extends ABFieldDateCore {
       // From default value of ABFieldDateCore
       if (values[this.columnName]) {
          dateResult = this.AB.toDate(values[this.columnName]);
-         // let momentVal = this.convertToMoment(values[this.columnName]);
+         // const momentVal = this.convertToMoment(values[this.columnName]);
          // if (momentVal.isValid()) {
          //    dateResult = new Date(momentVal);
          // }
@@ -108,7 +136,7 @@ module.exports = class ABFieldDateTimeCore extends ABFieldDateCore {
 
       // Set current time as default
       if (this.settings.defaultTime == 2) {
-         let currDate = new Date();
+         const currDate = new Date();
 
          if (dateResult == null) dateResult = new Date();
 
@@ -122,7 +150,7 @@ module.exports = class ABFieldDateTimeCore extends ABFieldDateCore {
          this.settings.defaultTime == 3 &&
          this.settings.defaultTimeValue
       ) {
-         let defaultTime = new Date(this.settings.defaultTimeValue);
+         const defaultTime = new Date(this.settings.defaultTimeValue);
 
          if (dateResult == null) dateResult = new Date();
 
@@ -138,29 +166,29 @@ module.exports = class ABFieldDateTimeCore extends ABFieldDateCore {
    }
 
    getFormat() {
-      let dateFormatString = super.getFormat();
+      const timeFormat = this.getTimeFormat();
 
-      let timeFormat = this.getTimeFormat();
-      if (timeFormat) dateFormatString += ` ${timeFormat}`;
+      this.settings = this.settings || {};
 
-      return dateFormatString;
+      if (this.settings.dateFormat == 1) {
+         return timeFormat;
+      }
+
+      const dateFormat = super.getFormat();
+
+      return `${dateFormat} ${timeFormat}`;
    }
 
    format(rowData) {
-      this.settings = this.settings || {};
-      if (this.settings.dateFormat == 1) {
-         var d = this.dataValue(rowData);
-         if (d == "" || d == null) {
-            return "";
-         }
+      const datetimeFormat = this.getFormat();
+      const d = this.dataValue(rowData);
+      const dateObj = this.AB.toDate(d);
 
-         // pull format from settings.
-         let dateObj = this.AB.toDate(d);
-         let timeFormat = this.getTimeFormat();
-         return webix.Date.dateToStr(timeFormat)(dateObj);
-      } else {
-         return super.format(rowData);
+      if (d == "" || d == null) {
+         return "";
       }
+
+      return webix.Date.dateToStr(datetimeFormat)(dateObj);
    }
 
    getTimeFormat() {

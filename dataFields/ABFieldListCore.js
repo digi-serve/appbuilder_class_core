@@ -5,15 +5,15 @@
  *
  */
 
-// var ABFieldSelectivity = require("../../platform/dataFields/ABFieldSelectivity");
-var ABField = require("../../platform/dataFields/ABField");
+// const ABFieldSelectivity = require("../../platform/dataFields/ABFieldSelectivity");
+const ABField = require("../../platform/dataFields/ABField");
 
 function L(key, altText) {
    // TODO:
    return altText; // AD.lang.label.getLabel(key) || altText;
 }
 
-var ABFieldListDefaults = {
+const ABFieldListDefaults = {
    key: "list",
    // unique key to reference this specific DataField
 
@@ -23,8 +23,8 @@ var ABFieldListDefaults = {
    // NOTE: this will be displayed using a Label: L(description)
 
    icon: "th-list",
-   // font-awesome icon reference.  (without the 'fa-').  so 'user'  to
-   // reference 'fa-user'
+   // font-awesome icon reference.  (without the 'fa-').  so 'th-list'  to
+   // reference 'fa-th-list'
 
    isFilterable: (field) => {
       if (field.settings.isMultiple) {
@@ -68,7 +68,7 @@ var ABFieldListDefaults = {
    // determines if this ABField can be used in the display of an ABObject's
    // label.
 
-   compatibleOrmTypes: [],
+   compatibleOrmTypes: ["string"],
    // {array}
    // what types of Sails ORM attributes can be imported into this data type?
    // http://sailsjs.org/documentation/concepts/models-and-orm/attributes#?attribute-options
@@ -91,7 +91,7 @@ var ABFieldListDefaults = {
    },
 };
 
-var defaultValues = {
+const defaultValues = {
    isMultiple: 0,
    // {bool}
    // can multiple values be selected?
@@ -168,7 +168,7 @@ module.exports = class ABFieldListCore extends ABField {
     * @return {json}
     */
    toObj() {
-      var obj = super.toObj();
+      const obj = super.toObj();
 
       // Un-translate options list
       obj.settings.options.forEach((opt) => {
@@ -223,25 +223,27 @@ module.exports = class ABFieldListCore extends ABField {
    }
 
    format(rowData, options = {}) {
-      var val = this.dataValue(rowData) || [];
+      let val = this.dataValue(rowData) || [];
 
       if (typeof val == "string") {
          try {
             val = JSON.parse(val);
-         } catch (e) {}
+         } catch (e) {
+            // continue regardless of error
+         }
       }
 
       // Convert to array
       if (!Array.isArray(val)) val = [val];
 
-      var displayOpts = this.settings.options
+      const displayOpts = this.settings.options
          .filter((opt) => val.filter((v) => (v.id || v) == opt.id).length > 0)
          .map((opt) => {
             let text = opt.text;
-            let languageCode = options.languageCode || "en";
+            const languageCode = options.languageCode || "en";
 
             // Pull text of option with specify language code
-            let optTran = (opt.translations || []).filter(
+            const optTran = (opt.translations || []).filter(
                (o) => o.language_code == languageCode
             )[0];
             if (optTran) text = optTran.text;
