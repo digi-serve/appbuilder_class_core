@@ -110,10 +110,6 @@ module.exports = class ABFieldFormulaCore extends ABField {
       return defaultValues;
    }
 
-   static rowFilter(App, idBase, AB) {
-      return new RowFilter(App, idBase, AB);
-   }
-
    ///
    /// Instance Methods
    ///

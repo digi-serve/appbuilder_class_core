@@ -1607,13 +1607,6 @@ module.exports = class ABDataCollectionCore extends ABMLClass {
       //// (and also explains why we refactored things into .processIncomingData())
       return model.findAll(cond).then((data) => {
          return this.processIncomingData(data);
-
-         ////
-         //// LEFT OFF: debugging ABDatacollectionCore : why UI isn't updated after
-         //// data loads?
-         ////  -->  check the .init() for messing with onAfterChange ...
-
-         // resolve();
       });
    }
 
