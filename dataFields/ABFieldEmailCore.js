@@ -45,7 +45,7 @@ const ABFieldEmailDefaults = {
    // {bool}
    // does this ABField support the Required setting?
 
-   supportUnique: false,
+   supportUnique: true,
    // {bool}
    // does this ABField support the Unique setting?
 
