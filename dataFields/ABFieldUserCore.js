@@ -124,6 +124,6 @@ module.exports = class ABFieldUserCore extends ABFieldConnect {
       if (val && !Array.isArray(val)) val = [val];
       if (!val) val = [];
 
-      return val.map((v) => v.text || v).join(", ");
+      return val.map((v) => v.username || v).join(", ");
    }
 };

@@ -46,7 +46,7 @@ var AllViews = [
    require("../platform/views/ABViewDetailConnect"),
    require("../platform/views/ABViewDetailCustom"),
    require("../platform/views/ABViewDetailImage"),
-   require("../platform/views/ABViewDetailSelectivity"),
+   // require("../platform/views/ABViewDetailSelectivity"),
    require("../platform/views/ABViewDetailText"),
    require("../platform/views/ABViewDetailTree"),
 
@@ -61,7 +61,7 @@ var AllViews = [
    require("../platform/views/ABViewFormDatepicker"),
    require("../platform/views/ABViewFormNumber"),
    require("../platform/views/ABViewFormReadonly"),
-   // require("../platform/views/ABViewFormSelectMultiple"),
+   require("../platform/views/ABViewFormSelectMultiple"),
    require("../platform/views/ABViewFormSelectSingle"),
    require("../platform/views/ABViewFormTextbox"),
    require("../platform/views/ABViewFormTree"),
@@ -103,6 +103,10 @@ module.exports = class ABViewManagerCore {
     */
    static newView(values, application, parent) {
       parent = parent || null;
+
+      if (values.key == "detailselectivity") {
+         values.key = "detailconnect";
+      }
 
       //		if ((values.key) && (Views[values.key])) {
       if (values.key) {

@@ -191,7 +191,15 @@ module.exports = class ABFieldListCore extends ABField {
    defaultValue(values) {
       // Multiple select list
       if (this.settings.isMultiple == true) {
-         values[this.columnName] = this.settings.multipleDefault || [];
+         let defaultVals = [];
+         this.settings.multipleDefault.forEach((def) => {
+            this.settings.options.forEach((opt) => {
+               if (opt.id == def.text) {
+                  defaultVals.push(opt);
+               }
+            });
+         });
+         values[this.columnName] = defaultVals || [];
       }
       // Single select list
       else if (this.settings.default && this.settings.default != "") {
@@ -218,7 +226,12 @@ module.exports = class ABFieldListCore extends ABField {
     */
    options() {
       return this.settings.options.map((opt) => {
-         return { id: opt.id, text: opt.text };
+         return {
+            id: opt.id,
+            text: opt.text,
+            hex: opt.hex ? opt.hex : "",
+            translations: opt.translations ? opt.translations : "",
+         };
       });
    }
 

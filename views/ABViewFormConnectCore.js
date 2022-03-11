@@ -1,4 +1,4 @@
-const ABViewFormCustom = require("../../platform/views/ABViewFormCustom");
+const ABViewFormComponent = require("../../platform/views/ABViewFormComponent");
 
 const ABViewFormConnectPropertyComponentDefaults = {
    formView: "", // id of form to add new data
@@ -19,7 +19,7 @@ const ABViewFormConnectDefaults = {
    labelKey: "ab.components.connect", // {string} the multilingual label key for the class label
 };
 
-module.exports = class ABViewFormConnectCore extends ABViewFormCustom {
+module.exports = class ABViewFormConnectCore extends ABViewFormComponent {
    constructor(values, application, parent, defaultValues) {
       super(
          values,

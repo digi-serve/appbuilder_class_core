@@ -60,7 +60,7 @@ module.exports = class SubProcessCore extends ABProcessElement {
       super.fromValues(attributes);
 
       // Convert string to boolean
-      this.isEnable = this.isEnable == null ? true : this.isEnable == true;
+      this.isEnable = this.isEnable == null ? true : JSON.parse(this.isEnable);
 
       this._elements = {};
       (attributes.elementIDs || []).forEach((eID) => {
@@ -103,9 +103,11 @@ module.exports = class SubProcessCore extends ABProcessElement {
     * can provide to other ProcessElements.
     * Different Process Elements can make data available to other
     * process Elements.
+    * @param {ABProcessElement} currElement
+    *        the ABProcessElement that is requesting the data.
     * @return {array} | null
     */
-   processDataFields() {
+   processDataFields(currElement) {
       if (this.parameterId == null) return [];
 
       let dataFieldOpt = (this.process.processDataFields(this) || []).filter(
@@ -123,13 +125,14 @@ module.exports = class SubProcessCore extends ABProcessElement {
          dataFieldOpt.field.datasourceLink.fields
       ) {
          result.push({
-            key: `${this.id}.subProcess.id`,
-            label: `${this.label}->Repeat Data.ID`
+            key: `${this.id}.uuid.subProcess`,
+            label: `${this.label}->Repeat Data.ID`,
+            object: dataFieldOpt.field.datasourceLink
          });
 
          dataFieldOpt.field.datasourceLink.fields().forEach((f) => {
             result.push({
-               key: `${this.id}.subProcess.${f.id}`,
+               key: `${this.id}.${f.id}.subProcess`,
                label: `${this.label}->Repeat Data.${f.label}`,
                field: f,
                object: f.object
@@ -139,11 +142,18 @@ module.exports = class SubProcessCore extends ABProcessElement {
       // Other field types
       else {
          result.push({
-            key: `${this.id}.subProcess`,
+            key: dataFieldOpt.field
+               ? `${this.id}.${dataFieldOpt.field.id}.subProcess`
+               : `${this.id}.subProcess`,
             label: `${this.label}->Repeat Data`,
             field: dataFieldOpt.field,
             object: dataFieldOpt.object
          });
+      }
+
+      let previousFields = this.process.processDataFields.call(this, currElement);
+      if (previousFields && previousFields.length > 0) {
+         result = result.concat(previousFields);
       }
 
       return result;
@@ -182,7 +192,7 @@ module.exports = class SubProcessCore extends ABProcessElement {
 
                // Extract data
                data = stateData.map((item) => {
-                  if (fieldId == "id") {
+                  if (fieldId == "uuid" || fieldId == "id") {
                      return item.uuid || item.id;
                   } else if (dataFieldOpt.field.datasourceLink) {
                      let returnField = dataFieldOpt.field.datasourceLink.fields(
