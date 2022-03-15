@@ -356,6 +356,20 @@ module.exports = class ABObjectQueryCore extends ABObject {
    }
 
    /**
+    * @method objectByID()
+    * return ABObject search by ID
+    * @param {string} objID
+    *        The requested {ABObject}.id of the object to return.
+    * @return {ABObject} | null
+    */
+   objectByID(objID) {
+      if (objID) {
+         return this.objects((o) => o.id == objID)[0];
+      }
+      return null;
+   }
+
+   /**
     * @method links()
     *
     * return an array of links for this Query.
