@@ -116,9 +116,9 @@ module.exports = class ABObjectQueryCore extends ABObject {
       // this gets built in the .importJoins();
 
       this.viewName = attributes.viewName || "";
-      // knex does not like .(dot) in table and column names
-      // https://github.com/knex/knex/issues/2762
-      this.viewName = this.viewName.replace(/[^a-zA-Z0-9_ ]/gi, "");
+      // {string}
+      // this is the SQL tablename of where our Query will store it's
+      // view data.
 
       // import all our ABObjects
       this.importJoins(attributes.joins || {});
