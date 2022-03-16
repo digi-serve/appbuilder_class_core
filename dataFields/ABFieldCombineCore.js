@@ -24,7 +24,7 @@ const ABFieldCombinedDefaults = {
    // font-awesome icon reference.  (without the 'fa-').  so 'key'  to
    // reference 'fa-key'
 
-   isFilterable: false,
+   isFilterable: true,
    // {bool} / {fn}
    // determines if the current ABField can be used to filter (FilterComplex
    // or Query) data.
