@@ -675,7 +675,6 @@ module.exports = class FilterComplexCore extends ABComponent {
          let conditions = [];
          switch (f.key) {
             case "boolean":
-               // fieldsAddFiltersQueryField
                conditions = conditions
                   .concat(this.fieldsAddFiltersBoolean(f))
                   .concat(this.fieldsAddFiltersQueryField(f));
@@ -720,6 +719,10 @@ module.exports = class FilterComplexCore extends ABComponent {
                break;
          }
 
+         if (this._isRecordRule) {
+            conditions = conditions.concat(this.fieldsAddFiltersRecordRule(f));
+         }
+
          // let type = f.id; // the default unique identifier for our filter types
          // if (f.id == "this_object") {
          //    // if this happens to be our special "this_object" field, then our
@@ -759,8 +762,6 @@ module.exports = class FilterComplexCore extends ABComponent {
             .onOrAfterCurrentCondition,
          last_days: this.labels.component.onLastDaysCondition,
          next_days: this.labels.component.onNextDaysCondition,
-         // TODO: query field option
-         // TODO: record rule option
       };
 
       let result = [];
@@ -783,8 +784,6 @@ module.exports = class FilterComplexCore extends ABComponent {
          not_contains: this.labels.component.notContainsCondition,
          equals: this.labels.component.isCondition,
          not_equal: this.labels.component.isNotCondition,
-         // TODO: query field option
-         // TODO: record rule option
       };
 
       let result = [];
@@ -809,8 +808,6 @@ module.exports = class FilterComplexCore extends ABComponent {
          greater: this.labels.component.moreThanCondition,
          less_or_equal: this.labels.component.lessThanOrEqualCondition,
          greater_or_equal: this.labels.component.moreThanOrEqualCondition,
-         // TODO : query field option
-         // TODO : record rule
       };
 
       let result = [];
@@ -831,8 +828,6 @@ module.exports = class FilterComplexCore extends ABComponent {
       let listConditions = {
          equals: this.labels.component.equalListCondition,
          not_equal: this.labels.component.notEqualListCondition,
-         // TODO : query field option
-         // TODO : record rule
       };
 
       let result = [];
@@ -852,8 +847,6 @@ module.exports = class FilterComplexCore extends ABComponent {
    fieldsAddFiltersBoolean(field) {
       let booleanConditions = {
          equals: this.labels.component.equalListCondition,
-         // TODO : query field option
-         // TODO : record rule
       };
 
       for (let condKey in booleanConditions) {
@@ -867,13 +860,6 @@ module.exports = class FilterComplexCore extends ABComponent {
    }
 
    fieldsAddFiltersUser(field) {
-      // var textEditor = {
-      //    view: "richselect",
-      //    options: OP.User.userlist(),
-      // };
-      // var type = {};
-      // type[field.id] = textEditor;
-
       let userConditions = {
          is_current_user: this.labels.component.isCurrentUserCondition,
          is_not_current_user: this.labels.component.isNotCurrentUserCondition,
@@ -883,8 +869,6 @@ module.exports = class FilterComplexCore extends ABComponent {
             .notContainsCurrentUserCondition,
          equals: this.labels.component.equalListCondition,
          not_equal: this.labels.component.notEqualListCondition,
-         // TODO : query field option
-         // TODO : record rule
       };
 
       for (let condKey in userConditions) {
@@ -936,7 +920,6 @@ module.exports = class FilterComplexCore extends ABComponent {
          // not_contains: this.labels.component.notContainCondition,
          // equals: this.labels.component.isCondition,
          // not_equal: this.labels.component.isNotCondition
-         // TODO: record rule
       };
 
       let result = [];
@@ -957,8 +940,6 @@ module.exports = class FilterComplexCore extends ABComponent {
       let queryFieldConditions = {
          in_query_field: this.labels.component.inQueryField,
          not_in_query_field: this.labels.component.notInQueryField,
-         // TODO : query field option
-         // TODO : record rule
       };
 
       let result = [];
@@ -966,9 +947,29 @@ module.exports = class FilterComplexCore extends ABComponent {
       for (let condKey in queryFieldConditions) {
          result.push({
             id: condKey,
-            value: queryFieldConditions[condKey].label,
+            value: queryFieldConditions[condKey],
             batch: "queryField",
             handler: (a, b) => this.queryFieldValid(a, condKey, b),
+         });
+      }
+
+      return result;
+   }
+
+   fieldsAddFiltersRecordRule(field) {
+      let recordRuleConditions = {
+         same_as_field: this.labels.component.sameAsField,
+         not_same_as_field: this.labels.component.notSameAsField,
+      };
+
+      let result = [];
+
+      for (let condKey in recordRuleConditions) {
+         result.push({
+            id: condKey,
+            value: recordRuleConditions[condKey],
+            batch: "recordRule",
+            handler: (a, b) => true, // TODO: record rule validation
          });
       }
 
@@ -1031,3 +1032,4 @@ module.exports = class FilterComplexCore extends ABComponent {
       return this.condition;
    }
 };
+
