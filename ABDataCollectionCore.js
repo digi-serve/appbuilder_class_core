@@ -1419,6 +1419,53 @@ module.exports = class ABDataCollectionCore extends ABMLClass {
       }
    }
 
+   /*
+    * waitForDataCollectionToInitialize()
+    * there are certain situations where this datacollection shouldn't
+    * load until another one has loaded.  In those cases, the fn()
+    * will wait for the required datacollection to emit "initializedData"
+    * before continuing on.
+    * @param {ABViewDataCollection} DC
+    *      the DC this datacollection depends on.
+    * @returns {Promise}
+    */
+   waitForDataCollectionToInitialize(DC, msg) {
+      return new Promise((resolve, reject) => {
+         switch (DC.dataStatus) {
+            // if that DC hasn't started initializing yet, start it!
+            case DC.dataStatusFlag.notInitial:
+               DC.loadData().catch(reject);
+            // no break;
+
+            // once in the process of initializing
+            /* eslint-disable no-fallthrough*/
+            case DC.dataStatusFlag.initializing:
+               /* eslint-enable no-fallthrough*/
+               // listen for "initializedData" event from the DC
+               // then we can continue.
+               this.eventAdd({
+                  emitter: DC,
+                  eventName: "initializedData",
+                  listener: () => {
+                     // go next
+                     resolve();
+                  },
+               });
+               break;
+
+            // if it is already initialized, we can continue:
+            case DC.dataStatusFlag.initialized:
+               resolve();
+               break;
+
+            // just in case, if the status is not known, just continue
+            default:
+               resolve();
+               break;
+         }
+      });
+   }
+
    loadData(start, limit) {
       // mark data status is initializing
       if (this._dataStatus == this.dataStatusFlag.notInitial) {
@@ -1463,7 +1510,7 @@ module.exports = class ABDataCollectionCore extends ABMLClass {
 
       // set query condition
       var cond = {
-         where: wheres,
+         where: wheres || {},
          // limit: limit || 20,
          skip: start || 0,
          sort: sorts,
@@ -1481,53 +1528,6 @@ module.exports = class ABDataCollectionCore extends ABMLClass {
          delete cond.limit;
       }
 
-      /*
-       * waitForDataCollectionToInitialize()
-       * there are certain situations where this datacollection shouldn't
-       * load until another one has loaded.  In those cases, the fn()
-       * will wait for the required datacollection to emit "initializedData"
-       * before continuing on.
-       * @param {ABViewDataCollection} DC
-       *      the DC this datacollection depends on.
-       * @returns {Promise}
-       */
-      var waitForDataCollectionToInitialize = (DC) => {
-         return new Promise((resolve, reject) => {
-            switch (DC.dataStatus) {
-               // if that DC hasn't started initializing yet, start it!
-               case DC.dataStatusFlag.notInitial:
-                  DC.loadData().catch(reject);
-               // no break;
-
-               // once in the process of initializing
-               /* eslint-disable no-fallthrough*/
-               case DC.dataStatusFlag.initializing:
-                  /* eslint-enable no-fallthrough*/
-                  // listen for "initializedData" event from the DC
-                  // then we can continue.
-                  this.eventAdd({
-                     emitter: DC,
-                     eventName: "initializedData",
-                     listener: () => {
-                        // go next
-                        resolve();
-                     },
-                  });
-                  break;
-
-               // if it is already initialized, we can continue:
-               case DC.dataStatusFlag.initialized:
-                  resolve();
-                  break;
-
-               // just in case, if the status is not known, just continue
-               default:
-                  resolve();
-                  break;
-            }
-         });
-      };
-
       return (
          Promise.resolve()
             //
@@ -1539,7 +1539,7 @@ module.exports = class ABDataCollectionCore extends ABMLClass {
                let linkDc = this.datacollectionLink;
                if (!linkDc) return Promise.resolve(); // TODO: refactor in v2
 
-               return waitForDataCollectionToInitialize(linkDc);
+               return this.waitForDataCollectionToInitialize(linkDc);
             })
             //
             // Step 2: if we have any filter rules that depend on other DataCollections,
@@ -1565,7 +1565,7 @@ module.exports = class ABDataCollectionCore extends ABMLClass {
                         var dv = this.AB.datacollectionByID(rule.value);
                         if (dv) {
                            dcFilters.push(
-                              waitForDataCollectionToInitialize(dv)
+                              this.waitForDataCollectionToInitialize(dv)
                            );
                         }
                      }
@@ -1606,14 +1606,7 @@ module.exports = class ABDataCollectionCore extends ABMLClass {
       //// this will need to be updated to reflect that management:
       //// (and also explains why we refactored things into .processIncomingData())
       return model.findAll(cond).then((data) => {
-         this.processIncomingData(data);
-
-         ////
-         //// LEFT OFF: debugging ABDatacollectionCore : why UI isn't updated after
-         //// data loads?
-         ////  -->  check the .init() for messing with onAfterChange ...
-
-         // resolve();
+         return this.processIncomingData(data);
       });
    }
 
@@ -1694,46 +1687,46 @@ module.exports = class ABDataCollectionCore extends ABMLClass {
     * @return {Promise}
     */
    reloadData(start, limit) {
-      var waitForDataCollectionToInitialize = (DC) => {
-         return new Promise((resolve, reject) => {
-            switch (DC.dataStatus) {
-               // if that DC hasn't started initializing yet, start it!
-               case DC.dataStatusFlag.notInitial:
-                  DC.loadData().catch(reject);
-               // no break;
+      // var waitForDataCollectionToInitialize = (DC) => {
+      //    return new Promise((resolve, reject) => {
+      //       switch (DC.dataStatus) {
+      //          // if that DC hasn't started initializing yet, start it!
+      //          case DC.dataStatusFlag.notInitial:
+      //             DC.loadData().catch(reject);
+      //          // no break;
 
-               // once in the process of initializing
-               /* eslint-disable no-fallthrough*/
-               case DC.dataStatusFlag.initializing:
-                  /* eslint-enable no-fallthrough*/
-                  // listen for "initializedData" event from the DC
-                  // then we can continue.
-                  this.eventAdd({
-                     emitter: DC,
-                     eventName: "initializedData",
-                     listener: () => {
-                        // go next
-                        resolve();
-                     },
-                  });
-                  break;
+      //          // once in the process of initializing
+      //          /* eslint-disable no-fallthrough*/
+      //          case DC.dataStatusFlag.initializing:
+      //             /* eslint-enable no-fallthrough*/
+      //             // listen for "initializedData" event from the DC
+      //             // then we can continue.
+      //             this.eventAdd({
+      //                emitter: DC,
+      //                eventName: "initializedData",
+      //                listener: () => {
+      //                   // go next
+      //                   resolve();
+      //                },
+      //             });
+      //             break;
 
-               // if it is already initialized, we can continue:
-               case DC.dataStatusFlag.initialized:
-                  resolve();
-                  break;
+      //          // if it is already initialized, we can continue:
+      //          case DC.dataStatusFlag.initialized:
+      //             resolve();
+      //             break;
 
-               // just in case, if the status is not known, just continue
-               default:
-                  resolve();
-                  break;
-            }
-         });
-      };
+      //          // just in case, if the status is not known, just continue
+      //          default:
+      //             resolve();
+      //             break;
+      //       }
+      //    });
+      // };
 
       return Promise.resolve()
          .then(() => {
-            return waitForDataCollectionToInitialize(this);
+            return this.waitForDataCollectionToInitialize(this);
          })
          .then(() => {
             // check if we are currently waiting for more data requests on this datacollection before continuing
@@ -2252,28 +2245,34 @@ module.exports = class ABDataCollectionCore extends ABMLClass {
       var clonedDatacollection = new this.constructor(settings, this.AB);
       clonedDatacollection.__datasource = this.__datasource;
       clonedDatacollection._dataStatus = this._dataStatus;
+
       // clonedDatacollection.__dataCollection = this.__dataCollection.copy();
       clonedDatacollection.__filterDatacollection.setValue(
          settings.settings.objectWorkspace.filterConditions
       );
-      if (clonedDatacollection.__dataCollection) {
-         clonedDatacollection.__dataCollection.parse(
-            this.__dataCollection
-               .find({})
-               .filter((row) =>
-                  clonedDatacollection.__filterDatacollection.isValid(row)
-               )
-         );
-      }
-      if (clonedDatacollection.__treeCollection) {
-         clonedDatacollection.__treeCollection.parse(
-            this.__treeCollection
-               .find({})
-               .filter((row) =>
-                  clonedDatacollection.__filterDatacollection.isValid(row)
-               )
-         );
-      }
+
+      var parseMe = () => {
+         if (clonedDatacollection.__dataCollection) {
+            clonedDatacollection.__dataCollection.parse(
+               this.__dataCollection
+                  .find({})
+                  .filter((row) =>
+                     clonedDatacollection.__filterDatacollection.isValid(row)
+                  )
+            );
+         }
+         if (clonedDatacollection.__treeCollection) {
+            clonedDatacollection.__treeCollection.parse(
+               this.__treeCollection
+                  .find({})
+                  .filter((row) =>
+                     clonedDatacollection.__filterDatacollection.isValid(row)
+                  )
+            );
+         }
+      };
+
+      parseMe();
 
       // return new Promise((resolve, reject) => {
       //    // load the data

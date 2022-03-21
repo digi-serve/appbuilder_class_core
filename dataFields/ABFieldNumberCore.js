@@ -5,19 +5,19 @@
  *
  */
 
-var ABField = require("../../platform/dataFields/ABField");
+const ABField = require("../../platform/dataFields/ABField");
 
-var ABFieldNumberDefaults = {
+const ABFieldNumberDefaults = {
    key: "number",
    // unique key to reference this specific DataField
 
    description: "A Float or Integer Value",
    // description: what gets displayed in the Editor description.
-   // this is a label key:  L(menuName)
+   // NOTE: this will be displayed using a Label: L(description)
 
    icon: "hashtag",
-   // font-awesome icon reference.  (without the 'fa-').  so 'user'  to
-   // reference 'fa-user'
+   // font-awesome icon reference.  (without the 'fa-').  so 'hashtag'  to
+   // reference 'fa-hashtag'
 
    isFilterable: true,
    // {bool} / {fn}
@@ -34,7 +34,7 @@ var ABFieldNumberDefaults = {
 
    menuName: "Number",
    // menuName: what gets displayed in the Editor drop list
-   // this is a label key:  L(menuName)
+   // NOTE: this will be displayed using a Label: L(menuName)
 
    supportRequire: true,
    // {bool}
@@ -44,7 +44,12 @@ var ABFieldNumberDefaults = {
    // {bool}
    // does this ABField support the Unique setting?
 
-   compatibleOrmTypes: ["integer", "float"],
+   useAsLabel: false,
+   // {bool} / {fn}
+   // determines if this ABField can be used in the display of an ABObject's
+   // label.
+
+   compatibleOrmTypes: ["number"],
    // {array}
    // what types of Sails ORM attributes can be imported into this data type?
    // http://sailsjs.org/documentation/concepts/models-and-orm/attributes#?attribute-options
@@ -68,12 +73,12 @@ var ABFieldNumberDefaults = {
    // https://www.techonthenet.com/mysql/datatypes.php
 };
 
-var defaultValues = {
+const defaultValues = {
    // 'allowRequired': 0,
    default: "",
    typeFormat: "none",
    typeDecimals: "none",
-   typeDecimalPlaces: "none",
+   typeDecimalPlaces: 0,
    typeRounding: "none",
    typeThousands: "none",
    validation: 0,
@@ -81,7 +86,7 @@ var defaultValues = {
    validateMaximum: "",
 };
 
-var L = null; //AB.Label();
+let L = null; //AB.Label();
 
 module.exports = class ABFieldNumberCore extends ABField {
    constructor(values, object) {
@@ -220,20 +225,20 @@ module.exports = class ABFieldNumberCore extends ABField {
    isValidData(data, validator) {
       super.isValidData(data, validator);
 
-      // var L = this.AB.Label();
+      // const L = this.AB.Label();
 
       if (data[this.columnName] != null && data[this.columnName] != "") {
-         var value = data[this.columnName];
+         let value = data[this.columnName];
 
          // if this is an integer:
          if (this.settings.typeDecimals == "none") {
             value = parseInt(value);
          } else {
-            var places = parseInt(this.settings.typeDecimalPlaces) || 2;
+            const places = parseInt(this.settings.typeDecimalPlaces) || 2;
             value = parseFloat(parseFloat(value).toFixed(places));
          }
 
-         var isNumeric = (n) => {
+         const isNumeric = (n) => {
             return !Number.isNaN(parseFloat(n)) && Number.isFinite(n);
          };
          if (!isNumeric(value)) {
@@ -246,7 +251,7 @@ module.exports = class ABFieldNumberCore extends ABField {
             this.settings.validateMinimum != null &&
             this.settings.validateMinimum > value
          ) {
-            let errMessage = L("should be greater than {0}", [
+            const errMessage = L("should be greater than {0}", [
                this.settings.validateMinimum,
             ]);
 
@@ -259,7 +264,7 @@ module.exports = class ABFieldNumberCore extends ABField {
             this.settings.validateMaximum != null &&
             this.settings.validateMaximum < value
          ) {
-            let errMessage = L("should be less than {0}", [
+            const errMessage = L("should be less than {0}", [
                this.settings.validateMaximum,
             ]);
 
@@ -284,22 +289,22 @@ module.exports = class ABFieldNumberCore extends ABField {
       // Validate number
       if (isNaN(parseFloat(data))) data = 0;
 
-      var formatSign = this.constructor
-            .formatList()
-            .filter((item) => item.id == this.settings.typeFormat)[0],
-         thousandsSign = this.constructor
-            .delimiterList()
-            .filter((item) => item.id == this.settings.typeThousands)[0],
-         decimalSign = this.constructor
-            .delimiterList()
-            .filter((item) => item.id == this.settings.typeDecimals)[0],
-         decimalPlaces =
-            this.settings.typeDecimalPlaces != "none"
-               ? parseInt(this.settings.typeDecimalPlaces)
-               : 0;
+      const formatSign = this.constructor
+         .formatList()
+         .filter((item) => item.id == this.settings.typeFormat)[0];
+      const decimalPlaces =
+         this.settings.typeDecimalPlaces != "none"
+            ? parseInt(this.settings.typeDecimalPlaces)
+            : 0;
 
-      var prefix = "",
-         postfix = "";
+      let thousandsSign = this.constructor
+         .delimiterList()
+         .filter((item) => item.id == this.settings.typeThousands)[0];
+      let decimalSign = this.constructor
+         .delimiterList()
+         .filter((item) => item.id == this.settings.typeDecimals)[0];
+      let prefix = "";
+      let postfix = "";
 
       if (formatSign && formatSign.sign) {
          switch (formatSign.position) {
@@ -317,11 +322,11 @@ module.exports = class ABFieldNumberCore extends ABField {
 
       // round number
       if (this.settings.typeRounding == "roundDown") {
-         var digit = Math.pow(10, decimalPlaces);
+         const digit = Math.pow(10, decimalPlaces);
          data = Math.floor(data * digit) / digit;
       }
 
-      var number = this.formatNumber(data, {
+      const number = this.formatNumber(data, {
          groupDelimiter: thousandsSign,
          groupSize: 3,
          decimalDelimiter: decimalSign,
@@ -335,23 +340,23 @@ module.exports = class ABFieldNumberCore extends ABField {
       if (data === "" || data == null) return data;
 
       data = parseFloat(data);
-      let negativeSign = data < 0 ? "-" : "";
+      const negativeSign = data < 0 ? "-" : "";
       data = Math.abs(data);
 
-      let dataStr = data.toString();
-      let integerStr = dataStr.split(".")[0];
-      let decimalStr = dataStr.split(".")[1];
+      const dataStr = data.toString();
+      const integerStr = dataStr.split(".")[0];
+      const decimalStr = dataStr.split(".")[1];
 
       let integerValue = "";
 
       // Thousands digit sign
       if (options.groupDelimiter) {
-         let step = 3;
+         const step = 3;
          let i = integerStr.length;
 
          do {
             i -= step;
-            let chunk =
+            const chunk =
                i > 0
                   ? integerStr.substr(i, step)
                   : integerStr.substr(0, step + i);

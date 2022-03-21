@@ -13,39 +13,82 @@ function L(key, altText) {
    return altText; // AD.lang.label.getLabel(key) || altText;
 }
 
-var ABFieldFormulaDefaults = {
-   key: "formula", // unique key to reference this specific DataField
+const ABFieldFormulaDefaults = {
+   key: "formula",
+   // unique key to reference this specific DataField
 
-   icon: "circle-o-notch", // font-awesome icon reference.  (without the 'fa-').  so 'user'  to reference 'fa-user'
-
-   // menuName: what gets displayed in the Editor drop list
-   menuName: L("ab.dataField.formula.menuName", "*Formula"),
-
+   description:
+      "Perform a calculation by a formula type based upon existing values",
    // description: what gets displayed in the Editor description.
-   description: L("ab.dataField.formula.description", "*"),
+   // NOTE: this will be displayed using a Label: L(description)
+
+   icon: "circle-o-notch",
+   // font-awesome icon reference.  (without the 'fa-').  so 'circle-o-notch'  to
+   // reference 'fa-circle-o-notch'
+
+   isFilterable: true,
+   // {bool} / {fn}
+   // determines if the current ABField can be used to filter (FilterComplex
+   // or Query) data.
+   // if a {fn} is provided, it will be called with the ABField as a parameter:
+   //  (field) => field.setting.something == true
 
    isSortable: false,
-   isFilterable: true,
-   useAsLabel: false,
+   // {bool} / {fn}
+   // determines if the current ABField can be used to Sort data.
+   // if a {fn} is provided, it will be called with the ABField as a parameter:
+   //  (field) => true/false
+
+   menuName: "Formula",
+   // menuName: what gets displayed in the Editor drop list
+   // NOTE: this will be displayed using a Label: L(menuName)
 
    supportQuery: (field) => {
-      let fieldLink = field.fieldLink;
+      const fieldLink = field.fieldLink;
       if (fieldLink == null) return false;
 
       // Not support calculate field in query
       return fieldLink.key !== "calculate";
    },
 
+   supportRequire: false,
+   // {bool}
+   // does this ABField support the Required setting?
+
+   supportUnique: false,
+   // {bool}
+   // does this ABField support the Unique setting?
+
+   useAsLabel: false,
+   // {bool} / {fn}
+   // determines if this ABField can be used in the display of an ABObject's
+   // label.
+
+   compatibleOrmTypes: ["number"],
+   // {array}
    // what types of Sails ORM attributes can be imported into this data type?
    // http://sailsjs.org/documentation/concepts/models-and-orm/attributes#?attribute-options
-   compatibleOrmTypes: [],
 
+   compatibleMysqlTypes: [
+      "tinyint",
+      "smallint",
+      "mediumint",
+      "int",
+      "integer",
+      "bigint",
+      "decimal",
+      "dec",
+      "numeric",
+      "fixed",
+      "float",
+      "real",
+   ],
+   // {array}
    // what types of MySql column types can be imported into this data type?
    // https://www.techonthenet.com/mysql/datatypes.php
-   compatibleMysqlTypes: [],
 };
 
-var defaultValues = {
+const defaultValues = {
    field: "", // id of ABField : NOTE - store our connect field to support when there are multi - linked columns
    objectLink: "", // id of ABObject
    fieldLink: "", // id of ABField
@@ -92,14 +135,14 @@ module.exports = class ABFieldFormulaCore extends ABField {
     *        a boolean that signals if we should force recalculation of values
     */
    format(rowData, reCalculate = false) {
-      var fieldLink = this.fieldLink;
+      const fieldLink = this.fieldLink;
 
-      let reformat = (numData) => {
+      const reformat = (numData) => {
          // ABFieldCalculate does not need to .format again
          if (!fieldLink || fieldLink.key == "calculate") {
             return numData;
          } else {
-            let rowDataFormat = {};
+            const rowDataFormat = {};
             rowDataFormat[fieldLink.columnName] = numData;
             return fieldLink.format(rowDataFormat);
          }
@@ -114,10 +157,10 @@ module.exports = class ABFieldFormulaCore extends ABField {
 
       if (!fieldLink) return 0;
 
-      var fieldBase = this.fieldBase();
+      const fieldBase = this.fieldBase();
       if (!fieldBase) return 0;
 
-      var data = rowData[fieldBase.relationName()] || [];
+      let data = rowData[fieldBase.relationName()] || [];
       if (!Array.isArray(data)) data = [data];
 
       // Filter
@@ -133,7 +176,7 @@ module.exports = class ABFieldFormulaCore extends ABField {
          data = data.filter((item) => this.filterHelper.isValid(item));
       }
 
-      var numberList = [];
+      let numberList = [];
 
       // pull number from data
       switch (fieldLink.key) {
@@ -147,10 +190,10 @@ module.exports = class ABFieldFormulaCore extends ABField {
             break;
       }
 
-      var result = 0;
+      let result = 0;
 
       // get the decimal size of the numbers being calculated
-      var decimalSize = fieldLink.getDecimalSize();
+      const decimalSize = fieldLink.getDecimalSize();
 
       // calculate
       switch (this.settings.type) {
@@ -158,11 +201,11 @@ module.exports = class ABFieldFormulaCore extends ABField {
             if (numberList.length > 0) {
                // get power of 10 to the number of decimal places this number
                // is formated to require
-               var multiplier = Math.pow(10, decimalSize);
+               const multiplier = Math.pow(10, decimalSize);
                // multiply values by muliplyier and add them to pervious value
                // because in javascript adding number with decimals can cause issues
                // ex: 9.11 + 222.11 = 231.22000000000003
-               var sum = 0;
+               let sum = 0;
                numberList.forEach((val) => {
                   sum += val * multiplier || 0;
                });
@@ -175,11 +218,11 @@ module.exports = class ABFieldFormulaCore extends ABField {
             if (numberList.length > 0) {
                // get power of 10 to the number of decimal places this number
                // is formated to require
-               var multiplier = Math.pow(10, decimalSize);
+               const multiplier = Math.pow(10, decimalSize);
                // multiply values by muliplyier and add them to pervious value
                // because in javascript adding number with decimals can cause issues
                // ex: 9.11 + 222.11 = 231.22000000000003
-               var sum = 0;
+               let sum = 0;
                numberList.forEach((val) => {
                   sum += val * multiplier || 0;
                });
@@ -215,12 +258,12 @@ module.exports = class ABFieldFormulaCore extends ABField {
    }
 
    get fieldLink() {
-      var obj = this.object.AB.objects(
+      const obj = this.object.AB.objects(
          (obj) => obj.id == this.settings.object
       )[0];
       if (!obj) return null;
 
-      var field = obj.fields((f) => f.id == this.settings.fieldLink)[0];
+      const field = obj.fields((f) => f.id == this.settings.fieldLink)[0];
       if (!field) return null;
 
       return field;

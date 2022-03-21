@@ -116,9 +116,9 @@ module.exports = class ABObjectQueryCore extends ABObject {
       // this gets built in the .importJoins();
 
       this.viewName = attributes.viewName || "";
-      // knex does not like .(dot) in table and column names
-      // https://github.com/knex/knex/issues/2762
-      this.viewName = this.viewName.replace(/[^a-zA-Z0-9_ ]/gi, "");
+      // {string}
+      // this is the SQL tablename of where our Query will store it's
+      // view data.
 
       // import all our ABObjects
       this.importJoins(attributes.joins || {});
@@ -349,6 +349,20 @@ module.exports = class ABObjectQueryCore extends ABObject {
     */
    objectByAlias(alias) {
       var objID = this.alias2Obj[alias];
+      if (objID) {
+         return this.objects((o) => o.id == objID)[0];
+      }
+      return null;
+   }
+
+   /**
+    * @method objectByID()
+    * return ABObject search by ID
+    * @param {string} objID
+    *        The requested {ABObject}.id of the object to return.
+    * @return {ABObject} | null
+    */
+   objectByID(objID) {
       if (objID) {
          return this.objects((o) => o.id == objID)[0];
       }
