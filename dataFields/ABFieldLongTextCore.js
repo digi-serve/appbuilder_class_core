@@ -25,7 +25,7 @@ const ABFieldLongTextDefaults = {
    // font-awesome icon reference.  (without the 'fa-').  so 'align-right'  to
    // reference 'fa-align-right'
 
-   isFilterable: false,
+   isFilterable: true,
    // {bool} / {fn}
    // determines if the current ABField can be used to filter (FilterComplex
    // or Query) data.

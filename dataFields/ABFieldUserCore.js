@@ -24,7 +24,7 @@ const ABFieldUserDefaults = {
    // font-awesome icon reference.  (without the 'fa-').  so 'user-o'  to
    // reference 'fa-user-o'
 
-   isFilterable: false,
+   isFilterable: true,
    // {bool} / {fn}
    // determines if the current ABField can be used to filter (FilterComplex
    // or Query) data.
