@@ -365,7 +365,7 @@ module.exports = class FilterComplexCore extends ABComponent {
    queryFieldValid(rowData, rule, compareValue) {
       var result = false;
 
-      if (!this._Application || !compareValue) return result;
+      if (!compareValue) return result;
 
       // queryId:fieldId
       var queryId = compareValue.split(":")[0],
@@ -384,7 +384,6 @@ module.exports = class FilterComplexCore extends ABComponent {
             .replace("{id}", query.id),
          inQueryFieldFilter = new this.constructor(this.App, qIdBase, this.AB);
       inQueryFieldFilter.Account = this.Account;
-      inQueryFieldFilter.applicationLoad(this._Application);
       inQueryFieldFilter.fieldsLoad(query.fields());
       inQueryFieldFilter.setValue(query.workspaceFilterConditions);
 
@@ -403,7 +402,7 @@ module.exports = class FilterComplexCore extends ABComponent {
    inQueryValid(value, rule, compareValue) {
       let result = false;
 
-      if (!compareValue || !this._Application) return result;
+      if (!compareValue) return result;
 
       // if no query
       let query = this.queries((q) => q.id == compareValue)[0];
@@ -433,7 +432,7 @@ module.exports = class FilterComplexCore extends ABComponent {
    dataCollectionValid(value, rule, compareValue) {
       var result = false;
 
-      if (!compareValue || !this._Application) return result;
+      if (!compareValue) return result;
 
       let dc = this.AB.datacollections((d) => d.id == compareValue)[0];
 
@@ -484,7 +483,7 @@ module.exports = class FilterComplexCore extends ABComponent {
          // if in_query condition
          case "in_query":
          case "not_in_query":
-            if (!this._Application || !this._Object) return result;
+            if (!this._Object) return result;
 
             // if > 1 copy of this object in query ==> Error!
             let query = this.queries((q) => q.id == compareValue)[0];
@@ -522,16 +521,6 @@ module.exports = class FilterComplexCore extends ABComponent {
             // send rowData, null to datacollectionValid()
             return this.dataCollectionValid(rowData, rule, compareValue);
       }
-   }
-
-   /**
-    * @method applicationLoad
-    * set application
-    *
-    * @param application {ABApplication}
-    */
-   applicationLoad(application) {
-      this._Application = application;
    }
 
    processFieldsLoad(processFields = []) {
@@ -1025,9 +1014,9 @@ module.exports = class FilterComplexCore extends ABComponent {
    queries(filter = () => true) {
       let result = [];
 
-      if (this._Application) {
-         result = result.concat(this._Application.queriesIncluded(filter));
-      }
+      // if (this._Application) {
+      //    result = result.concat(this._Application.queriesIncluded(filter));
+      // }
 
       if (this._Queries) {
          result = result.concat(
