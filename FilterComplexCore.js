@@ -536,66 +536,8 @@ module.exports = class FilterComplexCore extends ABComponent {
 
    processFieldsLoad(processFields = []) {
       if (!Array.isArray(processFields)) {
-         processFields = [processFields];
+         this._ProcessFields = [processFields];
       }
-      processFields.forEach((processField) => {
-         var type = {};
-
-         // some processfields have .field definitions, others don't.
-         // if they do, process this using the field.id
-         if (processField.field) {
-            type[processField.field.id] = {
-               view: "select",
-               options: [
-                  {
-                     id: "empty",
-                     value: "choose option",
-                  },
-                  {
-                     id: processField.key,
-                     value: `context(${processField.label})`,
-                  },
-               ],
-            };
-         } else {
-            // if there is no .field, it is probably an embedded special field
-            // like: .uuid
-            var key = processField.key.split(".").pop();
-            type[key] = {
-               view: "select",
-               options: [
-                  {
-                     id: "empty",
-                     value: "choose option",
-                  },
-                  {
-                     id: processField.key,
-                     value: `context(${processField.label})`,
-                  },
-               ],
-            };
-         }
-
-         // add an "equals" and "not equals" filter for each:
-         this._Filters = this._Filters.concat([
-            {
-               id: `context_equals`,
-               value: `equals process value`,
-               type,
-               handler: (a, b) => {
-                  return a == b;
-               },
-            },
-            {
-               id: `context_not_equal`,
-               value: `not equals process value`,
-               type,
-               handler: (a, b) => {
-                  return a != b;
-               },
-            },
-         ]);
-      });
       this.uiInit();
    }
 
@@ -609,7 +551,7 @@ module.exports = class FilterComplexCore extends ABComponent {
    fieldsLoad(fields = [], object = null) {
       this._Fields = fields.filter((f) => f && f.fieldIsFilterable());
       this._QueryFields = this._Fields
-         ? this._Fields.filter((f) => f && f.isConnection)
+         ? this._Fields.filter((f) => f && f.isConnection && f.key != "user")
          : [];
 
       // insert our 'this object' entry if an Object was given.
@@ -700,6 +642,7 @@ module.exports = class FilterComplexCore extends ABComponent {
             case "string":
             case "LongText":
             case "email":
+            case "AutoIndex":
                conditions = conditions
                   .concat(this.fieldsAddFiltersString(f))
                   .concat(this.fieldsAddFiltersQueryField(f));
@@ -723,6 +666,15 @@ module.exports = class FilterComplexCore extends ABComponent {
             conditions = conditions.concat(this.fieldsAddFiltersRecordRule(f));
          }
 
+         let isProcessField =
+            (this._ProcessFields ?? []).filter(
+               (processField) => processField?.field?.id == f?.id
+            ).length > 0;
+
+         if (isProcessField) {
+            conditions = conditions.concat(this.fieldsAddFiltersContext(f));
+         }
+
          // let type = f.id; // the default unique identifier for our filter types
          // if (f.id == "this_object") {
          //    // if this happens to be our special "this_object" field, then our
@@ -744,6 +696,25 @@ module.exports = class FilterComplexCore extends ABComponent {
             // format: () => {},
          };
       });
+
+      // !!! Process Fields of ABProcess
+      // https://github.com/digi-serve/appbuilder_class_core/blob/master/FilterComplexCore.js#L636
+      // https://github.com/digi-serve/appbuilder_class_core/blob/master/FilterComplexCore.js#L564
+      (this._ProcessFields || [])
+         // if there is no .field, it is probably an embedded special field
+         .filter((pField) => pField.field == null)
+         .forEach((pField) => {
+            // like: .uuid
+            let key = pField.key.split(".").pop();
+            if (key == "uuid" && this._Object) {
+               fields.unshift({
+                  id: pField.key,
+                  value: this._Object.label,
+                  type: "text",
+                  conditions: this.fieldsAddFiltersContext(),
+               });
+            }
+         });
 
       return fields;
    }
@@ -849,36 +820,60 @@ module.exports = class FilterComplexCore extends ABComponent {
          equals: this.labels.component.equalListCondition,
       };
 
+      let result = [];
+
       for (let condKey in booleanConditions) {
-         this._Filters.push({
+         result.push({
             id: condKey,
             value: booleanConditions[condKey],
             batch: "boolean",
             handler: (a, b) => this.booleanValid(a, condKey, b),
          });
       }
+
+      return result;
    }
 
    fieldsAddFiltersUser(field) {
       let userConditions = {
-         is_current_user: this.labels.component.isCurrentUserCondition,
-         is_not_current_user: this.labels.component.isNotCurrentUserCondition,
-         contain_current_user: this.labels.component
-            .containsCurrentUserCondition,
-         not_contain_current_user: this.labels.component
-            .notContainsCurrentUserCondition,
-         equals: this.labels.component.equalListCondition,
-         not_equal: this.labels.component.notEqualListCondition,
+         is_current_user: {
+            batch: "none",
+            label: this.labels.component.isCurrentUserCondition,
+         },
+         is_not_current_user: {
+            batch: "none",
+            label: this.labels.component.isNotCurrentUserCondition,
+         },
+         contain_current_user: {
+            batch: "none",
+            label: this.labels.component.containsCurrentUserCondition,
+         },
+         not_contain_current_user: {
+            batch: "none",
+            label: this.labels.component.notContainsCurrentUserCondition,
+         },
+         equals: {
+            batch: "user",
+            label: this.labels.component.equalListCondition,
+         },
+         not_equal: {
+            batch: "user",
+            label: this.labels.component.notEqualListCondition,
+         },
       };
 
+      let result = [];
+
       for (let condKey in userConditions) {
-         this._Filters.push({
+         result.push({
             id: condKey,
-            value: userConditions[condKey],
-            batch: "user",
+            value: userConditions[condKey].label,
+            batch: userConditions[condKey].batch,
             handler: (a, b) => this.userValid(a, condKey, b),
          });
       }
+
+      return result;
    }
 
    fieldsAddFiltersQuery(field) {
@@ -976,6 +971,44 @@ module.exports = class FilterComplexCore extends ABComponent {
       return result;
    }
 
+   fieldsAddFiltersContext(field) {
+      let contextConditions = {
+         context_equals: {
+            batch: "context",
+            label: this.labels.component.EqualsProcessValue,
+            handler: (a, b) => a == b,
+         },
+         context_not_equal: {
+            batch: "context",
+            label: this.labels.component.NotEqualsProcessValueCondition,
+            handler: (a, b) => a != b,
+         },
+         context_in: {
+            batch: "context",
+            label: this.labels.component.InProcessValueCondition,
+            handler: (a, b) => a.indexOf(b) > -1,
+         },
+         context_not_in: {
+            batch: "context",
+            label: this.labels.component.notInProcessValueCondition,
+            handler: (a, b) => a.indexOf(b) == -1,
+         },
+      };
+
+      let result = [];
+
+      for (let condKey in contextConditions) {
+         result.push({
+            id: condKey,
+            value: contextConditions[condKey].label,
+            batch: contextConditions[condKey].batch,
+            handler: contextConditions[condKey].handler,
+         });
+      }
+
+      return result;
+   }
+
    queriesLoad(queries = []) {
       this._Queries = queries;
    }
@@ -1032,4 +1065,3 @@ module.exports = class FilterComplexCore extends ABComponent {
       return this.condition;
    }
 };
-
