@@ -176,6 +176,7 @@ module.exports = class ABViewPageCore extends ABViewContainer {
          })
          .then(() => {
             var parent = this.parent || this.application;
+
             return parent.pageRemove(this);
          })
          .then(() => {
@@ -219,6 +220,7 @@ module.exports = class ABViewPageCore extends ABViewContainer {
          .then(() => {
             // now we can persist ourself in our parent
             var parent = this.parent || this.application;
+
             return parent.pageInsert(this);
          })
          .then(() => {
@@ -426,7 +428,7 @@ module.exports = class ABViewPageCore extends ABViewContainer {
     * @return {Promise}
     *        .resolved with the instance of the copied ABView
     */
-   copy(lookUpIds, parent) {
+   copy(lookUpIds, parent, options) {
       // initial new ids of pages and components
       if (lookUpIds == null) {
          // create a hash of { oldID : newID } of any sub Pages and Views.
@@ -450,6 +452,6 @@ module.exports = class ABViewPageCore extends ABViewContainer {
       }
 
       // now continue with the default .copy()
-      return super.copy(lookUpIds, parent);
+      return super.copy(lookUpIds, parent, options);
    }
 };
