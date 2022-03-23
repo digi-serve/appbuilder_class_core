@@ -598,6 +598,7 @@ module.exports = class FilterComplexCore extends ABComponent {
             {
                id: `context_in`,
                name: `in process value`,
+               type,
                fn: (a, b) => {
                   return a.indexOf(b) > -1;
                }
