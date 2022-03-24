@@ -1053,4 +1053,34 @@ module.exports = class FilterComplexCore extends ABComponent {
    getValue() {
       return this.condition;
    }
+
+   isComplete() {
+      let result = true;
+
+      const noValueRules = [
+         "is_current_user",
+         "is_not_current_user",
+         "contain_current_user",
+         "not_contain_current_user",
+      ];
+
+      const isCompleteRules = (rules = []) => {
+         if (result == false) return false;
+
+         rules.forEach((r) => {
+            if (r?.rules && Array.isArray(r?.rules)) {
+               isCompleteRules(r?.rules);
+            } else {
+               result =
+                  r?.key != null &&
+                  r?.rule != null &&
+                  (r?.value != null || noValueRules.indexOf(r?.rule) > -1);
+            }
+         });
+      };
+
+      result = isCompleteRules(this.condition?.rules);
+
+      return result;
+   }
 };
