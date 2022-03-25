@@ -1062,6 +1062,8 @@ module.exports = class FilterComplexCore extends ABComponent {
          "is_not_current_user",
          "contain_current_user",
          "not_contain_current_user",
+         "same_as_user",
+         "not_same_as_user",
       ];
 
       const isCompleteRules = (rules = []) => {
@@ -1072,9 +1074,11 @@ module.exports = class FilterComplexCore extends ABComponent {
                isCompleteRules(r?.rules);
             } else {
                result =
-                  r?.key != null &&
-                  r?.rule != null &&
-                  (r?.value != null || noValueRules.indexOf(r?.rule) > -1);
+                  result &&
+                  (r?.key != null || r?.key == "") &&
+                  (r?.rule != null || r?.rule == "") &&
+                  ((r?.value != null && r?.value != "") ||
+                     noValueRules.indexOf(r?.rule) > -1);
             }
          });
       };
