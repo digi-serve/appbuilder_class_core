@@ -106,4 +106,22 @@ module.exports = class ABFieldCombineCore extends ABField {
       // Remove every values, then we will use AUTO_INCREMENT of MySQL
       delete values[this.columnName];
    }
+
+   warnings() {
+      this._warnings = [];
+
+      (this.settings.combinedFields.split(",") || []).forEach((id) => {
+         var field = this.object.fieldByID(id);
+         if (!field) {
+            this.emit("warning", "dependent field not found", {
+               fieldID: id,
+               combinedFields: this.settings.combinedFields,
+            });
+         }
+      });
+      // console.error("combinedFields:", this.settings.combinedFields);
+
+
+      return this._warnings;
+   }
 };

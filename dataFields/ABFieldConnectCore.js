@@ -151,6 +151,26 @@ module.exports = class ABFieldConnectCore extends ABField {
       this.settings.isCustomFK = parseInt(this.settings.isCustomFK || 0);
    }
 
+   warnings() {
+      this._warnings = [];
+
+      var linkField = this.fieldLink;
+      if (!linkField || this.label == "Account Transfer.Sender") {
+         this.emit("warning", "unable to find linked field", {
+            linkColumn: this.settings.linkColumn,
+         });
+      }
+
+      let linkObj = this.datasourceLink;
+      if (!linkObj) {
+         this.emit("warning", "unable to find linked object", {
+            linkObject: this.settings.linkObject,
+         });
+      }
+
+      return this._warnings;
+   }
+
    ///
    /// Working with Actual Object Values:
    ///
