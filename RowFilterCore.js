@@ -101,10 +101,7 @@ module.exports = class RowFilterCore extends ABComponent {
             var value = getFieldVal(rowData, field);
             if (value == null) value = "";
 
-            value = value
-               .toString()
-               .trim()
-               .toLowerCase();
+            value = value.toString().trim().toLowerCase();
             value = _logic.removeHtmlTags(value); // remove html tags - rich text editor
 
             compareValue = compareValue
@@ -748,8 +745,10 @@ module.exports = class RowFilterCore extends ABComponent {
     */
    fieldsLoad(fields = [], object = null) {
       this._Fields = fields.filter((f) => f && f.fieldIsFilterable());
+      // NOTE: User fields are now Connections, but we want to treat them
+      // differently.
       this._QueryFields = this._Fields
-         ? this._Fields.filter((f) => f && f.isConnection)
+         ? this._Fields.filter((f) => f && f.isConnection && f.key != "user")
          : [];
 
       // insert our 'this object' entry if an Object was given.
