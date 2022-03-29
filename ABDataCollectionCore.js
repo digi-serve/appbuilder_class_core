@@ -1511,7 +1511,7 @@ module.exports = class ABDataCollectionCore extends ABMLClass {
       // set query condition
       var cond = {
          where: wheres,
-         // limit: limit || 20,
+         limit: limit || 20,
          skip: start || 0,
          sort: sorts,
          populate: this.settings.preventPopulate ? false : true,
@@ -1664,7 +1664,7 @@ module.exports = class ABDataCollectionCore extends ABMLClass {
          // If dc set load all, then it will not trigger .loadData in dc at
          // .onAfterLoad event
          if (this.settings.loadAll) {
-            this.emit("loadData", {});
+            this.emit("loadData", data);
          }
 
          // now we close out our .loadData() promise.resolve() :
