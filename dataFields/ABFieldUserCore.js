@@ -24,7 +24,7 @@ const ABFieldUserDefaults = {
    // font-awesome icon reference.  (without the 'fa-').  so 'user-o'  to
    // reference 'fa-user-o'
 
-   isFilterable: false,
+   isFilterable: true,
    // {bool} / {fn}
    // determines if the current ABField can be used to filter (FilterComplex
    // or Query) data.
@@ -124,6 +124,6 @@ module.exports = class ABFieldUserCore extends ABFieldConnect {
       if (val && !Array.isArray(val)) val = [val];
       if (!val) val = [];
 
-      return val.map((v) => v.text || v).join(", ");
+      return val.map((v) => v.username || v).join(", ");
    }
 };

@@ -1522,7 +1522,7 @@ module.exports = class ABDataCollectionCore extends ABMLClass {
 
       // set query condition
       var cond = {
-         where: wheres,
+         where: wheres || {},
          limit: limit || 20,
          skip: start || 0,
          sort: sorts,

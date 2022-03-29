@@ -24,7 +24,7 @@ const ABFieldCombinedDefaults = {
    // font-awesome icon reference.  (without the 'fa-').  so 'key'  to
    // reference 'fa-key'
 
-   isFilterable: false,
+   isFilterable: true,
    // {bool} / {fn}
    // determines if the current ABField can be used to filter (FilterComplex
    // or Query) data.
@@ -105,5 +105,23 @@ module.exports = class ABFieldCombineCore extends ABField {
    defaultValue(values) {
       // Remove every values, then we will use AUTO_INCREMENT of MySQL
       delete values[this.columnName];
+   }
+
+   warnings() {
+      this._warnings = [];
+
+      (this.settings.combinedFields.split(",") || []).forEach((id) => {
+         var field = this.object.fieldByID(id);
+         if (!field) {
+            this.emit("warning", "dependent field not found", {
+               fieldID: id,
+               combinedFields: this.settings.combinedFields,
+            });
+         }
+      });
+      // console.error("combinedFields:", this.settings.combinedFields);
+
+
+      return this._warnings;
    }
 };
