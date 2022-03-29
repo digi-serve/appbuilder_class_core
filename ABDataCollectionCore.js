@@ -1435,7 +1435,18 @@ module.exports = class ABDataCollectionCore extends ABMLClass {
             // if that DC hasn't started initializing yet, start it!
             case DC.dataStatusFlag.notInitial:
                DC.loadData().catch(reject);
-            // no break;
+               // listen for "initializedData" event from the DC
+               // then we can continue.
+               this.eventAdd({
+                  emitter: DC,
+                  eventName: "initializedData",
+                  listener: () => {
+                     // go next
+                     resolve();
+                  },
+               });
+               resolve();
+               break;
 
             // once in the process of initializing
             /* eslint-disable no-fallthrough*/
@@ -1451,6 +1462,7 @@ module.exports = class ABDataCollectionCore extends ABMLClass {
                      resolve();
                   },
                });
+               resolve();
                break;
 
             // if it is already initialized, we can continue:
