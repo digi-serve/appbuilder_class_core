@@ -229,6 +229,7 @@ module.exports = class ABObjectQueryCore extends ABObject {
                   fieldInfo,
                }
             );
+            return;
          }
 
          if (!this.canFilterField(field)) {
