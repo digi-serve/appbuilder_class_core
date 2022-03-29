@@ -1606,6 +1606,8 @@ module.exports = class ABDataCollectionCore extends ABMLClass {
       //// this will need to be updated to reflect that management:
       //// (and also explains why we refactored things into .processIncomingData())
       return model.findAll(cond).then((data) => {
+         data.total_count =
+            data.total_count > data.limit ? data.limit : data.total_count;
          return this.processIncomingData(data);
       });
    }
