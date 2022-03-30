@@ -56,6 +56,13 @@ module.exports = class ABApplicationCore extends ABMLClass {
       // with the .label.  The .name is created at design time and is a text
       // reference for this object.
 
+      this.icon = attributes.icon || "fa-rocket";
+      // {string} .icon
+      // this is a reference to a font awesome icon including the `fa-`
+      // example `fa-child` should be stored for the `child` icon to be used
+      // if user wants to get creative they can add more to this field following
+      // these examples https://fontawesome.com/v4/examples/
+
       this.isSystemObj = attributes.isSystemObj ?? false;
       // {bool} .isSystemObj
       // is this one of the integrated System Objects used by our framework?
@@ -297,6 +304,7 @@ module.exports = class ABApplicationCore extends ABMLClass {
          id: this.id,
          type: this.type || "application",
          name: this.name,
+         icon: this.icon,
          isSystemObj: this.isSystemObj,
          json: this.json,
          roleAccess: this.roleAccess,
@@ -854,6 +862,17 @@ module.exports = class ABApplicationCore extends ABMLClass {
       values.key = "page";
 
       return ABViewManager.newView(values, this, null);
+   }
+
+   /**
+    * @method pageByID()
+    * return pages from the given {id}
+    * @param {string} id
+    *        the uuid of the page to return.
+    * @return {ABViewPage}
+    */
+   pageByID(id) {
+      return this.pages((f) => f.id == id)[0];
    }
 
    /**

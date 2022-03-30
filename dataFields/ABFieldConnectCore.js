@@ -5,7 +5,7 @@
  *
  */
 
-const ABFieldSelectivity = require("../../platform/dataFields/ABFieldSelectivity");
+var ABField = require("../../platform/dataFields/ABField");
 
 function L(key, altText) {
    // TODO:
@@ -114,7 +114,7 @@ const defaultValues = {
    //       custom Key for the data we are storing.
 };
 
-module.exports = class ABFieldConnectCore extends ABFieldSelectivity {
+module.exports = class ABFieldConnectCore extends ABField {
    constructor(values, object, fieldDefaults = ABFieldConnectDefaults) {
       super(values, object, fieldDefaults);
 
@@ -149,6 +149,26 @@ module.exports = class ABFieldConnectCore extends ABFieldSelectivity {
       // text to Int:
       this.settings.isSource = parseInt(this.settings.isSource || 0);
       this.settings.isCustomFK = parseInt(this.settings.isCustomFK || 0);
+   }
+
+   warnings() {
+      this._warnings = [];
+
+      var linkField = this.fieldLink;
+      if (!linkField || this.label == "Account Transfer.Sender") {
+         this.emit("warning", "unable to find linked field", {
+            linkColumn: this.settings.linkColumn,
+         });
+      }
+
+      let linkObj = this.datasourceLink;
+      if (!linkObj) {
+         this.emit("warning", "unable to find linked object", {
+            linkObject: this.settings.linkObject,
+         });
+      }
+
+      return this._warnings;
    }
 
    ///

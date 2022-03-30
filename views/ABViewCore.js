@@ -798,7 +798,12 @@ module.exports = class ABViewCore extends ABMLClass {
       let result = this.viewNew(config, this.application, parent);
 
       // change id
-      result.id = lookUpIds[result.id] || this.AB.uuid();
+      if (parent == null) {
+         // the page is getting cloned to root: there is no parent, as parent is the application
+         result.id = null;
+      } else {
+         result.id = lookUpIds[result.id] || this.AB.uuid();
+      }
 
       // copy sub pages
       if (this.pages && !options.ignoreSubPages) {
@@ -839,6 +844,8 @@ module.exports = class ABViewCore extends ABMLClass {
     *        option settings for the copy command.
     *        options.ignoreSubPages {bool}
     *             set to true to skip copying any sub pages of this ABView.
+    *        options.newName {string}
+    *             new user determined name for page
     * @return {Promise}
     *        .resolved with the instance of the copied ABView
     */
@@ -868,15 +875,21 @@ module.exports = class ABViewCore extends ABMLClass {
       result.parent = parent || this.parent;
 
       // change id
-      result.id = lookUpIds[result.id] || this.AB.uuid();
+      if (parent == null) {
+         // the page is getting cloned to root: there is no parent, as parent is the application.
+         // pages with null parent ids default to getting put on root
+         result.id = null;
+      } else {
+         result.id = lookUpIds[result.id] || this.AB.uuid();
+      }
 
       // page's name should not be duplicate
       if (this.key == "page") {
-         result.name = `${result.name}_copied_${this.application
-            .uuid()
-            .slice(0, 3)}`;
+         result.name =
+            options?.newName ||
+            `${result.name}_copied_${this.AB.uuid().slice(0, 3)}`;
 
-         result.label = `${result.label} (copied)`;
+         result.label = options?.newName || `${result.label} (copied)`;
       }
 
       return Promise.resolve()

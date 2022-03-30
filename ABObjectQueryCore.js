@@ -116,9 +116,9 @@ module.exports = class ABObjectQueryCore extends ABObject {
       // this gets built in the .importJoins();
 
       this.viewName = attributes.viewName || "";
-      // knex does not like .(dot) in table and column names
-      // https://github.com/knex/knex/issues/2762
-      this.viewName = this.viewName.replace(/[^a-zA-Z0-9_ ]/gi, "");
+      // {string}
+      // this is the SQL tablename of where our Query will store it's
+      // view data.
 
       // import all our ABObjects
       this.importJoins(attributes.joins || {});
@@ -212,20 +212,57 @@ module.exports = class ABObjectQueryCore extends ABObject {
             }
          }
 
-         if (!object) return;
+         if (!object) {
+            this.emit("warning", "could not resolve object for fieldSetting", {
+               fieldInfo,
+            });
+            return;
+         }
 
          let field = object.fieldByID(fieldInfo.fieldID);
+         if (!field) {
+            this.emit(
+               "warning",
+               "field referenced in fieldSetting was not found for object",
+               {
+                  object: object.toObj(),
+                  fieldInfo,
+               }
+            );
+            return;
+         }
 
-         // should be a field of base/join objects
-         if (
-            field &&
-            this.canFilterField(field) &&
-            // check duplicate
+         if (!this.canFilterField(field)) {
+            this.emit(
+               "warning",
+               "field referenced in fieldSetting did not pass .canFilterField",
+               {
+                  field: field.toObj(),
+                  fieldInfo,
+               }
+            );
+         }
+
+         // check duplicate
+         let isNew =
             newFields.filter(
                (f) =>
                   f.alias == fieldInfo.alias && f.field.id == fieldInfo.fieldID
-            ).length < 1
-         ) {
+            ).length < 1;
+
+         if (!isNew) {
+            this.emit(
+               "warning",
+               "field referenced in fieldSetting is a duplicate",
+               {
+                  field: field.toObj(),
+                  fieldInfo,
+               }
+            );
+         }
+
+         // should be a field of base/join objects
+         if (field && this.canFilterField(field) && isNew) {
             // add alias to field
             // create new instance of this field:
             var def = field.toObj();
@@ -356,6 +393,20 @@ module.exports = class ABObjectQueryCore extends ABObject {
    }
 
    /**
+    * @method objectByID()
+    * return ABObject search by ID
+    * @param {string} objID
+    *        The requested {ABObject}.id of the object to return.
+    * @return {ABObject} | null
+    */
+   objectByID(objID) {
+      if (objID) {
+         return this.objects((o) => o.id == objID)[0];
+      }
+      return null;
+   }
+
+   /**
     * @method links()
     *
     * return an array of links for this Query.
@@ -433,11 +484,25 @@ module.exports = class ABObjectQueryCore extends ABObject {
             //	},
 
             var linkField = baseObject.fieldByID(link.fieldID);
-            if (!linkField) return;
+            if (!linkField) {
+               this.emit("warning", "could not resolve our linkField", {
+                  link,
+               });
+               return;
+            }
 
             // track our linked object
             var linkObject = this.AB.objectByID(linkField.settings.linkObject);
-            if (!linkObject) return;
+            if (!linkObject) {
+               this.emit(
+                  "warning",
+                  "could not resolve our linked field -> linkObject",
+                  {
+                     link,
+                  }
+               );
+               return;
+            }
 
             storeObject(linkObject, link.alias);
 
@@ -455,6 +520,9 @@ module.exports = class ABObjectQueryCore extends ABObject {
       var rootObject = this.objectBase();
       if (!rootObject) {
          // this._objects = newObjects;
+         this.emit("warning", "could not resolve our base object", {
+            objectID: this._joins?.objectID,
+         });
          return;
       }
 

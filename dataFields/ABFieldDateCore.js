@@ -24,7 +24,7 @@ const ABFieldDateDefaults = {
    // font-awesome icon reference.  (without the 'fa-').  so 'calendar'  to
    // reference 'fa-calendar'
 
-   isFilterable: false,
+   isFilterable: true,
    // {bool} / {fn}
    // determines if the current ABField can be used to filter (FilterComplex
    // or Query) data.
