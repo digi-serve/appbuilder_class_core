@@ -212,20 +212,57 @@ module.exports = class ABObjectQueryCore extends ABObject {
             }
          }
 
-         if (!object) return;
+         if (!object) {
+            this.emit("warning", "could not resolve object for fieldSetting", {
+               fieldInfo,
+            });
+            return;
+         }
 
          let field = object.fieldByID(fieldInfo.fieldID);
+         if (!field) {
+            this.emit(
+               "warning",
+               "field referenced in fieldSetting was not found for object",
+               {
+                  object: object.toObj(),
+                  fieldInfo,
+               }
+            );
+            return;
+         }
 
-         // should be a field of base/join objects
-         if (
-            field &&
-            this.canFilterField(field) &&
-            // check duplicate
+         if (!this.canFilterField(field)) {
+            this.emit(
+               "warning",
+               "field referenced in fieldSetting did not pass .canFilterField",
+               {
+                  field: field.toObj(),
+                  fieldInfo,
+               }
+            );
+         }
+
+         // check duplicate
+         let isNew =
             newFields.filter(
                (f) =>
                   f.alias == fieldInfo.alias && f.field.id == fieldInfo.fieldID
-            ).length < 1
-         ) {
+            ).length < 1;
+
+         if (!isNew) {
+            this.emit(
+               "warning",
+               "field referenced in fieldSetting is a duplicate",
+               {
+                  field: field.toObj(),
+                  fieldInfo,
+               }
+            );
+         }
+
+         // should be a field of base/join objects
+         if (field && this.canFilterField(field) && isNew) {
             // add alias to field
             // create new instance of this field:
             var def = field.toObj();
@@ -447,11 +484,25 @@ module.exports = class ABObjectQueryCore extends ABObject {
             //	},
 
             var linkField = baseObject.fieldByID(link.fieldID);
-            if (!linkField) return;
+            if (!linkField) {
+               this.emit("warning", "could not resolve our linkField", {
+                  link,
+               });
+               return;
+            }
 
             // track our linked object
             var linkObject = this.AB.objectByID(linkField.settings.linkObject);
-            if (!linkObject) return;
+            if (!linkObject) {
+               this.emit(
+                  "warning",
+                  "could not resolve our linked field -> linkObject",
+                  {
+                     link,
+                  }
+               );
+               return;
+            }
 
             storeObject(linkObject, link.alias);
 
@@ -469,6 +520,9 @@ module.exports = class ABObjectQueryCore extends ABObject {
       var rootObject = this.objectBase();
       if (!rootObject) {
          // this._objects = newObjects;
+         this.emit("warning", "could not resolve our base object", {
+            objectID: this._joins?.objectID,
+         });
          return;
       }
 
