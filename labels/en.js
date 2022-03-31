@@ -1,6 +1,18 @@
 /* eslint-disable */
 module.exports = {
-   /* key   : label */
+   /* key : label */
+   "not in process value" : "not in process value",
+   "in process value" : "in process value",
+   "not equals process value" : "not equals process value",
+   "equals process value" : "equals process value",
+   "choose option" : "choose option",
+   "Back to log in" : "Back to log in",
+   "Forgot password?" : "Forgot password?",
+   "not in process value" : "not in process value",
+   "in process value" : "in process value",
+   "not equals process value" : "not equals process value",
+   "equals process value" : "equals process value",
+   "choose option" : "choose option",
    "Year" : "Year",
    "Month" : "Month",
    "Week" : "Week",
