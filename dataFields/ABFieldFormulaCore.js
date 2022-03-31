@@ -271,7 +271,7 @@ module.exports = class ABFieldFormulaCore extends ABField {
 
    get filterHelper() {
       if (this._rowFilter == null) {
-         this._rowFilter = new FilterComplex();
+         this._rowFilter = this.AB.filterComplexNew(`${this.id}_filterComplex`);
 
          if (this.fieldLink && this.fieldLink.object) {
             this._rowFilter.fieldsLoad(this.fieldLink.object.fields());

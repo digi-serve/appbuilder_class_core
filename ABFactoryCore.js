@@ -724,11 +724,11 @@ class ABFactory extends EventEmitter {
     * ABFactory.
     * @return {FilterComplex}
     */
-   filterComplexNew(App, idBase) {
+   filterComplexNew(idBase) {
       if (App) {
          console.error("!! Who is calling this with an App?");
       }
-      return new FilterComplex(App || this._App, idBase, this);
+      return new FilterComplex(idBase, this);
    }
 
    /**
