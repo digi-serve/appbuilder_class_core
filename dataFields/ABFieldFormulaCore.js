@@ -7,7 +7,6 @@
  */
 
 const ABField = require("../../platform/dataFields/ABField");
-const FilterComplex = require("../../platform/FilterComplex");
 
 function L(key, altText) {
    return altText; // AD.lang.label.getLabel(key) || altText;
