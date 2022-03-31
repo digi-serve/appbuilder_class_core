@@ -1074,8 +1074,10 @@ module.exports = class FilterComplexCore extends ABComponent {
             } else {
                result =
                   result &&
-                  (r?.key != null && r?.key != "") &&
-                  (r?.rule != null && r?.rule != "") &&
+                  r?.key != null &&
+                  r?.key != "" &&
+                  r?.rule != null &&
+                  r?.rule != "" &&
                   ((r?.value != null && r?.value != "") ||
                      noValueRules.indexOf(r?.rule) > -1);
             }
