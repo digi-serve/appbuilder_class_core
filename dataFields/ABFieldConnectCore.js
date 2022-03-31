@@ -155,17 +155,25 @@ module.exports = class ABFieldConnectCore extends ABField {
       this._warnings = [];
 
       var linkField = this.fieldLink;
-      if (!linkField || this.label == "Account Transfer.Sender") {
-         this.emit("warning", "unable to find linked field", {
-            linkColumn: this.settings.linkColumn,
-         });
+      if (!linkField) {
+         this.emit(
+            "warning",
+            `ConnectField[${this.label}][${this.id}] is unable to find linked field[${this.settings.linkColumn}]`,
+            {
+               linkColumn: this.settings.linkColumn,
+            }
+         );
       }
 
       let linkObj = this.datasourceLink;
       if (!linkObj) {
-         this.emit("warning", "unable to find linked object", {
-            linkObject: this.settings.linkObject,
-         });
+         this.emit(
+            "warning",
+            `ConnectField[${this.label}][${this.id}] is unable to find linked object[${this.settings.linkObject}]`,
+            {
+               linkObject: this.settings.linkObject,
+            }
+         );
       }
 
       return this._warnings;
@@ -222,9 +230,7 @@ module.exports = class ABFieldConnectCore extends ABField {
       const linkObj = this.AB.objectByID(this.settings.linkObject);
       if (!linkObj) {
          const configError = new Error(
-            `ConnectField[${this.name || this.label}][${
-               this.id
-            }] unable to find linkObject[${this.settings.linkObject}]`
+            `ConnectField[${this.label}][${this.id}] unable to find linkObject[${this.settings.linkObject}]`
          );
          this.AB.notify.builder(configError, {
             field: this,

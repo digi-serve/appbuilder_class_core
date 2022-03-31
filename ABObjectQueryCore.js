@@ -213,9 +213,15 @@ module.exports = class ABObjectQueryCore extends ABObject {
          }
 
          if (!object) {
-            this.emit("warning", "could not resolve object for fieldSetting", {
-               fieldInfo,
-            });
+            this.emit(
+               "warning",
+               `IMPORT FIELDS: could not resolve object[${
+                  fieldInfo.objectID
+               }] for fieldSetting ${JSON.stringify(fieldInfo)}`,
+               {
+                  fieldInfo,
+               }
+            );
             return;
          }
 
@@ -223,7 +229,9 @@ module.exports = class ABObjectQueryCore extends ABObject {
          if (!field) {
             this.emit(
                "warning",
-               "field referenced in fieldSetting was not found for object",
+               `IMPORT FIELDS: Object[${object.id}] could not find field[${
+                  fieldInfo.fieldID
+               }] for fieldSetting ${JSON.stringify(fieldInfo)}`,
                {
                   object: object.toObj(),
                   fieldInfo,
@@ -235,7 +243,9 @@ module.exports = class ABObjectQueryCore extends ABObject {
          if (!this.canFilterField(field)) {
             this.emit(
                "warning",
-               "field referenced in fieldSetting did not pass .canFilterField",
+               `Field[${field.id}] referenced in fieldSetting[${JSON.stringify(
+                  fieldInfo
+               )}] did not pass .canFilterField`,
                {
                   field: field.toObj(),
                   fieldInfo,
@@ -253,7 +263,11 @@ module.exports = class ABObjectQueryCore extends ABObject {
          if (!isNew) {
             this.emit(
                "warning",
-               "field referenced in fieldSetting is a duplicate",
+               `Field[${
+                  fieldInfo.fieldID
+               }] referenced in fieldSetting[${JSON.stringify(
+                  fieldInfo
+               )}] is a duplicate`,
                {
                   field: field.toObj(),
                   fieldInfo,
