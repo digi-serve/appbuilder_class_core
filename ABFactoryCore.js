@@ -725,9 +725,6 @@ class ABFactory extends EventEmitter {
     * @return {FilterComplex}
     */
    filterComplexNew(idBase) {
-      if (App) {
-         console.error("!! Who is calling this with an App?");
-      }
       return new FilterComplex(idBase, this);
    }
 
