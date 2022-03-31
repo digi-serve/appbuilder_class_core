@@ -31,11 +31,31 @@ module.exports = class ABIndexCore extends ABMLClass {
 
       this.fields = (attributes.fieldIDs || [])
          .map((f) => {
-            // NOTE: to prevent a Race Condition on load, we need to
-            // send .fields(filter(), TRUE);
-            return this.object.fieldByID(f);
+            let field = this.object.fieldByID(f);
+            if (!field) {
+               this.emit(
+                  "warning",
+                  `Index[${this.name}][${this.id}] is referencing an unknown field[${f}]`,
+                  {
+                     index: this.id,
+                     field: f,
+                  }
+               );
+            }
+            return field;
          })
          .filter((fId) => fId);
+
+      if (this.fields.length == 0) {
+         this.emit(
+            "warning",
+            `Index[${this.name}][${this.id}] is not referencing any fields`,
+            {
+               index: this.id,
+               attributeFieldIDs: attributes.fieldIDs || [],
+            }
+         );
+      }
 
       // let the MLClass process the Translations
       super.fromValues(attributes);
