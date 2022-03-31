@@ -33,7 +33,7 @@ const ABProcessTaskManager = require("./process/ABProcessTaskManager");
 // const ABObjectWorkspaceViewGantt = require("../platform/workspaceViews/ABObjectWorkspaceViewGantt");
 
 const RowFilter = require("../platform/RowFilter");
-// const FilterComplex = require("../platform/FilterComplex");
+const FilterComplex = require("../platform/FilterComplex");
 
 const EventEmitter = require("../platform/ABEmitter");
 
@@ -716,6 +716,16 @@ class ABFactory extends EventEmitter {
          console.error("!! Who is calling this with an App?");
       }
       return new RowFilter(App || this._App, idBase, this);
+   }
+
+   /**
+    * @method filterComplexNew()
+    * return an instance of a new FilterComplex that is tied to this
+    * ABFactory.
+    * @return {FilterComplex}
+    */
+   filterComplexNew(idBase) {
+      return new FilterComplex(idBase, this);
    }
 
    /**

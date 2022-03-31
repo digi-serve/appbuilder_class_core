@@ -33,14 +33,14 @@ function getFieldVal(rowData, field) {
 }
 
 module.exports = class FilterComplexCore extends ABComponent {
-   constructor(App, idBase, AB) {
+   constructor(idBase, AB) {
       idBase = idBase || "ab_filter_complex";
 
       if (typeof AB === "undefined") {
          console.error("FilterComplexCore(): being called without an AB!");
       }
 
-      super(App, idBase, AB);
+      super(null, idBase, AB);
 
       this.Account = { username: "??" };
       this._settings = {};
@@ -382,7 +382,7 @@ module.exports = class FilterComplexCore extends ABComponent {
       let qIdBase = "{idBase}-query-field-{id}"
             .replace("{idBase}", this.idBase)
             .replace("{id}", query.id),
-         inQueryFieldFilter = new this.constructor(this.App, qIdBase, this.AB);
+         inQueryFieldFilter = new this.constructor(qIdBase, this.AB);
       inQueryFieldFilter.Account = this.Account;
       inQueryFieldFilter.fieldsLoad(query.fields());
       inQueryFieldFilter.setValue(query.workspaceFilterConditions);
@@ -411,9 +411,8 @@ module.exports = class FilterComplexCore extends ABComponent {
       let qIdBase = "{idBase}-query-{id}"
             .replace("{idBase}", this.idBase)
             .replace("{id}", query.id),
-         inQueryFilter = new this.constructor(this.App, qIdBase, this.AB);
+         inQueryFilter = new this.constructor(qIdBase, this.AB);
       inQueryFilter.Account = this.Account;
-      inQueryFilter.applicationLoad(this.application);
       inQueryFilter.fieldsLoad(query.fields());
       inQueryFilter.setValue(query.workspaceFilterConditions);
 
