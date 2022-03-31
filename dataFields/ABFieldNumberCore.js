@@ -122,7 +122,8 @@ module.exports = class ABFieldNumberCore extends ABField {
       return defaultValues;
    }
 
-   static formatList() {
+   static formatList(iL) {
+      if (iL && !L) L = iL;
       return [
          { id: "none", value: L("None") },
          {
