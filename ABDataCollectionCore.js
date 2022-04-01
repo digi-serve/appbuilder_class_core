@@ -41,6 +41,34 @@ var DefaultValues = {
    },
 };
 
+const QueuedOperations = [];
+// {array} of operations that we want to perform but allow some space
+// between operations.
+var _queueTimer = null;
+
+function runQueue() {
+   // if (!_queueTimer) {
+   //    _queueTimer = setInterval(() => {
+   //       runQueue();
+   //    }, 20);
+   // }
+   if (QueuedOperations.length == 0) {
+      // stop
+      // clearInterval(_queueTimer);
+      _queueTimer = null;
+      return;
+   }
+   var op = QueuedOperations.shift();
+   op.fn();
+   _queueTimer = setTimeout(runQueue, op.timeout);
+}
+function queueOperation(fn, timeout = 20) {
+   QueuedOperations.push({ fn, timeout });
+   if (!_queueTimer) {
+      runQueue();
+   }
+}
+
 module.exports = class ABDataCollectionCore extends ABMLClass {
    constructor(attributes, AB) {
       super(["label"], AB);
@@ -496,6 +524,7 @@ module.exports = class ABDataCollectionCore extends ABMLClass {
                this.__treeCollection.serialize()[0] || null;
 
             // refresh filter
+            console.log("getCursor refreshLinkCursor");
             this.refreshLinkCursor();
 
             return currItemAndChilds;
@@ -538,6 +567,9 @@ module.exports = class ABDataCollectionCore extends ABMLClass {
     *    based off of the cursor.
     */
    refreshLinkCursor() {
+      // do not set the filter unless this dc is initialized "dataStatusFlag==2"
+      // if (this.dataStatus != this.dataStatusFlag.initialized) return;
+
       // filter the data in the data collection
       // using its parents current cursor because all the data in this child
       // data collection has been loaded and the frontend can decide what is
@@ -553,6 +585,7 @@ module.exports = class ABDataCollectionCore extends ABMLClass {
          if (linkCursor == null) return true;
          else return this.isParentFilterValid(rowData);
       };
+      console.log("----->refreshLinkCursor:", this.label);
 
       if (this.__dataCollection) this.__dataCollection.filter(filterData);
       if (this.__treeCollection) this.__treeCollection.filter(filterData);
@@ -923,6 +956,8 @@ module.exports = class ABDataCollectionCore extends ABMLClass {
                }
 
                // filter link data collection's cursor
+               console.log("ab.datacollection.create refreshLinkCursor");
+
                this.refreshLinkCursor();
                this.setStaticCursor();
             });
@@ -1202,6 +1237,7 @@ module.exports = class ABDataCollectionCore extends ABMLClass {
             }
          }
 
+         console.log("ab.datacollection.update refreshLinkCursor");
          this.refreshLinkCursor();
          this.setStaticCursor();
       });
@@ -1270,6 +1306,7 @@ module.exports = class ABDataCollectionCore extends ABMLClass {
                });
             }
          }
+         console.log("ab.datacollection.stale refreshLinkCursor");
 
          // filter link data collection's cursor
          this.refreshLinkCursor();
@@ -1412,6 +1449,8 @@ module.exports = class ABDataCollectionCore extends ABMLClass {
             emitter: linkDv,
             eventName: "changeCursor",
             listener: () => {
+               console.log("changeCursor refreshLinkCursor");
+
                this.refreshLinkCursor();
                this.setStaticCursor();
             },
@@ -1626,54 +1665,68 @@ module.exports = class ABDataCollectionCore extends ABMLClass {
       return Promise.resolve().then(() => {
          // store total count
          this.__totalCount = data.total_count;
-
+         console.log(this.label);
          // In order to get the total_count updated I had to use .load()
-         this.__dataCollection.load(() => {
-            // If this dc loads all, then it has to filter data by the parent dc
-            if (this.settings.loadAll) {
-               setTimeout(() => {
-                  this.refreshLinkCursor();
-               }, 250);
-            }
+         queueOperation(() => {
+            this.__dataCollection.load(() => {
+               // If this dc loads all, then it has to filter data by the parent dc
+               if (this.settings.loadAll) {
+                  setTimeout(() => {
+                     console.log("loadAll refreshLinkCursor");
+                     this.refreshLinkCursor();
+                  }, 250);
+               }
 
-            return data;
-         });
+               return data;
+            });
+         }, 5);
+
          // In order to keep detail and graphs loading properly I had to keep .parse()
-         this.__dataCollection.parse(data);
+         queueOperation(() => {
+            console.log("queued parse for ", this.label);
+            this.__dataCollection.parse(data);
+         }, 50);
 
          // this does nothing???
          this.parseTreeCollection(data);
 
-         // if we are linked, then refresh our cursor
-         var linkDv = this.datacollectionLink;
-         if (linkDv) {
-            // filter data by match link data collection
-            this.refreshLinkCursor();
-            this.setStaticCursor();
-         } else {
-            // set static cursor
-            this.setStaticCursor();
-         }
+         queueOperation(() => {
+            // if we are linked, then refresh our cursor
+            var linkDv = this.datacollectionLink;
+            if (linkDv) {
+               console.log("processIncomingData refreshLinkCursor");
 
-         // mark initialized data
-         if (this._dataStatus != this.dataStatusFlag.initialized) {
-            this._dataStatus = this.dataStatusFlag.initialized;
-            this.emit("initializedData", {});
-         }
+               // filter data by match link data collection
+               this.refreshLinkCursor();
+               this.setStaticCursor();
+            } else {
+               // set static cursor
+               this.setStaticCursor();
+            }
+         }, 5);
+         queueOperation(() => {
+            // mark initialized data
+            if (this._dataStatus != this.dataStatusFlag.initialized) {
+               this._dataStatus = this.dataStatusFlag.initialized;
+               this.emit("initializedData", {});
+            }
+         }, 20);
+         queueOperation(() => {
+            // If dc set load all, then it will not trigger .loadData in dc at
+            // .onAfterLoad event
+            if (this.settings.loadAll) {
+               this.emit("loadData", {});
+            }
+         }, 10);
+         queueOperation(() => {
+            // now we close out our .loadData() promise.resolve() :
+            if (this._pendingLoadDataResolve) {
+               this._pendingLoadDataResolve.resolve();
 
-         // If dc set load all, then it will not trigger .loadData in dc at
-         // .onAfterLoad event
-         if (this.settings.loadAll) {
-            this.emit("loadData", {});
-         }
-
-         // now we close out our .loadData() promise.resolve() :
-         if (this._pendingLoadDataResolve) {
-            this._pendingLoadDataResolve.resolve();
-
-            // after we call .resolve() stop tracking this:
-            this._pendingLoadDataResolve = null;
-         }
+               // after we call .resolve() stop tracking this:
+               this._pendingLoadDataResolve = null;
+            }
+         }, 5);
       });
    }
 
