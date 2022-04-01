@@ -7,7 +7,6 @@
  */
 
 const ABField = require("../../platform/dataFields/ABField");
-const RowFilter = require("../../platform/RowFilter");
 
 function L(key, altText) {
    return altText; // AD.lang.label.getLabel(key) || altText;
@@ -271,9 +270,7 @@ module.exports = class ABFieldFormulaCore extends ABField {
 
    get filterHelper() {
       if (this._rowFilter == null) {
-         this._rowFilter = new RowFilter();
-
-         this._rowFilter.applicationLoad(this.object.application);
+         this._rowFilter = this.AB.filterComplexNew(`${this.id}_filterComplex`);
 
          if (this.fieldLink && this.fieldLink.object) {
             this._rowFilter.fieldsLoad(this.fieldLink.object.fields());

@@ -26,14 +26,14 @@ let SubProcessDefaults = {
       "parameterId",
       "connectionAttrs",
       "elementIDs",
-      "loopType"
-   ]
+      "loopType",
+   ],
 };
 
 module.exports = class SubProcessCore extends ABProcessElement {
-   constructor(attributes, process, application) {
+   constructor(attributes, process, AB) {
       attributes.type = attributes.type || "process.task.service.subProcess";
-      super(attributes, process, application, SubProcessDefaults);
+      super(attributes, process, AB, SubProcessDefaults);
 
       // listen
    }
@@ -51,8 +51,8 @@ module.exports = class SubProcessCore extends ABProcessElement {
          className: "bpmn-icon-subprocess-expanded",
          target: {
             type: "bpmn:SubProcess",
-            isExpanded: true
-         }
+            isExpanded: true,
+         },
       };
    }
 
@@ -64,7 +64,7 @@ module.exports = class SubProcessCore extends ABProcessElement {
 
       this._elements = {};
       (attributes.elementIDs || []).forEach((eID) => {
-         let ele = this.application.processElementNew(eID, this);
+         let ele = this.AB.processElementNew(eID, this);
          if (ele) {
             this._elements[eID] = ele;
          }
@@ -127,7 +127,7 @@ module.exports = class SubProcessCore extends ABProcessElement {
          result.push({
             key: `${this.id}.uuid.subProcess`,
             label: `${this.label}->Repeat Data.ID`,
-            object: dataFieldOpt.field.datasourceLink
+            object: dataFieldOpt.field.datasourceLink,
          });
 
          dataFieldOpt.field.datasourceLink.fields().forEach((f) => {
@@ -135,7 +135,7 @@ module.exports = class SubProcessCore extends ABProcessElement {
                key: `${this.id}.${f.id}.subProcess`,
                label: `${this.label}->Repeat Data.${f.label}`,
                field: f,
-               object: f.object
+               object: f.object,
             });
          });
       }
@@ -147,11 +147,14 @@ module.exports = class SubProcessCore extends ABProcessElement {
                : `${this.id}.subProcess`,
             label: `${this.label}->Repeat Data`,
             field: dataFieldOpt.field,
-            object: dataFieldOpt.object
+            object: dataFieldOpt.object,
          });
       }
 
-      let previousFields = this.process.processDataFields.call(this, currElement);
+      let previousFields = this.process.processDataFields.call(
+         this,
+         currElement
+      );
       if (previousFields && previousFields.length > 0) {
          result = result.concat(previousFields);
       }

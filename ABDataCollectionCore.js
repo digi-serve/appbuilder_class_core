@@ -1931,7 +1931,9 @@ module.exports = class ABDataCollectionCore extends ABMLClass {
 
       // Set filter of ABObject
       if (this.__filterDatasource == null)
-         this.__filterDatasource = this.AB.rowfilterNew();
+         this.__filterDatasource = this.AB.filterComplexNew(
+            `${this.id}_filterDatasource`
+         );
 
       if (this.datasource) {
          // this.__filterDatasource.applicationLoad(this.datasource.application);
@@ -1966,7 +1968,9 @@ module.exports = class ABDataCollectionCore extends ABMLClass {
       // Set filter of data view
       // Apr 29, 2021 Added this code back to validate with DataCollection Filters
       if (this.__filterDatacollection == null)
-         this.__filterDatacollection = this.AB.rowfilterNew();
+         this.__filterDatacollection = this.AB.filterComplexNew(
+            `${this.id}_filterDatacollection`
+         );
 
       // this.__filterDatacollection.applicationLoad(
       //    this.datasource ? this.datasource.application : null
@@ -1993,7 +1997,9 @@ module.exports = class ABDataCollectionCore extends ABMLClass {
 
       // Set filter of user's scope
       if (this.__filterScope == null)
-         this.__filterScope = this.AB.rowfilterNew();
+         this.__filterScope = this.AB.filterComplexNew(
+            `${this.id}_filterScope`
+         );
 
       if (this.datasource) {
          let scopeList = (this.userScopes || []).filter(

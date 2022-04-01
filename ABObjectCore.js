@@ -186,7 +186,20 @@ module.exports = class ABObjectCore extends ABMLClass {
 
       // pull in field definitions:
       var fields = [];
-      (attributes.fieldIDs || []).forEach((id) => {
+      this.fieldIDs = attributes.fieldIDs || [];
+      // {array}  [ ABField.id, ... ]
+      // this is a collection of ALL the ABFields this object references.
+      // This will include ABFields that were directly created for this object
+      // and will include ABFields that were imported.
+
+      this.importedFieldIDs = attributes.importedFieldIDs || [];
+      // {array} [ ABField.id, ... ]
+      // this is a collection of the ABFields in our .fieldIDs that were
+      // IMPORTED.
+
+      this.fieldIDs.forEach((id) => {
+         if (!id) return;
+
          var def = this.AB.definitionByID(id);
          if (def) {
             fields.push(this.AB.fieldNew(def, this));
@@ -209,14 +222,6 @@ module.exports = class ABObjectCore extends ABMLClass {
       // let the MLClass now process the translations:
       super.fromValues(attributes);
    }
-
-   /**
-    * @method importFields
-    * instantiate a set of fields from the given field ids.
-    * @param {array} fieldIDs The different ABDefinition IDs for each field
-    *	       [ "uuid11", "uuid2", ... "uuidN" ]
-    */
-   // importFields(fieldIDs) {}
 
    /**
     * @method importIndexes
@@ -312,6 +317,7 @@ module.exports = class ABObjectCore extends ABMLClass {
 
          translations: obj.translations,
          fieldIDs: fieldIDs,
+         importedFieldIDs: this.importedFieldIDs,
          indexIDs: indexIDs,
          createdInAppID: this.createdInAppID,
       };
@@ -376,6 +382,41 @@ module.exports = class ABObjectCore extends ABMLClass {
    }
 
    /**
+    * @method fieldImport
+    * register the given ABField.id as an imported field for this ABObject.
+    * The ABField definition should be available before making this call.
+    * After this call, the ABField is included in the ABObject, but the ABObject
+    * has NOT been saved.
+    * @param {ABField} fieldID The ABDefinition.id for a field that is imported
+    *        into this object.
+    */
+   fieldImport(id) {
+      if (!id) return;
+
+      if (this.importedFieldIDs.indexOf(id) == -1) {
+         this.importedFieldIDs.push(id);
+      }
+
+      // just to be safe:
+      var isThere = this._fields.find((f) => f.id == id);
+      if (!isThere) {
+         var def = this.AB.definitionByID(id);
+         if (def) {
+            this._fields.push(this.AB.fieldNew(def, this));
+         } else {
+            this.emit(
+               "warning",
+               `O[${this.name}] is importing an unknown field id[${id}]`,
+               {
+                  obj: this.id,
+                  field: id,
+               }
+            );
+         }
+      }
+   }
+
+   /**
     * @method fieldNew()
     *
     * return an instance of a new (unsaved) ABField that is tied to this
@@ -404,6 +445,12 @@ module.exports = class ABObjectCore extends ABMLClass {
       this._fields = this.fields(function (o) {
          return o.id != field.id;
       });
+
+      // be sure to remove this from our imported ids if it was
+      // listed there.
+      this.importedFieldIDs = this.importedFieldIDs.filter(
+         (fid) => fid != field.id
+      );
 
       if (this._fields.length < origLen) {
          return this.save();
