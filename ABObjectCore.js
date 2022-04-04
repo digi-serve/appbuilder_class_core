@@ -642,7 +642,7 @@ module.exports = class ABObjectCore extends ABMLClass {
 
       // default the context of this model's operations to this object
       model.contextKey(ABObjectCore.contextKey());
-      model.contextValues({ id: this.id }); // the datacollection.id
+      model.contextValues({ id: this.id });
 
       return model;
    }
