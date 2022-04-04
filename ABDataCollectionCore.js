@@ -524,7 +524,6 @@ module.exports = class ABDataCollectionCore extends ABMLClass {
                this.__treeCollection.serialize()[0] || null;
 
             // refresh filter
-            console.log("getCursor refreshLinkCursor");
             this.refreshLinkCursor();
 
             return currItemAndChilds;
@@ -585,7 +584,6 @@ module.exports = class ABDataCollectionCore extends ABMLClass {
          if (linkCursor == null) return true;
          else return this.isParentFilterValid(rowData);
       };
-      console.log("----->refreshLinkCursor:", this.label);
 
       if (this.__dataCollection) this.__dataCollection.filter(filterData);
       if (this.__treeCollection) this.__treeCollection.filter(filterData);
@@ -962,8 +960,6 @@ module.exports = class ABDataCollectionCore extends ABMLClass {
                }
 
                // filter link data collection's cursor
-               console.log("ab.datacollection.create refreshLinkCursor");
-
                this.refreshLinkCursor();
                this.setStaticCursor();
             });
@@ -1244,7 +1240,6 @@ module.exports = class ABDataCollectionCore extends ABMLClass {
             }
          }
 
-         // console.log("ab.datacollection.update refreshLinkCursor");
          this.refreshLinkCursor();
          this.setStaticCursor();
       });
@@ -1313,7 +1308,6 @@ module.exports = class ABDataCollectionCore extends ABMLClass {
                });
             }
          }
-         console.log("ab.datacollection.stale refreshLinkCursor");
 
          // filter link data collection's cursor
          this.refreshLinkCursor();
@@ -1456,8 +1450,6 @@ module.exports = class ABDataCollectionCore extends ABMLClass {
             emitter: linkDv,
             eventName: "changeCursor",
             listener: () => {
-               console.log("changeCursor refreshLinkCursor");
-
                this.refreshLinkCursor();
                this.setStaticCursor();
             },
@@ -1672,14 +1664,12 @@ module.exports = class ABDataCollectionCore extends ABMLClass {
       return Promise.resolve().then(() => {
          // store total count
          this.__totalCount = data.total_count;
-         console.log(this.label);
          // In order to get the total_count updated I had to use .load()
          queueOperation(() => {
             this.__dataCollection.load(() => {
                // If this dc loads all, then it has to filter data by the parent dc
                if (this.settings.loadAll) {
                   setTimeout(() => {
-                     console.log("loadAll refreshLinkCursor");
                      this.refreshLinkCursor();
                   }, 250);
                }
@@ -1690,7 +1680,6 @@ module.exports = class ABDataCollectionCore extends ABMLClass {
 
          // In order to keep detail and graphs loading properly I had to keep .parse()
          queueOperation(() => {
-            console.log("queued parse for ", this.label);
             this.__dataCollection.parse(data);
          }, 50);
 
@@ -1701,8 +1690,6 @@ module.exports = class ABDataCollectionCore extends ABMLClass {
             // if we are linked, then refresh our cursor
             var linkDv = this.datacollectionLink;
             if (linkDv) {
-               console.log("processIncomingData refreshLinkCursor");
-
                // filter data by match link data collection
                this.refreshLinkCursor();
                this.setStaticCursor();
