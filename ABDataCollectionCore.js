@@ -1237,7 +1237,7 @@ module.exports = class ABDataCollectionCore extends ABMLClass {
             }
          }
 
-         console.log("ab.datacollection.update refreshLinkCursor");
+         // console.log("ab.datacollection.update refreshLinkCursor");
          this.refreshLinkCursor();
          this.setStaticCursor();
       });
@@ -1777,62 +1777,58 @@ module.exports = class ABDataCollectionCore extends ABMLClass {
       //    });
       // };
 
-      return Promise.resolve()
-         .then(() => {
-            return this.waitForDataCollectionToInitialize(this);
-         })
-         .then(() => {
-            // check if we are currently waiting for more data requests on this datacollection before continuing
-            if (this.reloadTimer) {
-               // if we are already waiting delete the current timer
-               clearTimeout(this.reloadTimer);
-               delete this.reloadTimer;
-            }
+      return Promise.resolve().then(() => {
+         // check if we are currently waiting for more data requests on this datacollection before continuing
+         if (this.reloadTimer) {
+            // if we are already waiting delete the current timer
+            clearTimeout(this.reloadTimer);
+            delete this.reloadTimer;
+         }
 
-            // return a promise
-            if (!this.reloadPromise) {
-               this.reloadPromise = new Promise((resolve, reject) => {
-                  this.reloadPromise__resolve = resolve;
-                  this.reloadPromise__reject = reject;
+         // return a promise
+         if (!this.reloadPromise) {
+            this.reloadPromise = new Promise((resolve, reject) => {
+               this.reloadPromise__resolve = resolve;
+               this.reloadPromise__reject = reject;
+            });
+         }
+
+         // then create a new timeout to delete current timeout, clear data
+         // and load new
+         this.reloadTimer = setTimeout(() => {
+            // clear the data from the dataCollection,
+            this.clearAll();
+            // then loads new data from the server
+            return this.loadData(start, limit)
+               .then(() => {
+                  if (this.reloadPromise) {
+                     this.reloadPromise__resolve();
+                     delete this.reloadPromise;
+                     delete this.reloadPromise__resolve;
+                     delete this.reloadPromise__reject;
+                  }
+
+                  // delete the current setTimeout
+                  clearTimeout(this.reloadTimer);
+                  delete this.reloadTimer;
+               })
+               .catch((err) => {
+                  if (this.reloadPromise) {
+                     this.reloadPromise__reject(err);
+                     delete this.reloadPromise;
+                     delete this.reloadPromise__resolve;
+                     delete this.reloadPromise__reject;
+                  }
+                  // delete the current setTimeout
+                  clearTimeout(this.reloadTimer);
+                  delete this.reloadTimer;
                });
-            }
+         }, 50);
+         // setting to 50ms because right now we do not see many
+         // concurrent calls,  we need to increase this if we begin to
 
-            // then create a new timeout to delete current timeout, clear data
-            // and load new
-            this.reloadTimer = setTimeout(() => {
-               // clear the data from the dataCollection,
-               this.clearAll();
-               // then loads new data from the server
-               return this.loadData(start, limit)
-                  .then(() => {
-                     if (this.reloadPromise) {
-                        this.reloadPromise__resolve();
-                        delete this.reloadPromise;
-                        delete this.reloadPromise__resolve;
-                        delete this.reloadPromise__reject;
-                     }
-
-                     // delete the current setTimeout
-                     clearTimeout(this.reloadTimer);
-                     delete this.reloadTimer;
-                  })
-                  .catch((err) => {
-                     if (this.reloadPromise) {
-                        this.reloadPromise__reject(err);
-                        delete this.reloadPromise;
-                        delete this.reloadPromise__resolve;
-                        delete this.reloadPromise__reject;
-                     }
-                     // delete the current setTimeout
-                     clearTimeout(this.reloadTimer);
-                     delete this.reloadTimer;
-                  });
-            }, 50);
-            // setting to 50ms because right now we do not see many
-            // concurrent calls,  we need to increase this if we begin to
-
-            return this.reloadPromise;
-         });
+         return this.reloadPromise;
+      });
    }
 
    /**
