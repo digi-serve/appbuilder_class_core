@@ -750,7 +750,6 @@ module.exports = class ABDataCollectionCore extends ABMLClass {
                         .findAll({
                            where: where,
                         })
-                        .catch(bad)
                         .then((newQueryData) => {
                            updatedVals = newQueryData.data || [];
                            updatedVals.forEach((v) => {
@@ -758,7 +757,8 @@ module.exports = class ABDataCollectionCore extends ABMLClass {
                            });
 
                            next();
-                        });
+                        })
+                        .catch(bad);
                   }
                   // Object
                   else {
@@ -899,6 +899,12 @@ module.exports = class ABDataCollectionCore extends ABMLClass {
 
                            let rowRelateVal = d[f.relationName()] || {};
 
+                           let valIsRelated = isRelated(
+                              updateRelateVal,
+                              d.id,
+                              PK
+                           );
+
                            // Relate data
                            if (
                               Array.isArray(rowRelateVal) &&
@@ -908,7 +914,7 @@ module.exports = class ABDataCollectionCore extends ABMLClass {
                                     v.id == updatedVals.id ||
                                     v[PK] == updatedVals.id
                               ).length < 1 &&
-                              isRelated(updateRelateVal, d.id, PK)
+                              valIsRelated
                            ) {
                               rowRelateVal.push(updatedVals);
 
@@ -921,7 +927,7 @@ module.exports = class ABDataCollectionCore extends ABMLClass {
                               (rowRelateVal != updatedVals.id ||
                                  rowRelateVal.id != updatedVals.id ||
                                  rowRelateVal[PK] != updatedVals.id) &&
-                              isRelated(updateRelateVal, d.id, PK)
+                              valIsRelated
                            ) {
                               updateItemData[f.relationName()] = updatedVals;
                               updateItemData[f.columnName] =
@@ -1048,9 +1054,11 @@ module.exports = class ABDataCollectionCore extends ABMLClass {
          if (needUpdate) {
             if (isExists) {
                if (this.isValidData(updatedVals)) {
+                  // NOTE: this is now done in NetworkRestSocket before
+                  // we start the update events.
                   // normalize data before update data collection
-                  var model = obj.model();
-                  model.normalizeData(updatedVals);
+                  // var model = obj.model();
+                  // model.normalizeData(updatedVals);
 
                   if (this.__dataCollection) {
                      updatedIds = this.AB.uniq(updatedIds);
@@ -1139,6 +1147,8 @@ module.exports = class ABDataCollectionCore extends ABMLClass {
                         updateRelateVal =
                            values[f.fieldLink.relationName()] || {};
 
+                     let valIsRelated = isRelated(updateRelateVal, d.id, PK);
+
                      // Unrelate data
                      if (
                         Array.isArray(rowRelateVal) &&
@@ -1148,7 +1158,7 @@ module.exports = class ABDataCollectionCore extends ABMLClass {
                               v.id == values.id ||
                               v[PK] == values.id
                         ).length > 0 &&
-                        !isRelated(updateRelateVal, d.id, PK)
+                        !valIsRelated
                      ) {
                         updateItemData[f.relationName()] = rowRelateVal.filter(
                            (v) => (v.id || v[PK] || v) != values.id
@@ -1161,17 +1171,14 @@ module.exports = class ABDataCollectionCore extends ABMLClass {
                         (rowRelateVal == values.id ||
                            rowRelateVal.id == values.id ||
                            rowRelateVal[PK] == values.id) &&
-                        !isRelated(updateRelateVal, d.id, PK)
+                        !valIsRelated
                      ) {
                         updateItemData[f.relationName()] = null;
                         updateItemData[f.columnName] = null;
                      }
 
                      // Relate data or Update
-                     if (
-                        Array.isArray(rowRelateVal) &&
-                        isRelated(updateRelateVal, d.id, PK)
-                     ) {
+                     if (Array.isArray(rowRelateVal) && valIsRelated) {
                         // update relate data
                         if (
                            rowRelateVal.filter(
@@ -1204,7 +1211,7 @@ module.exports = class ABDataCollectionCore extends ABMLClass {
                         (rowRelateVal != values.id ||
                            rowRelateVal.id != values.id ||
                            rowRelateVal[PK] != values.id) &&
-                        isRelated(updateRelateVal, d.id, PK)
+                        valIsRelated
                      ) {
                         updateItemData[f.relationName()] = values;
                         updateItemData[f.columnName] = values.id || values;
