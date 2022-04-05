@@ -62,7 +62,7 @@ module.exports = class ABApplicationCore extends ABMLClass {
       this.role = attributes.role;
       this.class = {};
       // this.class.ABRole = ABRole; // This is a temporary fix that we can remove when OpsPortal is removed
-      this.isAdminApp = JSON.parse(attributes.json.isAdminApp || false);
+      this.isAdminApp = JSON.parse(attributes.isAdminApp || false);
       this.isAccessManaged = JSON.parse(attributes.isAccessManaged || false);
       this.accessManagers = attributes.accessManagers;
       if (typeof this.accessManagers == "string")
