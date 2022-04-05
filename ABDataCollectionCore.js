@@ -41,6 +41,34 @@ var DefaultValues = {
    },
 };
 
+const QueuedOperations = [];
+// {array} of operations that we want to perform but allow some space
+// between operations.
+var _queueTimer = null;
+
+function runQueue() {
+   // if (!_queueTimer) {
+   //    _queueTimer = setInterval(() => {
+   //       runQueue();
+   //    }, 20);
+   // }
+   if (QueuedOperations.length == 0) {
+      // stop
+      // clearInterval(_queueTimer);
+      _queueTimer = null;
+      return;
+   }
+   var op = QueuedOperations.shift();
+   op.fn();
+   _queueTimer = setTimeout(runQueue, op.timeout);
+}
+function queueOperation(fn, timeout = 20) {
+   QueuedOperations.push({ fn, timeout });
+   if (!_queueTimer) {
+      runQueue();
+   }
+}
+
 module.exports = class ABDataCollectionCore extends ABMLClass {
    constructor(attributes, AB) {
       super(["label"], AB);
@@ -538,6 +566,9 @@ module.exports = class ABDataCollectionCore extends ABMLClass {
     *    based off of the cursor.
     */
    refreshLinkCursor() {
+      // do not set the filter unless this dc is initialized "dataStatusFlag==2"
+      // if (this.dataStatus != this.dataStatusFlag.initialized) return;
+
       // filter the data in the data collection
       // using its parents current cursor because all the data in this child
       // data collection has been loaded and the frontend can decide what is
@@ -717,7 +748,6 @@ module.exports = class ABDataCollectionCore extends ABMLClass {
                         .findAll({
                            where: where,
                         })
-                        .catch(bad)
                         .then((newQueryData) => {
                            updatedVals = newQueryData.data || [];
                            updatedVals.forEach((v) => {
@@ -725,7 +755,8 @@ module.exports = class ABDataCollectionCore extends ABMLClass {
                            });
 
                            next();
-                        });
+                        })
+                        .catch(bad);
                   }
                   // Object
                   else {
@@ -866,6 +897,12 @@ module.exports = class ABDataCollectionCore extends ABMLClass {
 
                            let rowRelateVal = d[f.relationName()] || {};
 
+                           let valIsRelated = isRelated(
+                              updateRelateVal,
+                              d.id,
+                              PK
+                           );
+
                            // Relate data
                            if (
                               Array.isArray(rowRelateVal) &&
@@ -875,7 +912,7 @@ module.exports = class ABDataCollectionCore extends ABMLClass {
                                     v.id == updatedVals.id ||
                                     v[PK] == updatedVals.id
                               ).length < 1 &&
-                              isRelated(updateRelateVal, d.id, PK)
+                              valIsRelated
                            ) {
                               rowRelateVal.push(updatedVals);
 
@@ -888,7 +925,7 @@ module.exports = class ABDataCollectionCore extends ABMLClass {
                               (rowRelateVal != updatedVals.id ||
                                  rowRelateVal.id != updatedVals.id ||
                                  rowRelateVal[PK] != updatedVals.id) &&
-                              isRelated(updateRelateVal, d.id, PK)
+                              valIsRelated
                            ) {
                               updateItemData[f.relationName()] = updatedVals;
                               updateItemData[f.columnName] =
@@ -1013,9 +1050,11 @@ module.exports = class ABDataCollectionCore extends ABMLClass {
          if (needUpdate) {
             if (isExists) {
                if (this.isValidData(updatedVals)) {
+                  // NOTE: this is now done in NetworkRestSocket before
+                  // we start the update events.
                   // normalize data before update data collection
-                  var model = obj.model();
-                  model.normalizeData(updatedVals);
+                  // var model = obj.model();
+                  // model.normalizeData(updatedVals);
 
                   if (this.__dataCollection) {
                      updatedIds = this.AB.uniq(updatedIds);
@@ -1104,6 +1143,8 @@ module.exports = class ABDataCollectionCore extends ABMLClass {
                         updateRelateVal =
                            values[f.fieldLink.relationName()] || {};
 
+                     let valIsRelated = isRelated(updateRelateVal, d.id, PK);
+
                      // Unrelate data
                      if (
                         Array.isArray(rowRelateVal) &&
@@ -1113,7 +1154,7 @@ module.exports = class ABDataCollectionCore extends ABMLClass {
                               v.id == values.id ||
                               v[PK] == values.id
                         ).length > 0 &&
-                        !isRelated(updateRelateVal, d.id, PK)
+                        !valIsRelated
                      ) {
                         updateItemData[f.relationName()] = rowRelateVal.filter(
                            (v) => (v.id || v[PK] || v) != values.id
@@ -1126,17 +1167,14 @@ module.exports = class ABDataCollectionCore extends ABMLClass {
                         (rowRelateVal == values.id ||
                            rowRelateVal.id == values.id ||
                            rowRelateVal[PK] == values.id) &&
-                        !isRelated(updateRelateVal, d.id, PK)
+                        !valIsRelated
                      ) {
                         updateItemData[f.relationName()] = null;
                         updateItemData[f.columnName] = null;
                      }
 
                      // Relate data or Update
-                     if (
-                        Array.isArray(rowRelateVal) &&
-                        isRelated(updateRelateVal, d.id, PK)
-                     ) {
+                     if (Array.isArray(rowRelateVal) && valIsRelated) {
                         // update relate data
                         if (
                            rowRelateVal.filter(
@@ -1169,7 +1207,7 @@ module.exports = class ABDataCollectionCore extends ABMLClass {
                         (rowRelateVal != values.id ||
                            rowRelateVal.id != values.id ||
                            rowRelateVal[PK] != values.id) &&
-                        isRelated(updateRelateVal, d.id, PK)
+                        valIsRelated
                      ) {
                         updateItemData[f.relationName()] = values;
                         updateItemData[f.columnName] = values.id || values;
@@ -1626,54 +1664,63 @@ module.exports = class ABDataCollectionCore extends ABMLClass {
       return Promise.resolve().then(() => {
          // store total count
          this.__totalCount = data.total_count;
-
          // In order to get the total_count updated I had to use .load()
-         this.__dataCollection.load(() => {
-            // If this dc loads all, then it has to filter data by the parent dc
-            if (this.settings.loadAll) {
-               setTimeout(() => {
-                  this.refreshLinkCursor();
-               }, 250);
-            }
+         queueOperation(() => {
+            this.__dataCollection.load(() => {
+               // If this dc loads all, then it has to filter data by the parent dc
+               if (this.settings.loadAll) {
+                  setTimeout(() => {
+                     this.refreshLinkCursor();
+                  }, 250);
+               }
 
-            return data;
-         });
+               return data;
+            });
+         }, 5);
+
          // In order to keep detail and graphs loading properly I had to keep .parse()
-         this.__dataCollection.parse(data);
+         queueOperation(() => {
+            this.__dataCollection.parse(data);
+         }, 50);
 
          // this does nothing???
          this.parseTreeCollection(data);
 
-         // if we are linked, then refresh our cursor
-         var linkDv = this.datacollectionLink;
-         if (linkDv) {
-            // filter data by match link data collection
-            this.refreshLinkCursor();
-            this.setStaticCursor();
-         } else {
-            // set static cursor
-            this.setStaticCursor();
-         }
+         queueOperation(() => {
+            // if we are linked, then refresh our cursor
+            var linkDv = this.datacollectionLink;
+            if (linkDv) {
+               // filter data by match link data collection
+               this.refreshLinkCursor();
+               this.setStaticCursor();
+            } else {
+               // set static cursor
+               this.setStaticCursor();
+            }
+         }, 5);
+         queueOperation(() => {
+            // mark initialized data
+            if (this._dataStatus != this.dataStatusFlag.initialized) {
+               this._dataStatus = this.dataStatusFlag.initialized;
+               this.emit("initializedData", {});
+            }
+         }, 20);
+         queueOperation(() => {
+            // If dc set load all, then it will not trigger .loadData in dc at
+            // .onAfterLoad event
+            if (this.settings.loadAll) {
+               this.emit("loadData", {});
+            }
+         }, 10);
+         queueOperation(() => {
+            // now we close out our .loadData() promise.resolve() :
+            if (this._pendingLoadDataResolve) {
+               this._pendingLoadDataResolve.resolve();
 
-         // mark initialized data
-         if (this._dataStatus != this.dataStatusFlag.initialized) {
-            this._dataStatus = this.dataStatusFlag.initialized;
-            this.emit("initializedData", {});
-         }
-
-         // If dc set load all, then it will not trigger .loadData in dc at
-         // .onAfterLoad event
-         if (this.settings.loadAll) {
-            this.emit("loadData", data);
-         }
-
-         // now we close out our .loadData() promise.resolve() :
-         if (this._pendingLoadDataResolve) {
-            this._pendingLoadDataResolve.resolve();
-
-            // after we call .resolve() stop tracking this:
-            this._pendingLoadDataResolve = null;
-         }
+               // after we call .resolve() stop tracking this:
+               this._pendingLoadDataResolve = null;
+            }
+         }, 5);
       });
    }
 
@@ -1724,62 +1771,58 @@ module.exports = class ABDataCollectionCore extends ABMLClass {
       //    });
       // };
 
-      return Promise.resolve()
-         .then(() => {
-            return this.waitForDataCollectionToInitialize(this);
-         })
-         .then(() => {
-            // check if we are currently waiting for more data requests on this datacollection before continuing
-            if (this.reloadTimer) {
-               // if we are already waiting delete the current timer
-               clearTimeout(this.reloadTimer);
-               delete this.reloadTimer;
-            }
+      return Promise.resolve().then(() => {
+         // check if we are currently waiting for more data requests on this datacollection before continuing
+         if (this.reloadTimer) {
+            // if we are already waiting delete the current timer
+            clearTimeout(this.reloadTimer);
+            delete this.reloadTimer;
+         }
 
-            // return a promise
-            if (!this.reloadPromise) {
-               this.reloadPromise = new Promise((resolve, reject) => {
-                  this.reloadPromise__resolve = resolve;
-                  this.reloadPromise__reject = reject;
+         // return a promise
+         if (!this.reloadPromise) {
+            this.reloadPromise = new Promise((resolve, reject) => {
+               this.reloadPromise__resolve = resolve;
+               this.reloadPromise__reject = reject;
+            });
+         }
+
+         // then create a new timeout to delete current timeout, clear data
+         // and load new
+         this.reloadTimer = setTimeout(() => {
+            // clear the data from the dataCollection,
+            this.clearAll();
+            // then loads new data from the server
+            return this.loadData(start, limit)
+               .then(() => {
+                  if (this.reloadPromise) {
+                     this.reloadPromise__resolve();
+                     delete this.reloadPromise;
+                     delete this.reloadPromise__resolve;
+                     delete this.reloadPromise__reject;
+                  }
+
+                  // delete the current setTimeout
+                  clearTimeout(this.reloadTimer);
+                  delete this.reloadTimer;
+               })
+               .catch((err) => {
+                  if (this.reloadPromise) {
+                     this.reloadPromise__reject(err);
+                     delete this.reloadPromise;
+                     delete this.reloadPromise__resolve;
+                     delete this.reloadPromise__reject;
+                  }
+                  // delete the current setTimeout
+                  clearTimeout(this.reloadTimer);
+                  delete this.reloadTimer;
                });
-            }
+         }, 50);
+         // setting to 50ms because right now we do not see many
+         // concurrent calls,  we need to increase this if we begin to
 
-            // then create a new timeout to delete current timeout, clear data
-            // and load new
-            this.reloadTimer = setTimeout(() => {
-               // clear the data from the dataCollection,
-               this.clearAll();
-               // then loads new data from the server
-               return this.loadData(start, limit)
-                  .then(() => {
-                     if (this.reloadPromise) {
-                        this.reloadPromise__resolve();
-                        delete this.reloadPromise;
-                        delete this.reloadPromise__resolve;
-                        delete this.reloadPromise__reject;
-                     }
-
-                     // delete the current setTimeout
-                     clearTimeout(this.reloadTimer);
-                     delete this.reloadTimer;
-                  })
-                  .catch((err) => {
-                     if (this.reloadPromise) {
-                        this.reloadPromise__reject(err);
-                        delete this.reloadPromise;
-                        delete this.reloadPromise__resolve;
-                        delete this.reloadPromise__reject;
-                     }
-                     // delete the current setTimeout
-                     clearTimeout(this.reloadTimer);
-                     delete this.reloadTimer;
-                  });
-            }, 50);
-            // setting to 50ms because right now we do not see many
-            // concurrent calls,  we need to increase this if we begin to
-
-            return this.reloadPromise;
-         });
+         return this.reloadPromise;
+      });
    }
 
    /**
