@@ -7,10 +7,10 @@
 
 var ABField = require("../../platform/dataFields/ABField");
 
-function L(key, altText) {
-   // TODO:
-   return altText; // AD.lang.label.getLabel(key) || altText;
-}
+// function L(key, altText) {
+//    // TODO:
+//    return altText; // AD.lang.label.getLabel(key) || altText;
+// }
 
 const ABFieldConnectDefaults = {
    key: "connectObject",
@@ -189,7 +189,7 @@ module.exports = class ABFieldConnectCore extends ABField {
     * for this field.
     * @param {obj} values a key=>value hash of the current values.
     */
-   defaultValue(values) {}
+   defaultValue(/* values */) {}
 
    /**
     * @method isValidData
@@ -207,17 +207,9 @@ module.exports = class ABFieldConnectCore extends ABField {
       // there is object name - {objectName}.{columnName}
       if (this.columnName.indexOf(".") > -1) {
          const names = this.columnName.split(".");
-
-         return (
-            names[0] +
-            "." +
-            (String(names[1]).replace(/[^a-z0-9.]/gi, "") + "__relation")
-         );
+         return `${names[0]}.${this.AB.rules.toFieldRelationFormat(names[1])}`;
       } else {
-         const relationName =
-            String(this.columnName).replace(/[^a-z0-9.]/gi, "") + "__relation";
-
-         return relationName;
+         return this.AB.rules.toFieldRelationFormat(this.columnName);
       }
    }
 
