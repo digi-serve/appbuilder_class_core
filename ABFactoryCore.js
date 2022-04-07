@@ -102,6 +102,126 @@ class ABFactory extends EventEmitter {
          // FilterComplex
       };
 
+      //
+      // Rules
+      // These are a common set of "rules" for all platforms.
+      //
+      this.rules = {
+         /**
+          * @method AB.rules.isUUID
+          * evaluate a given value to see if it matches the format of a uuid
+          * @param {string} key
+          * @return {boolean}
+          */
+         isUUID: function (key) {
+            var checker = RegExp(
+               "^[0-9a-f]{8}-[0-9a-f]{4}-[1-5][0-9a-f]{3}-[89ab][0-9a-f]{3}-[0-9a-f]{12}$",
+               "i"
+            );
+            return checker.test(key);
+         },
+
+         /**
+          * @method AB.rules.nameFilter()
+          * return a properly formatted name for an AppBuilder object.
+          * @param {string} name
+          *        The name of the object we are conditioning.
+          * @return {string}
+          */
+         nameFilter: function (name) {
+            return String(name).replace(/[^a-z0-9_.]/gi, "");
+         },
+
+         /**
+          * @method AB.rules.toApplicationNameFormat()
+          * return a properly formatted Application Name
+          * @param {string} name
+          *        The name of the Application we are conditioning.
+          * @return {string}
+          */
+         toApplicationNameFormat: function (name) {
+            return "AB_" + this.nameFilter(name);
+         },
+
+         /**
+          * @method AB.rules.toFieldRelationFormat()
+          * This function uses for define relation name of Knex Objection
+          * return a relation name of column
+          * @param {string} colName
+          *        The name of the Column
+          * @return {string}
+          */
+         toFieldRelationFormat: function (colName) {
+            return this.nameFilter(colName) + "__relation";
+         },
+
+         /**
+          * @method AB.rules.toJunctionTableFK()
+          * return foriegnkey (FK) column name for a junction table name
+          * @param {string} objectName
+          *        The name of the Object with a connection
+          * @param {string} columnName
+          *        The name of the connection columnName.
+          * @return {string}
+          */
+         toJunctionTableFK: function (objectName, columnName) {
+            var fkName = objectName + "_" + columnName;
+
+            if (fkName.length > 64) fkName = fkName.substring(0, 64);
+
+            return fkName;
+         },
+
+         /**
+          * @method AB.rules.toJunctionTableNameFormat()
+          * return many-to-many junction table name
+          * @param {string} appName
+          *        The name of the Application for this object
+          * @param {string} sourceTableName
+          *        The name of the source object we are conditioning.
+          * @param {string} targetTableName
+          *        The name of the target object we are conditioning.
+          * @param {string} colName
+          * @return {string}
+          */
+         toJunctionTableNameFormat: function (
+            appName,
+            sourceTableName,
+            targetTableName,
+            colName
+         ) {
+            // The maximum length of a table name in MySql is 64 characters
+            appName = this.toApplicationNameFormat(appName);
+            if (appName.length > 17) appName = appName.substring(0, 17);
+
+            if (sourceTableName.length > 15)
+               sourceTableName = sourceTableName.substring(0, 15);
+
+            if (targetTableName.length > 15)
+               targetTableName = targetTableName.substring(0, 15);
+
+            colName = this.nameFilter(colName);
+            if (colName.length > 14) colName = colName.substring(0, 14);
+
+            return "{appName}_{sourceName}_{targetName}_{colName}"
+               .replace("{appName}", appName)
+               .replace("{sourceName}", sourceTableName)
+               .replace("{targetName}", targetTableName)
+               .replace("{colName}", colName);
+         },
+
+         /**
+          * @method AB.rules.toObjectNameFormat
+          * return a properly formatted Object/Table Name
+          * @param {string} objectName
+          *        The {ABObject}.name of the Object we are conditioning.
+          * @return {string}
+          */
+         toObjectNameFormat: function (objectName) {
+            return `AB_${this.nameFilter(objectName)}`;
+         },
+      };
+
       // Notify Helpers
       this.notify.builder = (...params) => {
          this.notify("builder", ...params);
