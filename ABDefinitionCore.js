@@ -29,12 +29,16 @@ module.exports = class ABDefinitionCore {
          attributes?.name ||
          attributes?.json?.name ||
          attributes?.json?.label ||
+         attributes?.json?.translations?.[0]?.label ||
          "";
       if (!this.name) {
-        this.AB.notify.builder(new Error("Attributes for definition had no 'name'"), {
-          context: "ABDefinitionCore.fromValues()",
-          attributes
-        })
+         this.AB.notify.builder(
+            new Error("Attributes for definition had no 'name'"),
+            {
+               context: "ABDefinitionCore.fromValues()",
+               attributes,
+            }
+         );
       }
       this.type = attributes.type || attributes?.json?.type || "";
       this.json = attributes.json || null;
