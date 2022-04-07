@@ -25,6 +25,22 @@
 const ABViewManager = require("../platform/ABViewManager");
 var ABMLClass = require("../platform/ABMLClass");
 
+function toBool(val) {
+   if (typeof val == "undefined") {
+      return false;
+   }
+
+   if (val === "" || val === "false" || val === "0") {
+      return false;
+   }
+
+   if (val === "true" || val === "1") {
+      return true;
+   }
+
+   return val;
+}
+
 module.exports = class ABApplicationCore extends ABMLClass {
    constructor(attributes, AB) {
       super(["label", "description"], AB);
@@ -63,11 +79,11 @@ module.exports = class ABApplicationCore extends ABMLClass {
       // if user wants to get creative they can add more to this field following
       // these examples https://fontawesome.com/v4/examples/
 
-      this.isSystemObj = attributes.isSystemObj ?? false;
-      // {bool} .isSystemObj
+      this.isSystemObject = toBool(attributes.isSystemObject);
+      // {bool} .isSystemObject
       // is this one of the integrated System Objects used by our framework?
       // Some ABApplications and ABObjects are central to the running of the
-      // AppBuilder site.  They are marked with .isSystemObj = true;  It
+      // AppBuilder site.  They are marked with .isSystemObject = true;  It
       // requires the role "System Designer" in order to edit/modify them.
 
       this.roleAccess = attributes.roleAccess || [];
@@ -305,7 +321,7 @@ module.exports = class ABApplicationCore extends ABMLClass {
          type: this.type || "application",
          name: this.name,
          icon: this.icon,
-         isSystemObj: this.isSystemObj,
+         isSystemObject: this.isSystemObject,
          json: this.json,
          roleAccess: this.roleAccess,
          translations: this.json.translations,
