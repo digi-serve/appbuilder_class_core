@@ -99,7 +99,7 @@ class ABFactory extends EventEmitter {
          // ABObjectWorkspaceViewKanban,
          // ABObjectWorkspaceViewGantt,
 
-         // FilterComplex
+         ABProcessTaskManager,
       };
 
       //
