@@ -537,9 +537,9 @@ module.exports = class FilterComplexCore extends ABComponent {
     * @param object {ABObject} [optional]
     */
    fieldsLoad(fields = [], object = null) {
-      this._Fields = fields.filter((f) => {
-         f && f.fieldIsFilterable && f.fieldIsFilterable();
-      });
+      this._Fields = fields.filter(
+         (f) => f && f.fieldIsFilterable && f.fieldIsFilterable()
+      );
       this._QueryFields = this._Fields
          ? this._Fields.filter((f) => f && f.isConnection && f.key != "user")
          : [];
