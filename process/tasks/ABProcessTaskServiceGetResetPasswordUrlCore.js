@@ -63,4 +63,19 @@ module.exports = class ABProcessTaskGetResetPasswordUrlCore extends (
          label: `${this.label}->Value`,
       };
    }
+
+   /**
+    * processData()
+    * return the current value requested for the given data key.
+    * @param {obj} instance
+    * @return {mixed} | null
+    */
+   processData(instance, key) {
+      var parts = key.split(".");
+      if (parts[0] == this.id) {
+         const myState = this.myState(instance);
+         return myState[parts[1]];
+      }
+      return null;
+   }
 };
