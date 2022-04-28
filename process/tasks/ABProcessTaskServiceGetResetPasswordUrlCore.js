@@ -23,7 +23,7 @@ const ABProcessTaskGetResetPasswordUrlDefaults = {
    // key: {string}
    // unique key to reference this specific Task
 
-   settings: ["email"],
+   settings: ["email", "url"],
    // settings: {array}
    // a list of internal setting values this Element tracks. These are the
    // values set by the platform .propertiesStash()
@@ -62,20 +62,5 @@ module.exports = class ABProcessTaskGetResetPasswordUrlCore extends (
          key: `${this.id}.value`,
          label: `${this.label}->Value`,
       };
-   }
-
-   /**
-    * processData()
-    * return the current value requested for the given data key.
-    * @param {obj} instance
-    * @return {mixed} | null
-    */
-   processData(instance, key) {
-      var parts = key.split(".");
-      if (parts[0] == this.id) {
-         const myState = this.myState(instance);
-         return myState[parts[1]];
-      }
-      return null;
    }
 };
