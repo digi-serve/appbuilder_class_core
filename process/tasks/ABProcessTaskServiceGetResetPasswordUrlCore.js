@@ -59,8 +59,8 @@ module.exports = class ABProcessTaskGetResetPasswordUrlCore extends (
     */
    processDataFields() {
       return {
-         key: `${this.id}.value`,
-         label: `${this.label}->Value`,
+         key: `${this.id}.url`,
+         label: `${this.label}->URL`,
       };
    }
 };
