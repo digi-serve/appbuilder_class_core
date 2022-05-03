@@ -73,6 +73,19 @@ class ABQLCore {
 
       this.initObject(attributes);
 
+      if (this.objectID && !this.object) {
+         // at least dump a warning here:
+         this.AB.notify.developer(
+            new Error(
+               `ABQLCore.fromAttributes(): unable to initialize ABObject [${this.objectID}]`
+            ),
+            {
+               attributes,
+               objectID: this.objectID,
+            }
+         );
+      }
+
       if (attributes.next) {
          var nextOP = null;
          (this.NextQLOps || this.constructor.NextQLOps).forEach((OP) => {

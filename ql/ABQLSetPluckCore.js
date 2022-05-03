@@ -13,8 +13,8 @@ const ABQL = require("../../platform/ql/ABQL.js");
 var ParameterDefinitions = [
    {
       type: "objectFields",
-      name: "field"
-   }
+      name: "field",
+   },
 ];
 
 class ABQLSetPluckCore extends ABQL {
@@ -36,8 +36,7 @@ class ABQLSetPluckCore extends ABQL {
       // allow our base class to continue forward:
 
       this.fieldID = attributes.fieldID;
-      this.field = this.object.fieldByID(this.fieldID);
-      
+      this.field = this.object?.fieldByID(this.fieldID);
 
       if (attributes.objectOutID) {
          this.objectOut = this.objectLookup(attributes.objectOutID);
