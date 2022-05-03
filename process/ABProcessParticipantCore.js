@@ -47,6 +47,7 @@ module.exports = class ABProcessParticipantCore extends ABMLClass {
       this.id = attributes.id;
       this.name = attributes.name || "";
       this.type = attributes.type || ABProcessParticipantDefaults.type;
+      this.key = attributes.key || ABProcessParticipantDefaults.type;
 
       // Process Values:
       this.processID = attributes.processID || null;
