@@ -898,7 +898,9 @@ module.exports = class ABObjectCore extends ABMLClass {
          var defaultField = this.fields((f) => f.fieldUseAsLabel())[0];
          if (defaultField) labelData = "{" + defaultField.id + "}";
          else
-            labelData = `${this.isUuid?.(rowData.id) ? "ID: " : ""}${rowData.id}`; // show id of row
+            labelData = `${this.AB.rules.isUUID(rowData.id) ? "ID: " : ""}${
+               rowData.id
+            }`; // show id of row
       }
 
       // get column ids in {colId} template
@@ -918,9 +920,9 @@ module.exports = class ABObjectCore extends ABMLClass {
 
       // if label is empty, then show .id
       if (!labelData.trim())
-         labelData = labelData = `${this.isUuid?.(rowData.id) ? "ID: " : ""}${
-            rowData.id
-         }`; // show id of row
+         labelData = labelData = `${
+            this.AB.rules.isUUID(rowData.id) ? "ID: " : ""
+         }${rowData.id}`; // show id of row
 
       return labelData;
    }
