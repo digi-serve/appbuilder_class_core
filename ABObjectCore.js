@@ -156,9 +156,12 @@ module.exports = class ABObjectCore extends ABMLClass {
       // ABObjects, and eventually we can use the AppBuilder to Create the AppBuilder.
       if (
          typeof this.isSystemObject == "undefined" ||
-         this.isSystemObject == "false"
+         this.isSystemObject === "false" ||
+         this.isSystemObject === false
       ) {
          this.isSystemObject = false;
+      } else {
+         this.isSystemObject = true;
       }
 
       this.createdInAppID = attributes.createdInAppID;
