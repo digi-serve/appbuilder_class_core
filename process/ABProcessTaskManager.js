@@ -34,12 +34,13 @@ var AllProcessElements = [
    require("../../platform/process/tasks/ABProcessTaskServiceCalculate"),
    require("../../platform/process/tasks/ABProcessTaskServiceInsertRecord"),
    require("../../platform/process/tasks/ABProcessTaskServiceQuery"),
+   require("../../platform/process/tasks/ABProcessTaskServiceGetResetPasswordUrl"),
    require("../../platform/process/tasks/ABProcessTaskSubProcess"),
    require("../../platform/process/tasks/ABProcessTaskUser"),
    require("../../platform/process/tasks/ABProcessTaskUserApproval"),
    require("../../platform/process/tasks/ABProcessTrigger"),
    require("../../platform/process/tasks/ABProcessTriggerLifecycle"),
-   require("../../platform/process/tasks/ABProcessTriggerTimer")
+   require("../../platform/process/tasks/ABProcessTriggerTimer"),
 ];
 
 AllProcessElements.forEach((ELEMENT) => {
