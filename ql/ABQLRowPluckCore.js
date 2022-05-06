@@ -17,7 +17,7 @@ class ABQLRowPluckCore extends ABQLSetPluck {
       let nextQLOps = [];
       let field = this.field;
       if (field == null) {
-         field = this.object.fields((f) => f.id == this.fieldID)[0];
+         field = this.object?.fields((f) => f.id == this.fieldID)[0];
       }
 
       // Update .NextQLOps WARN: update to static it affects to every ABQLRowPluck instances.

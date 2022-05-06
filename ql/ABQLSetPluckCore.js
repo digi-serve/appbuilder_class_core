@@ -38,7 +38,7 @@ class ABQLSetPluckCore extends ABQL {
       this.fieldID = attributes.fieldID;
       // v2 method:
       // this.field = this.object.fieldByID(this.fieldID);
-      this.field = this.object.fields((f) => f.id == this.fieldID)[0];
+      this.field = this.object?.fields((f) => f.id == this.fieldID)[0];
 
       if (attributes.objectOutID) {
          this.objectOut = this.objectLookup(attributes.objectOutID);
@@ -59,7 +59,7 @@ class ABQLSetPluckCore extends ABQL {
          obj.fieldID = this.params.field || null;
          // v2 method:
          // var field = this.object.fieldByID(obj.fieldID);
-         var field = this.object.fields((f) => f.id == obj.fieldID)[0];
+         var field = this.object?.fields((f) => f.id == obj.fieldID)[0];
 
          // v2 method:
          // if (field && field.isConnected) {
