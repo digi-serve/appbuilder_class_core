@@ -35,6 +35,8 @@ const ABProcessTaskManager = require("./process/ABProcessTaskManager");
 const RowFilter = require("../platform/RowFilter");
 const FilterComplex = require("../platform/FilterComplex");
 
+const ABMLClass = require("../platform/ABMLClass");
+
 const EventEmitter = require("../platform/ABEmitter");
 
 class ABFactory extends EventEmitter {
@@ -88,6 +90,7 @@ class ABFactory extends EventEmitter {
          ABDefinition,
          ABFieldManager,
          ABIndex,
+         ABMLClass,
          ABObject,
          ABObjectExternal,
          ABObjectImport,
