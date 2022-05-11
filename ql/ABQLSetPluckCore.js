@@ -62,7 +62,7 @@ class ABQLSetPluckCore extends ABQL {
          // v2 method:
          // var field = this.object.fieldByID(obj.fieldID);
          if (this.object) {
-            var field = this.object?.fields((f) => f.id == obj.fieldID)[0];
+            var field = this.object.fields((f) => f.id == obj.fieldID)[0];
          }
 
          // v2 method:
