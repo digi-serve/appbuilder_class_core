@@ -30,7 +30,7 @@ module.exports = class ABViewFormComponentCore extends ABView {
 
       if (object == null) return null;
 
-      let field = object.fields((v) => v.id == this.settings.fieldId)[0];
+      let field = object.fieldByID(this.settings.fieldId);
       return field;
    }
 };

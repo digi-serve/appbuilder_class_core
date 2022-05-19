@@ -2,13 +2,19 @@ const ABViewFormComponent = require("../../platform/views/ABViewFormComponent");
 
 const ABViewFormConnectPropertyComponentDefaults = {
    formView: "", // id of form to add new data
-   objectWorkspace: {
-      filterConditions: {
-         // array of filters to apply to the data table
-         glue: "and",
-         rules: [],
-      },
+   filterConditions: {
+      // array of filters to apply to the data table
+      glue: "and",
+      rules: [],
    },
+   sortFields: [],
+   // objectWorkspace: {
+   //    filterConditions: {
+   //       // array of filters to apply to the data table
+   //       glue: "and",
+   //       rules: [],
+   //    },
+   // },
    popupWidth: 700,
    popupHeight: 450,
 };
@@ -50,9 +56,9 @@ module.exports = class ABViewFormConnectCore extends ABViewFormComponent {
    fromValues(values) {
       super.fromValues(values);
 
-      this.settings.objectWorkspace =
-         this.settings.objectWorkspace ||
-         ABViewFormConnectPropertyComponentDefaults.objectWorkspace;
+      this.settings.filterConditions =
+         this.settings.filterConditions ||
+         ABViewFormConnectPropertyComponentDefaults.filterConditions;
    }
 
    /**

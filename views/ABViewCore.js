@@ -38,6 +38,10 @@ module.exports = class ABViewCore extends ABMLClass {
 
       this.parent = parent || null;
 
+      this.warningsSilent = false;
+      // {bool}
+      // Should we suppress our configuration warnings?
+
       this.fromValues(values);
    }
 
@@ -448,6 +452,8 @@ module.exports = class ABViewCore extends ABMLClass {
          ) {
             // NOTE: ignore kanban side forms where this is the case:
             if (this.key == "form" && this._currentObject) return null;
+
+            if (this.warningsSilent) return null;
 
             var errNoDCID = new Error(
                `ABViewCore:get datacollection(): View[${this.key}] didn't define a dataviewID.`
