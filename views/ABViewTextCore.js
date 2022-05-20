@@ -203,7 +203,7 @@ module.exports = class ABViewTextCore extends ABViewWidget {
       });
 
       // Support {uuid} tag in tempalte
-      result = result.replace(/{uuid}/g, rowData.uuid);
+      result = result.replace(/{PK}/g, rowData[object.PK()]);
 
       return result;
    }
