@@ -287,7 +287,7 @@ module.exports = class FilterComplexCore extends ABComponent {
    listValid(value, rule, compareValue) {
       var result = false;
 
-      compareValue = compareValue.toLowerCase();
+      // compareValue = compareValue.toLowerCase();
 
       if (!Array.isArray(compareValue)) compareValue = [compareValue];
 
