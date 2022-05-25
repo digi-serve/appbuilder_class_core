@@ -136,9 +136,9 @@ module.exports = class ABViewTextCore extends ABViewWidget {
       var object = dv?.datasource ?? this._object;
       if (!object) return clearTemplateValue(result);
 
-      object.fields().forEach((f) => {
-         var rowData = val || dv.getCursor() || {};
+      const rowData = val || dv.getCursor() || {};
 
+      object.fields().forEach((f) => {
          // add \\ in front of the regular expression special charactors
          // let label = f.label || "";
          // label = label.replace(/\(/g, "\\(");
@@ -201,6 +201,9 @@ module.exports = class ABViewTextCore extends ABViewWidget {
 
          result = result.replace(template, data);
       });
+
+      // Support {uuid} tag in tempalte
+      result = result.replace(/{PK}/g, rowData[object.PK()]);
 
       return result;
    }
