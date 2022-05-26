@@ -539,6 +539,7 @@ module.exports = class FilterComplexCore extends ABComponent {
       if (!Array.isArray(processFields)) {
          processFields = [processFields];
       }
+
       this.uiInit();
    }
 
@@ -567,7 +568,7 @@ module.exports = class FilterComplexCore extends ABComponent {
          let thisObjOption = {
             id: "this_object",
             label: object.label,
-            type: "uuid"
+            key: "uuid"
          };
 
          // If object is query ,then should define default alias: "BASE_OBJECT"
@@ -662,6 +663,11 @@ module.exports = class FilterComplexCore extends ABComponent {
                   .concat(this.fieldsAddFiltersUser(f))
                   .concat(this.fieldsAddFiltersQueryField(f));
                break;
+            case "uuid":
+               conditions = conditions.concat(
+                  this.fieldsAddFiltersThisObject(f)
+               );
+               break;
             default:
                type = "text";
                break;
@@ -673,7 +679,11 @@ module.exports = class FilterComplexCore extends ABComponent {
 
          let isProcessField =
             (this._ProcessFields || []).filter(
-               (processField) => processField && processField.field && processField.field.id == f.id
+               (processField) =>
+                  processField &&
+                  ((processField.field && processField.field.id == f.id) ||
+                     (processField.key &&
+                        processField.key.split(".")[0] == f.id))
             ).length > 0;
 
          if (isProcessField) {
@@ -694,10 +704,10 @@ module.exports = class FilterComplexCore extends ABComponent {
          //            we will make a unique type for each field. and then
          //            add value selectors for that specific .type
          return {
-            id: f.columnName,
+            id: f.columnName || f.id,
             value: label,
             type: type,
-            conditions: conditions,
+            conditions: conditions
             // format: () => {},
          };
       });
@@ -714,7 +724,7 @@ module.exports = class FilterComplexCore extends ABComponent {
                   id: pField.key,
                   value: this._Object.label,
                   type: "text",
-                  conditions: this.fieldsAddFiltersContext(),
+                  conditions: this.fieldsAddFiltersContext()
                });
             }
          });
@@ -735,7 +745,7 @@ module.exports = class FilterComplexCore extends ABComponent {
          greater_or_equal_current: this.labels.component
             .onOrAfterCurrentCondition,
          last_days: this.labels.component.onLastDaysCondition,
-         next_days: this.labels.component.onNextDaysCondition,
+         next_days: this.labels.component.onNextDaysCondition
       };
 
       let result = [];
@@ -745,7 +755,7 @@ module.exports = class FilterComplexCore extends ABComponent {
             id: condKey,
             value: dateConditions[condKey],
             batch: "date",
-            handler: (a, b) => this.dateValid(a, condKey, b),
+            handler: (a, b) => this.dateValid(a, condKey, b)
          });
       }
 
@@ -757,7 +767,7 @@ module.exports = class FilterComplexCore extends ABComponent {
          contains: this.labels.component.containsCondition,
          not_contains: this.labels.component.notContainsCondition,
          equals: this.labels.component.isCondition,
-         not_equal: this.labels.component.isNotCondition,
+         not_equal: this.labels.component.isNotCondition
       };
 
       let result = [];
@@ -767,7 +777,7 @@ module.exports = class FilterComplexCore extends ABComponent {
             id: condKey,
             value: stringConditions[condKey],
             batch: "text",
-            handler: (a, b) => this.textValid(a, condKey, b),
+            handler: (a, b) => this.textValid(a, condKey, b)
          });
       }
 
@@ -781,7 +791,7 @@ module.exports = class FilterComplexCore extends ABComponent {
          less: this.labels.component.lessThanCondition,
          greater: this.labels.component.moreThanCondition,
          less_or_equal: this.labels.component.lessThanOrEqualCondition,
-         greater_or_equal: this.labels.component.moreThanOrEqualCondition,
+         greater_or_equal: this.labels.component.moreThanOrEqualCondition
       };
 
       let result = [];
@@ -791,7 +801,7 @@ module.exports = class FilterComplexCore extends ABComponent {
             id: condKey,
             value: numberConditions[condKey],
             batch: "text",
-            handler: (a, b) => this.numberValid(a, condKey, b),
+            handler: (a, b) => this.numberValid(a, condKey, b)
          });
       }
 
@@ -801,7 +811,7 @@ module.exports = class FilterComplexCore extends ABComponent {
    fieldsAddFiltersList(field) {
       let listConditions = {
          equals: this.labels.component.equalListCondition,
-         not_equal: this.labels.component.notEqualListCondition,
+         not_equal: this.labels.component.notEqualListCondition
       };
 
       let result = [];
@@ -811,7 +821,7 @@ module.exports = class FilterComplexCore extends ABComponent {
             id: condKey,
             value: listConditions[condKey],
             batch: "list",
-            handler: (a, b) => this.listValid(a, condKey, b),
+            handler: (a, b) => this.listValid(a, condKey, b)
          });
       }
 
@@ -820,7 +830,7 @@ module.exports = class FilterComplexCore extends ABComponent {
 
    fieldsAddFiltersBoolean(field) {
       let booleanConditions = {
-         equals: this.labels.component.equalListCondition,
+         equals: this.labels.component.equalListCondition
       };
 
       let result = [];
@@ -830,7 +840,7 @@ module.exports = class FilterComplexCore extends ABComponent {
             id: condKey,
             value: booleanConditions[condKey],
             batch: "boolean",
-            handler: (a, b) => this.booleanValid(a, condKey, b),
+            handler: (a, b) => this.booleanValid(a, condKey, b)
          });
       }
 
@@ -841,28 +851,28 @@ module.exports = class FilterComplexCore extends ABComponent {
       let userConditions = {
          is_current_user: {
             batch: "none",
-            label: this.labels.component.isCurrentUserCondition,
+            label: this.labels.component.isCurrentUserCondition
          },
          is_not_current_user: {
             batch: "none",
-            label: this.labels.component.isNotCurrentUserCondition,
+            label: this.labels.component.isNotCurrentUserCondition
          },
          contain_current_user: {
             batch: "none",
-            label: this.labels.component.containsCurrentUserCondition,
+            label: this.labels.component.containsCurrentUserCondition
          },
          not_contain_current_user: {
             batch: "none",
-            label: this.labels.component.notContainsCurrentUserCondition,
+            label: this.labels.component.notContainsCurrentUserCondition
          },
          equals: {
             batch: "user",
-            label: this.labels.component.equalListCondition,
+            label: this.labels.component.equalListCondition
          },
          not_equal: {
             batch: "user",
-            label: this.labels.component.notEqualListCondition,
-         },
+            label: this.labels.component.notEqualListCondition
+         }
       };
 
       let result = [];
@@ -872,7 +882,7 @@ module.exports = class FilterComplexCore extends ABComponent {
             id: condKey,
             value: userConditions[condKey].label,
             batch: userConditions[condKey].batch,
-            handler: (a, b) => this.userValid(a, condKey, b),
+            handler: (a, b) => this.userValid(a, condKey, b)
          });
       }
 
@@ -884,35 +894,35 @@ module.exports = class FilterComplexCore extends ABComponent {
          in_query: {
             batch: "query",
             label: this.labels.component.inQuery,
-            handler: (a, b) => this.inQueryValid(a, "in_query", b),
+            handler: (a, b) => this.inQueryValid(a, "in_query", b)
          },
          not_in_query: {
             batch: "query",
             label: this.labels.component.notInQuery,
-            handler: (a, b) => this.inQueryValid(a, "not_in_query", b),
+            handler: (a, b) => this.inQueryValid(a, "not_in_query", b)
          },
          same_as_user: {
             batch: "user",
             label: this.labels.component.sameAsUser,
-            handler: (a, b) => this.userValid(a, "same_as_user", b),
+            handler: (a, b) => this.userValid(a, "same_as_user", b)
          },
          not_same_as_user: {
             batch: "user",
             label: this.labels.component.notSameAsUser,
-            handler: (a, b) => this.userValid(a, "not_same_as_user", b),
+            handler: (a, b) => this.userValid(a, "not_same_as_user", b)
          },
          in_data_collection: {
             batch: "datacollection",
             label: this.labels.component.inDataCollection,
             handler: (a, b) =>
-               this.dataCollectionValid(a, "in_data_collection", b),
+               this.dataCollectionValid(a, "in_data_collection", b)
          },
          not_in_data_collection: {
             batch: "datacollection",
             label: this.labels.component.notInDataCollection,
             handler: (a, b) =>
-               this.dataCollectionValid(a, "not_in_data_collection", b),
-         },
+               this.dataCollectionValid(a, "not_in_data_collection", b)
+         }
          // TODO
          // contains: this.labels.component.containsCondition,
          // not_contains: this.labels.component.notContainCondition,
@@ -927,7 +937,7 @@ module.exports = class FilterComplexCore extends ABComponent {
             id: condKey,
             value: connectConditions[condKey].label,
             batch: connectConditions[condKey].batch,
-            handler: connectConditions[condKey].handler,
+            handler: connectConditions[condKey].handler
          });
       }
 
@@ -937,7 +947,7 @@ module.exports = class FilterComplexCore extends ABComponent {
    fieldsAddFiltersQueryField(field) {
       let queryFieldConditions = {
          in_query_field: this.labels.component.inQueryField,
-         not_in_query_field: this.labels.component.notInQueryField,
+         not_in_query_field: this.labels.component.notInQueryField
       };
 
       let result = [];
@@ -947,7 +957,41 @@ module.exports = class FilterComplexCore extends ABComponent {
             id: condKey,
             value: queryFieldConditions[condKey],
             batch: "queryField",
-            handler: (a, b) => this.queryFieldValid(a, condKey, b),
+            handler: (a, b) => this.queryFieldValid(a, condKey, b)
+         });
+      }
+
+      return result;
+   }
+
+   fieldsAddFiltersThisObject(field) {
+      let thisObjectConditions = {
+         in_query: {
+            batch: "query",
+            label: this.labels.component.inQuery
+         },
+         not_in_query: {
+            batch: "query",
+            label: this.labels.component.notInQuery
+         },
+         in_data_collection: {
+            batch: "datacollection",
+            label: this.labels.component.inDataCollection
+         },
+         not_in_data_collection: {
+            batch: "datacollection",
+            label: this.labels.component.notInDataCollection
+         }
+      };
+
+      let result = [];
+
+      for (let condKey in thisObjectConditions) {
+         result.push({
+            id: condKey,
+            value: thisObjectConditions[condKey].label,
+            batch: thisObjectConditions[condKey].batch,
+            handler: (a, b) => this.thisObjectValid(a, condKey, b)
          });
       }
 
@@ -957,7 +1001,7 @@ module.exports = class FilterComplexCore extends ABComponent {
    fieldsAddFiltersRecordRule(field) {
       let recordRuleConditions = {
          same_as_field: this.labels.component.sameAsField,
-         not_same_as_field: this.labels.component.notSameAsField,
+         not_same_as_field: this.labels.component.notSameAsField
       };
 
       let result = [];
@@ -967,7 +1011,7 @@ module.exports = class FilterComplexCore extends ABComponent {
             id: condKey,
             value: recordRuleConditions[condKey],
             batch: "recordRule",
-            handler: (a, b) => true, // TODO: record rule validation
+            handler: (a, b) => true // TODO: record rule validation
          });
       }
 
@@ -979,23 +1023,23 @@ module.exports = class FilterComplexCore extends ABComponent {
          context_equals: {
             batch: "context",
             label: this.labels.component.EqualsProcessValue,
-            handler: (a, b) => a == b,
+            handler: (a, b) => a == b
          },
          context_not_equal: {
             batch: "context",
             label: this.labels.component.NotEqualsProcessValueCondition,
-            handler: (a, b) => a != b,
+            handler: (a, b) => a != b
          },
          context_in: {
             batch: "context",
             label: this.labels.component.InProcessValueCondition,
-            handler: (a, b) => a.indexOf(b) > -1,
+            handler: (a, b) => a.indexOf(b) > -1
          },
          context_not_in: {
             batch: "context",
             label: this.labels.component.notInProcessValueCondition,
-            handler: (a, b) => a.indexOf(b) == -1,
-         },
+            handler: (a, b) => a.indexOf(b) == -1
+         }
       };
 
       let result = [];
@@ -1005,7 +1049,7 @@ module.exports = class FilterComplexCore extends ABComponent {
             id: condKey,
             value: contextConditions[condKey].label,
             batch: contextConditions[condKey].batch,
-            handler: contextConditions[condKey].handler,
+            handler: contextConditions[condKey].handler
          });
       }
 
@@ -1064,7 +1108,7 @@ module.exports = class FilterComplexCore extends ABComponent {
     *		]
     * }
     */
-    getValue() {
+   getValue() {
       return this.condition;
    }
 
@@ -1077,7 +1121,7 @@ module.exports = class FilterComplexCore extends ABComponent {
          "contain_current_user",
          "not_contain_current_user",
          "same_as_user",
-         "not_same_as_user",
+         "not_same_as_user"
       ];
 
       const isCompleteRules = (rules = []) => {
