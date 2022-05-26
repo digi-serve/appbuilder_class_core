@@ -552,7 +552,7 @@ module.exports = class FilterComplexCore extends ABComponent {
          let thisObjOption = {
             id: "this_object",
             label: object.label,
-            type: "uuid",
+            key: "uuid",
          };
 
          // If object is query ,then should define default alias: "BASE_OBJECT"
@@ -647,6 +647,11 @@ module.exports = class FilterComplexCore extends ABComponent {
                   .concat(this.fieldsAddFiltersUser(f))
                   .concat(this.fieldsAddFiltersQueryField(f));
                break;
+            case "uuid":
+               conditions = conditions.concat(
+                  this.fieldsAddFiltersThisObject(f)
+               );
+               break;
             default:
                type = "text";
                break;
@@ -658,7 +663,11 @@ module.exports = class FilterComplexCore extends ABComponent {
 
          let isProcessField =
             (this._ProcessFields ?? []).filter(
-               (processField) => processField?.field?.id == f?.id
+               (processField) =>
+                  processField &&
+                  ((processField.field && processField.field.id == f.id) ||
+                     (processField.key &&
+                        processField.key.split(".")[0] == f.id))
             ).length > 0;
 
          if (isProcessField) {
@@ -679,7 +688,7 @@ module.exports = class FilterComplexCore extends ABComponent {
          //            we will make a unique type for each field. and then
          //            add value selectors for that specific .type
          return {
-            id: f.columnName,
+            id: f.columnName || f.id,
             value: label,
             type: type,
             conditions: conditions,
@@ -935,6 +944,40 @@ module.exports = class FilterComplexCore extends ABComponent {
             value: queryFieldConditions[condKey],
             batch: "queryField",
             handler: (a, b) => this.queryFieldValid(a, condKey, b),
+         });
+      }
+
+      return result;
+   }
+
+   fieldsAddFiltersThisObject(field) {
+      let thisObjectConditions = {
+         in_query: {
+            batch: "query",
+            label: this.labels.component.inQuery
+         },
+         not_in_query: {
+            batch: "query",
+            label: this.labels.component.notInQuery
+         },
+         in_data_collection: {
+            batch: "datacollection",
+            label: this.labels.component.inDataCollection
+         },
+         not_in_data_collection: {
+            batch: "datacollection",
+            label: this.labels.component.notInDataCollection
+         }
+      };
+
+      let result = [];
+
+      for (let condKey in thisObjectConditions) {
+         result.push({
+            id: condKey,
+            value: thisObjectConditions[condKey].label,
+            batch: thisObjectConditions[condKey].batch,
+            handler: (a, b) => this.thisObjectValid(a, condKey, b)
          });
       }
 
