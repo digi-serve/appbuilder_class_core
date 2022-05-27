@@ -3,7 +3,7 @@ const ABViewWidget = require("../../platform/views/ABViewWidget");
 const ABViewCSVExporterDefaults = {
    key: "csvExporter", // unique key identifier for this ABViewForm
    icon: "download", // icon reference: (without 'fa-' )
-   labelKey: "ab.components.csvExporter", // {string} the multilingual label key for the class label
+   labelKey: "CSV Exporter", // {string} the multilingual label key for the class label
 };
 
 const ABViewCSVExporterPropertyComponentDefaults = {

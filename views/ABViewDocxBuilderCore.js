@@ -14,7 +14,7 @@ const ABViewDocxBuilderPropertyComponentDefaults = {
 const ABViewDefaults = {
    key: "docxBuilder", // {string} unique key for this view
    icon: "file-word-o", // {string} fa-[icon] reference for this view
-   labelKey: "ab.components.docxBuilder", // {string} the multilingual label key for the class label
+   labelKey: "DOCX Builder", // {string} the multilingual label key for the class label
 };
 
 module.exports = class ABViewDocxBuilderCore extends ABViewWidget {

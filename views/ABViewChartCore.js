@@ -16,7 +16,7 @@ const ABViewChartPropertyComponentDefaults = {
 const ABViewChartDefaults = {
    key: "chart", // {string} unique key for this view
    icon: "bar-chart", // {string} fa-[icon] reference for this view
-   labelKey: "ab.components.chart", // {string} the multilingual label key for the class label
+   labelKey: "Chart", // {string} the multilingual label key for the class label
 };
 
 module.exports = class ABViewChartCore extends ABViewContainer {

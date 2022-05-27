@@ -1038,10 +1038,10 @@ module.exports = class FilterComplexCore extends ABComponent {
 
    /**
     * @method getValue
-    *
+    * return the current condition of the filter.
     * @return {JSON} -
     * {
-    * 		glue: '', // 'and', 'or'
+    * 	glue: '', // 'and', 'or'
     *		rules: [
     *			{
     *				key:	'uuid',
@@ -1052,6 +1052,11 @@ module.exports = class FilterComplexCore extends ABComponent {
     * }
     */
    getValue() {
+      // When asked for a value before a condition is set, default the
+      // unset glue to "and";
+      if (typeof this.condition.glue == "undefined") {
+         this.condition.glue = "and";
+      }
       return this.condition;
    }
 

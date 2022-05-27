@@ -14,7 +14,7 @@ const ABViewTabPropertyComponentDefaults = {
 const ABViewTabDefaults = {
    key: "tab", // {string} unique key for this view
    icon: "window-maximize", // {string} fa-[icon] reference for this view
-   labelKey: "ab.components.tab", // {string} the multilingual label key for the class label
+   labelKey: "Tab", // {string} the multilingual label key for the class label
 };
 
 module.exports = class ABViewTabCore extends ABViewWidget {

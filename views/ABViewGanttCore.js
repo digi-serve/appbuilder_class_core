@@ -36,7 +36,7 @@ const ABViewGanttPropertyComponentDefaults = {
 const ABViewDefaults = {
    key: "gantt", // {string} unique key for this view
    icon: "tasks", // {string} fa-[icon] reference for this view
-   labelKey: "ab.components.gantt", // {string} the multilingual label key for the class label
+   labelKey: "Gantt", // {string} the multilingual label key for the class label
 };
 
 module.exports = class ABViewGanttCore extends ABViewWidget {

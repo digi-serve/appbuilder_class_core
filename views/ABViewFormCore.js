@@ -7,7 +7,7 @@ const ABSubmitRule = require("../../rules/ABViewRuleListFormSubmitRules");
 const ABViewFormDefaults = {
    key: "form", // unique key identifier for this ABViewForm
    icon: "list-alt", // icon reference: (without 'fa-' )
-   labelKey: "ab.components.form", // {string} the multilingual label key for the class label
+   labelKey: "Form", // {string} the multilingual label key for the class label
 };
 
 const ABViewFormPropertyComponentDefaults = {

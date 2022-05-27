@@ -28,7 +28,7 @@ const ABViewMenuPropertyComponentDefaults = {
 const ABMenuDefaults = {
    key: "menu", // {string} unique key for this view
    icon: "th-large", // {string} fa-[icon] reference for this view
-   labelKey: "ab.components.menu", // {string} the multilingual label key for the class label
+   labelKey: "Menu", // {string} the multilingual label key for the class label
 };
 
 module.exports = class ABViewMenuCore extends ABViewWidget {

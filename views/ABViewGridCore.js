@@ -81,7 +81,12 @@ const ABViewGridPropertyComponentDefaults = {
    // array of [ids] to add hidden:true to
 
    summaryColumns: [],
+   // {array}  [ ABField.id, ABField.id, ... ]
+   // array of [ids] to add the SUM footer to
+
    countColumns: [],
+   // {array}  [ ABField.id, ABField.id, ... ]
+   // array of [ids] to add the Count footer to
 
    // TODO: get rid of objectWorkspace!
    objectWorkspace: {
@@ -137,7 +142,7 @@ const ABViewGridPropertyComponentDefaults = {
 const ABViewDefaults = {
    key: "grid", // {string} unique key for this view
    icon: "table", // {string} fa-[icon] reference for this view
-   labelKey: "ab.components.grid", // {string} the multilingual label key for the class label
+   labelKey: "Grid", // {string} the multilingual label key for the class label
 };
 
 /**

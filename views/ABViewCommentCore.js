@@ -13,7 +13,7 @@ const ABViewCommentPropertyComponentDefaults = {
 const ABViewDefaults = {
    key: "comment", // {string} unique key for this view
    icon: "comments", // {string} fa-[icon] reference for this view
-   labelKey: "ab.components.comment", // {string} the multilingual label key for the class label
+   labelKey: "Comment", // {string} the multilingual label key for the class label
 };
 
 module.exports = class ABViewCommentCore extends ABViewWidget {
@@ -118,4 +118,3 @@ module.exports = class ABViewCommentCore extends ABViewWidget {
       return model;
    }
 };
-

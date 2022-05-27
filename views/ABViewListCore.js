@@ -9,7 +9,7 @@ const ABViewListPropertyComponentDefaults = {
 const ABViewDefaults = {
    key: "list", // {string} unique key for this view
    icon: "list-ul", // {string} fa-[icon] reference for this view
-   labelKey: "ab.components.list", // {string} the multilingual label key for the class label
+   labelKey: "List", // {string} the multilingual label key for the class label
 };
 
 module.exports = class ABViewLabelCore extends ABViewWidget {

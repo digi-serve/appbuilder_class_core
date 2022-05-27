@@ -8,7 +8,7 @@ const ABViewPropertyDefaults = {
 const ABViewDefaults = {
    key: "conditionalcontainer", // unique key identifier for this ABView
    icon: "shield", // icon reference: (without 'fa-' )
-   labelKey: "ab.components.conditionalcontainer", // {string} the multilingual label key for the class label
+   labelKey: "Conditional Container", // {string} the multilingual label key for the class label
 };
 
 module.exports = class ABViewConditionalContainerCore extends ABViewContainer {

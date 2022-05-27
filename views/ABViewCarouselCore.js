@@ -15,13 +15,13 @@ const ABViewCarouselPropertyComponentDefaults = {
    detailsPage: null, // uuid
    detailsTab: null, // uuid
    editPage: null, // uuid
-   editTab: null // uuid
+   editTab: null, // uuid
 };
 
 const ABViewDefaults = {
    key: "carousel", // {string} unique key for this view
    icon: "clone", // {string} fa-[icon] reference for this view
-   labelKey: "ab.components.carousel" // {string} the multilingual label key for the class label
+   labelKey: "Carousel", // {string} the multilingual label key for the class label
 };
 
 module.exports = class ABViewCarouselCore extends ABViewWidget {
@@ -90,6 +90,14 @@ module.exports = class ABViewCarouselCore extends ABViewWidget {
          this.settings.filterByCursor =
             ABViewCarouselPropertyComponentDefaults.filterByCursor;
       }
+   }
+
+   /**
+    * @method componentList
+    * return the list of components available on this view to display in the editor.
+    */
+   componentList() {
+      return [];
    }
 
    get imageField() {

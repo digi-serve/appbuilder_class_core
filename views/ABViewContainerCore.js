@@ -16,7 +16,7 @@ const ABView = require("../../platform/views/ABView");
 const ABViewDefaults = {
    key: "viewcontainer", // {string} unique key for this view
    icon: "braille", // {string} fa-[icon] reference for this view
-   labelKey: "ab.components.container", // {string} the multilingual label key for the class label
+   labelKey: "Container", // {string} the multilingual label key for the class label
 };
 
 const ABPropertyComponentDefaults = {

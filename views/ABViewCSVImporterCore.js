@@ -11,7 +11,7 @@ const ABViewCSVImporterDefaults = {
    // {string}
    // font-awesome icon reference: (without 'fa-' )
 
-   labelKey: "ab.components.csvImporter",
+   labelKey: "CSV Importer",
    // {string}
    // the multilingual label key for the class label
    // NOTE: will be used as L(labelKey)

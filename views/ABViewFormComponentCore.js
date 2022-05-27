@@ -15,22 +15,29 @@ module.exports = class ABViewFormComponentCore extends ABView {
    }
 
    field() {
-      let form = this.parentFormComponent();
-      if (form == null) return null;
+      if (this.settings.objectId) {
+         let object = this.AB.objectByID(this.settings.objectId);
+         if (!object) return null;
 
-      let object;
-      if (form._currentObject) {
-         object = form._currentObject;
+         return object.fieldByID(this.settings.fieldId);
       } else {
-         let datacollection = form.datacollection;
-         if (datacollection == null) return null;
+         let form = this.parentFormComponent();
+         if (form == null) return null;
 
-         object = datacollection.datasource;
+         let object;
+         if (form._currentObject) {
+            object = form._currentObject;
+         } else {
+            let datacollection = form.datacollection;
+            if (datacollection == null) return null;
+
+            object = datacollection.datasource;
+         }
+
+         if (object == null) return null;
+
+         let field = object.fieldByID(this.settings.fieldId);
+         return field;
       }
-
-      if (object == null) return null;
-
-      let field = object.fieldByID(this.settings.fieldId);
-      return field;
    }
 };

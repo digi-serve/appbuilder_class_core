@@ -28,7 +28,7 @@ const ABViewDefaults = {
    // {string}
    // fa-[icon] reference for this view
 
-   labelKey: "ab.components.text",
+   labelKey: "Text",
    // {string}
    // the multilingual label key for the class label
 };

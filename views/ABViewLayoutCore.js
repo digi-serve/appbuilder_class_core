@@ -9,7 +9,7 @@ const PropertyComponentDefaults = {
 const ABViewDefaults = {
    key: "layout", // {string} unique key for this view
    icon: "columns", // {string} fa-[icon] reference for this view
-   labelKey: "ab.components.layout", // {string} the multilingual label key for the class label
+   labelKey: "Layout", // {string} the multilingual label key for the class label
 };
 
 module.exports = class ABViewLayoutCore extends ABViewWidget {
