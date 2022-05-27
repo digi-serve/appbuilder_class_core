@@ -1,6 +1,12 @@
 /* eslint-disable */
 module.exports = {
    /* key : label */
+   "Add Filter" : "Add Filter",
+   "No image" : "No image",
+   "Add filter" : "Add filter",
+   "Only [{0}] images are supported" : "Only [{0}] images are supported",
+   "Do you want to delete <b>{0}</b>?" : "Do you want to delete <b>{0}</b>?",
+   "Delete component" : "Delete component",
    "not in process value" : "not in process value",
    "in process value" : "in process value",
    "not equals process value" : "not equals process value",
