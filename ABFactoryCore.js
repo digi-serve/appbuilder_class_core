@@ -426,7 +426,7 @@ class ABFactory extends EventEmitter {
                // NOTE: if this is one of the objects we are tracking,
                // we don't need to this.emit() the message.
                if (curr) {
-                  curr?.emit?.("definition.updated", def.json);
+                  curr.emit("definition.updated", def.json);
                } else {
                   this.emit("definition.updated", def.json);
                }
@@ -440,7 +440,7 @@ class ABFactory extends EventEmitter {
                   this[keyList] = this[keyList].filter((d) => d.id != id);
 
                   // signal this object needs to be updated:
-                  curr?.emit?.("definition.deleted", def.json);
+                  curr.emit("definition.deleted", def.json);
 
                   this.emit("definition.deleted", def.json);
                }
@@ -898,68 +898,70 @@ class ABFactory extends EventEmitter {
    _notifyInfo(info) {
       var moreInfo = {};
 
-      Object.keys(info).forEach((k) => {
-         switch (k) {
-            case "field":
-               moreInfo.objectID = info[k].object.id;
-               moreInfo.objectName = info[k].object.name;
-               moreInfo.fieldID = info[k].id;
-               moreInfo.fieldName = info[k].label || info[k].name;
-               break;
+      if (info) {
+         Object.keys(info).forEach((k) => {
+            switch (k) {
+               case "field":
+                  moreInfo.objectID = info[k].object.id;
+                  moreInfo.objectName = info[k].object.name;
+                  moreInfo.fieldID = info[k].id;
+                  moreInfo.fieldName = info[k].label || info[k].name;
+                  break;
 
-            case "object":
-               moreInfo.objectID = info[k].id;
-               moreInfo.objectName = info[k].name;
-               break;
+               case "object":
+                  moreInfo.objectID = info[k].id;
+                  moreInfo.objectName = info[k].name;
+                  break;
 
-            case "datacollection":
-               moreInfo.datacollectionID = info[k].id;
-               moreInfo.datacollectionName = info[k].label || info[k].name;
-               var ds = info[k].datasource;
-               if (ds) {
-                  moreInfo.datacollectionDSID = ds.id;
-                  moreInfo.datacollectionDSName = ds.name;
-               }
-               break;
+               case "datacollection":
+                  moreInfo.datacollectionID = info[k].id;
+                  moreInfo.datacollectionName = info[k].label || info[k].name;
+                  var ds = info[k].datasource;
+                  if (ds) {
+                     moreInfo.datacollectionDSID = ds.id;
+                     moreInfo.datacollectionDSName = ds.name;
+                  }
+                  break;
 
-            case "process":
-               moreInfo.processID = info[k].id;
-               moreInfo.processName = info[k].label || info[k].name;
-               break;
+               case "process":
+                  moreInfo.processID = info[k].id;
+                  moreInfo.processName = info[k].label || info[k].name;
+                  break;
 
-            case "req":
-               moreInfo.req = {
-                  jobID: info[k].jobID,
-                  tenantID: info[k]._tenantID,
-                  user: info[k]._user,
-               };
-               break;
+               case "req":
+                  moreInfo.req = {
+                     jobID: info[k].jobID,
+                     tenantID: info[k]._tenantID,
+                     user: info[k]._user,
+                  };
+                  break;
 
-            case "task":
-               if (info[k].process) {
-                  moreInfo.processID = info[k].process.id;
-                  moreInfo.processName =
-                     info[k].process.label || info[k].process.name;
-               }
-               moreInfo.taskID = info[k].id;
-               moreInfo.taskName = info[k].label || info[k].name;
-               break;
+               case "task":
+                  if (info[k].process) {
+                     moreInfo.processID = info[k].process.id;
+                     moreInfo.processName =
+                        info[k].process.label || info[k].process.name;
+                  }
+                  moreInfo.taskID = info[k].id;
+                  moreInfo.taskName = info[k].label || info[k].name;
+                  break;
 
-            case "view":
-               if (info[k].application) {
-                  moreInfo.applicationID = info[k].application.id;
-                  moreInfo.applicationName =
-                     info[k].application.label || info[k].application.name;
-               }
-               moreInfo.viewID = info[k].id;
-               moreInfo.viewName = info[k].label || info[k].name;
-               moreInfo.viewKey = info[k].key;
-               break;
-            default:
-               moreInfo[k] = info[k];
-               break;
-         }
-      });
+               case "view":
+                  if (info[k].application) {
+                     moreInfo.applicationID = info[k].application.id;
+                     moreInfo.applicationName =
+                        info[k].application.label || info[k].application.name;
+                  }
+                  moreInfo.viewID = info[k].id;
+                  moreInfo.viewName = info[k].label || info[k].name;
+                  moreInfo.viewKey = info[k].key;
+                  break;
+               default:
+                  moreInfo[k] = info[k];
+                  break;
+            }
+         });
+      }
 
       return moreInfo;
    }

@@ -114,7 +114,7 @@ module.exports = class ABViewCore extends ABMLClass {
       };
 
       // encode our child view references
-      result.viewIDs = (this._views || []).map((v) => v.id);
+      result.viewIDs = (this._views || []).map((v) => v.id).filter((id) => id);
 
       if (this.position) result.position = this.position;
 
@@ -213,7 +213,11 @@ module.exports = class ABViewCore extends ABMLClass {
             this.AB.notify.builder(
                new Error(
                   `Application[${this.application.name}][${this.application.id}].View[${this.name}][${this.id}] references unknown View[${id}]`
-               )
+               ),
+               {
+                  context:"ABViewCore:fromValues():values.viewIDs for each",
+                  id
+               }
             );
          }
       });
@@ -331,7 +335,7 @@ module.exports = class ABViewCore extends ABMLClass {
          ) {
             // check to see if the user's roles matches one of the roles defined
             this.AB.Account.roles().forEach((role) => {
-               var currentRole = this.accessLevels[role.id ?? role.uuid];
+               var currentRole = this.accessLevels[role.id || role.uuid];
                if (currentRole && parseInt(currentRole) > accessLevel)
                   // if the access level is higher than a previous role set to the new level
                   accessLevel = parseInt(currentRole);
