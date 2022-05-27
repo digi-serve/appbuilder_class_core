@@ -1111,7 +1111,7 @@ module.exports = class FilterComplexCore extends ABComponent {
       ];
 
       const isCompleteRules = (rules = []) => {
-         if (result == false) return false;
+         if (result == false) return;
 
          rules.forEach((r) => {
             if (r?.rules && Array.isArray(r?.rules)) {
@@ -1129,7 +1129,7 @@ module.exports = class FilterComplexCore extends ABComponent {
          });
       };
 
-      result = isCompleteRules(this.condition?.rules);
+      isCompleteRules(this.condition?.rules);
 
       return result;
    }
