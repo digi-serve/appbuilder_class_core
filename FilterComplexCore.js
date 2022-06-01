@@ -536,9 +536,10 @@ module.exports = class FilterComplexCore extends ABComponent {
    }
 
    processFieldsLoad(processFields = []) {
-      if (!Array.isArray(processFields)) {
+      if (processFields && !Array.isArray(processFields)) {
          processFields = [processFields];
       }
+      this._ProcessFields = processFields;
 
       this.uiInit();
    }
@@ -678,13 +679,17 @@ module.exports = class FilterComplexCore extends ABComponent {
          }
 
          let isProcessField =
-            (this._ProcessFields || []).filter(
-               (processField) =>
-                  processField &&
-                  ((processField.field && processField.field.id == f.id) ||
-                     (processField.key &&
-                        processField.key.split(".")[0] == f.id))
-            ).length > 0;
+            (this._ProcessFields || []).filter((processField) => {
+               if (!processField) return false;
+
+               if (processField.field) {
+                  return processField.field.id == f.id;
+               } else if (processField.key) {
+                  // uuid
+                  let processFieldId = processField.key.split(".").pop();
+                  return processFieldId == f.id || processFieldId == f.key;
+               }
+            }).length > 0;
 
          if (isProcessField) {
             conditions = conditions.concat(this.fieldsAddFiltersContext(f));
@@ -714,22 +719,22 @@ module.exports = class FilterComplexCore extends ABComponent {
          };
       });
 
-      // !!! Process Fields of ABProcess
-      (this._ProcessFields || [])
-         // if there is no .field, it is probably an embedded special field
-         .filter((pField) => pField.field == null)
-         .forEach((pField) => {
-            // like: .uuid
-            let key = pField.key.split(".").pop();
-            if (key == "uuid" && this._Object) {
-               fields.unshift({
-                  id: pField.key,
-                  value: this._Object.label,
-                  type: "text",
-                  conditions: this.fieldsAddFiltersContext()
-               });
-            }
-         });
+      // // !!! Process Fields of ABProcess
+      // (this._ProcessFields || [])
+      //    // if there is no .field, it is probably an embedded special field
+      //    .filter((pField) => pField.field == null)
+      //    .forEach((pField) => {
+      //       // like: .uuid
+      //       let key = pField.key.split(".").pop();
+      //       if (key == "uuid" && this._Object) {
+      //          fields.unshift({
+      //             id: pField.key,
+      //             value: this._Object.label,
+      //             type: "text",
+      //             conditions: this.fieldsAddFiltersContext()
+      //          });
+      //       }
+      //    });
 
       return fields;
    }
@@ -1024,17 +1029,17 @@ module.exports = class FilterComplexCore extends ABComponent {
       let contextConditions = {
          context_equals: {
             batch: "context",
-            label: this.labels.component.EqualsProcessValue,
+            label: this.labels.component.equalsProcessValue,
             handler: (a, b) => a == b
          },
          context_not_equal: {
             batch: "context",
-            label: this.labels.component.NotEqualsProcessValueCondition,
+            label: this.labels.component.notEqualsProcessValueCondition,
             handler: (a, b) => a != b
          },
          context_in: {
             batch: "context",
-            label: this.labels.component.InProcessValueCondition,
+            label: this.labels.component.inProcessValueCondition,
             handler: (a, b) => a.indexOf(b) > -1
          },
          context_not_in: {
@@ -1158,3 +1163,4 @@ module.exports = class FilterComplexCore extends ABComponent {
       return result;
    }
 };
+
