@@ -159,7 +159,10 @@ module.exports = class ABFieldFormulaCore extends ABField {
       const fieldBase = this.fieldBase();
       if (!fieldBase) return 0;
 
-      let data = rowData[fieldBase.relationName()] || [];
+      let data =
+         rowData[fieldBase.relationName()] ||
+         rowData[fieldBase.columnName] ||
+         [];
       if (!Array.isArray(data)) data = [data];
 
       // Filter
@@ -281,3 +284,4 @@ module.exports = class ABFieldFormulaCore extends ABField {
       return this._rowFilter;
    }
 };
+
