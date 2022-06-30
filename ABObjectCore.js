@@ -115,10 +115,10 @@ module.exports = class ABObjectCore extends ABMLClass {
       this.labelSettings = attributes.labelSettings || {};
       // {Object} .labelSettings
 
-      this.labelSettings.isNoneDisplay = parseInt(
-         this.labelSettings.isNoneDisplay || 0
+      this.labelSettings.isNoLabelDisplay = parseInt(
+         this.labelSettings.isNoLabelDisplay || 0
       );
-      // {bool} .isNoneDisplay
+      // {bool} .isNoLabelDisplay
 
       this.isImported = parseInt(attributes.isImported || 0);
       // {depreciated}
@@ -907,8 +907,8 @@ module.exports = class ABObjectCore extends ABMLClass {
 
       // if label is empty, then show .id
       if (!labelData.trim()) {
-         if (labelSettings && labelSettings.isNoneDisplay) {
-            labelData = "[None]";
+         if (labelSettings && labelSettings.isNoLabelDisplay) {
+            labelData = "[No Label]";
          } else {
             // show id of row
             labelData = `${this.isUuid(rowData.id) ? "ID: " : ""}${rowData.id}`;
