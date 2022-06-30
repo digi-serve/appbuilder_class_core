@@ -8,6 +8,8 @@
 var ABModel = require("../platform/ABModel");
 var ABMLClass = require("../platform/ABMLClass");
 
+const L = (...params) => AB.Multilingual.label(...params);
+
 module.exports = class ABObjectCore extends ABMLClass {
    constructor(attributes, AB) {
       super(["label"], AB);
@@ -18,6 +20,7 @@ module.exports = class ABObjectCore extends ABMLClass {
 	connName: 'string', // Sails DB connection name: 'appdev_default', 'legacy_hris', etc. Default is 'appBuilder'.
 	name: 'name',
 	labelFormat: 'xxxxx',
+	labelSettings: Object,
 	isImported: 1/0,
 	isExternal: 1/0,
 	tableName:'string',  // NOTE: store table name of import object to ignore async
@@ -63,6 +66,7 @@ module.exports = class ABObjectCore extends ABMLClass {
             connName: 'string', // Sails DB connection name: 'appdev_default', 'legacy_hris', etc. Default is 'appBuilder'.
             name: 'name',
             labelFormat: 'xxxxx',
+            labelSettings: Object,
             isImported: 1/0,
             isExternal: 1/0,
             tableName:'string',  // NOTE: store table name of import object to ignore async
@@ -105,6 +109,14 @@ module.exports = class ABObjectCore extends ABMLClass {
       // {string} .labelFormat
       // A string template for how to display an entry for this ABObject in
       // common UI elements like grids, lists, etc...
+
+      this.labelSettings = attributes.labelSettings || {};
+      // {Object} .labelSettings
+
+      this.labelSettings.isNoLabelDisplay = parseInt(
+         this.labelSettings.isNoLabelDisplay || 0
+      );
+      // {bool} .isNoLabelDisplay
 
       this.isImported = parseInt(attributes.isImported || 0);
       // {depreciated}
@@ -302,6 +314,7 @@ module.exports = class ABObjectCore extends ABMLClass {
          connName: this.connName,
          name: this.name,
          labelFormat: this.labelFormat,
+         labelSettings: this.labelSettings || {},
          isImported: this.isImported,
          isExternal: this.isExternal,
          tableName: this.tableName,
@@ -897,10 +910,20 @@ module.exports = class ABObjectCore extends ABMLClass {
       if (!labelData && this.fields().length > 0) {
          var defaultField = this.fields((f) => f.fieldUseAsLabel())[0];
          if (defaultField) labelData = "{" + defaultField.id + "}";
-         else
-            labelData = `${this.AB.rules.isUUID(rowData.id) ? "ID: " : ""}${
-               rowData.id
-            }`; // show id of row
+         else {
+            // if label is empty, then show .id
+            if (!labelData.trim()) {
+               let labelSettings = this.labelSettings || {};
+               if (labelSettings && labelSettings.isNoLabelDisplay) {
+                  labelData = L("[No Item Reported]");
+               } else {
+                  // show id of row
+                  labelData = `${
+                     this.AB.rules.isUUID(rowData.id) ? "ID: " : ""
+                  }${rowData.id}`;
+               }
+            }
+         }
       }
 
       // get column ids in {colId} template
@@ -919,10 +942,15 @@ module.exports = class ABObjectCore extends ABMLClass {
       }
 
       // if label is empty, then show .id
-      if (!labelData.trim())
-         labelData = labelData = `${
-            this.AB.rules.isUUID(rowData.id) ? "ID: " : ""
-         }${rowData.id}`; // show id of row
+      if (!labelData.trim()) {
+         let labelSettings = this.labelSettings || {};
+         if (labelSettings && labelSettings.isNoLabelDisplay) {
+            labelData = L("[No Item Reported]");
+         } else {
+            // show id of row
+            labelData = `${this.isUuid(rowData.id) ? "ID: " : ""}${rowData.id}`;
+         }
+      }
 
       return labelData;
    }
