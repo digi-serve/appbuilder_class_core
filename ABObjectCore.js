@@ -915,7 +915,7 @@ module.exports = class ABObjectCore extends ABMLClass {
             if (!labelData.trim()) {
                let labelSettings = this.labelSettings || {};
                if (labelSettings && labelSettings.isNoLabelDisplay) {
-                  labelData = L("[No Item Reported]");
+                  labelData = L(labelSettings.noLabelText || "[No Label]");
                } else {
                   // show id of row
                   labelData = `${
@@ -945,7 +945,7 @@ module.exports = class ABObjectCore extends ABMLClass {
       if (!labelData.trim()) {
          let labelSettings = this.labelSettings || {};
          if (labelSettings && labelSettings.isNoLabelDisplay) {
-            labelData = L("[No Item Reported]");
+            labelData = L(labelSettings.noLabelText || "[No Label]");
          } else {
             // show id of row
             labelData = `${this.isUuid(rowData.id) ? "ID: " : ""}${rowData.id}`;
