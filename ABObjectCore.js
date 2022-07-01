@@ -908,7 +908,7 @@ module.exports = class ABObjectCore extends ABMLClass {
       // if label is empty, then show .id
       if (!labelData.trim()) {
          if (labelSettings && labelSettings.isNoLabelDisplay) {
-            labelData = "[No Label]";
+            labelData = labelSettings.noLabelText || "[No Label]";
          } else {
             // show id of row
             labelData = `${this.isUuid(rowData.id) ? "ID: " : ""}${rowData.id}`;
@@ -918,4 +918,3 @@ module.exports = class ABObjectCore extends ABMLClass {
       return labelData;
    }
 };
-
