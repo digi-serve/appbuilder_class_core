@@ -74,4 +74,31 @@ module.exports = class ABViewDetailCore extends ABViewContainer {
          return viewsToAllow.indexOf(c.common().key) > -1;
       });
    }
+
+   addFieldToDetail(field, yPosition) {
+      if (field == null) return;
+
+      let newView = field.detailComponent().newInstance(this.application, this);
+      if (newView == null) return;
+
+      // set settings to component
+      newView.settings = newView.settings || {};
+      newView.settings.fieldId = field.id;
+      newView.settings.labelWidth =
+         this.settings.labelWidth ||
+         ABViewDetailPropertyComponentDefaults.labelWidth;
+
+      // keep alias to support Query that contains alias name
+      // [alias].[columnName]
+      newView.settings.alias = field.alias;
+
+      // TODO : Default settings
+
+      newView.position.y = yPosition;
+
+      // add a new component
+      this._views.push(newView);
+
+      return newView;
+   }
 };
