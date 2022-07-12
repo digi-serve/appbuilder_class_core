@@ -1,5 +1,5 @@
 // const ABViewDetailSelectivity = require("../../platform/views/ABViewDetailSelectivity");
-const ABViewDetailComponent = require("../../platform/views/ABViewDetailComponent");
+const ABViewDetailItem = require("../../platform/views/ABViewDetailItem");
 
 const ABViewDetailPropertyComponentDefaults = {
    formView: "", // id of form to add new data
@@ -11,7 +11,7 @@ const ABViewDefaults = {
    labelKey: "ab.components.detail.connect", // {string} the multilingual label key for the class label
 };
 
-module.exports = class ABViewDetailConnectCore extends ABViewDetailComponent {
+module.exports = class ABViewDetailConnectCore extends ABViewDetailItem {
    /**
     * @param {obj} values  key=>value hash of ABView values
     * @param {ABApplication} application the application object this view is under
