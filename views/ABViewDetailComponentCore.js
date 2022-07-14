@@ -6,9 +6,9 @@ module.exports = class ABViewDetailComponentCore extends ABViewWidget {
    // }
 
    detailComponent() {
-      var detailView = null;
+      let detailView = null;
 
-      var curr = this;
+      let curr = this;
       while (
          !curr.isRoot() &&
          curr.parent &&
@@ -47,16 +47,16 @@ module.exports = class ABViewDetailComponentCore extends ABViewWidget {
    }
 
    getCurrentData() {
-      var detailCom = this.detailComponent();
+      let detailCom = this.detailComponent();
       if (!detailCom) return null;
 
-      var dv = detailCom.datacollection;
+      let dv = detailCom.datacollection;
       if (!dv) return null;
 
-      var field = this.field();
+      let field = this.field();
       if (!field) return null;
 
-      var currData = dv.getCursor();
+      let currData = dv.getCursor();
       if (currData) return currData[field.columnName];
       else return null;
    }

@@ -67,7 +67,7 @@ module.exports = class ABViewDetailCore extends ABViewContainer {
     * return the list of components available on this view to display in the editor.
     */
    componentList() {
-      var viewsToAllow = ["label", "text"],
+      let viewsToAllow = ["label", "text"],
          allComponents = this.application.viewAll();
 
       return allComponents.filter((c) => {
