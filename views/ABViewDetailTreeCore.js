@@ -19,7 +19,7 @@ module.exports = class ABViewDetailTextCore extends ABViewDetailItem {
          values,
          application,
          parent,
-         defaultValues || ABViewDetailTreeDefaults
+         defaultValues ?? ABViewDetailTreeDefaults
       );
    }
 

@@ -19,7 +19,7 @@ module.exports = class ABViewDetailCheckboxCore extends ABViewDetailItem {
          values,
          application,
          parent,
-         defaultValues || ABViewDetailCheckboxDefaults
+         defaultValues ?? ABViewDetailCheckboxDefaults
       );
    }
 

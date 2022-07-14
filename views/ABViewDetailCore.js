@@ -21,7 +21,7 @@ module.exports = class ABViewDetailCore extends ABViewContainer {
     * @param {ABView} parent the ABView this view is a child of. (can be null)
     */
    constructor(values, application, parent, defaultValues) {
-      super(values, application, parent, defaultValues || ABViewDetailDefaults);
+      super(values, application, parent, defaultValues ?? ABViewDetailDefaults);
    }
 
    static common() {
@@ -58,7 +58,7 @@ module.exports = class ABViewDetailCore extends ABViewContainer {
             ABViewDetailPropertyComponentDefaults.labelWidth
       );
       this.settings.height = parseInt(
-         this.settings.height || ABViewDetailPropertyComponentDefaults.height
+         this.settings.height ?? ABViewDetailPropertyComponentDefaults.height
       );
    }
 
@@ -82,7 +82,7 @@ module.exports = class ABViewDetailCore extends ABViewContainer {
       if (newView == null) return;
 
       // set settings to component
-      newView.settings = newView.settings || {};
+      newView.settings = newView.settings ?? {};
       newView.settings.fieldId = field.id;
       newView.settings.labelWidth =
          this.settings.labelWidth ||

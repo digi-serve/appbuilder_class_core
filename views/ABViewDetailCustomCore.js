@@ -19,7 +19,7 @@ module.exports = class ABViewDetailCustomCore extends ABViewDetailItem {
          values,
          application,
          parent,
-         defaultValues || ABViewDetailCustomDefaults
+         defaultValues ?? ABViewDetailCustomDefaults
       );
    }
 

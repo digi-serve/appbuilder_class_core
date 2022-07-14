@@ -22,7 +22,7 @@ module.exports = class ABViewDetailImageCore extends ABViewDetailItem {
          values,
          application,
          parent,
-         defaultValues || ABViewDetailImageDefaults
+         defaultValues ?? ABViewDetailImageDefaults
       );
    }
 
@@ -53,7 +53,7 @@ module.exports = class ABViewDetailImageCore extends ABViewDetailItem {
             ABViewDetailImagePropertyComponentDefaults.height
       );
       this.settings.width = parseInt(
-         this.settings.width || ABViewDetailImagePropertyComponentDefaults.width
+         this.settings.width ?? ABViewDetailImagePropertyComponentDefaults.width
       );
    }
 
