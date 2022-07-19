@@ -45,7 +45,7 @@ module.exports = class ABViewDocxBuilderCore extends ABViewWidget {
    toObj() {
       this.unTranslate(this, this, ["filelabel", "buttonlabel"]);
 
-      var obj = super.toObj();
+      let obj = super.toObj();
       obj.viewIDs = [];
       return obj;
    }
@@ -82,11 +82,31 @@ module.exports = class ABViewDocxBuilderCore extends ABViewWidget {
       //    "/" +
       //    ["opsportal", "file", this.application.name, actionKey, "1"].join("/")
       // );
-      return `/file/upload/DOCX${this.id}/VIEW${this.id}/1`;
+
+      const object = this.datacollection.datasource;
+
+      // NOTE: file-upload API needs to have the id of a field.
+      // TODO
+      const field = object ? object.fields()[0] : null;
+
+      return `/file/upload/${object?.id}/${field?.id}/1`;
    }
 
    downloadUrl() {
       return `/file/${this.settings.filename}`;
+   }
+
+   letUserDownload(blob, filename) {
+      const url = window.URL.createObjectURL(blob);
+
+      const a = document.createElement("a");
+      a.href = url;
+      a.download = filename;
+      document.body.appendChild(a); // we need to append the element to the dom -> otherwise it will not work in firefox
+      a.click();
+      a.remove(); //afterwards we remove the element again
+
+      window.URL.revokeObjectURL(url);
    }
 
    get languageCode() {

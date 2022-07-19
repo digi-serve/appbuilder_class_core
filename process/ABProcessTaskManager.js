@@ -38,7 +38,7 @@ var AllProcessElements = [
    require("../../platform/process/tasks/ABProcessTaskSubProcess"),
    require("../../platform/process/tasks/ABProcessTaskUser"),
    require("../../platform/process/tasks/ABProcessTaskUserApproval"),
-   require("../../platform/process/tasks/ABProcessTaskUserExternal"),
+   // require("../../platform/process/tasks/ABProcessTaskUserExternal"),
    require("../../platform/process/tasks/ABProcessTrigger"),
    require("../../platform/process/tasks/ABProcessTriggerLifecycle"),
    require("../../platform/process/tasks/ABProcessTriggerTimer"),
@@ -50,14 +50,16 @@ AllProcessElements.forEach((ELEMENT) => {
    switch (ELEMENT.defaults().category) {
       case "start":
       case "end":
-         DEFINITIONTYPES[ELEMENT.DiagramReplace().target.eventDefinitionType] =
-            ELEMENT.defaults();
+         DEFINITIONTYPES[
+            ELEMENT.DiagramReplace().target.eventDefinitionType
+         ] = ELEMENT.defaults();
          break;
 
       case "gateway":
       case "task":
-         DEFINITIONTYPES[ELEMENT.DiagramReplace().target.type] =
-            ELEMENT.defaults();
+         DEFINITIONTYPES[
+            ELEMENT.DiagramReplace().target.type
+         ] = ELEMENT.defaults();
          break;
    }
 });
