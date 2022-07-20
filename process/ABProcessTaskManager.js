@@ -38,7 +38,7 @@ var AllProcessElements = [
    require("../../platform/process/tasks/ABProcessTaskSubProcess"),
    require("../../platform/process/tasks/ABProcessTaskUser"),
    require("../../platform/process/tasks/ABProcessTaskUserApproval"),
-   // require("../../platform/process/tasks/ABProcessTaskUserExternal"),
+   require("../../platform/process/tasks/ABProcessTaskUserExternal"),
    require("../../platform/process/tasks/ABProcessTrigger"),
    require("../../platform/process/tasks/ABProcessTriggerLifecycle"),
    require("../../platform/process/tasks/ABProcessTriggerTimer"),
