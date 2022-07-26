@@ -31,6 +31,7 @@ var AllFieldClasses = [
    require("../platform/dataFields/ABFieldAutoIndex"),
    require("../platform/dataFields/ABFieldJson"),
    require("../platform/dataFields/ABFieldCombine"),
+   require("../platform/dataFields/ABFieldSelectivity"),
 ];
 
 AllFieldClasses.forEach((FIELD) => {
