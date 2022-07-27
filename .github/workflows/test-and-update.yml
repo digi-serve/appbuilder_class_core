@@ -97,7 +97,7 @@ jobs:
       - run: npm i
         working-directory: ./ab_platform_web
       - name: Webpack
-        run: npm run build:prod
+        run: npm run build:update
         working-directory: ./ab_platform_web
       # webpack expects the folder to be called "web" ab-install action expects "ab_service_web"
       - run: mv web ab_service_web
