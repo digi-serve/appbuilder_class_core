@@ -1,0 +1,169 @@
+
+name: Test and Update
+on:
+  # Run on any commit to the #master branch
+  push:
+    branches: [v2]
+  # Run on pull requests into the #master branch
+  pull_request:
+    branches: [v2]
+jobs:
+  test:
+    name: E2E Tests
+    runs-on: ubuntu-latest
+    steps:
+      # Checkout each service that uses subrepo AppBuilder then core inside it
+      # ab_service_custom_reports,
+      - name: Checkout ab_service_custom_reports
+        uses: actions/checkout@v3
+        with:
+          path: ab_service_appbuilder
+          repository: digi-serve/ab_service_appbuilder
+          submodules: true
+      - name: Checkout ab_service_custom_reports > AppBuilder > core
+        uses: actions/checkout@v3
+        with:
+          path: ab_service_appbuilder/AppBuilder/core
+      # ab_service_custom_reports
+      - name: Checkout ab_service_custom_reports
+        uses: actions/checkout@v3
+        with:
+          path: ab_service_custom_reports
+          repository: digi-serve/ab_service_custom_reports
+          submodules: true
+      - name: Checkout ab_service_custom_reports > AppBuilder > core
+        uses: actions/checkout@v3
+        with:
+          path: ab_service_custom_reports/AppBuilder/core
+      # ab_service_definition_manager
+      - name: Checkout ab_service_definition_manager
+        uses: actions/checkout@v3
+        with:
+          path: ab_service_definition_manager
+          repository: digi-serve/ab_service_definition_manager
+          submodules: true
+      - name: Checkout ab_service_definition_manager > AppBuilder > core
+        uses: actions/checkout@v3
+        with:
+          path: ab_service_definition_manager/AppBuilder/core
+      # ab_service_file_processor
+      - name: Checkout ab_service_file_processor
+        uses: actions/checkout@v3
+        with:
+          path: ab_service_file_processor
+          repository: digi-serve/ab_service_file_processor
+          submodules: true
+      - name: Checkout ab_service_file_processor > AppBuilder > core
+        uses: actions/checkout@v3
+        with:
+          path: ab_service_file_processor/AppBuilder/core
+      # ab_service_process_manager
+      - name: Checkout ab_service_process_manager
+        uses: actions/checkout@v3
+        with:
+          path: ab_service_process_manager
+          repository: digi-serve/ab_service_process_manager
+          submodules: true
+      - name: Checkout ab_service_process_manager > AppBuilder > core
+        uses: actions/checkout@v3
+        with:
+          path: ab_service_process_manager/AppBuilder/core
+      # ab_service_user_manager
+      - name: Checkout ab_service_user_manager
+        uses: actions/checkout@v3
+        with:
+          path: ab_service_user_manager
+          repository: digi-serve/ab_service_user_manager
+          submodules: true
+      - name: Checkout ab_service_user_manager > AppBuilder > core
+        uses: actions/checkout@v3
+        with:
+          path: ab_service_user_manager/AppBuilder/core
+      # Checkout ab_platform_web and build new app.js
+      - name: Checkout ab_platform_web
+        uses: actions/checkout@v3
+        with:
+          path: ab_platform_web
+          repository: digi-serve/ab_platform_web
+      - name: Checkout ab_platform_web > core
+        uses: actions/checkout@v3
+        with:
+          path: ab_platform_web/AppBuilder/
+      - name: Checkout ab_service_web
+        uses: actions/checkout@v3
+          with:
+            path: web
+            repository: digi-serve/ab_service_web      
+      - run: npm i
+        working-directory: ./ab_platform_web
+      - name: Webpack
+        run: npm run build:prod
+        working-directory: ./ab_platform_web
+      # webpack expects the folder to be called "web" ab-install action expects "ab_service_web"
+      - run: mv web ab_service_web
+      # install and test   
+      - name: Install AppBuilder
+        uses: digi-serve/ab-install-action@v1
+      - name: Check out kitchen-sink tests
+        uses: actions/checkout@v2
+        with:
+          repository: digi-serve/kitchensink_app
+          path: AppBuilder/test/e2e/cypress/integration/kitchensink_app
+      - name: Run Cypress Tests
+        uses: cypress-io/github-action@v2
+        with:
+          working-directory: ./AppBuilder
+          project: ./test/e2e
+          config: baseUrl=http://localhost:80,responseTimeout=100000,defaultCommandTimeout=24000,retries=2
+          wait-on: "http://localhost:80"
+          wait-on-timeout: 300
+          env: stack=ab
+          install: false
+      - name: Save Screenshots 
+        uses: actions/upload-artifact@v2
+        if: failure()
+        with:
+          name: cypress-screenshots
+          path: ./AppBuilder/test/e2e/cypress/screenshots
+  update-platform-service:
+    name: Update appbuilder_platform_service
+    runs-on: ubuntu-latest
+    needs: test
+    if: ${{ github.event_name == 'push' }} 
+    steps:
+      - name: Checkout appbuilder_platform_service
+        uses: actions/checkout@v3
+        with:
+          repository: digi-serve/appbuilder_platform_service
+          ref: master
+          fetch-depth: 0 
+          token: ${{ secrets.DS_REPO_PAT }}
+          submodules: recursive
+      - name: Checkout core@v2
+        run: git checkout v2
+        working-directory: appbuilder_platform_service/core
+      - uses: EndBug/add-and-commit@v9
+        with:
+          message: 'Update core sub-repo (from GitHub Actions)'
+          cwd: appbuilder_platform_service
+  update-platform-web:
+    name: Update ab_platform_web
+    runs-on: ubuntu-latest
+    needs: test
+    if: ${{ github.event_name == 'push' }} 
+    steps:
+      - name: Checkout ab_platform_web
+        uses: actions/checkout@v3
+        with:
+          repository: digi-serve/ab_platform_web
+          ref: master
+          fetch-depth: 0 
+          token: ${{ secrets.DS_REPO_PAT }}
+          submodules: recursive
+      - name: Checkout core@v2
+        run: git checkout v2
+        working-directory: ab_platform_web/AppBuilder/core
+      - uses: EndBug/add-and-commit@v9
+        with:
+          message: 'Update core sub-repo (from GitHub Actions)'
+          cwd: ab_platform_web
