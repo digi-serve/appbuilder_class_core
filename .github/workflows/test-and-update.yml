@@ -91,9 +91,9 @@ jobs:
           path: ab_platform_web/AppBuilder/
       - name: Checkout ab_service_web
         uses: actions/checkout@v3
-          with:
-            path: web
-            repository: digi-serve/ab_service_web      
+        with:
+          path: web
+          repository: digi-serve/ab_service_web      
       - run: npm i
         working-directory: ./ab_platform_web
       - name: Webpack
