@@ -66,4 +66,19 @@ module.exports = class ABViewDataviewCore extends ABViewDetail {
          this.settings.editTab ||
          ABViewDataviewPropertyComponentDefaults.editTab;
    }
+
+   parentDetailComponent() {
+      let dataview = null;
+
+      let curr = this;
+      while (curr.key != "dataview" && !curr.isRoot() && curr.parent) {
+         curr = curr.parent;
+      }
+
+      if (curr.key == "dataview") {
+         dataview = curr;
+      }
+
+      return dataview;
+   }
 };
