@@ -13,14 +13,14 @@ jobs:
     runs-on: ubuntu-latest
     steps:
       # Checkout each service that uses subrepo AppBuilder then core inside it
-      # ab_service_custom_reports,
-      - name: Checkout ab_service_custom_reports
+      # ab_service_appbuilder,
+      - name: Checkout ab_service_appbuilder
         uses: actions/checkout@v3
         with:
           path: ab_service_appbuilder
           repository: digi-serve/ab_service_appbuilder
           submodules: true
-      - name: Checkout ab_service_custom_reports > AppBuilder > core
+      - name: Checkout ab_service_appbuilder > AppBuilder > core
         uses: actions/checkout@v3
         with:
           path: ab_service_appbuilder/AppBuilder/core
