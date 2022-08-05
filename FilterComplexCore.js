@@ -933,6 +933,21 @@ module.exports = class FilterComplexCore extends ABComponent {
          });
       }
 
+      // Add filter options to Custom index
+      if (
+         field.settings.isCustomFK &&
+         // 1:M
+         ((field.settings.linkType == "one" &&
+            field.settings.linkViaType == "many") ||
+            // 1:1 isSource = true
+            (field.settings.linkType == "one" &&
+               field.settings.linkViaType == "one" &&
+               field.settings.isSource))
+      ) {
+         const stringResults = this.fieldsAddFiltersString(field);
+         result = stringResults.concat(result);
+      }
+
       return result;
    }
 
@@ -960,20 +975,20 @@ module.exports = class FilterComplexCore extends ABComponent {
       let thisObjectConditions = {
          in_query: {
             batch: "query",
-            label: this.labels.component.inQuery
+            label: this.labels.component.inQuery,
          },
          not_in_query: {
             batch: "query",
-            label: this.labels.component.notInQuery
+            label: this.labels.component.notInQuery,
          },
          in_data_collection: {
             batch: "datacollection",
-            label: this.labels.component.inDataCollection
+            label: this.labels.component.inDataCollection,
          },
          not_in_data_collection: {
             batch: "datacollection",
-            label: this.labels.component.notInDataCollection
-         }
+            label: this.labels.component.notInDataCollection,
+         },
       };
 
       let result = [];
@@ -983,7 +998,7 @@ module.exports = class FilterComplexCore extends ABComponent {
             id: condKey,
             value: thisObjectConditions[condKey].label,
             batch: thisObjectConditions[condKey].batch,
-            handler: (a, b) => this.thisObjectValid(a, condKey, b)
+            handler: (a, b) => this.thisObjectValid(a, condKey, b),
          });
       }
 
