@@ -19,6 +19,7 @@ module.exports = class ABObjectCore extends ABMLClass {
 	connName: 'string', // Sails DB connection name: 'appdev_default', 'legacy_hris', etc. Default is 'appBuilder'.
 	name: 'name',
 	labelFormat: 'xxxxx',
+	labelSettings: Object,
 	isImported: 1/0,
 	isExternal: 1/0,
 	tableName:'string',  // NOTE: store table name of import object to ignore async
@@ -66,6 +67,7 @@ module.exports = class ABObjectCore extends ABMLClass {
             connName: 'string', // Sails DB connection name: 'appdev_default', 'legacy_hris', etc. Default is 'appBuilder'.
             name: 'name',
             labelFormat: 'xxxxx',
+            labelSettings: Object,
             isImported: 1/0,
             isExternal: 1/0,
             tableName:'string',  // NOTE: store table name of import object to ignore async
@@ -109,6 +111,14 @@ module.exports = class ABObjectCore extends ABMLClass {
       // {string} .labelFormat
       // A string template for how to display an entry for this ABObject in
       // common UI elements like grids, lists, etc...
+
+      this.labelSettings = attributes.labelSettings || {};
+      // {Object} .labelSettings
+
+      this.labelSettings.isNoLabelDisplay = parseInt(
+         this.labelSettings.isNoLabelDisplay || 0
+      );
+      // {bool} .isNoLabelDisplay
 
       this.isImported = parseInt(attributes.isImported || 0);
       // {depreciated}
@@ -306,6 +316,7 @@ module.exports = class ABObjectCore extends ABMLClass {
          connName: this.connName,
          name: this.name,
          labelFormat: this.labelFormat,
+         labelSettings: this.labelSettings || {},
          isImported: this.isImported,
          isExternal: this.isExternal,
          tableName: this.tableName,
@@ -872,6 +883,7 @@ module.exports = class ABObjectCore extends ABMLClass {
       this.application.translate(rowData, rowData, mlFields);
 
       var labelData = this.labelFormat || "";
+      let labelSettings = this.labelSettings || {};
 
       // default label
       if (!labelData && this.fields().length > 0) {
@@ -897,12 +909,15 @@ module.exports = class ABObjectCore extends ABMLClass {
       }
 
       // if label is empty, then show .id
-      if (!labelData.trim())
-         labelData = labelData = `${this.isUuid(rowData.id) ? "ID: " : ""}${
-            rowData.id
-         }`; // show id of row
+      if (!labelData.trim()) {
+         if (labelSettings && labelSettings.isNoLabelDisplay) {
+            labelData = labelSettings.noLabelText || "[No Label]";
+         } else {
+            // show id of row
+            labelData = `${this.isUuid(rowData.id) ? "ID: " : ""}${rowData.id}`;
+         }
+      }
 
       return labelData;
    }
 };
-

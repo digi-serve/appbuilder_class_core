@@ -68,7 +68,7 @@ module.exports = class FilterComplexCore extends ABComponent {
    }
 
    init(options) {
-      if (options.showObjectName) {
+      if (options && options.showObjectName) {
          this._settings.showObjectName = options.showObjectName;
       }
    }
@@ -381,7 +381,7 @@ module.exports = class FilterComplexCore extends ABComponent {
       let qIdBase = "{idBase}-query-field-{id}"
             .replace("{idBase}", this.idBase)
             .replace("{id}", query.id),
-         inQueryFieldFilter = new RowFilter(this.App, qIdBase);
+         inQueryFieldFilter = new this.constructor(this.App, qIdBase);
       inQueryFieldFilter.Account = this.Account;
       inQueryFieldFilter.applicationLoad(this._Application);
       inQueryFieldFilter.fieldsLoad(query.fields());
@@ -411,7 +411,7 @@ module.exports = class FilterComplexCore extends ABComponent {
       let qIdBase = "{idBase}-query-{id}"
             .replace("{idBase}", this.idBase)
             .replace("{id}", query.id),
-         inQueryFilter = new RowFilter(this.App, qIdBase);
+         inQueryFilter = new this.constructor(this.App, qIdBase);
       inQueryFilter.Account = this.Account;
       inQueryFilter.applicationLoad(this.application);
       inQueryFilter.fieldsLoad(query.fields());
@@ -536,83 +536,11 @@ module.exports = class FilterComplexCore extends ABComponent {
    }
 
    processFieldsLoad(processFields = []) {
-      if (!Array.isArray(processFields)) {
+      if (processFields && !Array.isArray(processFields)) {
          processFields = [processFields];
       }
-      processFields.forEach((processField) => {
-         var type = {};
+      this._ProcessFields = processFields;
 
-         // some processfields have .field definitions, others don't.
-         // if they do, process this using the field.id
-         if (processField.field) {
-            type[processField.field.id] = {
-               view: "select",
-               options: [
-                  {
-                     id: "empty",
-                     value: "choose option"
-                  },
-                  {
-                     id: processField.key,
-                     value: `context(${processField.label})`
-                  }
-               ]
-            };
-         } else {
-            // if there is no .field, it is probably an embedded special field
-            // like: .uuid
-            var key = processField.key.split(".").pop();
-            type[key] = {
-               view: "select",
-               options: [
-                  {
-                     id: "empty",
-                     value: "choose option"
-                  },
-                  {
-                     id: processField.key,
-                     value: `context(${processField.label})`
-                  }
-               ]
-            };
-         }
-
-         // add an "equals" and "not equals" filter for each:
-         this._Filters = this._Filters.concat([
-            {
-               id: `context_equals`,
-               name: `equals process value`,
-               type,
-               fn: (a, b) => {
-                  return a == b;
-               }
-            },
-            {
-               id: `context_not_equal`,
-               name: `not equals process value`,
-               type,
-               fn: (a, b) => {
-                  return a != b;
-               }
-            },
-            {
-               id: `context_in`,
-               name: `in process value`,
-               type,
-               fn: (a, b) => {
-                  return a.indexOf(b) > -1;
-               }
-            },
-            {
-               id: `context_not_in`,
-               name: `not in process value`,
-               type,
-               fn: (a, b) => {
-                  return a.indexOf(b) == -1;
-               }
-            }
-         ]);
-      });
       this.uiInit();
    }
 
@@ -624,9 +552,13 @@ module.exports = class FilterComplexCore extends ABComponent {
     * @param object {ABObject} [optional]
     */
    fieldsLoad(fields = [], object = null) {
-      this._Fields = fields.filter((f) => f && f.fieldIsFilterable());
+      this._Fields = fields.filter(
+         (f) => f && f.fieldIsFilterable && f.fieldIsFilterable()
+      );
       this._QueryFields = this._Fields
-         ? this._Fields.filter((f) => f && f.key == "connectObject")
+         ? this._Fields.filter(
+              (f) => f && f.key == "connectObject" && f.key != "user"
+           )
          : [];
 
       // insert our 'this object' entry if an Object was given.
@@ -637,7 +569,7 @@ module.exports = class FilterComplexCore extends ABComponent {
          let thisObjOption = {
             id: "this_object",
             label: object.label,
-            type: "uuid"
+            key: "uuid"
          };
 
          // If object is query ,then should define default alias: "BASE_OBJECT"
@@ -651,8 +583,6 @@ module.exports = class FilterComplexCore extends ABComponent {
       } else {
          delete this._Object;
       }
-
-      this.fieldsToFilters();
    }
 
    fieldsToQB() {
@@ -685,17 +615,94 @@ module.exports = class FilterComplexCore extends ABComponent {
       return fields;
       */
 
-      var fields = (this._Fields || []).map((f) => {
+      let fields = (this._Fields || []).map((f) => {
          let label = f.label;
          if (this._settings.showObjectName && f.object && f.object.label)
             label = `${f.object.label}.${f.label}`;
 
-         let type = f.id; // the default unique identifier for our filter types
-         if (f.id == "this_object") {
-            // if this happens to be our special "this_object" field, then our
-            // type needs to be the "uuid" type in the definition:
-            type = f.type;
+         let type = "text"; // "text", "number", "date"
+         let conditions = [];
+         switch (f.key) {
+            case "boolean":
+               conditions = conditions
+                  .concat(this.fieldsAddFiltersBoolean(f))
+                  .concat(this.fieldsAddFiltersQueryField(f));
+               break;
+            case "connectObject":
+               conditions = this.fieldsAddFiltersQuery(f);
+               break;
+            case "date":
+            case "datetime":
+               type = "date";
+               conditions = conditions
+                  .concat(this.fieldsAddFiltersDate(f))
+                  .concat(this.fieldsAddFiltersQueryField(f));
+               break;
+            case "calculate":
+            case "formula":
+            case "number":
+               type = "number";
+               conditions = conditions
+                  .concat(this.fieldsAddFiltersNumber(f))
+                  .concat(this.fieldsAddFiltersQueryField(f));
+               break;
+            case "string":
+            case "LongText":
+            case "email":
+            case "AutoIndex":
+               conditions = conditions
+                  .concat(this.fieldsAddFiltersString(f))
+                  .concat(this.fieldsAddFiltersQueryField(f));
+               break;
+            case "list":
+               conditions = conditions
+                  .concat(this.fieldsAddFiltersList(f))
+                  .concat(this.fieldsAddFiltersQueryField(f));
+               break;
+            case "user":
+               conditions = conditions
+                  .concat(this.fieldsAddFiltersUser(f))
+                  .concat(this.fieldsAddFiltersQueryField(f));
+               break;
+            case "uuid":
+               conditions = conditions.concat(
+                  this.fieldsAddFiltersThisObject(f)
+               );
+               break;
+            default:
+               type = "text";
+               break;
          }
+
+         if (this._isRecordRule) {
+            conditions = conditions.concat(this.fieldsAddFiltersRecordRule(f));
+         }
+
+         let isProcessField =
+            (this._ProcessFields || []).filter((processField) => {
+               if (!processField) return false;
+
+               if (processField.field) {
+                  return processField.field.id == f.id;
+               } else if (processField.key) {
+                  // uuid
+                  let processFieldId = processField.key.split(".").pop();
+                  return processFieldId == f.id || processFieldId == f.key;
+               }
+            }).length > 0;
+
+         if (isProcessField) {
+            conditions = conditions.concat(this.fieldsAddFiltersContext(f));
+         }
+
+         conditions = conditions.concat(this.fieldsAddFiltersCustom(f));
+
+         // let type = f.id; // the default unique identifier for our filter types
+         // if (f.id == "this_object") {
+         //    // if this happens to be our special "this_object" field, then our
+         //    // type needs to be the "uuid" type in the definition:
+         //    type = f.type;
+         // }
 
          // the format for webix querybuilder:
          // { id  value:"label" type }
@@ -703,57 +710,36 @@ module.exports = class FilterComplexCore extends ABComponent {
          //            since we want to tailor value selectors per field,
          //            we will make a unique type for each field. and then
          //            add value selectors for that specific .type
-         return { id: f.id, value: label, type };
+         return {
+            id: f.columnName || f.id,
+            value: label,
+            type: type,
+            conditions: conditions
+            // format: () => {},
+         };
       });
+
+      // // !!! Process Fields of ABProcess
+      // (this._ProcessFields || [])
+      //    // if there is no .field, it is probably an embedded special field
+      //    .filter((pField) => pField.field == null)
+      //    .forEach((pField) => {
+      //       // like: .uuid
+      //       let key = pField.key.split(".").pop();
+      //       if (key == "uuid" && this._Object) {
+      //          fields.unshift({
+      //             id: pField.key,
+      //             value: this._Object.label,
+      //             type: "text",
+      //             conditions: this.fieldsAddFiltersContext()
+      //          });
+      //       }
+      //    });
+
       return fields;
    }
 
-   filtersToQB() {
-      return this._Filters;
-   }
-
-   fieldsToFilters() {
-      this._Filters = [];
-
-      (this._Fields || []).forEach((f) => {
-         switch (f.key || f.type) {
-            // case "uuid":
-            //    { id:"radio", name:"One From", type:{ "rating" : ratingEditor }, fn:(a,b) => a == b }
-            //    break;
-            case "connectObject":
-               this.fieldsAddFiltersQuery(f);
-               break;
-            case "date":
-               this.fieldsAddFiltersDate(f);
-               break;
-            case "string":
-               this.fieldsAddFiltersString(f);
-               break;
-            case "number":
-               this.fieldsAddFiltersNumber(f);
-               break;
-            case "list":
-               this.fieldsAddFiltersList(f);
-               break;
-            case "boolean":
-               this.fieldsAddFiltersBoolean(f);
-               break;
-            case "user":
-               this.fieldsAddFiltersUser(f);
-               break;
-         }
-      });
-   }
-
    fieldsAddFiltersDate(field) {
-      var dateEditor = {
-         // inputView.format = field.getDateFormat();
-         id: "value",
-         view: "datepicker"
-      };
-      var type = {};
-      type[field.id] = dateEditor;
-
       let dateConditions = {
          less: this.labels.component.beforeCondition,
          greater: this.labels.component.afterCondition,
@@ -767,53 +753,45 @@ module.exports = class FilterComplexCore extends ABComponent {
             .onOrAfterCurrentCondition,
          last_days: this.labels.component.onLastDaysCondition,
          next_days: this.labels.component.onNextDaysCondition
-         // TODO: query field option
-         // TODO: record rule option
       };
 
+      let result = [];
+
       for (let condKey in dateConditions) {
-         this._Filters.push({
+         result.push({
             id: condKey,
-            name: dateConditions[condKey],
-            type,
-            fn: (a, b) => this.dateValid(a, condKey, b)
+            value: dateConditions[condKey],
+            batch: "date",
+            handler: (a, b) => this.dateValid(a, condKey, b)
          });
       }
+
+      return result;
    }
 
    fieldsAddFiltersString(field) {
-      var textEditor = {
-         view: "text"
-      };
-      var type = {};
-      type[field.id] = textEditor;
-
       let stringConditions = {
          contains: this.labels.component.containsCondition,
          not_contains: this.labels.component.notContainsCondition,
          equals: this.labels.component.isCondition,
          not_equal: this.labels.component.isNotCondition
-         // TODO: query field option
-         // TODO: record rule option
       };
 
+      let result = [];
+
       for (let condKey in stringConditions) {
-         this._Filters.push({
+         result.push({
             id: condKey,
-            name: stringConditions[condKey],
-            type,
-            fn: (a, b) => this.textValid(a, condKey, b)
+            value: stringConditions[condKey],
+            batch: "text",
+            handler: (a, b) => this.textValid(a, condKey, b)
          });
       }
+
+      return result;
    }
 
    fieldsAddFiltersNumber(field) {
-      var textEditor = {
-         view: "text"
-      };
-      var type = {};
-      type[field.id] = textEditor;
-
       let numberConditions = {
          equals: this.labels.component.equalCondition,
          not_equal: this.labels.component.notEqualCondition,
@@ -821,134 +799,274 @@ module.exports = class FilterComplexCore extends ABComponent {
          greater: this.labels.component.moreThanCondition,
          less_or_equal: this.labels.component.lessThanOrEqualCondition,
          greater_or_equal: this.labels.component.moreThanOrEqualCondition
-         // TODO : query field option
-         // TODO : record rule
       };
 
+      let result = [];
+
       for (let condKey in numberConditions) {
-         this._Filters.push({
+         result.push({
             id: condKey,
-            name: numberConditions[condKey],
-            type,
-            fn: (a, b) => this.numberValid(a, condKey, b)
+            value: numberConditions[condKey],
+            batch: "text",
+            handler: (a, b) => this.numberValid(a, condKey, b)
          });
       }
+
+      return result;
    }
 
    fieldsAddFiltersList(field) {
-      let editor = {
-         view: "richselect",
-         options: field.options().map((o) => {
-            return { id: o.id, value: o.text };
-         }),
-         customEdit: true
-      };
-      let type = {};
-      type[field.id] = editor;
-
       let listConditions = {
          equals: this.labels.component.equalListCondition,
          not_equal: this.labels.component.notEqualListCondition
-         // TODO : query field option
-         // TODO : record rule
       };
 
+      let result = [];
+
       for (let condKey in listConditions) {
-         this._Filters.push({
+         result.push({
             id: condKey,
-            name: listConditions[condKey],
-            type,
-            fn: (a, b) => this.listValid(a, condKey, b)
+            value: listConditions[condKey],
+            batch: "list",
+            handler: (a, b) => this.listValid(a, condKey, b)
          });
       }
+
+      return result;
    }
 
    fieldsAddFiltersBoolean(field) {
-      var textEditor = {
-         view: "checkbox"
-      };
-      var type = {};
-      type[field.id] = textEditor;
-
       let booleanConditions = {
          equals: this.labels.component.equalListCondition
-         // TODO : query field option
-         // TODO : record rule
       };
 
+      let result = [];
+
       for (let condKey in booleanConditions) {
-         this._Filters.push({
+         result.push({
             id: condKey,
-            name: booleanConditions[condKey],
-            type,
-            fn: (a, b) => this.booleanValid(a, condKey, b)
+            value: booleanConditions[condKey],
+            batch: "boolean",
+            handler: (a, b) => this.booleanValid(a, condKey, b)
          });
       }
+
+      return result;
    }
 
    fieldsAddFiltersUser(field) {
-      var textEditor = {
-         view: "richselect",
-         options: OP.User.userlist()
-      };
-      var type = {};
-      type[field.id] = textEditor;
-
       let userConditions = {
-         is_current_user: this.labels.component.isCurrentUserCondition,
-         is_not_current_user: this.labels.component.isNotCurrentUserCondition,
-         contain_current_user: this.labels.component
-            .containsCurrentUserCondition,
-         not_contain_current_user: this.labels.component
-            .notContainsCurrentUserCondition,
-         equals: this.labels.component.equalListCondition,
-         not_equal: this.labels.component.notEqualListCondition
-         // TODO : query field option
-         // TODO : record rule
+         is_current_user: {
+            batch: "none",
+            label: this.labels.component.isCurrentUserCondition
+         },
+         is_not_current_user: {
+            batch: "none",
+            label: this.labels.component.isNotCurrentUserCondition
+         },
+         contain_current_user: {
+            batch: "none",
+            label: this.labels.component.containsCurrentUserCondition
+         },
+         not_contain_current_user: {
+            batch: "none",
+            label: this.labels.component.notContainsCurrentUserCondition
+         },
+         equals: {
+            batch: "user",
+            label: this.labels.component.equalListCondition
+         },
+         not_equal: {
+            batch: "user",
+            label: this.labels.component.notEqualListCondition
+         }
       };
+
+      let result = [];
 
       for (let condKey in userConditions) {
-         this._Filters.push({
+         result.push({
             id: condKey,
-            name: userConditions[condKey],
-            type,
-            fn: (a, b) => this.userValid(a, condKey, b)
+            value: userConditions[condKey].label,
+            batch: userConditions[condKey].batch,
+            handler: (a, b) => this.userValid(a, condKey, b)
          });
       }
+
+      return result;
    }
 
    fieldsAddFiltersQuery(field) {
-      var editor = {
-         view: "richselect",
-         options: [], // TODO
-         customEdit: true
-      };
-      var type = {};
-      type[field.id] = editor;
-
       let connectConditions = {
-         in_query: this.labels.component.inQuery,
-         not_in_query: this.labels.component.notInQuery,
-         same_as_user: this.labels.component.sameAsUser,
-         not_same_as_user: this.labels.component.notSameAsUser,
-         in_data_collection: this.labels.component.inDataCollection,
-         not_in_data_collection: this.labels.component.notInDataCollection
+         in_query: {
+            batch: "query",
+            label: this.labels.component.inQuery,
+            handler: (a, b) => this.inQueryValid(a, "in_query", b)
+         },
+         not_in_query: {
+            batch: "query",
+            label: this.labels.component.notInQuery,
+            handler: (a, b) => this.inQueryValid(a, "not_in_query", b)
+         },
+         same_as_user: {
+            batch: "user",
+            label: this.labels.component.sameAsUser,
+            handler: (a, b) => this.userValid(a, "same_as_user", b)
+         },
+         not_same_as_user: {
+            batch: "user",
+            label: this.labels.component.notSameAsUser,
+            handler: (a, b) => this.userValid(a, "not_same_as_user", b)
+         },
+         in_data_collection: {
+            batch: "datacollection",
+            label: this.labels.component.inDataCollection,
+            handler: (a, b) =>
+               this.dataCollectionValid(a, "in_data_collection", b)
+         },
+         not_in_data_collection: {
+            batch: "datacollection",
+            label: this.labels.component.notInDataCollection,
+            handler: (a, b) =>
+               this.dataCollectionValid(a, "not_in_data_collection", b)
+         }
          // TODO
          // contains: this.labels.component.containsCondition,
          // not_contains: this.labels.component.notContainCondition,
          // equals: this.labels.component.isCondition,
          // not_equal: this.labels.component.isNotCondition
-         // TODO: record rule
       };
 
+      let result = [];
+
       for (let condKey in connectConditions) {
-         this._Filters.push({
+         result.push({
             id: condKey,
-            name: connectConditions[condKey],
-            type,
-            fn: (a, b) => this.inQueryValid(a, condKey, b)
+            value: connectConditions[condKey].label,
+            batch: connectConditions[condKey].batch,
+            handler: connectConditions[condKey].handler
          });
       }
+
+      return result;
+   }
+
+   fieldsAddFiltersQueryField(field) {
+      let queryFieldConditions = {
+         in_query_field: this.labels.component.inQueryField,
+         not_in_query_field: this.labels.component.notInQueryField
+      };
+
+      let result = [];
+
+      for (let condKey in queryFieldConditions) {
+         result.push({
+            id: condKey,
+            value: queryFieldConditions[condKey],
+            batch: "queryField",
+            handler: (a, b) => this.queryFieldValid(a, condKey, b)
+         });
+      }
+
+      return result;
+   }
+
+   fieldsAddFiltersThisObject(field) {
+      let thisObjectConditions = {
+         in_query: {
+            batch: "query",
+            label: this.labels.component.inQuery
+         },
+         not_in_query: {
+            batch: "query",
+            label: this.labels.component.notInQuery
+         },
+         in_data_collection: {
+            batch: "datacollection",
+            label: this.labels.component.inDataCollection
+         },
+         not_in_data_collection: {
+            batch: "datacollection",
+            label: this.labels.component.notInDataCollection
+         }
+      };
+
+      let result = [];
+
+      for (let condKey in thisObjectConditions) {
+         result.push({
+            id: condKey,
+            value: thisObjectConditions[condKey].label,
+            batch: thisObjectConditions[condKey].batch,
+            handler: (a, b) => this.thisObjectValid(a, condKey, b)
+         });
+      }
+
+      return result;
+   }
+
+   fieldsAddFiltersRecordRule(field) {
+      let recordRuleConditions = {
+         same_as_field: this.labels.component.sameAsField,
+         not_same_as_field: this.labels.component.notSameAsField
+      };
+
+      let result = [];
+
+      for (let condKey in recordRuleConditions) {
+         result.push({
+            id: condKey,
+            value: recordRuleConditions[condKey],
+            batch: "recordRule",
+            handler: (a, b) => true // TODO: record rule validation
+         });
+      }
+
+      return result;
+   }
+
+   fieldsAddFiltersContext(field) {
+      let contextConditions = {
+         context_equals: {
+            batch: "context",
+            label: this.labels.component.equalsProcessValue,
+            handler: (a, b) => a == b
+         },
+         context_not_equal: {
+            batch: "context",
+            label: this.labels.component.notEqualsProcessValueCondition,
+            handler: (a, b) => a != b
+         },
+         context_in: {
+            batch: "context",
+            label: this.labels.component.inProcessValueCondition,
+            handler: (a, b) => a.indexOf(b) > -1
+         },
+         context_not_in: {
+            batch: "context",
+            label: this.labels.component.notInProcessValueCondition,
+            handler: (a, b) => a.indexOf(b) == -1
+         }
+      };
+
+      let result = [];
+
+      for (let condKey in contextConditions) {
+         result.push({
+            id: condKey,
+            value: contextConditions[condKey].label,
+            batch: contextConditions[condKey].batch,
+            handler: contextConditions[condKey].handler
+         });
+      }
+
+      return result;
+   }
+
+   fieldsAddFiltersCustom(field) {
+      let customOptions = this._customOptions || {};
+      let options = customOptions[field.id || field] || {};
+      return options.conditions || [];
    }
 
    queriesLoad(queries = []) {
@@ -967,9 +1085,9 @@ module.exports = class FilterComplexCore extends ABComponent {
    queries(filter = () => true) {
       let result = [];
 
-      if (this._Application) {
-         result = result.concat(this._Application.queriesIncluded(filter));
-      }
+      // if (this._Application) {
+      //    result = result.concat(this._Application.queriesIncluded(filter));
+      // }
 
       if (this._Queries) {
          result = result.concat(
@@ -1006,4 +1124,43 @@ module.exports = class FilterComplexCore extends ABComponent {
    getValue() {
       return this.condition;
    }
+
+   isComplete() {
+      let result = true;
+
+      const noValueRules = [
+         "is_current_user",
+         "is_not_current_user",
+         "contain_current_user",
+         "not_contain_current_user",
+         "same_as_user",
+         "not_same_as_user"
+      ];
+
+      const isCompleteRules = (rules = []) => {
+         if (result == false) return false;
+
+         rules.forEach((r) => {
+            if (!r) return;
+
+            if (r.rules && Array.isArray(r.rules)) {
+               isCompleteRules(r.rules);
+            } else {
+               result =
+                  result &&
+                  r.key != null &&
+                  r.key != "" &&
+                  r.rule != null &&
+                  r.rule != "" &&
+                  ((r.value != null && r.value != "") ||
+                     noValueRules.indexOf(r.rule) > -1);
+            }
+         });
+      };
+
+      if (this.condition) isCompleteRules(this.condition.rules);
+
+      return result;
+   }
 };
+
