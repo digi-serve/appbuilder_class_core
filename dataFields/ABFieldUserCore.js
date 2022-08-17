@@ -55,7 +55,7 @@ const ABFieldUserDefaults = {
    // {bool}
    // does this ABField support the Unique setting?
 
-   useAsLabel: false,
+   useAsLabel: true,
    // {bool} / {fn}
    // determines if this ABField can be used in the display of an ABObject's
    // label.
