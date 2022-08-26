@@ -119,6 +119,7 @@ module.exports = class FilterComplexCore extends ABComponent {
             } else ruleFieldType = "this_object";
          }
          var value = getFieldVal(rowData, fieldInfo);
+         if (!value) return;
 
          switch (ruleFieldType) {
             case "string":
@@ -148,7 +149,7 @@ module.exports = class FilterComplexCore extends ABComponent {
             case "connectObject":
                condResult = this.connectFieldValid(
                   rowData,
-                  fieldInfo.relationName(),
+                  // fieldInfo.relationName(),
                   filter.rule,
                   filter.value
                );
@@ -405,7 +406,7 @@ module.exports = class FilterComplexCore extends ABComponent {
       if (!compareValue) return result;
 
       // if no query
-      let query = this.queries((q) => q.id == compareValue)[0];
+      let query = this.AB.queries((q) => q.id == compareValue)[0];
       if (!query) return result;
 
       let qIdBase = "{idBase}-query-{id}"
