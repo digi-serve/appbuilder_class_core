@@ -487,7 +487,6 @@ module.exports = class FilterComplexCore extends ABComponent {
 
    connectFieldValid(rowData, field, rule, compareValue) {
       let relationName = field.relationName();
-      let columnName = field.columnName;
 
       let connectedVal = "";
 
