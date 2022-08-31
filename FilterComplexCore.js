@@ -123,15 +123,9 @@ module.exports = class FilterComplexCore extends ABComponent {
       if (rowData == null) return false;
 
       var result = condition.glue === "and" ? true : false;
-      let queryField = null;
-      let iteration = 0;
 
       condition.rules.forEach((filter) => {
          if (!filter.key || !filter.rule) return;
-         if (this._QueryFields) {
-            queryField = this._QueryFields[iteration];
-         }
-         iteration++;
 
          var fieldInfo = (this._Fields || []).filter(
             (f) => f.id == filter.key
