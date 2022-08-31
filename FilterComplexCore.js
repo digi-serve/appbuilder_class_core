@@ -5,8 +5,6 @@ const ABComponent = require("../platform/ABComponent");
  *  support get data from objects and queries
  */
 function getFieldVal(rowData, field) {
-   if (typeof rowData === "string" || rowData instanceof String) return rowData;
-
    if (!field) return null;
    if (!field.columnName) return null;
    var columnName = field.columnName;
@@ -35,12 +33,10 @@ function getFieldVal(rowData, field) {
 }
 
 function getConnectFieldValue(rowData, field) {
-   let relationName = field.relationName();
-   let columnName = field.columnName;
-
    let connectedVal = "";
 
    if (rowData) {
+      let relationName = field.relationName();
       if (rowData[relationName]) {
          connectedVal =
             (field.indexField
@@ -112,7 +108,7 @@ module.exports = class FilterComplexCore extends ABComponent {
     *
     * @param rowData {Object} - data row
     */
-   isValid(rowData, origValues) {
+   isValid(rowData) {
       var condition = this.condition;
       var _logic = this._logic;
 
@@ -148,8 +144,9 @@ module.exports = class FilterComplexCore extends ABComponent {
             } else ruleFieldType = "this_object";
          }
          let value;
-         if (fieldInfo.columnName.indexOf("BASE_OBJECT") > -1) {
-            value = getConnectFieldValue(origValues, fieldInfo);
+
+         if (fieldInfo.relationName) {
+            value = getConnectFieldValue(rowData, fieldInfo);
          } else {
             value = getFieldVal(rowData, fieldInfo);
          }
@@ -434,10 +431,10 @@ module.exports = class FilterComplexCore extends ABComponent {
       return result;
    }
 
-   inQueryValid(value, rule, compareValue, rowData) {
+   inQueryValid(value, rule, compareValue) {
       let result = false;
 
-      if (!compareValue) return result;
+      if (!compareValue || !this.AB) return result;
 
       // if no query
       let query = this.AB.queries((q) => q.id == compareValue)[0];
@@ -453,10 +450,10 @@ module.exports = class FilterComplexCore extends ABComponent {
 
       switch (rule) {
          case "in_query":
-            result = inQueryFilter.isValid(value, rowData);
+            result = inQueryFilter.isValid(value);
             break;
          case "not_in_query":
-            result = !inQueryFilter.isValid(value, rowData);
+            result = !inQueryFilter.isValid(value);
             break;
       }
 
@@ -527,12 +524,7 @@ module.exports = class FilterComplexCore extends ABComponent {
             return connectedVal != compareValueLowercase;
          case "in_query":
          case "not_in_query":
-            return this.inQueryValid(
-               rowData[relationName],
-               rule,
-               compareValue,
-               rowData
-            );
+            return this.inQueryValid(rowData, relationName, rule, compareValue);
          case "is_current_user":
          case "is_not_current_user":
          case "contain_current_user":
