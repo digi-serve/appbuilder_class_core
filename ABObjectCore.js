@@ -837,7 +837,6 @@ module.exports = class ABObjectCore extends ABMLClass {
     */
    urlPointer(acrossApp) {
       console.error("Who is calling this?");
-      debugger;
 
       if (this.application == null) return null;
 
@@ -854,7 +853,7 @@ module.exports = class ABObjectCore extends ABMLClass {
     */
    urlField(acrossApp) {
       console.error("Who is calling this?");
-      debugger;
+
       return this.urlPointer(acrossApp) + "/_fields/";
    }
 
@@ -948,7 +947,9 @@ module.exports = class ABObjectCore extends ABMLClass {
             labelData = L(labelSettings.noLabelText || "[No Label]");
          } else {
             // show id of row
-            labelData = `${this.isUuid(rowData.id) ? "ID: " : ""}${rowData.id}`;
+            labelData = `${this.AB.rules.isUUID(rowData.id) ? "ID: " : ""}${
+               rowData.id
+            }`;
          }
       }
 
