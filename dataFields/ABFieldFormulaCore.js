@@ -284,4 +284,3 @@ module.exports = class ABFieldFormulaCore extends ABField {
       return this._rowFilter;
    }
 };
-

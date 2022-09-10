@@ -141,23 +141,24 @@ module.exports = class ABViewFormCore extends ABViewContainer {
     * @return {array} 	array of ABViewFormField
     */
    fieldComponents(filter) {
-      var flattenComponents = (views) => {
-         var components = [];
+      const flattenComponents = (views) => {
+         let components = [];
 
-         _.each(views, (comp) => {
-            components.push(comp);
-            comp._views &&
-               (components = _.union(
-                  components,
-                  flattenComponents(comp._views)
-               ));
+         views.forEach((v) => {
+            if (v == null) return;
+
+            components.push(v);
+
+            if (v._views?.length) {
+               components = components.concat(flattenComponents(v._views));
+            }
          });
 
          return components;
       };
 
-      if (this._views && this._views.length > 0) {
-         var allComponents = flattenComponents(this._views);
+      if (this._views?.length) {
+         const allComponents = flattenComponents(this._views);
 
          if (filter == null) {
             filter = (comp) => comp instanceof ABViewFormComponent;

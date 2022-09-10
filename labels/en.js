@@ -52,7 +52,7 @@ module.exports = {
    "No template file" : "No template file",
    "is not empty" : "is not empty",
    "is empty" : "is empty",
-   'Name must be unique ("{0}" already in use)' : 'Name must be unique ("{0}" already in use)',
+   "Name must be unique (\"{0}\" already in use)" : "Name must be unique (\"{0}\" already in use)",
    "Column {0}" : "Column {0}",
    "Import {0} Records" : "Import {0} Records",
    "Search records..." : "Search records...",
@@ -64,7 +64,7 @@ module.exports = {
    "Separated by" : "Separated by",
    "Choose a CSV file" : "Choose a CSV file",
    "CSV Importer" : "CSV Importer",
-   'Object name must be unique ("{0}" already in use)' : 'Object name must be unique ("{0}" already in use)',
+   "Object name must be unique (\"{0}\" already in use)" : "Object name must be unique (\"{0}\" already in use)",
    "Field columnName must be unique ({0} already used in this Application)" : "Field columnName must be unique ({0} already used in this Application)",
    "should be greater than {0}" : "should be greater than {0}",
    "%" : "%",
@@ -326,5 +326,5 @@ module.exports = {
    "Edit" : "Edit",
    "Delete" : "Delete",
    "Create" : "Create",
-   "Add" : "Add",
+   "Add" : "Add"
 };
