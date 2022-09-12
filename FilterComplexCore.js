@@ -41,11 +41,11 @@ function getConnectFieldValue(rowData, field) {
          connectedVal =
             (field.indexField
                ? rowData[relationName][field.indexField.columnName]
-               : false) || // custom index
+               : null) ?? // custom index
             (field.indexField2
                ? rowData[relationName][field.indexField2.columnName]
-               : false) || // custom index 2
-            rowData[relationName].id ||
+               : null) ?? // custom index 2
+            rowData[relationName].id ??
             rowData[relationName];
       } else {
          let fieldVal = getFieldVal(rowData, field);
@@ -370,17 +370,15 @@ module.exports = class FilterComplexCore extends ABComponent {
             if (!Array.isArray(value)) value = [value];
 
             result =
-               (value || []).filter(
-                  (v) => (v.username || v) == this.Account.username
-               ).length > 0;
+               value.filter((v) => (v.username || v) == this.Account.username)
+                  .length > 0;
             break;
          case "not_contain_current_user":
             if (!Array.isArray(value)) value = [value];
 
             result =
-               (value || []).filter(
-                  (v) => (v.username || v) == this.Account.username
-               ).length < 1;
+               value.filter((v) => (v.username || v) == this.Account.username)
+                  .length < 1;
             break;
          case "equals":
             result = value.indexOf(compareValue) > -1;
@@ -495,11 +493,11 @@ module.exports = class FilterComplexCore extends ABComponent {
             connectedVal = (
                (field.indexField
                   ? rowData[relationName][field.indexField.columnName]
-                  : false) || // custom index
+                  : null) ?? // custom index
                (field.indexField2
                   ? rowData[relationName][field.indexField2.columnName]
-                  : false) || // custom index 2
-               rowData[relationName].id ||
+                  : null) ?? // custom index 2
+               rowData[relationName].id ??
                rowData[relationName]
             )
                .toString()
