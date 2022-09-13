@@ -32,6 +32,31 @@ function getFieldVal(rowData, field) {
    return value;
 }
 
+function getConnectFieldValue(rowData, field) {
+   let connectedVal = "";
+
+   if (rowData) {
+      let relationName = field.relationName();
+      if (rowData[relationName]) {
+         connectedVal =
+            (field.indexField
+               ? rowData[relationName][field.indexField.columnName]
+               : null) ?? // custom index
+            (field.indexField2
+               ? rowData[relationName][field.indexField2.columnName]
+               : null) ?? // custom index 2
+            rowData[relationName].id ??
+            rowData[relationName];
+      } else {
+         let fieldVal = getFieldVal(rowData, field);
+         if (fieldVal != null) {
+            connectedVal = fieldVal;
+         }
+      }
+   }
+   return connectedVal;
+}
+
 module.exports = class FilterComplexCore extends ABComponent {
    constructor(idBase, AB) {
       idBase = idBase || "ab_filter_complex";
@@ -118,7 +143,13 @@ module.exports = class FilterComplexCore extends ABComponent {
                ruleFieldType = fieldInfo.key;
             } else ruleFieldType = "this_object";
          }
-         var value = getFieldVal(rowData, fieldInfo);
+         let value;
+
+         if (fieldInfo.relationName) {
+            value = getConnectFieldValue(rowData, fieldInfo);
+         } else {
+            value = getFieldVal(rowData, fieldInfo);
+         }
 
          switch (ruleFieldType) {
             case "string":
@@ -148,7 +179,7 @@ module.exports = class FilterComplexCore extends ABComponent {
             case "connectObject":
                condResult = this.connectFieldValid(
                   rowData,
-                  fieldInfo.relationName(),
+                  fieldInfo,
                   filter.rule,
                   filter.value
                );
@@ -323,6 +354,7 @@ module.exports = class FilterComplexCore extends ABComponent {
    }
 
    userValid(value, rule, compareValue) {
+      if (!value) return false;
       var result = false;
 
       // if (Array.isArray(value)) value = [value];
@@ -338,14 +370,14 @@ module.exports = class FilterComplexCore extends ABComponent {
             if (!Array.isArray(value)) value = [value];
 
             result =
-               (value || []).filter((v) => (v.id || v) == this.Account.username)
+               value.filter((v) => (v.username || v) == this.Account.username)
                   .length > 0;
             break;
          case "not_contain_current_user":
             if (!Array.isArray(value)) value = [value];
 
             result =
-               (value || []).filter((v) => (v.id || v) == this.Account.username)
+               value.filter((v) => (v.username || v) == this.Account.username)
                   .length < 1;
             break;
          case "equals":
@@ -372,7 +404,7 @@ module.exports = class FilterComplexCore extends ABComponent {
          fieldId = compareValue.split(":")[1];
 
       // if no query
-      var query = this.queries((q) => q.id == queryId)[0];
+      var query = this.AB.queries((q) => q.id == queryId)[0];
       if (!query) return result;
 
       // if no field
@@ -399,13 +431,13 @@ module.exports = class FilterComplexCore extends ABComponent {
       return result;
    }
 
-   inQueryValid(value, rule, compareValue) {
+   inQueryValid(rowData, rule, compareValue) {
       let result = false;
 
-      if (!compareValue) return result;
+      if (!compareValue || !this.AB) return result;
 
       // if no query
-      let query = this.queries((q) => q.id == compareValue)[0];
+      let query = this.AB.queries((q) => q.id == compareValue)[0];
       if (!query) return result;
 
       let qIdBase = "{idBase}-query-{id}"
@@ -418,10 +450,10 @@ module.exports = class FilterComplexCore extends ABComponent {
 
       switch (rule) {
          case "in_query":
-            result = inQueryFilter.isValid(value);
+            result = inQueryFilter.isValid(rowData);
             break;
          case "not_in_query":
-            result = !inQueryFilter.isValid(value);
+            result = !inQueryFilter.isValid(rowData);
             break;
       }
 
@@ -451,27 +483,68 @@ module.exports = class FilterComplexCore extends ABComponent {
       return result;
    }
 
-   connectFieldValid(value, rule, compareValue) {
+   connectFieldValid(rowData, field, rule, compareValue) {
+      let relationName = field.relationName();
+
+      let connectedVal = "";
+
+      if (rowData) {
+         if (rowData[relationName]) {
+            connectedVal = (
+               (field.indexField
+                  ? rowData[relationName][field.indexField.columnName]
+                  : null) ?? // custom index
+               (field.indexField2
+                  ? rowData[relationName][field.indexField2.columnName]
+                  : null) ?? // custom index 2
+               rowData[relationName].id ??
+               rowData[relationName]
+            )
+               .toString()
+               .toLowerCase();
+         } else {
+            let fieldVal = getFieldVal(rowData, field);
+            if (fieldVal != null) {
+               connectedVal = fieldVal;
+            }
+         }
+      }
+
+      let compareValueLowercase = (compareValue || "").toLowerCase();
+
       switch (rule) {
          case "contains":
-            return (value.id || value).toString().indexOf(compareValue) > -1;
+            return connectedVal.toString().indexOf(compareValueLowercase) > -1;
          case "not_contains":
-            return (value.id || value).toString().indexOf(compareValue) == -1;
+            return connectedVal.toString().indexOf(compareValueLowercase) == -1;
          case "equals":
-            return (value.id || value).toString() == compareValue;
+            return connectedVal == compareValueLowercase;
          case "not_equal":
-            return (value.id || value).toString() != compareValue;
+            return connectedVal != compareValueLowercase;
          case "in_query":
          case "not_in_query":
-            return this.inQueryValid(value, rule, compareValue);
+            return this.inQueryValid(rowData[relationName], rule, compareValue);
          case "is_current_user":
          case "is_not_current_user":
          case "contain_current_user":
          case "not_contain_current_user":
-            return this.userValid(value, rule, compareValue);
+            return this.userValid(connectedVal, rule, compareValue);
+         case "is_empty":
+            return (
+               rowData[relationName] == null ||
+               rowData[relationName].length < 1 ||
+               rowData[relationName] == ""
+            );
+         case "is_not_empty":
+            return (
+               rowData[relationName] != null &&
+               ((Array.isArray(rowData[relationName]) &&
+                  rowData[relationName].length > 0) ||
+                  rowData[relationName] != "")
+            );
          case "in_data_collection":
          case "not_in_data_collection":
-            return this.dataCollectionValid(value, rule, compareValue);
+            return this.dataCollectionValid(connectedVal, rule, compareValue);
       }
    }
 
@@ -485,7 +558,7 @@ module.exports = class FilterComplexCore extends ABComponent {
             if (!this._Object) return result;
 
             // if > 1 copy of this object in query ==> Error!
-            let query = this.queries((q) => q.id == compareValue)[0];
+            let query = this.AB.queries((q) => q.id == compareValue)[0];
             if (!query) return result;
 
             var listThisObjects = query.objects((o) => {
