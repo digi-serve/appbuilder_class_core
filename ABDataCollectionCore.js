@@ -685,13 +685,15 @@ module.exports = class ABDataCollectionCore extends ABMLClass {
       this.initialized = true;
 
       if (!this.__dataCollection.___AD.onAfterCursorChange) {
-         this.__dataCollection.___AD.onAfterCursorChange =
-            this.__dataCollection.attachEvent("onAfterCursorChange", () => {
+         this.__dataCollection.___AD.onAfterCursorChange = this.__dataCollection.attachEvent(
+            "onAfterCursorChange",
+            () => {
                // debugger;
                var currData = this.getCursor();
 
                this.emit("changeCursor", currData);
-            });
+            }
+         );
       }
 
       // relate data functions
@@ -709,7 +711,7 @@ module.exports = class ABDataCollectionCore extends ABMLClass {
          let obj = this.datasource;
          if (!obj) return;
 
-         if (!data || !data.dataId) return;
+         if (!data || !data.data) return;
 
          let needAdd = false;
          let updatedVals = [];
@@ -732,7 +734,7 @@ module.exports = class ABDataCollectionCore extends ABMLClass {
                      };
 
                      objList.forEach((o) => {
-                        let newDataId = data.dataId;
+                        let newDataId = data.data[`${o.PK()}`];
                         if (!newDataId) return;
 
                         where.rules.push({
@@ -757,21 +759,10 @@ module.exports = class ABDataCollectionCore extends ABMLClass {
                         .catch(bad);
                   }
                   // Object
-                  else if (obj.id == data.objectId) {
-                     // Pull Row Data
-                     const where = {};
-                     where[obj.PK()] = data.dataId;
-
-                     obj.model()
-                        .findAll({ where })
-                        .then((list) => {
-                           needAdd = list?.data?.length ?? false;
-
-                           if (needAdd) updatedVals = [list.data[0]];
-
-                           next();
-                        })
-                        .catch(bad);
+                  else {
+                     needAdd = obj.id == data.objectId;
+                     updatedVals = [data.data];
+                     next();
                   }
                });
             })
@@ -805,10 +796,9 @@ module.exports = class ABDataCollectionCore extends ABMLClass {
                         // debugger;
                         if (this.isParentFilterValid(updatedV)) {
                            // we track bound components and flexlayout components
-                           var attachedComponents =
-                              this.__bindComponentIds.concat(
-                                 this.__flexComponentIds
-                              );
+                           var attachedComponents = this.__bindComponentIds.concat(
+                              this.__flexComponentIds
+                           );
                            attachedComponents.forEach((bcids) => {
                               // if the reload button already exisits move on
                               if ($$(bcids + "_reloadView")) {
@@ -975,7 +965,7 @@ module.exports = class ABDataCollectionCore extends ABMLClass {
             });
       });
 
-      this.on("ab.datacollection.update", async (data) => {
+      this.on("ab.datacollection.update", (data) => {
          // {json} data
          // incoming socket payload:
          // data.objectId {string} uuid of the ABObject's row that was updated
@@ -986,61 +976,36 @@ module.exports = class ABDataCollectionCore extends ABMLClass {
          if (!obj) return;
 
          // updated values
-         const rowId = data.dataId;
-         if (!rowId) return;
+         let values = data.data;
+         if (!values) return;
 
-         // Check need to update this data to the DC
          let needUpdate = false;
-         if (obj instanceof this.AB.Class.ABObjectQuery) {
-            let objList = obj.objects((o) => o.id == data.objectId) || [];
-            needUpdate = objList.length > 0;
-         } else {
-            needUpdate = obj.id == data.objectId;
-         }
-
          let isExists = false;
          let updatedIds = [];
          // {array}
          // an array of the row indexs in our DataCollection that have values
          // that need to be updated.
 
-         let values;
          let updatedTreeIds = [];
          let updatedVals = {};
 
-         // if it is the source object
-         if (needUpdate) {
-            const object = this.AB.objectByID(data.objectId);
-
-            const where = {};
-            where[object.PK()] = rowId;
-
-            // Pull row data info
-            const list = await object.model().findAll({
-               where: where,
-            });
-            values = list?.data?.[0];
-
-            // Webix needs .id
-            if (values && values.id == null) {
-               values.id = values[object.PK()];
-            }
-
-            // Check this item exists
-            // Query
-            if (obj instanceof this.AB.Class.ABObjectQuery) {
-               const objList = obj.objects((o) => o.id == data.objectId) || [];
+         // Query
+         if (obj instanceof this.AB.Class.ABObjectQuery) {
+            let objList = obj.objects((o) => o.id == data.objectId) || [];
+            needUpdate = objList.length > 0;
+            if (needUpdate) {
                (objList || []).forEach((o) => {
                   updatedIds = updatedIds.concat(
                      this.__dataCollection
-                        .find(
-                           (item) =>
+                        .find((item) => {
+                           return (
                               item[
                                  `${this.datasource.objectAlias(
                                     o.id
                                  )}.${o.PK()}`
-                              ] == rowId
-                        )
+                              ] == (values[o.PK()] || values.id)
+                           );
+                        })
                         .map((o) => o.id) || []
                   );
 
@@ -1048,14 +1013,15 @@ module.exports = class ABDataCollectionCore extends ABMLClass {
                   if (this.__treeCollection) {
                      updatedTreeIds = updatedTreeIds.concat(
                         this.__treeCollection
-                           .find(
-                              (item) =>
+                           .find((item) => {
+                              return (
                                  item[
                                     `${this.datasource.objectAlias(
                                        o.id
                                     )}.${o.PK()}`
-                                 ] == rowId
-                           )
+                                 ] == (values[o.PK()] || values.id)
+                              );
+                           })
                            .map((o) => o.id) || []
                      );
                   }
@@ -1065,17 +1031,23 @@ module.exports = class ABDataCollectionCore extends ABMLClass {
 
                updatedVals = this._queryUpdateData(objList, values);
             }
-            // Object
-            else {
+         }
+         // Object
+         else {
+            needUpdate = obj.id == data.objectId;
+            if (needUpdate) {
                // various PK name
-               if (!rowId && obj.PK() != "id") values.id = rowId;
+               if (!values.id && obj.PK() != "id") values.id = values[obj.PK()];
 
-               updatedIds.push(rowId);
+               updatedIds.push(values.id);
 
-               isExists = this.__dataCollection.exists(rowId);
+               isExists = this.__dataCollection.exists(values.id);
                updatedVals = values;
             }
+         }
 
+         // if it is the source object
+         if (needUpdate) {
             if (isExists) {
                if (this.isValidData(updatedVals)) {
                   // NOTE: this is now done in NetworkRestSocket before
@@ -2383,10 +2355,9 @@ module.exports = class ABDataCollectionCore extends ABMLClass {
       // check to see that filters are set (this is sometimes helpful to select the first record without doing so at the data collection level)
       if (filters?.rules?.length) {
          if (obj.settings.objectWorkspace.filterConditions?.rules?.length) {
-            obj.settings.objectWorkspace.filterConditions.rules =
-               obj.settings.objectWorkspace.filterConditions.rules.concat(
-                  filters.rules
-               );
+            obj.settings.objectWorkspace.filterConditions.rules = obj.settings.objectWorkspace.filterConditions.rules.concat(
+               filters.rules
+            );
          } else {
             obj.settings.objectWorkspace.filterConditions = filters;
          }
@@ -2450,4 +2421,3 @@ module.exports = class ABDataCollectionCore extends ABMLClass {
       return [];
    }
 };
-
