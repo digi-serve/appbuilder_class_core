@@ -1,6 +1,17 @@
 /* eslint-disable */
 module.exports = {
    /* key : label */
+   "Must select item from '{0}' first." : "[en] Must select item from '{0}' first.",
+   "Translation Tool" : "[en] Translation Tool",
+   "Access Manager" : "[en] Access Manager",
+   "System Notification" : "[en] System Notification",
+   "Confirm Password" : "[en] Confirm Password",
+   "Enter a new Password (at least 8)" : "[en] Enter a new Password (at least 8)",
+   "New Password" : "[en] New Password",
+   "Advanced Options" : "[en] Advanced Options",
+   "Language" : "[en] Language",
+   "Username" : "[en] Username",
+   "Tenant" : "[en] Tenant",
    "Add Filter" : "Add Filter",
    "No image" : "No image",
    "Add filter" : "Add filter",
