@@ -121,6 +121,9 @@ module.exports = class ABProcessEngineCore {
     *                            and not yet done.
     */
    walkGraph(list, pending, cb) {
+      // make sure .list does not have any undefined item
+      list = (list ?? []).filter((task) => task != null);
+
       // make sure pending and cb are properly set
       if (typeof pending == "function") {
          cb = pending;
