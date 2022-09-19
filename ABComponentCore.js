@@ -16,8 +16,9 @@ module.exports = class ABComponentCore extends EventEmitter {
     * @param {string} idBase
     *      Identifier for this component
     */
-   constructor(App, idBase) {
+   constructor(App, idBase, AB) {
       super();
+      if (AB) this.AB = AB;
 
       var L = this.Label();
 
