@@ -805,10 +805,10 @@ module.exports = class FilterComplexCore extends ABComponent {
          greater_or_equal: this.labels.component.onOrAfterCondition,
          less_current: this.labels.component.beforeCurrentCondition,
          greater_current: this.labels.component.afterCurrentCondition,
-         less_or_equal_current: this.labels.component
-            .onOrBeforeCurrentCondition,
-         greater_or_equal_current: this.labels.component
-            .onOrAfterCurrentCondition,
+         less_or_equal_current:
+            this.labels.component.onOrBeforeCurrentCondition,
+         greater_or_equal_current:
+            this.labels.component.onOrAfterCurrentCondition,
          last_days: this.labels.component.onLastDaysCondition,
          next_days: this.labels.component.onNextDaysCondition,
       };
@@ -1150,21 +1150,9 @@ module.exports = class FilterComplexCore extends ABComponent {
     * @return {array}
     */
    queries(filter = () => true) {
-      let result = [];
+      const queryList = this._Queries ?? this.AB?.queries?.() ?? [];
 
-      // if (this._Application) {
-      //    result = result.concat(this._Application.queriesIncluded(filter));
-      // }
-
-      if (this._Queries) {
-         result = result.concat(
-            (this._Queries || []).filter(
-               (q) => filter(q) && result.filter((r) => r.id == q.id).length < 1
-            )
-         );
-      }
-
-      return result;
+      return queryList.filter((q) => filter(q));
    }
 
    setValue(settings) {
@@ -1233,3 +1221,4 @@ module.exports = class FilterComplexCore extends ABComponent {
       return result;
    }
 };
+
