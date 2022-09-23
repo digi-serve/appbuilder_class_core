@@ -1152,7 +1152,7 @@ module.exports = class FilterComplexCore extends ABComponent {
    queries(filter = () => true) {
       const queryList = this._Queries ?? this.AB?.queries?.() ?? [];
 
-      return (queryList ?? []).filter((q) => filter(q));
+      return queryList.filter((q) => filter(q));
    }
 
    setValue(settings) {
