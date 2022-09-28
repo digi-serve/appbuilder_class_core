@@ -107,8 +107,8 @@ class ABFactory extends EventEmitter {
 
          ABProcessTaskManager,
 
-         ABViewDetailItem: ABViewDetailItem,
-         ABViewFormComponent: ABViewFormItem,
+         ABViewDetailItem,
+         ABViewFormItem,
       };
 
       //
