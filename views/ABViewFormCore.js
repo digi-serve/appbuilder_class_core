@@ -1,5 +1,5 @@
 const ABViewContainer = require("../../platform/views/ABViewContainer");
-const ABViewFormComponent = require("../../platform/views/ABViewFormComponent");
+const ABViewFormItem = require("../../platform/views/ABViewFormItem");
 
 const ABRecordRule = require("../../rules/ABViewRuleListFormRecordRules");
 const ABSubmitRule = require("../../rules/ABViewRuleListFormSubmitRules");
@@ -161,7 +161,7 @@ module.exports = class ABViewFormCore extends ABViewContainer {
          const allComponents = flattenComponents(this._views);
 
          if (filter == null) {
-            filter = (comp) => comp instanceof ABViewFormComponent;
+            filter = (comp) => comp instanceof ABViewFormItem;
          }
 
          return allComponents.filter(filter);
@@ -236,3 +236,4 @@ module.exports = class ABViewFormCore extends ABViewContainer {
       return SubmitRules.process({ data: rowData, form: this });
    }
 };
+

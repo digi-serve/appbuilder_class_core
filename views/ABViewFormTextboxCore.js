@@ -1,4 +1,4 @@
-const ABViewFormComponent = require("../../platform/views/ABViewFormComponent");
+const ABViewFormItem = require("../../platform/views/ABViewFormItem");
 
 const ABViewFormTextboxPropertyComponentDefaults = {
    type: "single", // 'single', 'multiple' or 'rich'
@@ -10,7 +10,7 @@ const ABViewFormTextboxDefaults = {
    labelKey: "ab.components.textbox", // {string} the multilingual label key for the class label
 };
 
-module.exports = class ABViewFormTextboxCore extends ABViewFormComponent {
+module.exports = class ABViewFormTextboxCore extends ABViewFormItem {
    constructor(values, application, parent, defaultValues) {
       super(
          values,
@@ -36,3 +36,4 @@ module.exports = class ABViewFormTextboxCore extends ABViewFormComponent {
       return [];
    }
 };
+
