@@ -15,15 +15,17 @@ module.exports = class ABViewConditionalContainerCore extends ABViewContainer {
    constructor(values, application, parent, defaultValues) {
       super(values, application, parent, defaultValues || ABViewDefaults);
 
-      var L = this.AB.Multilingual.label;
+      const L = (...params) => this.AB.Multilingual.label(...params);
 
       // the conditional container always has 'If' and 'Else' panels
       if (this.views((v) => v instanceof ABViewContainer).length < 2) {
+         this._views = [];
+
          // 'If' panel
-         var ifPanel = application.viewNew(
+         const ifPanel = application.viewNew(
             {
                key: ABViewContainer.common().key,
-               label: L("If", "If"),
+               label: L("If"),
                settings: {
                   removable: false,
                },
@@ -34,10 +36,10 @@ module.exports = class ABViewConditionalContainerCore extends ABViewContainer {
          this._views.push(ifPanel);
 
          // 'Else' panel
-         var elsePanel = application.viewNew(
+         const elsePanel = application.viewNew(
             {
                key: ABViewContainer.common().key,
-               label: L("Else", "Else"),
+               label: L("Else"),
                settings: {
                   removable: false,
                },
@@ -57,3 +59,4 @@ module.exports = class ABViewConditionalContainerCore extends ABViewContainer {
       return ABViewPropertyDefaults;
    }
 };
+

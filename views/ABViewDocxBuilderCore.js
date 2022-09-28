@@ -45,7 +45,7 @@ module.exports = class ABViewDocxBuilderCore extends ABViewWidget {
    toObj() {
       this.unTranslate(this, this, ["filelabel", "buttonlabel"]);
 
-      var obj = super.toObj();
+      let obj = super.toObj();
       obj.viewIDs = [];
       return obj;
    }
@@ -82,7 +82,14 @@ module.exports = class ABViewDocxBuilderCore extends ABViewWidget {
       //    "/" +
       //    ["opsportal", "file", this.application.name, actionKey, "1"].join("/")
       // );
-      return `/file/upload/DOCX${this.id}/VIEW${this.id}/1`;
+
+      const object = this.datacollection.datasource;
+
+      // NOTE: file-upload API needs to have the id of a field.
+      // TODO
+      const field = object ? object.fields()[0] : null;
+
+      return `/file/upload/${object?.id}/${field?.id}/1`;
    }
 
    downloadUrl() {

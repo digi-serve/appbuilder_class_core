@@ -21,7 +21,7 @@ module.exports = class ABViewDetailCore extends ABViewContainer {
     * @param {ABView} parent the ABView this view is a child of. (can be null)
     */
    constructor(values, application, parent, defaultValues) {
-      super(values, application, parent, defaultValues || ABViewDetailDefaults);
+      super(values, application, parent, defaultValues ?? ABViewDetailDefaults);
    }
 
    static common() {
@@ -58,7 +58,7 @@ module.exports = class ABViewDetailCore extends ABViewContainer {
             ABViewDetailPropertyComponentDefaults.labelWidth
       );
       this.settings.height = parseInt(
-         this.settings.height || ABViewDetailPropertyComponentDefaults.height
+         this.settings.height ?? ABViewDetailPropertyComponentDefaults.height
       );
    }
 
@@ -67,11 +67,38 @@ module.exports = class ABViewDetailCore extends ABViewContainer {
     * return the list of components available on this view to display in the editor.
     */
    componentList() {
-      var viewsToAllow = ["label", "text"],
+      let viewsToAllow = ["label", "text"],
          allComponents = this.application.viewAll();
 
       return allComponents.filter((c) => {
          return viewsToAllow.indexOf(c.common().key) > -1;
       });
+   }
+
+   addFieldToDetail(field, yPosition) {
+      if (field == null) return;
+
+      let newView = field.detailComponent().newInstance(this.application, this);
+      if (newView == null) return;
+
+      // set settings to component
+      newView.settings = newView.settings ?? {};
+      newView.settings.fieldId = field.id;
+      newView.settings.labelWidth =
+         this.settings.labelWidth ||
+         ABViewDetailPropertyComponentDefaults.labelWidth;
+
+      // keep alias to support Query that contains alias name
+      // [alias].[columnName]
+      newView.settings.alias = field.alias;
+
+      // TODO : Default settings
+
+      newView.position.y = yPosition;
+
+      // add a new component
+      this._views.push(newView);
+
+      return newView;
    }
 };

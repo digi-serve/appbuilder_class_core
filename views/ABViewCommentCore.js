@@ -56,6 +56,26 @@ module.exports = class ABViewCommentCore extends ABViewWidget {
       return [];
    }
 
+   getCurrentUserId() {
+      const userObject = this.getUsers();
+      const currentUser = this.AB.Account.username();
+      //Anonymous User = 0
+
+      if (!userObject) return;
+
+      return userObject.findIndex((e) => e.value === currentUser) + 1;
+   }
+
+   getUsers() {
+      return this.AB.Account.userList().map((e) => {
+         return {
+            id: e.username,
+            value: e.username,
+            image: e.image_id,
+         };
+      });
+   }
+
    getUserField() {
       var dv = this.datacollection;
       if (!dv) return null;

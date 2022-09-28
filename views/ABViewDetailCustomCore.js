@@ -1,4 +1,4 @@
-const ABViewDetailComponent = require("../../platform/views/ABViewDetailComponent");
+const ABViewDetailItem = require("../../platform/views/ABViewDetailItem");
 
 const ABViewDetailCustomPropertyComponentDefaults = {};
 
@@ -8,7 +8,7 @@ const ABViewDetailCustomDefaults = {
    labelKey: "ab.components.detail.custom", // {string} the multilingual label key for the class label
 };
 
-module.exports = class ABViewDetailCustomCore extends ABViewDetailComponent {
+module.exports = class ABViewDetailCustomCore extends ABViewDetailItem {
    /**
     * @param {obj} values  key=>value hash of ABView values
     * @param {ABApplication} application the application object this view is under
@@ -19,7 +19,7 @@ module.exports = class ABViewDetailCustomCore extends ABViewDetailComponent {
          values,
          application,
          parent,
-         defaultValues || ABViewDetailCustomDefaults
+         defaultValues ?? ABViewDetailCustomDefaults
       );
    }
 
