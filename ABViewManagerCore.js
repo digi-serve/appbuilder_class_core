@@ -15,6 +15,7 @@ var AllViews = [
    require("../platform/views/ABViewChartPie"),
    require("../platform/views/ABViewComment"),
    require("../platform/views/ABViewConditionalContainer"),
+   require("../platform/views/ABViewConnectDataFilter"),
    require("../platform/views/ABViewContainer"),
    require("../platform/views/ABViewCSVExporter"),
    require("../platform/views/ABViewCSVImporter"),
