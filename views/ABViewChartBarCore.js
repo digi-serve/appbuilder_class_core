@@ -1,9 +1,9 @@
-const ABViewChartComponent = require("../../platform/views/ABViewChartComponent");
+const ABViewChartContainer = require("../../platform/views/ABViewChartContainer");
 
 const ABViewChartBarPropertyComponentDefaults = {
    barType: "bar",
    barPreset: "column",
-   isLegend: true,
+   isLegend: 1,
    // chartWidth: 600,
    height: 200,
    labelFontSize: 12,
@@ -14,10 +14,10 @@ const ABViewChartBarPropertyComponentDefaults = {
 const ABViewDefaults = {
    key: "bar", // {string} unique key for this view
    icon: "bar-chart", // {string} fa-[icon] reference for this view
-   labelKey: "ab.components.chart.bar", // {string} the multilingual label key for the class label
+   labelKey: "Bar", // {string} the multilingual label key for the class label
 };
 
-module.exports = class ABViewChartBarCore extends ABViewChartComponent {
+module.exports = class ABViewChartBarCore extends ABViewChartContainer {
    constructor(values, application, parent, defaultValues) {
       super(values, application, parent, defaultValues || ABViewDefaults);
    }
@@ -43,26 +43,34 @@ module.exports = class ABViewChartBarCore extends ABViewChartComponent {
    fromValues(values) {
       super.fromValues(values);
 
-      this.settings.isLegend = JSON.parse(
-         this.settings.isLegend ||
+      this.settings.barType =
+         this.settings.barType ||
+         ABViewChartBarPropertyComponentDefaults.barType;
+
+      this.settings.barPreset =
+         this.settings.barPreset ||
+         ABViewChartBarPropertyComponentDefaults.barPreset;
+
+      this.settings.isLegend = parseInt(
+         this.settings.isLegend ??
             ABViewChartBarPropertyComponentDefaults.isLegend
       );
 
       // this.settings.chartWidth = parseInt(this.settings.chartWidth || ABViewChartBarPropertyComponentDefaults.chartWidth);
       this.settings.height = parseInt(
-         this.settings.height || ABViewChartBarPropertyComponentDefaults.height
+         this.settings.height ?? ABViewChartBarPropertyComponentDefaults.height
       );
 
       this.settings.labelFontSize = parseInt(
-         this.settings.labelFontSize ||
+         this.settings.labelFontSize ??
             ABViewChartBarPropertyComponentDefaults.labelFontSize
       );
       this.settings.stepValue = parseInt(
-         this.settings.stepValue ||
+         this.settings.stepValue ??
             ABViewChartBarPropertyComponentDefaults.stepValue
       );
       this.settings.maxValue = parseInt(
-         this.settings.maxValue ||
+         this.settings.maxValue ??
             ABViewChartBarPropertyComponentDefaults.maxValue
       );
 
