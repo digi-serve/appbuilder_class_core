@@ -41,3 +41,4 @@ module.exports = class ABViewFormComponentCore extends ABView {
       }
    }
 };
+
