@@ -129,7 +129,13 @@ const ABFieldCalculateDefaults = {
    // font-awesome icon reference.  (without the 'fa-').  so 'calculator'  to
    // reference 'fa-calculator'
 
-   isFilterable: false,
+   isFilterable: (field) => {
+      const unsupportedInFilter = ["MINUTE_TO_HOUR", "DATE", "HOUR", "MINUTE"];
+      const unsupported = unsupportedInFilter.filter((item) =>
+         field.settings.formula.includes(item)
+      );
+      return unsupported.length == 0;
+   },
    // {bool} / {fn}
    // determines if the current ABField can be used to filter (FilterComplex
    // or Query) data.
