@@ -83,6 +83,12 @@ module.exports = class ABProcessParticipantCore extends ABMLClass {
          this.useField = parseInt(attributes.useField);
       }
 
+      this.userField = [];
+      if (typeof attributes.userField != "undefined") {
+         this.userField = attributes.userField;
+      }
+
+      // depreciated
       this.fields = [];
       if (typeof attributes.fields != "undefined") {
          this.fields = attributes.fields;
@@ -129,6 +135,7 @@ module.exports = class ABProcessParticipantCore extends ABMLClass {
          "useAccount",
          "account",
          "useField",
+         "userField",
          "fields",
          "stashed",
       ];
