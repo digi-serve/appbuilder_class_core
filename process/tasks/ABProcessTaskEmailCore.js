@@ -20,6 +20,8 @@ var ABProcessTaskEmailDefaults = {
       "fromCustom",
       "toUsers",
       "fromUsers",
+      "toCustomFields",
+      "fromCustomFields",
    ],
    // fields: {array}
    // a list of internal setting values this Element tracks
