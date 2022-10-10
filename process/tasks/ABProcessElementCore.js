@@ -455,10 +455,10 @@ module.exports = class ABProcessTaskCore extends ABMLClass {
    }
 
    get objectOfStartElement() {
-      let startElem = this.startElements[0];
+      const startElem = this.startElements[0];
       if (!startElem) return null;
 
-      let startElemObj = this.application.objects(
+      const startElemObj = this.AB.objects(
          (o) => o.id == startElem.objectID
       )[0];
       return startElemObj;
@@ -479,7 +479,7 @@ module.exports = class ABProcessTaskCore extends ABMLClass {
             break;
       }
 
-      return this.application.objects((o) => o.id == objectID)[0];
+      return this.AB.objects((o) => o.id == objectID)[0];
    }
 };
 
