@@ -245,6 +245,12 @@ module.exports = class FilterComplexCore extends ABComponent {
                   result = value != val;
             });
             break;
+         case "is_empty":
+            result = value == "" || value == null;
+            break;
+         case "is_not_empty":
+            result = value != "" && value != null;
+            break;
          default:
             result = this.queryFieldValid(value, rule, compareValue);
             break;
@@ -829,10 +835,30 @@ module.exports = class FilterComplexCore extends ABComponent {
 
    fieldsAddFiltersString(field) {
       let stringConditions = {
-         contains: this.labels.component.containsCondition,
-         not_contains: this.labels.component.notContainsCondition,
-         equals: this.labels.component.isCondition,
-         not_equal: this.labels.component.isNotCondition,
+         contains: {
+            batch: "text",
+            label: this.labels.component.containsCondition,
+         },
+         not_contains: {
+            batch: "text",
+            label: this.labels.component.notContainsCondition,
+         },
+         equals: {
+            batch: "text",
+            label: this.labels.component.isCondition,
+         },
+         not_equal: {
+            batch: "text",
+            label: this.labels.component.isNotCondition,
+         },
+         is_empty: {
+            batch: "none",
+            label: this.labels.component.isEmpty,
+         },
+         is_not_empty: {
+            batch: "none",
+            label: this.labels.component.isNotEmpty,
+         },
       };
 
       let result = [];
@@ -840,8 +866,8 @@ module.exports = class FilterComplexCore extends ABComponent {
       for (let condKey in stringConditions) {
          result.push({
             id: condKey,
-            value: stringConditions[condKey],
-            batch: "text",
+            value: stringConditions[condKey].label,
+            batch: stringConditions[condKey].batch,
             handler: (a, b) => this.textValid(a, condKey, b),
          });
       }
