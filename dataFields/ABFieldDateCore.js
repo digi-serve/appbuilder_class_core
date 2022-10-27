@@ -31,7 +31,7 @@ const ABFieldDateDefaults = {
    // if a {fn} is provided, it will be called with the ABField as a parameter:
    //  (field) => field.setting.something == true
 
-   isSortable: false,
+   isSortable: true,
    // {bool} / {fn}
    // determines if the current ABField can be used to Sort data.
    // if a {fn} is provided, it will be called with the ABField as a parameter:
