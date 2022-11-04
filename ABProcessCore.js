@@ -37,6 +37,12 @@ module.exports = class ABProcessCore extends ABMLClass {
          var ele = this.AB.processElementNew(eID, this);
          if (ele) {
             this._elements[eID] = ele;
+         } else {
+            this.emit(
+               "warning",
+               `P[${this.name}] is referencing an unknown process element id[${eID}]`,
+               { process: this.id, eID }
+            );
          }
       });
 
