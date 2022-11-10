@@ -32,17 +32,24 @@ module.exports = class ABProcessCore extends ABMLClass {
       this.xmlDefinition = attributes.xmlDefinition || null;
 
       // this.json = attributes.json || null;
+      let currElements = this._elements;
       this._elements = {};
       (attributes.elementIDs || []).forEach((eID) => {
          var ele = this.AB.processElementNew(eID, this);
          if (ele) {
             this._elements[eID] = ele;
          } else {
-            this.emit(
-               "warning",
-               `P[${this.name}] is referencing an unknown process element id[${eID}]`,
-               { process: this.id, eID }
-            );
+            // current eID isn't one of our definitions yet, so might be
+            // a temporary .diagramID from an unsaved task:
+            if (currElements[eID]) {
+               this._elements[eID] = currElements[eID];
+            } else {
+               this.emit(
+                  "warning",
+                  `P[${this.name}] is referencing an unknown process element id[${eID}]`,
+                  { process: this.id, eID }
+               );
+            }
          }
       });
 
@@ -78,7 +85,11 @@ module.exports = class ABProcessCore extends ABMLClass {
 
       data.elementIDs = [];
       for (var e in this._elements) {
-         data.elementIDs.push(this._elements[e].id);
+         // NOTE: when a task is initially created, it doesn't have an .id
+         // so we need to reference it by it's .diagramID
+         data.elementIDs.push(
+            this._elements[e].id ?? this._elements[e].diagramID
+         );
       }
 
       data.connections = this._connections;
