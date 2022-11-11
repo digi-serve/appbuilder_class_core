@@ -825,7 +825,7 @@ module.exports = class FilterComplexCore extends ABComponent {
          result.push({
             id: condKey,
             value: dateConditions[condKey],
-            batch: "date",
+            batch: "datepicker",
             handler: (a, b) => this.dateValid(a, condKey, b),
          });
       }
@@ -1247,4 +1247,3 @@ module.exports = class FilterComplexCore extends ABComponent {
       return result;
    }
 };
-
