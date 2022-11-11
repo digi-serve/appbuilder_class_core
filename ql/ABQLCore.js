@@ -14,6 +14,7 @@ class ABQLCore {
       if (!Array.isArray(parameterDefinitions)) {
          parameterDefinitions = [parameterDefinitions];
       }
+
       this.parameterDefinitions = parameterDefinitions;
 
       this.object = prevOP ? prevOP.object : null;
@@ -44,7 +45,6 @@ class ABQLCore {
    ///
    /// Instance Methods
    ///
-
    initObject(attributes) {}
 
    fromAttributes(attributes) {
@@ -58,6 +58,7 @@ class ABQLCore {
         */
 
       // super.fromValues(attributes);
+      this.key = this.constructor.key ?? null;
 
       // this.entryComplete = attributes.entryComplete || false;
       this.params = attributes.params || {};
@@ -87,15 +88,18 @@ class ABQLCore {
       }
 
       if (attributes.next) {
-         var nextOP = null;
+         let nextOP = null;
+
          (this.NextQLOps || this.constructor.NextQLOps).forEach((OP) => {
             if (OP.key == attributes.next.key) {
                nextOP = OP;
             }
          });
+
          if (nextOP) {
             // exact match, so add next:
-            var qlOP = new nextOP(attributes.next, this, this.task, this.AB);
+            const qlOP = new nextOP(attributes.next, this, this.task, this.AB);
+
             this.next = qlOP;
          }
       }
@@ -111,7 +115,8 @@ class ABQLCore {
     */
    objectLookup(objID) {
       return this.AB.objects((o) => {
-         var quotedLabel = `"${o.label}"`;
+         const quotedLabel = `"${o.label}"`;
+
          return (
             // o.id == this.objectID ||
             o.id == objID || quotedLabel.indexOf(objID) == 0
@@ -126,9 +131,10 @@ class ABQLCore {
     * @return {obj}
     */
    availableProcessDataFieldsHash() {
-      var availableProcessDataFields =
+      const availableProcessDataFields =
          this.task.process.processDataFields(this.task) || [];
-      var hashFieldIDs = {};
+      const hashFieldIDs = {};
+
       availableProcessDataFields.forEach((f) => {
          if (f.field) {
             hashFieldIDs[f.field.id] = f;
@@ -136,6 +142,7 @@ class ABQLCore {
             hashFieldIDs[f.key] = f;
          }
       });
+
       return hashFieldIDs;
    }
 
@@ -156,13 +163,13 @@ class ABQLCore {
     * @return {json}
     */
    toObj() {
-      var obj = {
+      const obj = {
          key: this.constructor.key,
          // entryComplete: this.entryComplete,
          params: this.params,
          // currQuery: this.currQuery,
          // queryValid: this.queryValid,
-         objectID: this.object ? this.object.id : null,
+         objectID: this.object?.id ?? null,
       };
 
       if (this.next) {
