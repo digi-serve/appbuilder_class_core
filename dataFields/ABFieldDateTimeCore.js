@@ -209,7 +209,7 @@ module.exports = class ABFieldDateTimeCore extends ABFieldDateCore {
     * @return {string}
     */
    exportValue(date) {
-      return date.toISOString();
+      return date?.toISOString?.() ?? "";
    }
 };
 
