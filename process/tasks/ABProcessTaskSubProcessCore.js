@@ -62,11 +62,24 @@ module.exports = class SubProcessCore extends ABProcessElement {
       // Convert string to boolean
       this.isEnable = this.isEnable == null ? true : JSON.parse(this.isEnable);
 
+      let currElements = this._elements || {};
       this._elements = {};
       (attributes.elementIDs || []).forEach((eID) => {
          let ele = this.AB.processElementNew(eID, this);
          if (ele) {
             this._elements[eID] = ele;
+         } else {
+            // current eID isn't one of our definitions yet, so might be
+            // a temporary .diagramID from an unsaved task:
+            if (currElements[eID]) {
+               this._elements[eID] = currElements[eID];
+            } else {
+               this.emit(
+                  "warning",
+                  `P.sub[${this.name}] is referencing an unknown process element id[${eID}]`,
+                  { process: this.id, eID }
+               );
+            }
          }
       });
 

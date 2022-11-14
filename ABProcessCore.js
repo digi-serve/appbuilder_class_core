@@ -32,7 +32,7 @@ module.exports = class ABProcessCore extends ABMLClass {
       this.xmlDefinition = attributes.xmlDefinition || null;
 
       // this.json = attributes.json || null;
-      let currElements = this._elements;
+      let currElements = this._elements || {};
       this._elements = {};
       (attributes.elementIDs || []).forEach((eID) => {
          var ele = this.AB.processElementNew(eID, this);
