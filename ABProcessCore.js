@@ -258,7 +258,7 @@ module.exports = class ABProcessCore extends ABMLClass {
     */
    connectionUpsert(element) {
       var simpleConn = this.connectionSimplyElement(element);
-      if (simpleConn.from && simpleConn.to) {
+      if (simpleConn.from && simpleConn.to && element.parent) {
          this._connections[simpleConn.id] = simpleConn;
       } else {
          // this connection is no longer connecting anything thing.
