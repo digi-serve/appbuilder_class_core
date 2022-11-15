@@ -851,8 +851,8 @@ class ABFactory extends EventEmitter {
     * ABFactory.
     * @return {FilterComplex}
     */
-   filterComplexNew(idBase) {
-      return new FilterComplex(idBase, this);
+   filterComplexNew(idBase, options = {}) {
+      return new FilterComplex(idBase, this, options);
    }
 
    /**
