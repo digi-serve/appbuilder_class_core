@@ -165,33 +165,16 @@ module.exports = class ABApplicationCore extends ABMLClass {
       // ABViewPages operate within the confines of an ABApplication so
       // they are created/stored/accessed from within an ABApplication
 
-      var newProcesses = [];
-      var removePIDs = [];
       (attributes.json.processIDs || []).forEach((pID) => {
          var p = this.AB.processByID(pID);
-         if (p) {
-            newProcesses.push(p);
-         } else {
+         if (!p) {
             this.emit(
                "warning",
                `Application is referencing an unknown process.`,
                { appID: this.id, processID: pID }
             );
-            //    removePIDs.push(pID);
          }
       });
-      if (attributes.json.processIDs) {
-         // remove those missing pIDs.
-         attributes.json.processIDs = attributes.json.processIDs.filter(
-            (pr) => {
-               return removePIDs.indexOf(pr) == -1;
-            }
-         );
-      }
-
-      this._processes = newProcesses;
-      // {array} ._processes
-      // the ABProcess instances created by this ABApplication.
 
       this.processIDs = attributes.json.processIDs || [];
       // {array} .processIDs
@@ -305,9 +288,7 @@ module.exports = class ABApplicationCore extends ABMLClass {
 
       this.json.pageIDs = (this._pages || []).map((p) => p.id);
 
-      this.json.processIDs = (this._processes || []).map((p) => {
-         return p.id;
-      });
+      this.json.processIDs = this.processIDs || [];
 
       // // for each MobileApp: compile to json
       // var currApps = [];
@@ -514,7 +495,9 @@ module.exports = class ABApplicationCore extends ABMLClass {
     *        array of ABProcesses
     */
    processes(filter = () => true) {
-      return this._processes.filter(filter);
+      return this.AB.processes((p) => {
+         return this.processIDs.indexOf(p.id) > -1;
+      }).filter(filter);
    }
 
    hasProcess(process) {
