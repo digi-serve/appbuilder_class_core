@@ -653,6 +653,10 @@ class ABFactory extends EventEmitter {
       return this.objectByID("4a9d89c9-f4eb-41af-91e4-909eff389f3e");
    }
 
+   objectLanguage() {
+      return this.objectByID("d84cd351-d96c-490f-9afb-2a0b880ca0ec");
+   }
+
    objectProcessForm() {
       return this.objectByID("d36ae4c8-edef-48d8-bd9c-79a0edcaa067");
    }
@@ -851,8 +855,8 @@ class ABFactory extends EventEmitter {
     * ABFactory.
     * @return {FilterComplex}
     */
-   filterComplexNew(idBase) {
-      return new FilterComplex(idBase, this);
+   filterComplexNew(idBase, options = {}) {
+      return new FilterComplex(idBase, this, options);
    }
 
    /**
