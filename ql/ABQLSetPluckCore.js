@@ -13,7 +13,7 @@ const ABQL = require("../../platform/ql/ABQL.js");
 var ParameterDefinitions = [
    {
       type: "objectFields",
-      name: "field",
+      name: "fieldID",
    },
 ];
 
