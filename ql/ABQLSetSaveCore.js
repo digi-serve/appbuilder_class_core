@@ -9,11 +9,11 @@
 
 const ABQL = require("../../platform/ql/ABQL.js");
 
-var ParameterDefinitions = [
+const ParameterDefinitions = [
    {
       type: "taskParam",
-      name: "task_param"
-   }
+      name: "task_param",
+   },
 ];
 
 class ABQLSetSaveCore extends ABQL {
@@ -42,7 +42,7 @@ class ABQLSetSaveCore extends ABQL {
    }
 
    toObj() {
-      var obj = super.toObj();
+      const obj = super.toObj();
 
       obj.taskParam = this.taskParam || this.params.task_param;
 
@@ -57,16 +57,14 @@ class ABQLSetSaveCore extends ABQL {
       // field: ABField
       // set : {bool}
 
-      var field = null;
+      let field = null;
       // {ABField}
       // if the value being stored is NOT a connectObject, then it is
       // a particular field in the previous object.
 
       // if we are saving a specific field of an Object, pass that
       // ABField along:
-      if (
-         this.prevOP?.field?.key != "connectObject"
-      ) {
+      if (this.prevOP?.field?.key != "connectObject") {
          field = this.prevOP.field;
       }
 
@@ -75,7 +73,7 @@ class ABQLSetSaveCore extends ABQL {
          label: `${label}->${this.taskParam || this.params.task_param}`,
          field: field,
          object: this.object,
-         set: true
+         set: true,
       };
    }
 }

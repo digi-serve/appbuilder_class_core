@@ -10,7 +10,7 @@
 const ABQL = require("../../platform/ql/ABQL.js");
 // const ABQLSet = require("./ABQLSet.js");
 
-var ParameterDefinitions = [
+const ParameterDefinitions = [
    {
       type: "objectFields",
       name: "fieldID",
@@ -46,7 +46,7 @@ class ABQLSetPluckCore extends ABQL {
    }
 
    toObj() {
-      var obj = super.toObj();
+      const obj = super.toObj();
 
       if (this.fieldID) {
          obj.fieldID = this.fieldID;
@@ -55,7 +55,7 @@ class ABQLSetPluckCore extends ABQL {
          }
       } else {
          obj.fieldID = this.params.field || null;
-         var field = this.object.fieldByID(obj.fieldID);
+         const field = this.object.fieldByID(obj.fieldID);
 
          if (field?.isConnection) {
             obj.objectOutID = field.datasourceLink.id;

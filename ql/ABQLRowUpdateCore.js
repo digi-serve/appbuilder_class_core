@@ -9,7 +9,7 @@
 const ABQL = require("../../platform/ql/ABQL.js");
 // const ABQLRow = require("./ABQLRow.js");
 
-var ParameterDefinitions = [
+const ParameterDefinitions = [
    {
       type: "objectValues",
       name: "values",

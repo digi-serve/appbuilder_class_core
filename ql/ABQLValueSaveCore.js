@@ -28,4 +28,3 @@ ABQLValueSaveCore.NextQLOps = [];
 // NOTE: currently, this is an ending step. but it doesn't have to be...
 
 module.exports = ABQLValueSaveCore;
-

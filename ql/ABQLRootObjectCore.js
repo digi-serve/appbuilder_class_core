@@ -14,9 +14,9 @@ const ABQL = require("../../platform/ql/ABQL.js");
 // Each Root Object might have a different set of Operations, so we
 // define them here.
 const QLFind = require("../../platform/ql/ABQLFind.js");
-var NextQLOps = [QLFind];
+const NextQLOps = [QLFind];
 
-var ParameterDefinitions = [
+const ParameterDefinitions = [
    {
       type: "objectName",
       name: "name",
@@ -34,7 +34,7 @@ class ABQLObjectCore extends ABQL {
    ///
    initObject(attributes) {
       if (!this.object && this.params) {
-         var objNameDef = this.parameterDefinitions.find((pDef) => {
+         const objNameDef = this.parameterDefinitions.find((pDef) => {
             return pDef.type == "objectName";
          });
          if (objNameDef) {
@@ -45,12 +45,12 @@ class ABQLObjectCore extends ABQL {
    }
 
    toObj() {
-      var obj = super.toObj();
+      const obj = super.toObj();
 
       // if we don't have an objectID, but we have an objectName parameter
       // definition then save that as our objectID
       if (!obj.objectID && this.params) {
-         var objNameDef = this.parameterDefinitions.find((pDef) => {
+         const objNameDef = this.parameterDefinitions.find((pDef) => {
             return pDef.type == "objectName";
          });
          if (objNameDef) {

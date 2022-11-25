@@ -13,7 +13,7 @@ const NextQLOps = require("./ABQLSet.js");
 // ABQLFind task is complete.  In this case the {ABQLSet} operations come
 // next.  {ABQLSet} operations work on a Set|{Array} or data results.
 
-var ParameterDefinitions = [
+const ParameterDefinitions = [
    {
       type: "objectConditions",
       name: "cond",
