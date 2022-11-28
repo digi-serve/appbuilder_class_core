@@ -698,14 +698,17 @@ module.exports = class FilterComplexCore extends ABComponent {
 
          let type = "text"; // "text", "number", "date"
          let conditions = [];
+         let processFieldKeys = [];
          switch (f.key) {
             case "boolean":
                conditions = conditions
                   .concat(this.fieldsAddFiltersBoolean(f))
                   .concat(this.fieldsAddFiltersQueryField(f));
+               processFieldKeys = ["boolean"];
                break;
             case "connectObject":
                conditions = this.fieldsAddFiltersQuery(f);
+               processFieldKeys = ["connectObject"];
                break;
             case "date":
             case "datetime":
@@ -713,6 +716,7 @@ module.exports = class FilterComplexCore extends ABComponent {
                conditions = conditions
                   .concat(this.fieldsAddFiltersDate(f))
                   .concat(this.fieldsAddFiltersQueryField(f));
+               processFieldKeys = ["date", "datetime"];
                break;
             case "calculate":
             case "formula":
@@ -721,6 +725,7 @@ module.exports = class FilterComplexCore extends ABComponent {
                conditions = conditions
                   .concat(this.fieldsAddFiltersNumber(f))
                   .concat(this.fieldsAddFiltersQueryField(f));
+               processFieldKeys = ["calculate", "formula", "number"];
                break;
             case "string":
             case "LongText":
@@ -729,6 +734,7 @@ module.exports = class FilterComplexCore extends ABComponent {
                conditions = conditions
                   .concat(this.fieldsAddFiltersString(f))
                   .concat(this.fieldsAddFiltersQueryField(f));
+               processFieldKeys = ["string", "LongText", "email", "AutoIndex"];
                break;
             case "list":
                conditions = conditions
@@ -739,6 +745,7 @@ module.exports = class FilterComplexCore extends ABComponent {
                conditions = conditions
                   .concat(this.fieldsAddFiltersUser(f))
                   .concat(this.fieldsAddFiltersQueryField(f));
+               processFieldKeys = ["user"];
                break;
             case "uuid":
                conditions = conditions.concat(
@@ -759,7 +766,7 @@ module.exports = class FilterComplexCore extends ABComponent {
                if (!processField) return false;
 
                if (processField.field) {
-                  return processField.field.id == f.id;
+                  return processFieldKeys.includes(processField.field.key);
                } else if (processField.key) {
                   // uuid
                   let processFieldId = processField.key.split(".").pop();
