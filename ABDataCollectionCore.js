@@ -188,11 +188,12 @@ module.exports = class ABDataCollectionCore extends ABMLClass {
       // // option to not populate the data this Datacollection requests from the
       // // server.  Usually to speed up the process.
 
-      this.settings.populate = values.settings.populate
-         ? JSON.parse(values.settings.populate) // First check Populate
-         : values.settings.preventPopulate == "true" // Then check legacy preventPopulate
-         ? false
-         : DefaultValues.settings.populate;
+      this.settings.populate =
+         values.settings.populate != undefined
+            ? values.settings.populate // First check Populate
+            : values.settings.preventPopulate == "true" // Then check legacy preventPopulate
+            ? false
+            : DefaultValues.settings.populate;
       // {bool | array} populate
       // Control whcih relaated connections to populate. Default true populates
       // all connections. False loads no connnections. Also accepts an array of
