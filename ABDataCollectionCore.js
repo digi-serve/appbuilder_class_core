@@ -180,24 +180,22 @@ module.exports = class ABDataCollectionCore extends ABMLClass {
       // is the data source for this ABDataCollection based upon an
       // ABObjectQuery?
 
-      // this.settings.preventPopulate = JSON.parse(
-      //    values.settings.preventPopulate ||
-      //       DefaultValues.settings.preventPopulate
-      // );
-      // // {bool} preventPopulate
-      // // option to not populate the data this Datacollection requests from the
-      // // server.  Usually to speed up the process.
-
-      this.settings.populate =
-         values.settings.populate != undefined
-            ? values.settings.populate // First check Populate
-            : values.settings.preventPopulate == "true" // Then check legacy preventPopulate
-            ? false
-            : DefaultValues.settings.populate;
+      this.settings.populate = (() => {
+         // First check .populate
+         if (values.settings.populate != undefined) {
+            return values.settings.populate;
+            // Then check legacy .preventPopulate
+         } else if (
+            values.settings.preventPopulate == true ||
+            values.settings.preventPopulate == "1"
+         ) {
+            return false;
+         } else return DefaultValues.settings.populate;
+      })();
       // {bool | array} populate
-      // Control whcih relaated connections to populate. Default true populates
+      // Control whcih related connections to populate. Default, true, populates
       // all connections. False loads no connnections. Also accepts an array of
-      // column names to only load specefic connections.
+      // column names to load specefic connections.
 
       // Convert to number
       this.settings.syncType = parseInt(
