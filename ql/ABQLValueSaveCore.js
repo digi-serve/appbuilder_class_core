@@ -18,7 +18,7 @@ class ABQLValueSaveCore extends ABQLSetSave {
       super.fromAttributes(attributes);
 
       this.constructor.NextQLOps =
-         this.prevOP.NextQLOps || this.prevOP.constructor.NextQLOps;
+         this.prevOP.NextQLOps ?? this.prevOP.constructor.NextQLOps;
    }
 }
 

@@ -38,9 +38,8 @@ class ABQLSetPluckCore extends ABQL {
       this.fieldID = attributes.fieldID;
       this.field = this.object?.fieldByID(this.fieldID);
 
-      if (attributes.objectOutID) {
+      if (attributes.objectOutID)
          this.objectOut = this.objectLookup(attributes.objectOutID);
-      }
 
       super.fromAttributes(attributes);
    }
@@ -50,17 +49,16 @@ class ABQLSetPluckCore extends ABQL {
 
       if (this.fieldID) {
          obj.fieldID = this.fieldID;
-         if (this.objectOut) {
-            obj.objectOutID = this.objectOut.id;
-         }
+
+         if (this.objectOut) obj.objectOutID = this.objectOut.id;
       } else {
          obj.fieldID = this.params.field || null;
+
          const field = this.object.fieldByID(obj.fieldID);
 
-         if (field?.isConnection) {
-            obj.objectOutID = field.datasourceLink.id;
-         }
+         if (field?.isConnection) obj.objectOutID = field.datasourceLink.id;
       }
+
       return obj;
    }
 }

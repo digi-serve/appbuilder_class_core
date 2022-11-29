@@ -23,23 +23,21 @@ const ABQLManagerCore = {
     * @return {ABQL} | null
     */
    fromAttributes: function (attributes, task, AB) {
-      if (!attributes) {
-         return null;
-      }
+      if (!attributes) return null;
+
       const matchingOPs = [];
+
       ABQLManagerCore.QLOps.forEach((Op) => {
-         if (Op.key == attributes.key) {
-            matchingOPs.push(Op);
-         }
+         if (Op.key === attributes.key) matchingOPs.push(Op);
       });
-      if (matchingOPs.length == 1) {
+
+      if (matchingOPs.length === 1) {
          // let this Operation initialize and return the last OP
          // in the chain
          const qlOP = new matchingOPs[0](attributes, task, AB);
+
          return qlOP;
-      } else {
-         return null;
-      }
+      } else return null;
    },
 
    /**

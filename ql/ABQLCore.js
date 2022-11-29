@@ -24,9 +24,7 @@ class ABQLCore {
 
       // if the previous Operation defined an .objectOut then our .object is THAT
       // one.
-      if (prevOP && prevOP.objectOut) {
-         this.object = prevOP.objectOut;
-      }
+      if (prevOP && prevOP.objectOut) this.object = prevOP.objectOut;
 
       this.prevOP = prevOP;
       this.task = task;
@@ -36,7 +34,6 @@ class ABQLCore {
       // to do so.
 
       this.AB = AB;
-
       this.next = null;
 
       this.fromAttributes(attributes);
@@ -61,21 +58,20 @@ class ABQLCore {
       this.key = this.constructor.key ?? null;
 
       // this.entryComplete = attributes.entryComplete || false;
-      this.params = attributes.params || {};
+      this.params = attributes.params ?? {};
       // {hash}
       // The configuration values entered by the AppBuilder UI for this
       // operation.
 
       this.objectID = attributes.objectID || null;
+
       // be sure to do a hard lookup if an objectID was saved:
-      if (this.objectID) {
-         this.object = this.objectLookup(this.objectID);
-      }
+      if (this.objectID) this.object = this.objectLookup(this.objectID);
 
       this.initObject(attributes);
 
-      if (this.objectID && !this.object) {
-         // at least dump a warning here:
+      // at least dump a warning here:
+      if (this.objectID && !this.object)
          this.AB.notify.developer(
             new Error(
                `ABQLCore.fromAttributes(): unable to initialize ABObject [${this.objectID}]`
@@ -85,15 +81,12 @@ class ABQLCore {
                objectID: this.objectID,
             }
          );
-      }
 
       if (attributes.next) {
          let nextOP = null;
 
-         (this.NextQLOps || this.constructor.NextQLOps).forEach((OP) => {
-            if (OP.key == attributes.next.key) {
-               nextOP = OP;
-            }
+         (this.NextQLOps ?? this.constructor.NextQLOps).forEach((OP) => {
+            if (OP.key === attributes.next.key) nextOP = OP;
          });
 
          if (nextOP) {
@@ -118,8 +111,8 @@ class ABQLCore {
          const quotedLabel = `"${o.label}"`;
 
          return (
-            // o.id == this.objectID ||
-            o.id == objID || quotedLabel.indexOf(objID) == 0
+            // o.id === this.objectID ||
+            o.id === objID || quotedLabel.indexOf(objID) === 0
          );
       })[0];
    }
@@ -132,7 +125,7 @@ class ABQLCore {
     */
    availableProcessDataFieldsHash() {
       const availableProcessDataFields =
-         this.task.process.processDataFields(this.task) || [];
+         this.task.process.processDataFields(this.task) ?? [];
       const hashFieldIDs = {};
 
       availableProcessDataFields.forEach((f) => {

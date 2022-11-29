@@ -53,9 +53,8 @@ module.exports = class ABProcessTaskServiceQueryCore extends ABProcessElement {
       this._datasources = [];
 
       // comvert our qlObj into an ABQLxxx instance.
-      if (this.qlObj) {
+      if (this.qlObj)
          this.qlObj = ABQLManager.fromAttributes(this.qlObj, this, this.AB);
-      }
    }
 
    /**
@@ -68,9 +67,7 @@ module.exports = class ABProcessTaskServiceQueryCore extends ABProcessElement {
       const data = super.toObj();
 
       // convert qlObj into obj format:
-      if (this.qlObj) {
-         data.qlObj = this.qlObj.toObj();
-      }
+      if (this.qlObj) data.qlObj = this.qlObj.toObj();
 
       return data;
    }
@@ -135,10 +132,13 @@ module.exports = class ABProcessTaskServiceQueryCore extends ABProcessElement {
     */
    processData(instance, key) {
       const parts = key.split(".");
-      if (parts[0] == this.id) {
+
+      if (parts[0] === this.id) {
          const myState = this.myState(instance);
+
          return myState[parts[1]];
       }
+
       return null;
    }
 };

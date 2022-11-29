@@ -7,10 +7,9 @@
  *
  */
 
-const ABQLValue = require("./ABQLValue.js");
+// const ABQLValue = require("./ABQLValue.js");
 // const ABQLSet = require("./ABQLSet.js");
 const ABQLSetPluck = require("../../platform/ql/ABQLSetPluck.js");
-
 const ABQLRowUpdate = require("../../platform/ql/ABQLRowUpdate.js");
 const ABQLRowSave = require("../../platform/ql/ABQLRowSave.js");
 
@@ -25,7 +24,7 @@ class ABQLRowPluckCore extends ABQLSetPluck {
       switch (field?.key) {
          // M:1 M:N connect field, then set ABQLSet to next steps
          case "connectObject":
-            if (field.settings.linkType == "many") {
+            if (field.settings.linkType === "many") {
                // NOTE: Could not require("./ABQLSet.js") on the top. It returns an empty object. Why ><
                const ABQLSet = require("./ABQLSet.js");
 

@@ -38,6 +38,7 @@ class ABQLSetSaveCore extends ABQL {
       this.constructor.NextQLOps = this.prevOP.constructor.NextQLOps;
 
       super.fromAttributes(attributes);
+
       this.taskParam = attributes.taskParam || this.params.task_param;
    }
 
@@ -64,9 +65,8 @@ class ABQLSetSaveCore extends ABQL {
 
       // if we are saving a specific field of an Object, pass that
       // ABField along:
-      if (this.prevOP?.field?.key != "connectObject") {
+      if (this.prevOP?.field?.key !== "connectObject")
          field = this.prevOP.field;
-      }
 
       return {
          key: `${id}.${this.taskParam || this.params.task_param}`,

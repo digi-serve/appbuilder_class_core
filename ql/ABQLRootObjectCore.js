@@ -35,8 +35,9 @@ class ABQLObjectCore extends ABQL {
    initObject(attributes) {
       if (!this.object && this.params) {
          const objNameDef = this.parameterDefinitions.find((pDef) => {
-            return pDef.type == "objectName";
+            return pDef.type === "objectName";
          });
+
          if (objNameDef) {
             this.objectID = this.params[objNameDef.name];
             this.object = this.objectLookup(this.objectID);
@@ -51,15 +52,16 @@ class ABQLObjectCore extends ABQL {
       // definition then save that as our objectID
       if (!obj.objectID && this.params) {
          const objNameDef = this.parameterDefinitions.find((pDef) => {
-            return pDef.type == "objectName";
+            return pDef.type === "objectName";
          });
-         if (objNameDef) {
-            obj.objectID = this.params[objNameDef.name];
-         }
+
+         if (objNameDef) obj.objectID = this.params[objNameDef.name];
       }
+
       return obj;
    }
 }
+
 ABQLObjectCore.key = "object";
 ABQLObjectCore.label = "object";
 ABQLObjectCore.NextQLOps = NextQLOps;
