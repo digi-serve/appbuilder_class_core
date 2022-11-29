@@ -32,7 +32,8 @@ var DefaultValues = {
          sortFields: [], // array of columns with their sort configurations
       },
       loadAll: false,
-      preventPopulate: false,
+      // preventPopulate: false, depreciating in favour of populate
+      populate: true, // true/false or array of columns to populate.
       isQuery: false, // if true it is a query, otherwise it is a object.
 
       fixSelect: "", // _CurrentUser, _FirstRecord, _FirstRecordDefault or row id
@@ -179,13 +180,22 @@ module.exports = class ABDataCollectionCore extends ABMLClass {
       // is the data source for this ABDataCollection based upon an
       // ABObjectQuery?
 
-      this.settings.preventPopulate = JSON.parse(
-         values.settings.preventPopulate ||
-            DefaultValues.settings.preventPopulate
-      );
-      // {bool} preventPopulate
-      // option to not populate the data this Datacollection requests from the
-      // server.  Usually to speed up the process.
+      this.settings.populate = (() => {
+         // First check .populate
+         if (values.settings.populate != undefined) {
+            return values.settings.populate;
+            // Then check legacy .preventPopulate
+         } else if (
+            values.settings.preventPopulate == true ||
+            values.settings.preventPopulate == "1"
+         ) {
+            return false;
+         } else return DefaultValues.settings.populate;
+      })();
+      // {bool | array} populate
+      // Control whcih related connections to populate. Default, true, populates
+      // all connections. False loads no connnections. Also accepts an array of
+      // column names to load specefic connections.
 
       // Convert to number
       this.settings.syncType = parseInt(
@@ -685,15 +695,13 @@ module.exports = class ABDataCollectionCore extends ABMLClass {
       this.initialized = true;
 
       if (!this.__dataCollection.___AD.onAfterCursorChange) {
-         this.__dataCollection.___AD.onAfterCursorChange = this.__dataCollection.attachEvent(
-            "onAfterCursorChange",
-            () => {
+         this.__dataCollection.___AD.onAfterCursorChange =
+            this.__dataCollection.attachEvent("onAfterCursorChange", () => {
                // debugger;
                var currData = this.getCursor();
 
                this.emit("changeCursor", currData);
-            }
-         );
+            });
       }
 
       // relate data functions
@@ -796,9 +804,10 @@ module.exports = class ABDataCollectionCore extends ABMLClass {
                         // debugger;
                         if (this.isParentFilterValid(updatedV)) {
                            // we track bound components and flexlayout components
-                           var attachedComponents = this.__bindComponentIds.concat(
-                              this.__flexComponentIds
-                           );
+                           var attachedComponents =
+                              this.__bindComponentIds.concat(
+                                 this.__flexComponentIds
+                              );
                            attachedComponents.forEach((bcids) => {
                               // if the reload button already exisits move on
                               if ($$(bcids + "_reloadView")) {
@@ -1552,7 +1561,9 @@ module.exports = class ABDataCollectionCore extends ABMLClass {
          // limit: limit || 20,
          skip: start || 0,
          sort: sorts,
-         populate: this.settings.preventPopulate ? false : true,
+         populate:
+            this.settings.populate ??
+            (this.settings.preventPopulate ? false : true),
       };
 
       //// NOTE: we no longer set a default limit on loadData() but
@@ -2355,9 +2366,10 @@ module.exports = class ABDataCollectionCore extends ABMLClass {
       // check to see that filters are set (this is sometimes helpful to select the first record without doing so at the data collection level)
       if (filters?.rules?.length) {
          if (obj.settings.objectWorkspace.filterConditions?.rules?.length) {
-            obj.settings.objectWorkspace.filterConditions.rules = obj.settings.objectWorkspace.filterConditions.rules.concat(
-               filters.rules
-            );
+            obj.settings.objectWorkspace.filterConditions.rules =
+               obj.settings.objectWorkspace.filterConditions.rules.concat(
+                  filters.rules
+               );
          } else {
             obj.settings.objectWorkspace.filterConditions = filters;
          }
