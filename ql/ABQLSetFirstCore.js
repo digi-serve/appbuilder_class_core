@@ -25,7 +25,7 @@ class ABQLSetFirstCore extends ABQL {
 }
 
 ABQLSetFirstCore.key = "first";
-ABQLSetFirstCore.label = "first";
+ABQLSetFirstCore.label = "Select the first record";
 ABQLSetFirstCore.NextQLOps = ABQLRow;
 
 module.exports = ABQLSetFirstCore;

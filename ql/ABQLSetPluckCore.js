@@ -64,7 +64,7 @@ class ABQLSetPluckCore extends ABQL {
 }
 
 ABQLSetPluckCore.key = "set_pluck";
-ABQLSetPluckCore.label = "pluck";
+ABQLSetPluckCore.label = "Read the value from the field";
 ABQLSetPluckCore.NextQLOps = [];
 
 module.exports = ABQLSetPluckCore;

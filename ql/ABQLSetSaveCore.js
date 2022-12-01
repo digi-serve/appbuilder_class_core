@@ -79,7 +79,7 @@ class ABQLSetSaveCore extends ABQL {
 }
 
 ABQLSetSaveCore.key = "set_save";
-ABQLSetSaveCore.label = "save";
+ABQLSetSaveCore.label = "Save the value as";
 ABQLSetSaveCore.NextQLOps = [];
 // NOTE: currently, this is an ending step. but it doesn't have to be...
 

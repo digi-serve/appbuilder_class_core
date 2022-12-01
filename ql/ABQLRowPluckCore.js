@@ -56,7 +56,7 @@ class ABQLRowPluckCore extends ABQLSetPluck {
 }
 
 ABQLRowPluckCore.key = "row_pluck";
-ABQLRowPluckCore.label = "pluck";
+ABQLRowPluckCore.label = "Read the value from the field";
 ABQLRowPluckCore.NextQLOps = []; // Static NextQLOps
 
 module.exports = ABQLRowPluckCore;
