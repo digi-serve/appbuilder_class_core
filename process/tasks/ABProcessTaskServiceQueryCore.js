@@ -2,7 +2,7 @@ const ABProcessElement = require("../../../platform/process/tasks/ABProcessEleme
 
 const ABQLManager = require("../../../platform/ql/ABQLManager.js");
 
-var ABProcessTaskServiceQueryDefaults = {
+const ABProcessTaskServiceQueryDefaults = {
    category: null,
    // category: {string} | null
    // if this Element should show up on one of the popup replace menus, then
@@ -53,9 +53,8 @@ module.exports = class ABProcessTaskServiceQueryCore extends ABProcessElement {
       this._datasources = [];
 
       // comvert our qlObj into an ABQLxxx instance.
-      if (this.qlObj) {
+      if (this.qlObj)
          this.qlObj = ABQLManager.fromAttributes(this.qlObj, this, this.AB);
-      }
    }
 
    /**
@@ -65,12 +64,10 @@ module.exports = class ABProcessTaskServiceQueryCore extends ABProcessElement {
     * @return {json}
     */
    toObj() {
-      var data = super.toObj();
+      const data = super.toObj();
 
       // convert qlObj into obj format:
-      if (this.qlObj) {
-         data.qlObj = this.qlObj.toObj();
-      }
+      if (this.qlObj) data.qlObj = this.qlObj.toObj();
 
       return data;
    }
@@ -91,7 +88,7 @@ module.exports = class ABProcessTaskServiceQueryCore extends ABProcessElement {
     */
    /*
     initState(context, val) {
-        var myDefaults = {
+        const myDefaults = {
             instanceVariable1: null,
             instanceVariable2: null
         };
@@ -110,16 +107,20 @@ module.exports = class ABProcessTaskServiceQueryCore extends ABProcessElement {
     */
    processDataFields() {
       // in this Task, we can return the Response to the UserForm
-      var fields = null;
+      let fields = null;
+
       if (this._datasources.length > 0) {
          fields = [];
+
          this._datasources.forEach((s) => {
-            var param = s.processDataField(this.id, this.label);
+            const param = s.processDataField(this.id, this.label);
+
             if (param) {
                fields.push(param);
             }
          });
       }
+
       return fields;
    }
 
@@ -130,11 +131,14 @@ module.exports = class ABProcessTaskServiceQueryCore extends ABProcessElement {
     * @return {mixed} | null
     */
    processData(instance, key) {
-      var parts = key.split(".");
-      if (parts[0] == this.id) {
-         var myState = this.myState(instance);
+      const parts = key.split(".");
+
+      if (parts[0] === this.id) {
+         const myState = this.myState(instance);
+
          return myState[parts[1]];
       }
+
       return null;
    }
 };

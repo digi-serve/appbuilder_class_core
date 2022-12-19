@@ -10,10 +10,10 @@
 const ABQL = require("../../platform/ql/ABQL.js");
 // const ABQLSet = require("./ABQLSet.js");
 
-var ParameterDefinitions = [
+const ParameterDefinitions = [
    {
       type: "objectFields",
-      name: "field",
+      name: "fieldID",
    },
 ];
 
@@ -38,35 +38,33 @@ class ABQLSetPluckCore extends ABQL {
       this.fieldID = attributes.fieldID;
       this.field = this.object?.fieldByID(this.fieldID);
 
-      if (attributes.objectOutID) {
+      if (attributes.objectOutID)
          this.objectOut = this.objectLookup(attributes.objectOutID);
-      }
 
       super.fromAttributes(attributes);
    }
 
    toObj() {
-      var obj = super.toObj();
+      const obj = super.toObj();
 
       if (this.fieldID) {
          obj.fieldID = this.fieldID;
-         if (this.objectOut) {
-            obj.objectOutID = this.objectOut.id;
-         }
+
+         if (this.objectOut) obj.objectOutID = this.objectOut.id;
       } else {
          obj.fieldID = this.params.field || null;
-         var field = this.object.fieldByID(obj.fieldID);
 
-         if (field?.isConnection) {
-            obj.objectOutID = field.datasourceLink.id;
-         }
+         const field = this.object.fieldByID(obj.fieldID);
+
+         if (field?.isConnection) obj.objectOutID = field.datasourceLink.id;
       }
+
       return obj;
    }
 }
 
 ABQLSetPluckCore.key = "set_pluck";
-ABQLSetPluckCore.label = "pluck";
+ABQLSetPluckCore.label = "Read the value from the field";
 ABQLSetPluckCore.NextQLOps = [];
 
 module.exports = ABQLSetPluckCore;
