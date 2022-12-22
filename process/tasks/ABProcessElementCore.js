@@ -442,10 +442,17 @@ module.exports = class ABProcessTaskCore extends ABMLClass {
       }
    }
 
+   /**
+    * warningsProcessReady()
+    * Perform any setup actions after the parent process has indicated it is "ready"
+    */
+   onProcessReady() {}
+
    get startElements() {
       let startElems =
          this.process.elements(
-            (elem) => elem && elem.defaults && elem.defaults.category == "start"
+            (elem) =>
+               elem && elem.defaults && elem.defaults.category === "start"
          ) || [];
       return startElems;
    }

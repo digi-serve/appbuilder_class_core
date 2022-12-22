@@ -9,9 +9,10 @@ var ABProcessGatewayExclusiveDefaults = {
    //
    // if it shouldn't show up under the popup menu, then leave this null
 
-   icon: "check-circle", // font-awesome icon reference.  (without the 'fa-').  so 'user'  to reference 'fa-user'
+   icon: "check-circle",
    // icon: {string}
-   // font-awesome icon reference.  (without the 'fa-').  so 'user'  to reference 'fa-user'
+   // font-awesome icon reference.  (without the 'fa-').  so 'user'  to
+   // reference 'fa-user'
 
    instanceValues: [],
    // instanceValues: {array}
@@ -52,8 +53,8 @@ module.exports = class ABProcessGatewayExclusiveCore extends ABProcessElement {
    }
 
    /*
-    fromValues(attributes) {
-        /*
+   fromValues(attributes) {
+      /*
         {
             id: uuid(),
             name: 'name',
@@ -61,13 +62,9 @@ module.exports = class ABProcessGatewayExclusiveCore extends ABProcessElement {
             json: "{json}"
         }
         * /
-        super.fromValues(attributes);
-
-        ABProcessGatewayExclusiveDefaults.fields.forEach((f) => {
-            this[f] = attributes[f];
-        });
-    }
-    */
+      super.fromValues(attributes);
+   }
+   */
 
    /**
     * @method toObj()
@@ -95,6 +92,40 @@ module.exports = class ABProcessGatewayExclusiveCore extends ABProcessElement {
    ////
    //// Process Instance Methods
    ////
+
+   /**
+    * onProcessReady()
+    * Perform our warnings checks once the parent Process is ready
+    */
+   onProcessReady() {
+      // make sure we have > 1 connection.
+      const myOutgoingConnections = this.process.connectionsOutgoing(
+         this.diagramID
+      );
+      if (myOutgoingConnections.length < 2) {
+         this.emit(
+            "warning",
+            `Gateway[${this.name}] should have multiple outgoing connections`,
+            { task: this.id }
+         );
+      }
+
+      // make sure there is no more then 1 connection that doesn't have
+      // a condition:
+      let numCondWithOne = 0;
+      myOutgoingConnections.forEach((c) => {
+         if ((this.conditions[c.id]?.filterValue.rules?.length ?? 0) == 0) {
+            numCondWithOne++;
+         }
+      });
+
+      if (numCondWithOne > 1) {
+         this.emit(
+            "warning",
+            `Gateway[${this.name}] should not have more than 1 unfiltered connection.`
+         );
+      }
+   }
 
    /**
     * initState()
