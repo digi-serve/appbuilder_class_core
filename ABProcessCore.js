@@ -342,6 +342,29 @@ module.exports = class ABProcessCore extends ABMLClass {
    }
 
    /**
+    * connectionNextTask()
+    * return the ABProcessElement(s) that are after the given Element
+    * (eg connects to) this element.
+    * @param {ABProcessElement} currElement
+    * @return {array}
+    */
+   connectionNextTask(currElement) {
+      var elements = [];
+      var nextConnections = this.connections((c) => {
+         return c.from == currElement.diagramID;
+      });
+      nextConnections.forEach((c) => {
+         var element = this.elements((e) => {
+            return e.diagramID == c.to;
+         })[0];
+         if (element) {
+            elements.push(element);
+         }
+      });
+      return elements;
+   }
+
+   /**
     * connectionPreviousTask()
     * return the ABProcessElement(s) that was a previous Element
     * (eg connects to) this element.
