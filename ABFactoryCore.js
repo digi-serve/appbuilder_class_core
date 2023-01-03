@@ -28,7 +28,8 @@ const ABProcessParticipant = require("../platform/process/ABProcessParticipant")
 const ABProcessLane = require("../platform/process/ABProcessLane");
 const ABProcessTaskManager = require("./process/ABProcessTaskManager");
 
-const ABViewFormComponent = require("../platform/views/ABViewFormComponent");
+const ABViewDetailItem = require("../platform/views/ABViewDetailItem");
+const ABViewFormItem = require("../platform/views/ABViewFormItem");
 
 // const ABObjectWorkspaceViewGrid = require("../platform/workspaceViews/ABObjectWorkspaceViewGrid");
 // const ABObjectWorkspaceViewKanban = require("../platform/workspaceViews/ABObjectWorkspaceViewKanban");
@@ -106,7 +107,8 @@ class ABFactory extends EventEmitter {
 
          ABProcessTaskManager,
 
-         ABViewFormComponent,
+         ABViewDetailItem,
+         ABViewFormItem,
       };
 
       //
@@ -972,3 +974,4 @@ class ABFactory extends EventEmitter {
 }
 
 module.exports = ABFactory;
+

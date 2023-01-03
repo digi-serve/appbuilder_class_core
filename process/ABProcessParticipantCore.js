@@ -58,33 +58,43 @@ module.exports = class ABProcessParticipantCore extends ABMLClass {
          this.stashed = attributes.stashed;
       }
 
+      function validChecker(attribute) {
+         return typeof attribute != "undefined" && attribute != null;
+      }
+
       this.useRole = 0;
-      if (typeof attributes.useRole != "undefined") {
+      if (validChecker(attributes.useRole)) {
          this.useRole = parseInt(attributes.useRole);
       }
 
       this.role = 0;
-      if (typeof attributes.role != "undefined") {
+      if (validChecker(attributes.role)) {
          this.role = attributes.role;
       }
 
       this.useAccount = 0;
-      if (typeof attributes.useAccount != "undefined") {
+      if (validChecker(attributes.useAccount)) {
          this.useAccount = parseInt(attributes.useAccount);
       }
 
       this.account = 0;
-      if (typeof attributes.account != "undefined") {
+      if (validChecker(attributes.account)) {
          this.account = attributes.account;
       }
 
       this.useField = 0;
-      if (typeof attributes.useField != "undefined") {
+      if (validChecker(attributes.useField)) {
          this.useField = parseInt(attributes.useField);
       }
 
+      this.userField = [];
+      if (validChecker(attributes.userField)) {
+         this.userField = attributes.userField;
+      }
+
+      // depreciated
       this.fields = [];
-      if (typeof attributes.fields != "undefined") {
+      if (validChecker(attributes.fields)) {
          this.fields = attributes.fields;
       }
 
@@ -129,6 +139,7 @@ module.exports = class ABProcessParticipantCore extends ABMLClass {
          "useAccount",
          "account",
          "useField",
+         "userField",
          "fields",
          "stashed",
       ];

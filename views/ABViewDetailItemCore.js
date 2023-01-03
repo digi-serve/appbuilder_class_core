@@ -1,6 +1,6 @@
 const ABViewWidget = require("../../platform/views/ABViewWidget");
 
-module.exports = class ABViewDetailComponentCore extends ABViewWidget {
+module.exports = class ABViewDetailItemCore extends ABViewWidget {
    // constructor(values, application, parent, defaultValues) {
    //    super(values, application, parent, defaultValues);
    // }

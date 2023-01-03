@@ -302,7 +302,8 @@ module.exports = class ABViewGridCore extends ABViewWidget {
       // Transition: if we have an .objectWorkspace, copy those values in here:
       if (this.settings.objectWorkspace) {
          owFields.forEach((f) => {
-            this.settings[f] = this.settings.objectWorkspace[f];
+            if (!this.settings[f])
+               this.settings[f] = this.settings.objectWorkspace[f];
          });
       }
 
