@@ -1,15 +1,15 @@
 const ABView = require("../../platform/views/ABView");
 
 const ABViewFormButtonPropertyComponentDefaults = {
-   includeSave: true,
+   includeSave: 1,
    saveLabel: "",
-   includeCancel: false,
+   includeCancel: 0,
    cancelLabel: "",
-   includeReset: false,
+   includeReset: 0,
    resetLabel: "",
    afterCancel: null,
    alignment: "right",
-   isDefault: false, // mark default button of form widget
+   isDefault: 0, // mark default button of form widget
 };
 
 const ABViewFormButtonDefaults = {
@@ -19,7 +19,7 @@ const ABViewFormButtonDefaults = {
    icon: "square",
    // {string} fa-[icon] reference for this view
 
-   labelKey: "ab.components.button",
+   labelKey: "Button",
    // {string} the multilingual label key for the class label
 };
 
@@ -57,7 +57,7 @@ module.exports = class ABViewFormButtonCore extends ABView {
 
       this.unTranslate(this.settings, this.settings, labels);
 
-      let result = super.toObj();
+      const result = super.toObj();
 
       return result;
    }
@@ -66,7 +66,7 @@ module.exports = class ABViewFormButtonCore extends ABView {
       super.fromValues(values);
 
       // labels are multilingual values:
-      let labels = [];
+      const labels = [];
 
       if (this.settings.saveLabel) labels.push("saveLabel");
 
@@ -76,21 +76,20 @@ module.exports = class ABViewFormButtonCore extends ABView {
 
       this.unTranslate(this.settings, this.settings, labels);
 
-      this.settings.includeSave = JSON.parse(
-         this.settings.includeSave ||
+      this.settings.includeSave = parseInt(
+         this.settings.includeSave ??
             ABViewFormButtonPropertyComponentDefaults.includeSave
       );
-      this.settings.includeCancel = JSON.parse(
-         this.settings.includeCancel ||
+      this.settings.includeCancel = parseInt(
+         this.settings.includeCancel ??
             ABViewFormButtonPropertyComponentDefaults.includeCancel
       );
-      this.settings.includeReset = JSON.parse(
-         this.settings.includeReset ||
+      this.settings.includeReset = parseInt(
+         this.settings.includeReset ??
             ABViewFormButtonPropertyComponentDefaults.includeReset
       );
-
-      this.settings.isDefault = JSON.parse(
-         this.settings.isDefault ||
+      this.settings.isDefault = parseInt(
+         this.settings.isDefault ??
             ABViewFormButtonPropertyComponentDefaults.isDefault
       );
    }
