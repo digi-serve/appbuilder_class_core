@@ -1690,10 +1690,10 @@ module.exports = class ABDataCollectionCore extends ABMLClass {
          }, 5);
 
          // In order to keep detail and graphs loading properly I had to keep .parse()
-         queueOperation(() => {
-            this.__dataCollection.clearAll();
-            this.__dataCollection.parse(data);
-         }, 50);
+         this.__dataCollection.parse(data);
+         // queueOperation(() => {
+         //    this.__dataCollection.parse(data);
+         // }, 50);
 
          // this does nothing???
          this.parseTreeCollection(data);
