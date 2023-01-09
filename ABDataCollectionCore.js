@@ -1675,6 +1675,13 @@ module.exports = class ABDataCollectionCore extends ABMLClass {
       return Promise.resolve().then(() => {
          // store total count
          this.__totalCount = data.total_count;
+
+         // Need to .parse at the first time
+         if (!this.__dataCollection.find({}).length) {
+            this.__dataCollection.clearAll();
+            this.__dataCollection.parse(data);
+         }
+
          // In order to get the total_count updated I had to use .load()
          queueOperation(() => {
             this.__dataCollection.load(() => {
@@ -1690,9 +1697,8 @@ module.exports = class ABDataCollectionCore extends ABMLClass {
          }, 5);
 
          // In order to keep detail and graphs loading properly I had to keep .parse()
-         this.__dataCollection.clearAll();
-         this.__dataCollection.parse(data);
          // queueOperation(() => {
+         //    this.__dataCollection.clearAll();
          //    this.__dataCollection.parse(data);
          // }, 50);
 
