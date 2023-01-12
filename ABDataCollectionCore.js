@@ -1694,7 +1694,7 @@ module.exports = class ABDataCollectionCore extends ABMLClass {
 
                return data;
             });
-         }, 5);
+         }, 1);
 
          // In order to keep detail and graphs loading properly I had to keep .parse()
          // queueOperation(() => {
