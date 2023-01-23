@@ -348,10 +348,14 @@ module.exports = class ABApplicationCore extends ABMLClass {
       }).filter(filter);
    }
 
-   datacollectionsIncluded(filter = () => true) {
+   datacollectionsIncluded(filter = () => true, sort) {
+      // by default sort by label
+      const sortFn = sort ?? ((a, b) => a.label.localeCompare(b.label));
       return this.AB.datacollections((o) => {
          return this.datacollectionIDs.indexOf(o.id) > -1;
-      }).filter(filter);
+      })
+         .filter(filter)
+         .sort(sortFn);
    }
 
    ///
@@ -364,10 +368,14 @@ module.exports = class ABApplicationCore extends ABMLClass {
       }).filter(filter);
    }
 
-   objectsIncluded(filter = () => true) {
+   objectsIncluded(filter = () => true, sort) {
+      // by default sort by label
+      const sortFn = sort ?? ((a, b) => a.label.localeCompare(b.label));
       return this.AB.objects((o) => {
          return this.objectIDs.indexOf(o.id) > -1;
-      }).filter(filter);
+      })
+         .filter(filter)
+         .sort(sortFn);
    }
 
    /**
@@ -666,12 +674,17 @@ module.exports = class ABApplicationCore extends ABMLClass {
     * ABApplication.
     * @param {fn} filter
     *        a filter fn to further reduce which queries to return.
+    * @param {fn} [sort] function to sot by, default is .label
     * @return {array}
     */
-   queriesIncluded(filter = () => true) {
+   queriesIncluded(filter = () => true, sort) {
+      // by default sort by label
+      const sortFn = sort ?? ((a, b) => a.label.localeCompare(b.label));
       return this.AB.queries((q) => {
          return this.queryIDs.indexOf(q.id) > -1;
-      }).filter(filter);
+      })
+         .filter(filter)
+         .sort(sortFn);
    }
 
    ///
