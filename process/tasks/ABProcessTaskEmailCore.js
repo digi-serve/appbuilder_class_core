@@ -77,17 +77,11 @@ module.exports = class ABProcessTaskEmailCore extends ABProcessElement {
       // check for warnings:
 
       if (!this.subject) {
-         this.emit(
-            "warning",
-            `Email[${this.label ? this.label : this.name}] is missing a subject`
-         );
+         this.warningMessage("is missing a subject");
       }
 
       if (!this.message) {
-         this.emit(
-            "warning",
-            `Email[${this.label ? this.label : this.name}] is missing a message`
-         );
+         this.warningMessage("is missing a message");
       }
    }
 
@@ -102,11 +96,8 @@ module.exports = class ABProcessTaskEmailCore extends ABProcessElement {
       if (this.from == "0") {
          let thisLane = this.myLane();
          if (!thisLane) {
-            this.emit(
-               "warning",
-               `Email[${
-                  this.label ? this.label : this.name
-               }] can not resolve the lane participant for [.from] field.`
+            this.warningMessage(
+               "can not resolve the lane participant for [.from] field."
             );
          }
       }
@@ -122,13 +113,7 @@ module.exports = class ABProcessTaskEmailCore extends ABProcessElement {
     */
    verifySetting(key) {
       if (this[key] == "") {
-         this.emit(
-            "warning",
-            `Email[${
-               this.label ? this.label : this.name
-            }] does not have a [${key}] setting.`
-         );
-         return;
+         this.warningMessage(`does not have a [${key}] setting.`);
       }
    }
 
@@ -154,11 +139,8 @@ module.exports = class ABProcessTaskEmailCore extends ABProcessElement {
             }
          });
          if (!nextLanesResolved || nextTasks.length == 0) {
-            this.emit(
-               "warning",
-               `Email[${
-                  this.label ? this.label : this.name
-               }] can not resolve next lane participant for [${key}] field.`
+            this.warningMessage(
+               `can not resolve next lane participant for [${key}] field.`
             );
          }
       }
@@ -178,21 +160,13 @@ module.exports = class ABProcessTaskEmailCore extends ABProcessElement {
          if (this[valKey]) {
             if (this[valKey].useRole) {
                if (this[valKey].role.length == 0) {
-                  this.emit(
-                     "warning",
-                     `Email[${
-                        this.label ? this.label : this.name
-                     }] can not resolve [${key}] Role setting.`
-                  );
+                  this.warningMessage(`can not resolve [${key}] Role setting.`);
                }
             }
             if (this[valKey].useAccount) {
                if (this[valKey].account.length == 0) {
-                  this.emit(
-                     "warning",
-                     `Email[${
-                        this.label ? this.label : this.name
-                     }] can not resolve [${key}] Account setting.`
+                  this.warningMessage(
+                     `can not resolve [${key}] Account setting.`
                   );
                }
             }

@@ -220,6 +220,8 @@ module.exports = class ABFieldCore extends ABMLClass {
       this.key = values.key || this.fieldKey();
       this.icon = values.icon || this.fieldIcon();
 
+      values.settings = values.settings || {};
+
       // if this is being instantiated on a read from the Property UI,
       // .label is coming in under .settings.label
       this.label = values.label || values.settings.label || "?label?";
@@ -228,7 +230,6 @@ module.exports = class ABFieldCore extends ABMLClass {
 
       this.isImported = values.isImported || 0;
 
-      values.settings = values.settings || {};
       this.settings = values.settings;
       this.settings.showIcon = this.defaultCheck(values.settings.showIcon, "1");
       this.settings.required = this.defaultCheck(values.settings.required, "0");

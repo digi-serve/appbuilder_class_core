@@ -52,7 +52,6 @@ module.exports = class ABProcessGatewayExclusiveCore extends ABProcessElement {
       };
    }
 
-   /*
    fromValues(attributes) {
       /*
         {
@@ -61,10 +60,11 @@ module.exports = class ABProcessGatewayExclusiveCore extends ABProcessElement {
             type: 'xxxxx',
             json: "{json}"
         }
-        * /
+        */
       super.fromValues(attributes);
+
+      this.conditions = this.conditions || {};
    }
-   */
 
    /**
     * @method toObj()
@@ -103,11 +103,7 @@ module.exports = class ABProcessGatewayExclusiveCore extends ABProcessElement {
          this.diagramID
       );
       if (myOutgoingConnections.length < 2) {
-         this.emit(
-            "warning",
-            `Gateway[${this.name}] should have multiple outgoing connections`,
-            { task: this.id }
-         );
+         this.warningMessage("should have multiple outgoing connections");
       }
 
       // make sure there is no more then 1 connection that doesn't have
@@ -120,9 +116,8 @@ module.exports = class ABProcessGatewayExclusiveCore extends ABProcessElement {
       });
 
       if (numCondWithOne > 1) {
-         this.emit(
-            "warning",
-            `Gateway[${this.name}] should not have more than 1 unfiltered connection.`
+         this.warningMessage(
+            "should not have more than 1 unfiltered connection."
          );
       }
    }

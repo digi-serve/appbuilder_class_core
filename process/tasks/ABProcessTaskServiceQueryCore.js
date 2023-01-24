@@ -55,6 +55,8 @@ module.exports = class ABProcessTaskServiceQueryCore extends ABProcessElement {
       // comvert our qlObj into an ABQLxxx instance.
       if (this.qlObj) {
          this.qlObj = ABQLManager.fromAttributes(this.qlObj, this, this.AB);
+      } else {
+         this.warningMessage(`has no Query defined.`);
       }
    }
 

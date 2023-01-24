@@ -443,7 +443,7 @@ module.exports = class ABProcessTaskCore extends ABMLClass {
    }
 
    /**
-    * warningsProcessReady()
+    * @method onProcessReady()
     * Perform any setup actions after the parent process has indicated it is "ready"
     */
    onProcessReady() {}

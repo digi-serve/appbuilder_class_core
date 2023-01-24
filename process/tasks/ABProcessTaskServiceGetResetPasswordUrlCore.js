@@ -49,6 +49,40 @@ module.exports = class ABProcessTaskGetResetPasswordUrlCore extends (
       return null;
    }
 
+   fromValues(attributes) {
+      /*
+        {
+            id: uuid(),
+            name: 'name',
+            type: 'xxxxx',
+            json: "{json}"
+        }
+        */
+
+      super.fromValues(attributes);
+
+      if (!this.email) {
+         this.warningMessage("is missing the email address.");
+      }
+   }
+
+   onProcessReady() {
+      const processData = (this.process.processDataFields(this) ?? [])
+         .filter((item) => item.field?.key == "email")
+         .map((item) => {
+            return {
+               id: item.key,
+               value: item.label,
+            };
+         });
+
+      if (processData.length == 0) {
+         this.warningMessage(
+            "this process has no previous tasks exporting email fields."
+         );
+      }
+   }
+
    /**
     * processDataFields()
     * return an array of avaiable data fields that this element

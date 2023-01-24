@@ -21,13 +21,13 @@ let CalculateDefaults = {
    // key: {string}
    // unique key to reference this specific Task
 
-   settings: ["formulaText"]
+   settings: ["formulaText"],
 };
 
 module.exports = class CalculateTaskCore extends ABProcessElement {
-   constructor(attributes, process, application) {
+   constructor(attributes, process, AB) {
       attributes.type = attributes.type || "process.task.service.calculate";
-      super(attributes, process, application, CalculateDefaults);
+      super(attributes, process, AB, CalculateDefaults);
 
       // listen
    }
@@ -41,6 +41,42 @@ module.exports = class CalculateTaskCore extends ABProcessElement {
       return null;
    }
 
+   fromValues(attributes) {
+      /*
+        {
+            id: uuid(),
+            name: 'name',
+            type: 'xxxxx',
+            json: "{json}"
+        }
+        */
+
+      super.fromValues(attributes);
+
+      if (!this.formulaText) {
+         this.warningMessage("is missing a formula.");
+      }
+   }
+
+   onProcessReady() {
+      if (this.formulaText) {
+         const hash = {};
+         (this.process.processDataFields(this) || []).forEach((item) => {
+            hash[`{${item.label}}`] = item;
+         });
+
+         let exp = new RegExp(`{[^}]*}`, "g");
+         let entries = this.formulaText.match(exp) || [];
+         entries.forEach((entry) => {
+            if (!hash[entry]) {
+               this.warningMessage(
+                  `could not resolve process value [${entry}]`
+               );
+            }
+         });
+      }
+   }
+
    /**
     * processDataFields()
     * return an array of avaiable data fields that this element
@@ -50,9 +86,21 @@ module.exports = class CalculateTaskCore extends ABProcessElement {
     * @return {array} | null
     */
    processDataFields() {
+      const label = `${this.label}->Value`;
+      // this is a calculate task, so let's include a fake ABFieldNumber
+      // for the .field value, so other tasks that limit their operations
+      // to fields can use this as a number
+      if (!this._fakeNum) {
+         this._fakeObj = this.AB.objectNew({});
+         this._fakeNum = this.AB.fieldNew(
+            { key: "number", name: label, label },
+            this._fakeObj
+         );
+      }
       return {
          key: `${this.id}.value`,
-         label: `${this.label}->Value`
+         label,
+         field: this._fakeNum,
       };
    }
 };
