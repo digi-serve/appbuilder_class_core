@@ -7,9 +7,9 @@
  */
 
 const QLObject = require("../../platform/ql/ABQLRootObject.js");
-var QLOps = [QLObject];
+const QLOps = [QLObject];
 
-var ABQLManagerCore = {
+const ABQLManagerCore = {
    /**
     * @method fromAttributes()
     * return an {ABQL} object that represents the given attributes that
@@ -23,23 +23,21 @@ var ABQLManagerCore = {
     * @return {ABQL} | null
     */
    fromAttributes: function (attributes, task, AB) {
-      if (!attributes) {
-         return null;
-      }
-      var matchingOPs = [];
+      if (!attributes) return null;
+
+      const matchingOPs = [];
+
       ABQLManagerCore.QLOps.forEach((Op) => {
-         if (Op.key == attributes.key) {
-            matchingOPs.push(Op);
-         }
+         if (Op.key === attributes.key) matchingOPs.push(Op);
       });
-      if (matchingOPs.length == 1) {
+
+      if (matchingOPs.length === 1) {
          // let this Operation initialize and return the last OP
          // in the chain
-         var qlOP = new matchingOPs[0](attributes, task, AB);
+         const qlOP = new matchingOPs[0](attributes, task, AB);
+
          return qlOP;
-      } else {
-         return null;
-      }
+      } else return null;
    },
 
    /**

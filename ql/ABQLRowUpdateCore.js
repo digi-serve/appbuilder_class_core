@@ -9,7 +9,7 @@
 const ABQL = require("../../platform/ql/ABQL.js");
 // const ABQLRow = require("./ABQLRow.js");
 
-var ParameterDefinitions = [
+const ParameterDefinitions = [
    {
       type: "objectValues",
       name: "values",
@@ -32,7 +32,7 @@ class ABQLRowUpdateCore extends ABQL {
 }
 
 ABQLRowUpdateCore.key = "update";
-ABQLRowUpdateCore.label = "update record";
+ABQLRowUpdateCore.label = "Update this record";
 ABQLRowUpdateCore.NextQLOps = [];
 // NOTE: .NextQLOps => see the #Hack in the constructor
 

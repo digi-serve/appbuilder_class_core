@@ -14,6 +14,7 @@ class ABQLCore {
       if (!Array.isArray(parameterDefinitions)) {
          parameterDefinitions = [parameterDefinitions];
       }
+
       this.parameterDefinitions = parameterDefinitions;
 
       this.object = prevOP ? prevOP.object : null;
@@ -23,9 +24,7 @@ class ABQLCore {
 
       // if the previous Operation defined an .objectOut then our .object is THAT
       // one.
-      if (prevOP && prevOP.objectOut) {
-         this.object = prevOP.objectOut;
-      }
+      if (prevOP && prevOP.objectOut) this.object = prevOP.objectOut;
 
       this.prevOP = prevOP;
       this.task = task;
@@ -35,7 +34,6 @@ class ABQLCore {
       // to do so.
 
       this.AB = AB;
-
       this.next = null;
 
       this.fromAttributes(attributes);
@@ -44,7 +42,6 @@ class ABQLCore {
    ///
    /// Instance Methods
    ///
-
    initObject(attributes) {}
 
    fromAttributes(attributes) {
@@ -58,23 +55,23 @@ class ABQLCore {
         */
 
       // super.fromValues(attributes);
+      this.key = this.constructor.key ?? null;
 
       // this.entryComplete = attributes.entryComplete || false;
-      this.params = attributes.params || {};
+      this.params = attributes.params ?? {};
       // {hash}
       // The configuration values entered by the AppBuilder UI for this
       // operation.
 
       this.objectID = attributes.objectID || null;
+
       // be sure to do a hard lookup if an objectID was saved:
-      if (this.objectID) {
-         this.object = this.objectLookup(this.objectID);
-      }
+      if (this.objectID) this.object = this.objectLookup(this.objectID);
 
       this.initObject(attributes);
 
-      if (this.objectID && !this.object) {
-         // at least dump a warning here:
+      // at least dump a warning here:
+      if (this.objectID && !this.object)
          this.AB.notify.developer(
             new Error(
                `ABQLCore.fromAttributes(): unable to initialize ABObject [${this.objectID}]`
@@ -84,18 +81,18 @@ class ABQLCore {
                objectID: this.objectID,
             }
          );
-      }
 
       if (attributes.next) {
-         var nextOP = null;
-         (this.NextQLOps || this.constructor.NextQLOps).forEach((OP) => {
-            if (OP.key == attributes.next.key) {
-               nextOP = OP;
-            }
+         let nextOP = null;
+
+         (this.NextQLOps ?? this.constructor.NextQLOps).forEach((OP) => {
+            if (OP.key === attributes.next.key) nextOP = OP;
          });
+
          if (nextOP) {
             // exact match, so add next:
-            var qlOP = new nextOP(attributes.next, this, this.task, this.AB);
+            const qlOP = new nextOP(attributes.next, this, this.task, this.AB);
+
             this.next = qlOP;
          }
       }
@@ -111,10 +108,11 @@ class ABQLCore {
     */
    objectLookup(objID) {
       return this.AB.objects((o) => {
-         var quotedLabel = `"${o.label}"`;
+         const quotedLabel = `"${o.label}"`;
+
          return (
-            // o.id == this.objectID ||
-            o.id == objID || quotedLabel.indexOf(objID) == 0
+            // o.id === this.objectID ||
+            o.id === objID || quotedLabel.indexOf(objID) === 0
          );
       })[0];
    }
@@ -126,9 +124,10 @@ class ABQLCore {
     * @return {obj}
     */
    availableProcessDataFieldsHash() {
-      var availableProcessDataFields =
-         this.task.process.processDataFields(this.task) || [];
-      var hashFieldIDs = {};
+      const availableProcessDataFields =
+         this.task.process.processDataFields(this.task) ?? [];
+      const hashFieldIDs = {};
+
       availableProcessDataFields.forEach((f) => {
          if (f.field) {
             hashFieldIDs[f.field.id] = f;
@@ -136,6 +135,7 @@ class ABQLCore {
             hashFieldIDs[f.key] = f;
          }
       });
+
       return hashFieldIDs;
    }
 
@@ -156,13 +156,13 @@ class ABQLCore {
     * @return {json}
     */
    toObj() {
-      var obj = {
+      const obj = {
          key: this.constructor.key,
          // entryComplete: this.entryComplete,
          params: this.params,
          // currQuery: this.currQuery,
          // queryValid: this.queryValid,
-         objectID: this.object ? this.object.id : null,
+         objectID: this.object?.id ?? null,
       };
 
       if (this.next) {
