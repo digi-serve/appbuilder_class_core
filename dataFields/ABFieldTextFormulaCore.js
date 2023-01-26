@@ -599,7 +599,7 @@ function getDateDayOfWeekName(AB, date) {
    // localizeDT.locale(AD.lang.currentLanguage);
    // return localizeDT.format("dddd");
 
-   return AB.toDateFormat(date, {
+   return AB.rules.toDateFormat(date, {
       format: "dddd",
       localeCode: AB.Account.language(),
    });
@@ -610,7 +610,7 @@ function getDateMonthOfYearName(AB, date) {
    // localizeDT.locale(AD.lang.currentLanguage);
    // return localizeDT.format("MMMM");
 
-   return AB.toDateFormat(date, {
+   return AB.rules.toDateFormat(date, {
       format: "MMMM",
       localeCode: AB.Account.language(),
    });

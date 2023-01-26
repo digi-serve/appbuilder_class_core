@@ -796,13 +796,13 @@ module.exports = class ABModelCore {
                   if (date.key == "date") {
                      // if we are ignoring the time it means we ignore timezone as well
                      // so lets trim that off when creating the date so it can be a simple date
-                     d[date.columnName] = this.AB.toDate(d[date.columnName], {
+                     d[date.columnName] = this.AB.rules.toDate(d[date.columnName], {
                         format: "MM/DD/YYYY",
                         ignoreTime: true,
                      });
                   } else {
                      // Convert UTC to Date
-                     d[date.columnName] = this.AB.toDate(d[date.columnName]);
+                     d[date.columnName] = this.AB.rules.toDate(d[date.columnName]);
                      // d[date.columnName] = new Date(moment(d[date.columnName]));
                   }
                }
