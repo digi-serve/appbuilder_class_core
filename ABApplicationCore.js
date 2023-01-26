@@ -674,7 +674,7 @@ module.exports = class ABApplicationCore extends ABMLClass {
     * ABApplication.
     * @param {fn} filter
     *        a filter fn to further reduce which queries to return.
-    * @param {fn} [sort] function to sot by, default is .label
+    * @param {fn} [sort] function to sort by, default is .label
     * @return {array}
     */
    queriesIncluded(filter = () => true, sort) {
