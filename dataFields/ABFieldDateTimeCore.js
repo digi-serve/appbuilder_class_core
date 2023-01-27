@@ -127,7 +127,7 @@ module.exports = class ABFieldDateTimeCore extends ABFieldDateCore {
 
       // From default value of ABFieldDateCore
       if (values[this.columnName]) {
-         dateResult = this.AB.toDate(values[this.columnName]);
+         dateResult = this.AB.rules.toDate(values[this.columnName]);
          // const momentVal = this.convertToMoment(values[this.columnName]);
          // if (momentVal.isValid()) {
          //    dateResult = new Date(momentVal);
@@ -182,7 +182,7 @@ module.exports = class ABFieldDateTimeCore extends ABFieldDateCore {
    format(rowData) {
       const datetimeFormat = this.getFormat();
       const d = this.dataValue(rowData);
-      const dateObj = this.AB.toDate(d);
+      const dateObj = this.AB.rules.toDate(d);
 
       if (d == "" || d == null) {
          return "";
