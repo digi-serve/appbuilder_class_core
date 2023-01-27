@@ -142,7 +142,7 @@ module.exports = class ABFieldDateCore extends ABField {
 
       // if no default value is set, then don't insert a value.
       if (dateResult != null) {
-         values[this.columnName] = this.AB.toDateFormat(dateResult, {
+         values[this.columnName] = this.AB.rules.toDateFormat(dateResult, {
             format: "YYYY-MM-DD",
          });
          // values[this.columnName] = moment(dateResult).format("YYYY-MM-DD");
@@ -163,7 +163,7 @@ module.exports = class ABFieldDateCore extends ABField {
          let value = data[this.columnName];
 
          if (!(value instanceof Date)) {
-            value = this.AB.toDate(value);
+            value = this.AB.rules.toDate(value);
             // value = new Date(this.convertToMoment(value));
          }
 
@@ -184,12 +184,12 @@ module.exports = class ABFieldDateCore extends ABField {
                      : null,
                   startDateDisplay = this.getDateDisplay(startDate),
                   endDateDisplay = this.getDateDisplay(endDate);
-               const minDate = this.AB.subtractDate(
+               const minDate = this.AB.rules.subtractDate(
                   new Date(),
                   this.settings.validateRangeBefore,
                   this.settings.validateRangeUnit
                );
-               const maxDate = this.AB.addDate(
+               const maxDate = this.AB.rules.addDate(
                   new Date(),
                   this.settings.validateRangeAfter,
                   this.settings.validateRangeUnit
@@ -324,7 +324,7 @@ module.exports = class ABFieldDateCore extends ABField {
       }
 
       // pull format from settings.
-      const dateObj = this.AB.toDate(d);
+      const dateObj = this.AB.rules.toDate(d);
       return this.getDateDisplay(dateObj);
 
       // const momentObj = this.convertToMoment(d);
@@ -398,7 +398,7 @@ module.exports = class ABFieldDateCore extends ABField {
    // }
 
    exportValue(value) {
-      return value ? this.AB.toDateFormat(value, {
+      return value ? this.AB.rules.toDateFormat(value, {
          format: "YYYY-MM-DD",
       }) : "";
       // return this.convertToMoment(value).format("YYYY-MM-DD");
