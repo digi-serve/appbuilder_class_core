@@ -189,7 +189,7 @@ module.exports = class SubProcessCore extends ABProcessElement {
       let data;
 
       if (instance && key && key.startsWith && key.startsWith(this.id)) {
-         let fieldId = key.split(".")[2];
+         let fieldId = key.split(".")[1];
          let myState = this.myState(instance);
          let stateData = myState ? myState.data : null;
          data = stateData;
