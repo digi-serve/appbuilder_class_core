@@ -38,6 +38,22 @@ class ABQLSetPluckCore extends ABQL {
       this.fieldID = attributes.fieldID;
       this.field = this.object?.fieldByID(this.fieldID);
 
+      //// TODO: figure out how to dynamically update the next row of options
+      //// based upon the current choice of field.
+      // // based upon the type of field, we now configure what next steps
+      // // are available.
+      // if (this.field) {
+      //    // if connected, then we can stay with same .NextQLOps
+      //    // so we can just leave what we did above.
+
+      //    // if a discreet value, then we need to remove SetPluck
+      //    if (!this.field.isConnection) {
+      //       this.constructor.NextQLOps = [
+      //          ...this.prevOP.constructor.NextQLOps,
+      //       ].filter((o) => o.key != this.constructor.key);
+      //    }
+      // }
+
       if (attributes.objectOutID)
          this.objectOut = this.objectLookup(attributes.objectOutID);
 

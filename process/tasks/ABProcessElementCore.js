@@ -448,6 +448,20 @@ module.exports = class ABProcessTaskCore extends ABMLClass {
     */
    onProcessReady() {}
 
+   /**
+    * @method warningMessage(message)
+    * Save a warning message in a common format for our ProcessTasks.
+    */
+   warningMessage(message, data = {}) {
+      this.emit(
+         "warning",
+         `${this.defaults.key}[${
+            this.label ? this.label : this.name
+         }]: ${message}`,
+         data
+      );
+   }
+
    get startElements() {
       let startElems =
          this.process.elements(

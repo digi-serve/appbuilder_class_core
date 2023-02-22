@@ -74,9 +74,8 @@ module.exports = class SubProcessCore extends ABProcessElement {
             if (currElements[eID]) {
                this._elements[eID] = currElements[eID];
             } else {
-               this.emit(
-                  "warning",
-                  `P.sub[${this.name}] is referencing an unknown process element id[${eID}]`,
+               this.warningMessage(
+                  `is referencing an unknown process element id[${eID}]`,
                   { process: this.id, eID }
                );
             }
@@ -188,7 +187,7 @@ module.exports = class SubProcessCore extends ABProcessElement {
       let key = params[1];
       let data;
 
-      if (instance && key && key.startsWith && key.startsWith(this.id)) {
+      if (instance && key?.startsWith?.(this.id)) {
          let fieldId = key.split(".")[2];
          let myState = this.myState(instance);
          let stateData = myState ? myState.data : null;
@@ -199,11 +198,7 @@ module.exports = class SubProcessCore extends ABProcessElement {
                this.process.processDataFields(this) || []
             ).filter((opt) => opt.key == this.parameterId)[0];
 
-            if (
-               dataFieldOpt &&
-               dataFieldOpt.field &&
-               dataFieldOpt.field.key == "connectObject"
-            ) {
+            if (dataFieldOpt?.field?.key == "connectObject") {
                if (!Array.isArray(stateData)) stateData = [stateData];
 
                // Extract data

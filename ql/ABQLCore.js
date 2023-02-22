@@ -7,9 +7,11 @@
  *
  *
  */
-
-class ABQLCore {
+var ABEmitter = require("../../platform/ABEmitter");
+class ABQLCore extends ABEmitter {
    constructor(attributes, parameterDefinitions, prevOP, task, AB) {
+      super();
+
       // manage the incoming Parameter Definitions
       if (!Array.isArray(parameterDefinitions)) {
          parameterDefinitions = [parameterDefinitions];

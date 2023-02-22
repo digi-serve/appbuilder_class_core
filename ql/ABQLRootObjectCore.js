@@ -42,6 +42,12 @@ class ABQLObjectCore extends ABQL {
             this.objectID = this.params[objNameDef.name];
             this.object = this.objectLookup(this.objectID);
          }
+
+         if (!this.object) {
+            this.warningMessage("has no object set.", {
+               objectID: this.objectID,
+            });
+         }
       }
    }
 
