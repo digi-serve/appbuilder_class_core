@@ -293,6 +293,16 @@ module.exports = class ABProcessCore extends ABMLClass {
    }
 
    /**
+    * elementByID()
+    * return an element for the given ID.
+    * @param {uuid} ID
+    *        the ABProcessElement.id to return
+    */
+   elementByID(ID) {
+      return this._elements[ID];
+   }
+
+   /**
     * elementForDiagramID()
     * return the object that is tied to the given xml diagram ID.
     * @param {string} dID the diagram ID
