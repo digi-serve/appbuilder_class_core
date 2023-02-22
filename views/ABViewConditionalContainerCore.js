@@ -26,6 +26,7 @@ module.exports = class ABViewConditionalContainerCore extends ABViewContainer {
             {
                key: ABViewContainer.common().key,
                label: L("If"),
+               name: "If",
                settings: {
                   removable: false,
                },
@@ -33,6 +34,7 @@ module.exports = class ABViewConditionalContainerCore extends ABViewContainer {
             application,
             this
          );
+
          this._views.push(ifPanel);
 
          // 'Else' panel
@@ -40,6 +42,7 @@ module.exports = class ABViewConditionalContainerCore extends ABViewContainer {
             {
                key: ABViewContainer.common().key,
                label: L("Else"),
+               name: "Else",
                settings: {
                   removable: false,
                },
@@ -47,6 +50,7 @@ module.exports = class ABViewConditionalContainerCore extends ABViewContainer {
             application,
             this
          );
+
          this._views.push(elsePanel);
       }
    }
@@ -59,4 +63,3 @@ module.exports = class ABViewConditionalContainerCore extends ABViewContainer {
       return ABViewPropertyDefaults;
    }
 };
-
