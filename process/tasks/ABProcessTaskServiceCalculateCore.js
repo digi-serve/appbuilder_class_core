@@ -41,42 +41,6 @@ module.exports = class CalculateTaskCore extends ABProcessElement {
       return null;
    }
 
-   fromValues(attributes) {
-      /*
-        {
-            id: uuid(),
-            name: 'name',
-            type: 'xxxxx',
-            json: "{json}"
-        }
-        */
-
-      super.fromValues(attributes);
-
-      if (!this.formulaText) {
-         this.warningMessage("is missing a formula.");
-      }
-   }
-
-   onProcessReady() {
-      if (this.formulaText) {
-         const hash = {};
-         (this.process.processDataFields(this) || []).forEach((item) => {
-            hash[`{${item.label}}`] = item;
-         });
-
-         let exp = new RegExp(`{[^}]*}`, "g");
-         let entries = this.formulaText.match(exp) || [];
-         entries.forEach((entry) => {
-            if (!hash[entry]) {
-               this.warningMessage(
-                  `could not resolve process value [${entry}]`
-               );
-            }
-         });
-      }
-   }
-
    /**
     * processDataFields()
     * return an array of avaiable data fields that this element

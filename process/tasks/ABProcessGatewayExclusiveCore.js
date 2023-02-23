@@ -93,34 +93,6 @@ module.exports = class ABProcessGatewayExclusiveCore extends ABProcessElement {
    //// Process Instance Methods
    ////
 
-   /**
-    * onProcessReady()
-    * Perform our warnings checks once the parent Process is ready
-    */
-   onProcessReady() {
-      // make sure we have > 1 connection.
-      const myOutgoingConnections = this.process.connectionsOutgoing(
-         this.diagramID
-      );
-      if (myOutgoingConnections.length < 2) {
-         this.warningMessage("should have multiple outgoing connections");
-      }
-
-      // make sure there is no more then 1 connection that doesn't have
-      // a condition:
-      let numCondWithOne = 0;
-      myOutgoingConnections.forEach((c) => {
-         if ((this.conditions[c.id]?.filterValue.rules?.length ?? 0) == 0) {
-            numCondWithOne++;
-         }
-      });
-
-      if (numCondWithOne > 1) {
-         this.warningMessage(
-            "should not have more than 1 unfiltered connection."
-         );
-      }
-   }
 
    /**
     * initState()

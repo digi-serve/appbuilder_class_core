@@ -82,6 +82,15 @@ module.exports = class ABProcessTaskEndCore extends ABProcessElement {
       super.initState(context, myDefaults, val);
    }
 
+   /*
+    * @function isEndTask
+    * return true if the current type of task is an End task. False otherwise.
+    * @return {bool}
+    */
+   isEndTask() {
+      return true;
+   }
+
    /**
     * nextTasks()
     * return the next tasks to be run after this task is complete.

@@ -184,6 +184,15 @@ module.exports = class ABProcessTaskCore extends ABMLClass {
       }
    }
 
+   /*
+    * @function isEndTask
+    * return true if the current type of task is an End task. False otherwise.
+    * @return {bool}
+    */
+   isEndTask() {
+      return false;
+   }
+
    /**
     * log()
     * enter a log in the current process instance
@@ -447,20 +456,6 @@ module.exports = class ABProcessTaskCore extends ABMLClass {
     * Perform any setup actions after the parent process has indicated it is "ready"
     */
    onProcessReady() {}
-
-   /**
-    * @method warningMessage(message)
-    * Save a warning message in a common format for our ProcessTasks.
-    */
-   warningMessage(message, data = {}) {
-      this.emit(
-         "warning",
-         `${this.defaults.key}[${
-            this.label ? this.label : this.name
-         }]: ${message}`,
-         data
-      );
-   }
 
    get startElements() {
       let startElems =

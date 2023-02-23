@@ -116,7 +116,10 @@ module.exports = class ABProcessTriggerLifecycle extends ABProcessTrigger {
             var error = new Error(
                `ABProcessTriggerLifecycleCore.processDataFields():TaskID[${this.id}]: could not find referenced object by ID [${this.objectID}]`
             );
-            this.AB.error(error);
+            this.AB.notify.builder(error, {
+               task: this.id,
+               objID: this.objectID,
+            });
          }
       }
       return fields;
