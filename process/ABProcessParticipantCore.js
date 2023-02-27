@@ -149,4 +149,11 @@ module.exports = class ABProcessParticipantCore extends ABMLClass {
 
       return data;
    }
+
+   /**
+    * @method onProcessReady()
+    * perform any tasks/checks necessary after the parent Process is
+    * setup and ready.
+    */
+   onProcessReady() {}
 };

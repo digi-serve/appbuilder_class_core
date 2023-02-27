@@ -123,14 +123,10 @@ module.exports = class ABProcessTaskUserApprovalCore extends ABProcessElement {
          this.formBuilder.components.forEach((c) => {
             if (c.abFieldID) {
                fields.filter((entry) => {
-                  if (entry.field && entry.field.id == c.abFieldID) {
+                  if (entry.field?.id == c.abFieldID) {
                      c.label = entry.field.label;
                      c.key = entry.key;
-                     if (
-                        c.data &&
-                        c.data.values &&
-                        entry.field.settings.options
-                     ) {
+                     if (c.data?.values && entry.field.settings.options) {
                         var vals = [];
                         entry.field.settings.options.forEach((opt) => {
                            vals.push({
@@ -153,19 +149,15 @@ module.exports = class ABProcessTaskUserApprovalCore extends ABProcessElement {
                      })[0];
                      if (!pluck) return;
                      pluck.object.fields().filter((entry) => {
-                        if (entry && entry.id == o.abFieldID) {
+                        if (entry?.id == o.abFieldID) {
                            o.label = entry.label;
                            o.key = entry.columnName;
-                           if (
-                              o.data &&
-                              o.data.values &&
-                              entry.settings.options
-                           ) {
+                           if (o.data?.values && entry.settings.options) {
                               var vals = [];
                               entry.settings.options.forEach((opt) => {
                                  vals.push({
                                     label: opt.text,
-                                    value: opt.id
+                                    value: opt.id,
                                  });
                               });
                               o.data.values = vals;

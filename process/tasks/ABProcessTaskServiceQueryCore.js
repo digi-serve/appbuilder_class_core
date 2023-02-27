@@ -53,8 +53,9 @@ module.exports = class ABProcessTaskServiceQueryCore extends ABProcessElement {
       this._datasources = [];
 
       // comvert our qlObj into an ABQLxxx instance.
-      if (this.qlObj)
+      if (this.qlObj) {
          this.qlObj = ABQLManager.fromAttributes(this.qlObj, this, this.AB);
+      }
    }
 
    /**

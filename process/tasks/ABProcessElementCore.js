@@ -184,6 +184,15 @@ module.exports = class ABProcessTaskCore extends ABMLClass {
       }
    }
 
+   /*
+    * @function isEndTask
+    * return true if the current type of task is an End task. False otherwise.
+    * @return {bool}
+    */
+   isEndTask() {
+      return false;
+   }
+
    /**
     * log()
     * enter a log in the current process instance
@@ -442,10 +451,17 @@ module.exports = class ABProcessTaskCore extends ABMLClass {
       }
    }
 
+   /**
+    * @method onProcessReady()
+    * Perform any setup actions after the parent process has indicated it is "ready"
+    */
+   onProcessReady() {}
+
    get startElements() {
       let startElems =
          this.process.elements(
-            (elem) => elem && elem.defaults && elem.defaults.category == "start"
+            (elem) =>
+               elem && elem.defaults && elem.defaults.category === "start"
          ) || [];
       return startElems;
    }

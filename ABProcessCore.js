@@ -8,6 +8,11 @@ module.exports = class ABProcessCore extends ABMLClass {
       super(["label"], AB);
 
       this.fromValues(attributes);
+
+      // indicate we are ready.
+      this.elements().forEach((e) => {
+         e.onProcessReady();
+      });
    }
 
    ///
@@ -293,6 +298,16 @@ module.exports = class ABProcessCore extends ABMLClass {
    }
 
    /**
+    * elementByID()
+    * return the {ABProcessElement} that has the given .id
+    * @param {string} id
+    * @return {ABProcess[OBJ]}
+    */
+   elementByID(id) {
+      return this._elements[id] ?? null;
+   }
+
+   /**
     * elementForDiagramID()
     * return the object that is tied to the given xml diagram ID.
     * @param {string} dID the diagram ID
@@ -327,6 +342,29 @@ module.exports = class ABProcessCore extends ABMLClass {
    }
 
    /**
+    * connectionNextTask()
+    * return the ABProcessElement(s) that are after the given Element
+    * (eg connects to) this element.
+    * @param {ABProcessElement} currElement
+    * @return {array}
+    */
+   connectionNextTask(currElement) {
+      var elements = [];
+      var nextConnections = this.connections((c) => {
+         return c.from == currElement.diagramID;
+      });
+      nextConnections.forEach((c) => {
+         var element = this.elements((e) => {
+            return e.diagramID == c.to;
+         })[0];
+         if (element) {
+            elements.push(element);
+         }
+      });
+      return elements;
+   }
+
+   /**
     * connectionPreviousTask()
     * return the ABProcessElement(s) that was a previous Element
     * (eg connects to) this element.
@@ -358,7 +396,15 @@ module.exports = class ABProcessCore extends ABMLClass {
     * @return {array} | null
     */
    processData(currElement, params) {
-      var tasksToAsk = this.connectionPreviousTask(currElement);
+      // var tasksToAsk = this.connectionPreviousTask(currElement);
+      // var values = queryPreviousTasks(tasksToAsk, "processData", params, this);
+      // return values.length > 0
+      //    ? values.length > 1
+      //       ? values
+      //       : values[0]
+      //    : null;
+
+      var tasksToAsk = this.allPreviousTasks(currElement);
       var values = queryPreviousTasks(tasksToAsk, "processData", params, this);
       return values.length > 0
          ? values.length > 1
@@ -378,7 +424,8 @@ module.exports = class ABProcessCore extends ABMLClass {
     * @return {array} | null
     */
    processDataFields(currElement) {
-      var tasksToAsk = this.connectionPreviousTask(currElement);
+      var tasksToAsk = this.allPreviousTasks(currElement);
+      // var tasksToAsk = this.connectionPreviousTask(currElement);
       var fields = queryPreviousTasks(
          tasksToAsk,
          "processDataFields",
@@ -386,6 +433,69 @@ module.exports = class ABProcessCore extends ABMLClass {
          this
       );
       return fields.length > 0 ? fields : null;
+   }
+
+   /**
+    * allPreviousConnections()
+    * walk through the current graph and return all the previous connections
+    * leading up to the given {ProcessElement}
+    * @param {Connection} conn
+    * @param {hash} hashConn
+    *        { connection.id : connection }
+    * @return {array}
+    */
+   allPreviousConnectionsForConnection(conn, hashConn) {
+      var prevConnections = this.connections((c) => {
+         return c.to == conn.from;
+      });
+
+      prevConnections.forEach((c) => {
+         if (!hashConn[c.id]) {
+            hashConn[c.id] = c;
+            this.allPreviousConnectionsForConnection(c, hashConn);
+         }
+      });
+   }
+   allPreviousConnectionsForElement(currElement) {
+      var prevConnections = this.connections((c) => {
+         return c.to == currElement.diagramID;
+      });
+      var hashConn = {
+         /* connection.id : connection */
+      };
+      // hashConn will contains the final collection of connections.
+
+      prevConnections.forEach((c) => {
+         hashConn[c.id] = c;
+         this.allPreviousConnectionsForConnection(c, hashConn);
+      });
+
+      // TODO: detect circle backs and remove connections that
+      // resolve back to currElement
+
+      // convert our hash into an array
+      return Object.keys(hashConn).map((k) => hashConn[k]);
+   }
+
+   allPreviousTasks(currElement) {
+      var prevTasks = {}; /* task.id : task */
+      var allPreviousConnections =
+         this.allPreviousConnectionsForElement(currElement);
+      var task;
+      allPreviousConnections.forEach((conn) => {
+         // each conn has a .to and a .from => grab both tasks
+         task = this.elementForDiagramID(conn.to);
+         if (task) prevTasks[task.id] = task;
+
+         task = this.elementForDiagramID(conn.from);
+         if (task) prevTasks[task.id] = task;
+      });
+
+      var tasksToAsk = Object.keys(prevTasks)
+         .map((k) => prevTasks[k])
+         .filter((t) => t.id != currElement.id);
+
+      return tasksToAsk;
    }
 
    /**

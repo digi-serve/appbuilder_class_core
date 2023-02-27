@@ -9,9 +9,10 @@ var ABProcessGatewayExclusiveDefaults = {
    //
    // if it shouldn't show up under the popup menu, then leave this null
 
-   icon: "check-circle", // font-awesome icon reference.  (without the 'fa-').  so 'user'  to reference 'fa-user'
+   icon: "check-circle",
    // icon: {string}
-   // font-awesome icon reference.  (without the 'fa-').  so 'user'  to reference 'fa-user'
+   // font-awesome icon reference.  (without the 'fa-').  so 'user'  to
+   // reference 'fa-user'
 
    instanceValues: [],
    // instanceValues: {array}
@@ -51,23 +52,19 @@ module.exports = class ABProcessGatewayExclusiveCore extends ABProcessElement {
       };
    }
 
-   /*
-    fromValues(attributes) {
-        /*
+   fromValues(attributes) {
+      /*
         {
             id: uuid(),
             name: 'name',
             type: 'xxxxx',
             json: "{json}"
         }
-        * /
-        super.fromValues(attributes);
+        */
+      super.fromValues(attributes);
 
-        ABProcessGatewayExclusiveDefaults.fields.forEach((f) => {
-            this[f] = attributes[f];
-        });
-    }
-    */
+      this.conditions = this.conditions || {};
+   }
 
    /**
     * @method toObj()
@@ -95,6 +92,7 @@ module.exports = class ABProcessGatewayExclusiveCore extends ABProcessElement {
    ////
    //// Process Instance Methods
    ////
+
 
    /**
     * initState()

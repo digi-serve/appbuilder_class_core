@@ -13,9 +13,10 @@ var ABProcessTaskEndDefaults = {
    // fields: {array}
    // a list of internal setting values this Element tracks
 
-   icon: "stop", // font-awesome icon reference.  (without the 'fa-').  so 'user'  to reference 'fa-user'
+   icon: "stop",
    // icon: {string}
-   // font-awesome icon reference.  (without the 'fa-').  so 'user'  to reference 'fa-user'
+   // font-awesome icon reference.  (without the 'fa-').  so 'user'  to
+   // reference 'fa-user'
 
    key: "End",
    // key: {string}
@@ -79,6 +80,15 @@ module.exports = class ABProcessTaskEndCore extends ABProcessElement {
       };
 
       super.initState(context, myDefaults, val);
+   }
+
+   /*
+    * @function isEndTask
+    * return true if the current type of task is an End task. False otherwise.
+    * @return {bool}
+    */
+   isEndTask() {
+      return true;
    }
 
    /**

@@ -97,24 +97,6 @@ module.exports = class InsertRecordCore extends ABProcessElement {
       return obj.fields((f) => f.id == this.repeatColumn)[0];
    }
 
-   /*
-     fromValues(attributes) {
-         /*
-         {
-             id: uuid(),
-             name: 'name',
-             type: 'xxxxx',
-             json: "{json}"
-         }
-         * /
-         super.fromValues(attributes);
- 
-         AccountingBatchProcessingDefaults.settings.forEach((f) => {
-             this[f] = attributes[f];
-         });
-     }
-     */
-
    /**
     * @method toObj()
     *
@@ -141,58 +123,4 @@ module.exports = class InsertRecordCore extends ABProcessElement {
    ////
    //// Process Instance Methods
    ////
-
-   /**
-    * initState()
-    * setup this task's initial state variables
-    * @param {obj} context  the context data of the process instance
-    * @param {obj} val  any values to override the default state
-    */
-   /*
-     initState(context, val) {
-         var myDefaults = {
-             instanceVariable1: null,
-             instanceVariable2: null
-         };
- 
-         super.initState(context, myDefaults, val);
-     }
-     */
-
-   /**
-    * processDataFields()
-    * return an array of avaiable data fields that this element
-    * can provide to other ProcessElements.
-    * Different Process Elements can make data available to other
-    * process Elements.
-    * @return {array} | null
-    */
-   /*
-     processDataFields() {
-         // in this Task, we can return the Response to the UserForm
-         return [
-             {
-                 key: `${this.id}.[someInstanceVariableHere]`,
-                 label: `${this.label}->Response`
-             }
-         ];
-     }
-     */
-
-   /**
-    * processData()
-    * return the current value requested for the given data key.
-    * @param {obj} instance
-    * @return {mixed} | null
-    */
-   /*
-     processData(instance, key) {
-         var parts = key.split(".");
-         if (parts[0] == this.id) {
-             var myState = this.myState(instance);
-             return myState[parts[1]];
-         }
-         return null;
-     }
-     */
 };

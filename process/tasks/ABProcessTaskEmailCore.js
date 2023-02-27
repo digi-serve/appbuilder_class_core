@@ -76,6 +76,11 @@ module.exports = class ABProcessTaskEmailCore extends ABProcessElement {
    }
 
    /**
+    * onProcessReady()
+    * Perform our warnings checks once the parent Process is ready
+    */
+
+   /**
     * @method toObj()
     *
     * properly compile the current state of this ABApplication instance
