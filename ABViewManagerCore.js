@@ -19,6 +19,7 @@ var AllViews = [
    require("../platform/views/ABViewContainer"),
    require("../platform/views/ABViewCSVExporter"),
    require("../platform/views/ABViewCSVImporter"),
+   require("../platform/views/ABViewDataFilter"),
    require("../platform/views/ABViewDataview"),
    require("../platform/views/ABViewDocxBuilder"),
    require("../platform/views/ABViewGrid"),
