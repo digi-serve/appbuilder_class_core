@@ -209,6 +209,7 @@ module.exports = class ABObjectCore extends ABMLClass {
       // this is a collection of the ABFields in our .fieldIDs that were
       // IMPORTED.
 
+      this._unknownFieldIDs = [];
       this.fieldIDs.forEach((id) => {
          if (!id) return;
 
@@ -216,14 +217,14 @@ module.exports = class ABObjectCore extends ABMLClass {
          if (def) {
             fields.push(this.AB.fieldNew(def, this));
          } else {
-            this.emit(
-               "warning",
-               `O[${this.name}] is referenceing an unknown field id[${id}]`,
-               {
-                  obj: this.id,
-                  field: id,
-               }
+            this._unknownFieldIDs.push(id);
+            let err = new Error(
+               `O[${this.name}] is referenceing an unknown field id[${id}]`
             );
+            this.AB.notify.builder(err, {
+               obj: this.id,
+               field: id,
+            });
          }
       });
       this._fields = fields;
@@ -242,20 +243,21 @@ module.exports = class ABObjectCore extends ABMLClass {
     *        [ "uuid11", "uuid2", ... "uuidN" ]
     */
    importIndexes(indexIDs) {
+      this._unknownIndex = [];
       var indexes = [];
       (indexIDs || []).forEach((id) => {
          var def = this.AB.definitionByID(id);
          if (def) {
             indexes.push(this.AB.indexNew(def, this));
          } else {
-            this.emit(
-               "warning",
-               `O[${this.name}] is referenceing an unknown index id[${id}]`,
-               {
-                  obj: this.id,
-                  index: id,
-               }
+            this._unknownIndex.push(id);
+            let err = new Error(
+               `O[${this.name}] is referenceing an unknown index id[${id}]`
             );
+            this.AB.notify.builder(err, {
+               obj: this.id,
+               index: id,
+            });
          }
       });
       this._indexes = indexes;
@@ -304,9 +306,18 @@ module.exports = class ABObjectCore extends ABMLClass {
 
       // track the field .ids of our fields
       var fieldIDs = this.fields().map((f) => f.id);
+      (this._unknownFieldIDs || []).forEach((id) => {
+         fieldIDs.push(id);
+      });
+      // NOTE: we keep the ._unknownFieldIDs so a developer/builder
+      // can come back and track down what happened to the missing
+      // ids.
 
       // track the index .ids of our indexes
       var indexIDs = this.indexes().map((f) => f.id);
+      (this._unknownIndex || []).forEach((id) => {
+         indexIDs.push(id);
+      });
 
       return {
          id: this.id,
@@ -417,14 +428,15 @@ module.exports = class ABObjectCore extends ABMLClass {
          if (def) {
             this._fields.push(this.AB.fieldNew(def, this));
          } else {
-            this.emit(
-               "warning",
-               `O[${this.name}] is importing an unknown field id[${id}]`,
-               {
-                  obj: this.id,
-                  field: id,
-               }
+            this._unknownFieldIDs = this._unknownFieldIDs || [];
+            this._unknownFieldIDs.push(id);
+            let err = new Error(
+               `O[${this.name}] is importing an unknown field id[${id}]`
             );
+            this.AB.notify.builder(err, {
+               obj: this.id,
+               field: id,
+            });
          }
       }
    }

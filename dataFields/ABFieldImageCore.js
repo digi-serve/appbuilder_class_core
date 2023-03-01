@@ -75,20 +75,14 @@ module.exports = class ABFieldImageCore extends ABField {
       super(values, object, ABFieldImageDefaults);
 
       // NOTE: our Labels are ready here:
-      if (
-         ABFieldImageDefaults.menuName == "*Image Attachment" &&
-         this.AB.Label
-      ) {
-         const L = this.AB.Label();
-         ABFieldImageDefaults.menuName = L(
-            "ab.dataField.image.menuName",
-            "*Image Attachment"
-         );
-         ABFieldImageDefaults.description = L(
-            "ab.dataField.image.description",
-            "*Attach an image to this object."
-         );
-      }
+      // if (
+      //    ABFieldImageDefaults.menuName == "*Image Attachment" &&
+      //    this.AB.Label
+      // ) {
+      //    const L = this.AB.Label();
+      //    ABFieldImageDefaults.menuName = L("Image Attachment");
+      //    ABFieldImageDefaults.description = L("Attach an image to this object.");
+      // }
 
       /*
     	{

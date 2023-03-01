@@ -151,34 +151,6 @@ module.exports = class ABFieldConnectCore extends ABField {
       this.settings.isCustomFK = parseInt(this.settings.isCustomFK || 0);
    }
 
-   warnings() {
-      this._warnings = [];
-
-      var linkField = this.fieldLink;
-      if (!linkField) {
-         this.emit(
-            "warning",
-            `ConnectField[${this.label}][${this.id}] is unable to find linked field[${this.settings.linkColumn}]`,
-            {
-               linkColumn: this.settings.linkColumn,
-            }
-         );
-      }
-
-      let linkObj = this.datasourceLink;
-      if (!linkObj) {
-         this.emit(
-            "warning",
-            `ConnectField[${this.label}][${this.id}] is unable to find linked object[${this.settings.linkObject}]`,
-            {
-               linkObject: this.settings.linkObject,
-            }
-         );
-      }
-
-      return this._warnings;
-   }
-
    ///
    /// Working with Actual Object Values:
    ///
@@ -354,51 +326,31 @@ module.exports = class ABFieldConnectCore extends ABField {
       if (!this.settings.isCustomFK || !this.settings.indexField) {
          return null;
       }
-
+      const linkType = `${this.settings.linkType}:${this.settings.linkViaType}`;
       // 1:M
-      if (
-         this.settings.linkType == "one" &&
-         this.settings.linkViaType == "many"
-      ) {
-         return this.datasourceLink.fields(
-            (f) => f.id == this.settings.indexField
-         )[0];
+      if (linkType === "one:many") {
+         return this.datasourceLink.fieldByID(this.settings.indexField);
       }
       // 1:1
-      else if (
-         this.settings.linkType == "one" &&
-         this.settings.linkViaType == "one"
-      ) {
+      else if (linkType === "one:one") {
          if (this.settings.isSource) {
-            return this.datasourceLink.fields(
-               (f) => f.id == this.settings.indexField
-            )[0];
+            return this.datasourceLink.fieldByID(this.settings.indexField);
          } else {
-            return this.object.fields(
-               (f) => f.id == this.settings.indexField
-            )[0];
+            return this.object.fieldByID(this.settings.indexField);
          }
       }
       // M:1
-      else if (
-         this.settings.linkType == "many" &&
-         this.settings.linkViaType == "one"
-      ) {
-         return this.object.fields((f) => f.id == this.settings.indexField)[0];
+      else if (linkType === "many:one") {
+         return this.object.fieldByID(this.settings.indexField);
       }
       // M:N
-      else if (
-         this.settings.linkType == "many" &&
-         this.settings.linkViaType == "many"
-      ) {
-         let indexField = this.object.fields(
-            (f) => f.id == this.settings.indexField
-         )[0];
+      else if (linkType === "many:many") {
+         let indexField = this.object.fieldByID(this.settings.indexField);
 
          if (indexField == null)
-            indexField = this.datasourceLink.fields(
-               (f) => f.id == this.settings.indexField
-            )[0];
+            indexField = this.datasourceLink.fieldByID(
+               this.settings.indexField
+            );
 
          return indexField;
       }
@@ -422,14 +374,12 @@ module.exports = class ABFieldConnectCore extends ABField {
          this.settings.linkType == "many" &&
          this.settings.linkViaType == "many"
       ) {
-         indexField = this.object.fields(
-            (f) => f.id == this.settings.indexField2
-         )[0];
+         indexField = this.object.fieldByID(this.settings.indexField2);
 
          if (indexField == null)
-            indexField = this.datasourceLink.fields(
-               (f) => f.id == this.settings.indexField2
-            )[0];
+            indexField = this.datasourceLink.fieldByID(
+               this.settings.indexField2
+            );
       }
 
       return indexField;
@@ -450,12 +400,11 @@ module.exports = class ABFieldConnectCore extends ABField {
       const indexField = this.indexField;
       const datasourceLink = this.datasourceLink;
 
+      const linkType = `${this.settings.linkType}:${this.settings.linkViaType}`;
+
       // custom index
       // M:N
-      if (
-         this.settings.linkType == "many" &&
-         this.settings.linkViaType == "many"
-      ) {
+      if (linkType === "many:many") {
          const indexField2 = this.indexField2;
 
          if (indexField && indexField.object.id == datasourceLink.id) {
@@ -467,19 +416,13 @@ module.exports = class ABFieldConnectCore extends ABField {
       // 1:M, 1:1 isSource = true
       else if (
          indexField &&
-         ((this.settings.linkType == "one" &&
-            this.settings.linkViaType == "many") ||
-            (this.settings.linkType == "one" &&
-               this.settings.linkViaType == "one" &&
-               this.settings.isSource))
+         (linkType === "one:many" ||
+            (linkType === "one:one" && this.settings.isSource))
       ) {
          colName = indexField.columnName;
       }
       // M:1
-      else if (
-         this.settings.linkType == "many" &&
-         this.settings.linkViaType == "one"
-      ) {
+      else if (linkType === "many:one") {
          // NOTE: M:1 has special case
          // it uses different value for search and update.
          // UPDATE uses row id
