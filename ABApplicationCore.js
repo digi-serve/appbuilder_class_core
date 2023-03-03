@@ -278,6 +278,8 @@ module.exports = class ABApplicationCore extends ABMLClass {
 
       this.json.name = this.name;
 
+      this.json.version = this.version;
+
       this.json.objectIDs = this.objectIDs;
 
       this.json.objectListSettings = this.objectListSettings;
@@ -301,6 +303,7 @@ module.exports = class ABApplicationCore extends ABMLClass {
          id: this.id,
          type: this.type || "application",
          name: this.name,
+         version: this.version,
          icon: this.icon,
          isSystemObject: this.isSystemObject,
          json: this.json,

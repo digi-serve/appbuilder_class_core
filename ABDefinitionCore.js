@@ -56,6 +56,7 @@ module.exports = class ABDefinitionCore {
     * @return {json}
     */
    toObj() {
+      this.json["version"] = this.version || this.json.version;
       return {
          id: this.id,
          name: this.name,
