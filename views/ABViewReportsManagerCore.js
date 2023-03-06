@@ -8,7 +8,7 @@ const ABViewReportManagerPropertyComponentDefaults = {
 const ABViewDefaults = {
    key: "reportsManager", // {string} unique key for this view
    icon: "wpforms", // {string} fa-[icon] reference for this view
-   labelKey: "ab.components.reportsManager" // {string} the multilingual label key for the class label
+   labelKey: "Reports Manager" // {string} the multilingual label key for the class label
 };
 
 module.exports = class ABViewReportsManagerCore extends ABViewWidget {
