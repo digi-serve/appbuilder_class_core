@@ -152,7 +152,11 @@ module.exports = class ABFieldFormulaCore extends ABField {
       if (rowData[this.columnName] != null && !reCalculate && !isGrouped) {
          // reformat data
          return reformat(rowData[this.columnName]);
-      } else if (rowData[this.columnName] != null && !reCalculate && isGrouped) {
+      } else if (
+         rowData[this.columnName] != null &&
+         !reCalculate &&
+         isGrouped
+      ) {
          return rowData[this.columnName];
       }
 
@@ -258,16 +262,14 @@ module.exports = class ABFieldFormulaCore extends ABField {
    }
 
    fieldBase() {
-      return this.object.fields((f) => f.id == this.settings.field)[0];
+      return this.object.fieldByID(this.settings.field);
    }
 
    get fieldLink() {
-      const obj = this.object.AB.objects(
-         (obj) => obj.id == this.settings.object
-      )[0];
+      const obj = this.AB.objectByID(this.settings.object);
       if (!obj) return null;
 
-      const field = obj.fields((f) => f.id == this.settings.fieldLink)[0];
+      const field = obj.fieldByID(this.settings.fieldLink);
       if (!field) return null;
 
       return field;
