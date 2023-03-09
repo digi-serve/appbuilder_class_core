@@ -42,6 +42,15 @@ module.exports = class ABDefinitionCore {
       }
       this.type = attributes.type || attributes?.json?.type || "";
       this.json = attributes.json || null;
+
+      this.version = attributes.version || attributes.json?.version || "1.0.0";
+      this.versionData = attributes.versionData ||
+         attributes.json?.versionData || {
+            versionNumber: "1.0.0",
+            changeLog: {
+               "1.0.0": "Initial Version",
+            },
+         };
    }
 
    /**
@@ -56,7 +65,6 @@ module.exports = class ABDefinitionCore {
     * @return {json}
     */
    toObj() {
-      this.json["version"] = this.version || this.json.version;
       return {
          id: this.id,
          name: this.name,
