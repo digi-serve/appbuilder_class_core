@@ -70,11 +70,11 @@ module.exports = class ABObjectQueryCore extends ABObject {
       // {bool}
       // a property to mark the difference between an ABObject and ABObjectQuery.
 
-      this.__missingObject = [];
+      this.__missingObject = this.__missingObject ?? [];
       // {array} fieldInfo
       // the field info that defined an object we can't find.
 
-      this.__missingFields = [];
+      this.__missingFields = this.__missingFields ?? [];
       // {array} [ { objID, fieldID }, ... ]
       // a list of field definitions that we are unable to resolve.
 
@@ -230,12 +230,14 @@ module.exports = class ABObjectQueryCore extends ABObject {
          }
 
          if (!object) {
+            this.__missingObject = this.__missingObject ?? [];
             this.__missingObject.push(fieldInfo);
             return;
          }
 
          let field = object.fieldByID(fieldInfo.fieldID);
          if (!field) {
+            this.__missingFields = this.__missingFields ?? [];
             this.__missingFields.push({
                objID: object.id,
                fieldID: fieldInfo.fieldID,
