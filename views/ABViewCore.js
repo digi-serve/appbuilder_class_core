@@ -42,6 +42,10 @@ module.exports = class ABViewCore extends ABMLClass {
       // {bool}
       // Should we suppress our configuration warnings?
 
+      this.__missingViews = [];
+      // {array}
+      // Any ABView.id we have stored that we can't find.
+
       this.fromValues(values);
    }
 
@@ -115,6 +119,7 @@ module.exports = class ABViewCore extends ABMLClass {
 
       // encode our child view references
       result.viewIDs = (this._views || []).map((v) => v.id).filter((id) => id);
+      result.viewIDs = result.viewIDs.concat(this.__missingViews);
 
       if (this.position) result.position = this.position;
 
@@ -205,20 +210,13 @@ module.exports = class ABViewCore extends ABMLClass {
       }
 
       var views = [];
+      this.__missingViews = this.__missingViews || [];
       (values.viewIDs || []).forEach((id) => {
          var def = this.AB.definitionByID(id);
          if (def) {
             views.push(this.application.viewNew(def, this.application, this));
          } else {
-            this.AB.notify.builder(
-               new Error(
-                  `Application[${this.application.name}][${this.application.id}].View[${this.name}][${this.id}] references unknown View[${id}]`
-               ),
-               {
-                  context:"ABViewCore:fromValues():values.viewIDs for each",
-                  id
-               }
-            );
+            this.__missingViews.push(id);
          }
       });
       this._views = views;
@@ -921,9 +919,10 @@ module.exports = class ABViewCore extends ABMLClass {
                         .then((copiedSubPage) => {
                            copiedSubPage.parent = result;
                            // remove the temp {id:} entry above:
-                           this.application._pages = this.application._pages.filter(
-                              (p2) => p2.id != lookUpIds[p.id]
-                           );
+                           this.application._pages =
+                              this.application._pages.filter(
+                                 (p2) => p2.id != lookUpIds[p.id]
+                              );
 
                            // now add the full copiedSubPage:
                            result._pages.push(copiedSubPage);
