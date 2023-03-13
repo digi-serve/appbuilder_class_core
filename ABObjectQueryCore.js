@@ -478,6 +478,8 @@ module.exports = class ABObjectQueryCore extends ABObject {
       let processJoin = (baseObject, joins) => {
          if (!baseObject) return;
 
+         this.__linkProblems = this.__linkProblems ?? [];
+
          (joins || []).forEach((link) => {
             // Convert our saved settings:
             //	{
@@ -495,8 +497,6 @@ module.exports = class ABObjectQueryCore extends ABObject {
             //			}
             //		]
             //	},
-
-            this.__linkProblems = this.__linkProblems ?? [];
 
             var linkField = baseObject.fieldByID(link.fieldID);
             if (!linkField) {
