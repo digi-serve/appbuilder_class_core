@@ -79,7 +79,13 @@ module.exports = class ABApplicationCore extends ABMLClass {
          attributes.json.versionData || {
             versionNumber: "1.0.0",
             changeLog: {
-               "1.0.0": "Initial Version",
+               "1.0.0": {
+                  author: "N/A",
+                  version: "1.0.0",
+                  keepVersion: 0,
+                  commitMessage: "Initial Version",
+                  timestamp: new Date().toISOString(),
+               },
             },
          };
       if (typeof this.versionData == "string")
