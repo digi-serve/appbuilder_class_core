@@ -247,6 +247,7 @@ module.exports = class ABObjectQueryCore extends ABObject {
          }
 
          if (!this.canFilterField(field)) {
+            this.__cantFilter == this.__cantFilter ?? [];
             this.__cantFilter.push({ field, fieldInfo });
          }
 
@@ -258,6 +259,7 @@ module.exports = class ABObjectQueryCore extends ABObject {
             ).length < 1;
 
          if (!isNew) {
+            this.__duplicateFields = this.__duplicateFields ?? [];
             this.__duplicateFields.push({ fieldInfo });
          }
 
@@ -475,6 +477,8 @@ module.exports = class ABObjectQueryCore extends ABObject {
 
       let processJoin = (baseObject, joins) => {
          if (!baseObject) return;
+
+         this.__linkProblems = this.__linkProblems ?? [];
 
          (joins || []).forEach((link) => {
             // Convert our saved settings:
