@@ -70,7 +70,25 @@ module.exports = class ABObjectQueryCore extends ABObject {
       // {bool}
       // a property to mark the difference between an ABObject and ABObjectQuery.
 
-      // this.fromValues(attributes);
+      this.__missingObject = this.__missingObject ?? [];
+      // {array} fieldInfo
+      // the field info that defined an object we can't find.
+
+      this.__missingFields = this.__missingFields ?? [];
+      // {array} [ { objID, fieldID }, ... ]
+      // a list of field definitions that we are unable to resolve.
+
+      this.__cantFilter = [];
+      // {array} [ {field, fieldInfo}, ... ]
+      // a list of field that were assigned but can't be used for filtering.
+
+      this.__duplicateFields = [];
+      // {array} [ {fieldInfo}, ... ]
+      // a list of duplicate field definitions.
+
+      this.__linkProblems = [];
+      // {array} [ { message, data }, ...]
+      // a list of warning messages related to link objects
    }
 
    ///
@@ -191,7 +209,6 @@ module.exports = class ABObjectQueryCore extends ABObject {
     * Our attributes are a set of field URLs That should already be created in their respective
     * ABObjects.
     * @param {array} fieldSettings The different field urls for each field
-    *					{ }
     */
    importFields(fieldSettings) {
       var newFields = [];
@@ -213,44 +230,25 @@ module.exports = class ABObjectQueryCore extends ABObject {
          }
 
          if (!object) {
-            this.emit(
-               "warning",
-               `IMPORT FIELDS: could not resolve object[${
-                  fieldInfo.objectID
-               }] for fieldSetting ${JSON.stringify(fieldInfo)}`,
-               {
-                  fieldInfo,
-               }
-            );
+            this.__missingObject = this.__missingObject ?? [];
+            this.__missingObject.push(fieldInfo);
             return;
          }
 
          let field = object.fieldByID(fieldInfo.fieldID);
          if (!field) {
-            this.emit(
-               "warning",
-               `IMPORT FIELDS: Object[${object.id}] could not find field[${
-                  fieldInfo.fieldID
-               }] for fieldSetting ${JSON.stringify(fieldInfo)}`,
-               {
-                  object: object.toObj(),
-                  fieldInfo,
-               }
-            );
+            this.__missingFields = this.__missingFields ?? [];
+            this.__missingFields.push({
+               objID: object.id,
+               fieldID: fieldInfo.fieldID,
+               fieldInfo,
+            });
             return;
          }
 
          if (!this.canFilterField(field)) {
-            this.emit(
-               "warning",
-               `Field[${field.id}] referenced in fieldSetting[${JSON.stringify(
-                  fieldInfo
-               )}] did not pass .canFilterField`,
-               {
-                  field: field.toObj(),
-                  fieldInfo,
-               }
-            );
+            this.__cantFilter == this.__cantFilter ?? [];
+            this.__cantFilter.push({ field, fieldInfo });
          }
 
          // check duplicate
@@ -261,18 +259,8 @@ module.exports = class ABObjectQueryCore extends ABObject {
             ).length < 1;
 
          if (!isNew) {
-            this.emit(
-               "warning",
-               `Field[${
-                  fieldInfo.fieldID
-               }] referenced in fieldSetting[${JSON.stringify(
-                  fieldInfo
-               )}] is a duplicate`,
-               {
-                  field: field.toObj(),
-                  fieldInfo,
-               }
-            );
+            this.__duplicateFields = this.__duplicateFields ?? [];
+            this.__duplicateFields.push({ fieldInfo });
          }
 
          // should be a field of base/join objects
@@ -313,6 +301,17 @@ module.exports = class ABObjectQueryCore extends ABObject {
             fieldID: fieldInfo.field.id,
          });
       });
+
+      // let's persist the faulty settings so a developer or builder can
+      // review and fix it by hand.
+      (this.__missingObject || []).forEach((f) => {
+         currFields.push(f);
+      });
+
+      (this.__cantFilter || []).forEach((f) => {
+         currFields.push(f.fieldInfo);
+      });
+
       return currFields;
    }
 
@@ -479,6 +478,8 @@ module.exports = class ABObjectQueryCore extends ABObject {
       let processJoin = (baseObject, joins) => {
          if (!baseObject) return;
 
+         this.__linkProblems = this.__linkProblems ?? [];
+
          (joins || []).forEach((link) => {
             // Convert our saved settings:
             //	{
@@ -499,8 +500,11 @@ module.exports = class ABObjectQueryCore extends ABObject {
 
             var linkField = baseObject.fieldByID(link.fieldID);
             if (!linkField) {
-               this.emit("warning", "could not resolve our linkField", {
-                  link,
+               this.__linkProblems.push({
+                  message: `could not resolve our linkField[${link.fieldID}]`,
+                  data: {
+                     link,
+                  },
                });
                return;
             }
@@ -508,13 +512,12 @@ module.exports = class ABObjectQueryCore extends ABObject {
             // track our linked object
             var linkObject = this.AB.objectByID(linkField.settings.linkObject);
             if (!linkObject) {
-               this.emit(
-                  "warning",
-                  "could not resolve our linked field -> linkObject",
-                  {
+               this.__linkProblems.push({
+                  message: `could not resolve our linked field -> linkObject[${linkField.settings.linkObject}]`,
+                  data: {
                      link,
-                  }
-               );
+                  },
+               });
                return;
             }
 
@@ -534,8 +537,11 @@ module.exports = class ABObjectQueryCore extends ABObject {
       var rootObject = this.objectBase();
       if (!rootObject) {
          // this._objects = newObjects;
-         this.emit("warning", "could not resolve our base object", {
-            objectID: this._joins?.objectID,
+         this.__linkProblems.push({
+            message: "could not resolve our base object",
+            data: {
+               objectID: this._joins?.objectID,
+            },
          });
          return;
       }
