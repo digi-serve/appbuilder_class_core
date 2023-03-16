@@ -908,8 +908,8 @@ class ABFactory extends EventEmitter {
          Object.keys(info).forEach((k) => {
             switch (k) {
                case "field":
-                  moreInfo.objectID = info[k].object.id;
-                  moreInfo.objectName = info[k].object.name;
+                  moreInfo.objectID = info[k].object?.id;
+                  moreInfo.objectName = info[k].object?.name;
                   moreInfo.fieldID = info[k].id;
                   moreInfo.fieldName = info[k].label || info[k].name;
                   break;
@@ -974,4 +974,3 @@ class ABFactory extends EventEmitter {
 }
 
 module.exports = ABFactory;
-
