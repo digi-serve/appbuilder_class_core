@@ -2,9 +2,9 @@ name: "CodeQL"
 
 on:
   push:
-    branches: [ "master" ]
+    branches: [ "v2" ]
   pull_request:
-    branches: [ "master" ]
+    branches: [ "v2" ]
   schedule:
     - cron: "40 16 * * 3"
 
@@ -25,6 +25,8 @@ jobs:
     steps:
       - name: Checkout
         uses: actions/checkout@v3
+        with:
+          ref: v2
 
       - name: Initialize CodeQL
         uses: github/codeql-action/init@v2
