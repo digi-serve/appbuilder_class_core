@@ -222,8 +222,7 @@ module.exports = class ABObjectCore extends ABMLClass {
                `O[${this.name}] is referenceing an unknown field id[${id}]`
             );
             this.AB.notify.builder(err, {
-               obj: this.id,
-               field: id,
+               field: { id, object: { id: this.id, name: this.name } },
             });
          }
       });
@@ -255,8 +254,7 @@ module.exports = class ABObjectCore extends ABMLClass {
                `O[${this.name}] is referenceing an unknown index id[${id}]`
             );
             this.AB.notify.builder(err, {
-               obj: this.id,
-               index: id,
+               field: { id, object: { id: this.id, name: this.name } },
             });
          }
       });
@@ -434,8 +432,7 @@ module.exports = class ABObjectCore extends ABMLClass {
                `O[${this.name}] is importing an unknown field id[${id}]`
             );
             this.AB.notify.builder(err, {
-               obj: this.id,
-               field: id,
+               field: { id, object: { id: this.id, name: this.name } },
             });
          }
       }
