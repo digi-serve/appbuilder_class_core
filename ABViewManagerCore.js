@@ -61,6 +61,7 @@ var AllViews = [
    require("../platform/views/ABViewFormConnect"),
    require("../platform/views/ABViewFormCustom"),
    require("../platform/views/ABViewFormDatepicker"),
+   require("../platform/views/ABViewFormJson"),
    require("../platform/views/ABViewFormNumber"),
    require("../platform/views/ABViewFormReadonly"),
    require("../platform/views/ABViewFormSelectMultiple"),
