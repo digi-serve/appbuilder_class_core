@@ -97,10 +97,8 @@ module.exports = class FilterComplexCore extends ABComponent {
       // this.isValid = _logic.isValid;
    }
 
-   init(options) {
-      if (options?.showObjectName) {
-         this._settings.showObjectName = options.showObjectName;
-      }
+   init(options = {}) {
+      this._settings = options;
    }
 
    /**
@@ -699,65 +697,112 @@ module.exports = class FilterComplexCore extends ABComponent {
          let type = "text"; // "text", "number", "date"
          let conditions = [];
          let processFieldKeys = [];
-         switch (f.key) {
-            case "boolean":
-               conditions = conditions
-                  .concat(this.fieldsAddFiltersBoolean(f))
-                  .concat(this.fieldsAddFiltersQueryField(f));
-               processFieldKeys = ["boolean"];
-               break;
-            case "connectObject":
-               conditions = this.fieldsAddFiltersQuery(f);
-               processFieldKeys = ["connectObject"];
-               break;
-            case "date":
-            case "datetime":
-               type = "date";
-               conditions = conditions
-                  .concat(this.fieldsAddFiltersDate(f))
-                  .concat(this.fieldsAddFiltersQueryField(f));
-               processFieldKeys = ["date", "datetime"];
-               break;
-            case "calculate":
-            case "formula":
-            case "number":
-               type = "number";
-               conditions = conditions
-                  .concat(this.fieldsAddFiltersNumber(f))
-                  .concat(this.fieldsAddFiltersQueryField(f));
-               processFieldKeys = ["calculate", "formula", "number"];
-               break;
-            case "string":
-            case "LongText":
-            case "email":
-            case "AutoIndex":
-               conditions = conditions
-                  .concat(this.fieldsAddFiltersString(f))
-                  .concat(this.fieldsAddFiltersQueryField(f));
-               processFieldKeys = ["string", "LongText", "email", "AutoIndex"];
-               break;
-            case "list":
-               conditions = conditions
-                  .concat(this.fieldsAddFiltersList(f))
-                  .concat(this.fieldsAddFiltersQueryField(f));
-               break;
-            case "user":
-               conditions = conditions
-                  .concat(this.fieldsAddFiltersUser(f))
-                  .concat(this.fieldsAddFiltersQueryField(f));
-               processFieldKeys = ["user"];
-               break;
-            case "uuid":
-               conditions = conditions.concat(
-                  this.fieldsAddFiltersThisObject(f)
-               );
-               break;
-            default:
-               type = "text";
-               break;
-         }
+         let hasQueryField = true;
 
-         if (this._isRecordRule) {
+         if (!this._settings.isProcessParticipant)
+            switch (f.key) {
+               case "boolean":
+                  conditions = conditions.concat(
+                     this.fieldsAddFiltersBoolean(f)
+                  );
+                  processFieldKeys = ["boolean"];
+
+                  break;
+
+               case "connectObject":
+                  conditions = this.fieldsAddFiltersConnectObject(f);
+
+                  // Add filter options to Custom index
+                  if (
+                     f.settings.isCustomFK &&
+                     // 1:M
+                     ((f.settings.linkType == "one" &&
+                        f.settings.linkViaType == "many") ||
+                        // 1:1 isSource = true
+                        (f.settings.linkType == "one" &&
+                           f.settings.linkViaType == "one" &&
+                           f.settings.isSource))
+                  ) {
+                     const stringResults = this.fieldsAddFiltersString(f);
+
+                     conditions = stringResults.concat(conditions);
+                  }
+
+                  hasQueryField = false;
+                  processFieldKeys = ["connectObject"];
+
+                  break;
+
+               case "date":
+               case "datetime":
+                  type = "date";
+                  conditions = conditions.concat(this.fieldsAddFiltersDate(f));
+                  processFieldKeys = ["date", "datetime"];
+
+                  break;
+
+               case "calculate":
+               case "formula":
+               case "number":
+                  type = "number";
+                  conditions = conditions.concat(
+                     this.fieldsAddFiltersNumber(f)
+                  );
+                  processFieldKeys = ["calculate", "formula", "number"];
+
+                  break;
+
+               case "string":
+               case "LongText":
+               case "email":
+               case "AutoIndex":
+                  conditions = conditions.concat(
+                     this.fieldsAddFiltersString(f)
+                  );
+                  processFieldKeys = [
+                     "string",
+                     "LongText",
+                     "email",
+                     "AutoIndex",
+                  ];
+
+                  break;
+
+               case "list":
+                  conditions = conditions.concat(this.fieldsAddFiltersList(f));
+
+                  break;
+
+               case "user":
+                  conditions = conditions.concat(this.fieldsAddFiltersUser(f));
+                  processFieldKeys = ["user"];
+
+                  break;
+
+               case "uuid":
+                  conditions = conditions.concat(
+                     this.fieldsAddFiltersThisObject(f)
+                  );
+                  hasQueryField = false;
+
+                  break;
+               default:
+                  break;
+            }
+         else
+            switch (f.key) {
+               case "connectObject":
+               case "uuid":
+                  hasQueryField = false;
+
+                  break;
+            }
+
+         conditions = conditions.concat(
+            this.fieldsAddFiltersQuery(f, hasQueryField)
+         );
+
+         if (this._settings.isRecordRule) {
             conditions = conditions.concat(this.fieldsAddFiltersRecordRule(f));
          }
 
@@ -999,18 +1044,8 @@ module.exports = class FilterComplexCore extends ABComponent {
       return result;
    }
 
-   fieldsAddFiltersQuery(field) {
-      let connectConditions = {
-         in_query: {
-            batch: "query",
-            label: this.labels.component.inQuery,
-            handler: (a, b) => this.inQueryValid(a, "in_query", b),
-         },
-         not_in_query: {
-            batch: "query",
-            label: this.labels.component.notInQuery,
-            handler: (a, b) => this.inQueryValid(a, "not_in_query", b),
-         },
+   fieldsAddFiltersConnectObject(field) {
+      const connectConditions = {
          same_as_user: {
             batch: "user",
             label: this.labels.component.sameAsUser,
@@ -1040,7 +1075,7 @@ module.exports = class FilterComplexCore extends ABComponent {
          // not_equal: this.labels.component.isNotCondition
       };
 
-      let result = [];
+      const result = [];
 
       for (let condKey in connectConditions) {
          result.push({
@@ -1051,37 +1086,39 @@ module.exports = class FilterComplexCore extends ABComponent {
          });
       }
 
-      // Add filter options to Custom index
-      if (
-         field.settings.isCustomFK &&
-         // 1:M
-         ((field.settings.linkType == "one" &&
-            field.settings.linkViaType == "many") ||
-            // 1:1 isSource = true
-            (field.settings.linkType == "one" &&
-               field.settings.linkViaType == "one" &&
-               field.settings.isSource))
-      ) {
-         const stringResults = this.fieldsAddFiltersString(field);
-         result = stringResults.concat(result);
-      }
-
       return result;
    }
 
-   fieldsAddFiltersQueryField(field) {
-      let queryFieldConditions = {
-         in_query_field: this.labels.component.inQueryField,
-         not_in_query_field: this.labels.component.notInQueryField,
-      };
+   fieldsAddFiltersQuery(field, hasQueryField = false) {
+      const queryConditions = hasQueryField
+         ? {
+              in_query_field: {
+                 label: this.labels.component.inQueryField,
+                 batch: "queryField",
+              },
+              not_in_query_field: {
+                 label: this.labels.component.notInQueryField,
+                 batch: "queryField",
+              },
+           }
+         : {
+              in_query: {
+                 label: this.labels.component.inQuery,
+                 batch: "query",
+              },
+              not_in_query: {
+                 label: this.labels.component.notInQuery,
+                 batch: "query",
+              },
+           };
 
-      let result = [];
+      const result = [];
 
-      for (let condKey in queryFieldConditions) {
+      for (const condKey in queryConditions) {
          result.push({
             id: condKey,
-            value: queryFieldConditions[condKey],
-            batch: "queryField",
+            value: queryConditions[condKey].label,
+            batch: queryConditions[condKey].batch,
             handler: (a, b) => this.queryFieldValid(a, condKey, b),
          });
       }
@@ -1091,14 +1128,6 @@ module.exports = class FilterComplexCore extends ABComponent {
 
    fieldsAddFiltersThisObject(field) {
       let thisObjectConditions = {
-         in_query: {
-            batch: "query",
-            label: this.labels.component.inQuery,
-         },
-         not_in_query: {
-            batch: "query",
-            label: this.labels.component.notInQuery,
-         },
          in_data_collection: {
             batch: "datacollection",
             label: this.labels.component.inDataCollection,

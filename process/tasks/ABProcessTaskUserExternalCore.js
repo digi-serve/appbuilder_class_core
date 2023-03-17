@@ -30,7 +30,7 @@ const ABProcessTaskUserExternalDefaults = {
 };
 
 const settings = {
-   who: "0",
+   who: 0,
    toUsers: null,
    url: "",
 };
