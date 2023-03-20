@@ -83,7 +83,7 @@ module.exports = class ABViewCommentCore extends ABViewWidget {
       var obj = dv.datasource;
       if (!obj) return null;
 
-      return obj.fields((f) => f.id == this.settings.columnUser)[0];
+      return obj.fieldByID(this.settings.columnUser);
    }
 
    getCommentField() {
@@ -93,7 +93,7 @@ module.exports = class ABViewCommentCore extends ABViewWidget {
       var obj = dv.datasource;
       if (!obj) return null;
 
-      return obj.fields((f) => f.id == this.settings.columnComment)[0];
+      return obj.fieldByID(this.settings.columnComment);
    }
 
    getDateField() {
@@ -103,10 +103,14 @@ module.exports = class ABViewCommentCore extends ABViewWidget {
       var obj = dv.datasource;
       if (!obj) return null;
 
-      return obj.fields((f) => f.id == this.settings.columnDate)[0];
+      return obj.fieldByID(this.settings.columnDate);
    }
 
    getUserData() {
+      let UserImageField = this.AB.objectUser().fieldByID(
+         "6383ce19-b344-44ee-87e6-decced7361f8"
+      );
+
       var userObject = this.getUsers();
       var userList = [];
 
@@ -115,7 +119,7 @@ module.exports = class ABViewCommentCore extends ABViewWidget {
       userObject.forEach((item, index) => {
          var imageURL = "";
          if (item.image) {
-            imageURL = "/opsportal/image/UserProfile/" + item.image;
+            imageURL = UserImageField.urlImage(item.image);
          }
          var user = { id: index + 1, value: item.value, image: imageURL };
          userList.push(user);
@@ -126,10 +130,6 @@ module.exports = class ABViewCommentCore extends ABViewWidget {
    model() {
       let dv = this.datacollection;
       if (!dv) return null; // TODO: refactor in v2
-
-      // get ABObject
-      let obj = dv.datasource;
-      if (obj == null) return null; // TODO: refactor in v2
 
       // get ABModel
       let model = dv.model; // already notified

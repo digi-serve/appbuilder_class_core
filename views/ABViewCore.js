@@ -59,19 +59,19 @@ module.exports = class ABViewCore extends ABMLClass {
 
    /**
     * @method newInstance()
-    * return a new instance of this ABView.
+    * return a new instance of this ABView.  Most likely called from interfaces
+    * that create new UI elements like the ABDesigner.
     * @param {ABApplication} application  	: the root ABApplication this view is under
     * @param {ABView/ABApplication} parent	: the parent object of this ABView.
     * @return {ABView}
     */
    static newInstance(application, parent) {
-      console.error("!!! where is this being called???");
       // return a new instance from ABViewManager:
       return application.viewNew(
          { key: this.common().key },
          application,
          parent
-      ); // ABViewManager.newView({ key: this.common().key }, application, parent);
+      );
    }
 
    viewKey() {
@@ -237,9 +237,7 @@ module.exports = class ABViewCore extends ABMLClass {
 
    /**
     * @method allParents()
-    *
-    * return an flatten array of all the ABViews parents
-    *
+    * return a flattened array of all the ABViews parents
     * @return {array}      array of ABViews
     */
    allParents() {
@@ -466,7 +464,9 @@ module.exports = class ABViewCore extends ABMLClass {
             });
          } else {
             // These views shouldn't matter if they don't have a datacollection.
-            if (["page", "viewcontainer"].indexOf(this.key) == -1) {
+            if (
+               ["label", "page", "tab", "viewcontainer"].indexOf(this.key) == -1
+            ) {
                console.warn(
                   `TODO: figure out which ABView* require a .dataviewID: ${this.key}?`
                );
