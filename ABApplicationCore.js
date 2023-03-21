@@ -118,6 +118,13 @@ module.exports = class ABApplicationCore extends ABMLClass {
       if (typeof this.translationManagers == "string")
          this.translationManagers = JSON.parse(this.translationManagers);
 
+      this.hintIDs = attributes.json.hintIDs || [];
+      // {array} .hintIDs
+      // All the {ABHint.id} values that have been pulled into this
+      // ABApplication for use in it's design environment.  This is how we
+      // determine which {ABHint}s are included or excluded from
+      // this app.
+
       this.objectIDs = attributes.json.objectIDs || [];
       // {array} .objectIDs
       // All the {ABObject.id} values that have been pulled into this
@@ -282,6 +289,8 @@ module.exports = class ABApplicationCore extends ABMLClass {
 
       this.json.objectListSettings = this.objectListSettings;
 
+      this.json.hintIDs = this.hintIDs;
+
       this.json.queryIDs = this.queryIDs;
 
       this.json.datacollectionIDs = this.datacollectionIDs;
@@ -373,6 +382,26 @@ module.exports = class ABApplicationCore extends ABMLClass {
       const sortFn = sort ?? ((a, b) => a.label.localeCompare(b.label));
       return this.AB.objects((o) => {
          return this.objectIDs.indexOf(o.id) > -1;
+      })
+         .filter(filter)
+         .sort(sortFn);
+   }
+
+   ///
+   /// Hints
+   ///
+
+   hintsExcluded(filter = () => true) {
+      return this.AB.hints((h) => {
+         return this.hintIDs.indexOf(h.id) == -1;
+      }).filter(filter);
+   }
+
+   hintsIncluded(filter = () => true, sort) {
+      // by default sort by label
+      const sortFn = sort ?? ((a, b) => a.label.localeCompare(b.label));
+      return this.AB.hints((h) => {
+         return this.hintIDs.indexOf(h.id) > -1;
       })
          .filter(filter)
          .sort(sortFn);
