@@ -87,6 +87,9 @@ class ABFactory extends EventEmitter {
       this._allQueries = [];
       // {array} of all the ABObjectQuery(s) in our site.
 
+      this._allSteps = [];
+      // {array} of all the ABStep(s) in our site.
+
       this._allDatacollections = [];
       // {array} of all the ABDataCollection(s) in our site.
 
