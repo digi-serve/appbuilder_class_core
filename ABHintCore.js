@@ -33,7 +33,7 @@ module.exports = class ABProcessCore extends ABMLClass {
     */
       this.id = attributes.id;
       this.name = attributes.name || "";
-      this.type = attributes.type || "process";
+      this.type = attributes.type || "hint";
       // this.xmlDefinition = attributes.xmlDefinition || null;
 
       this.json = attributes.json || null;
@@ -67,5 +67,51 @@ module.exports = class ABProcessCore extends ABMLClass {
       });
 
       return data;
+   }
+
+   /**
+    * steps()
+    * return an array of steps that match the given filter (or all steps
+    * if no filter is provided).
+    * @param {fn} fn an iterator that returns true if the provided element
+    *                should be returned.
+    * @return {[ABStep]}
+    */
+   steps(fn = () => true) {
+      var allSteps = Object.keys(this._steps).map((e) => {
+         return this._steps[e];
+      });
+      return allSteps.filter(fn);
+   }
+
+   /**
+    * stepAdd()
+    * insert a step to be added to this hint.
+    * @param {ABStep} element
+    *        the full instance of an ABStep to track.
+    */
+   stepAdd(step) {
+      this._steps[step.id] = step;
+   }
+
+   /**
+    * stepByID()
+    * return the {ABStep} that has the given .id
+    * @param {string} id
+    * @return {ABStep[OBJ]}
+    */
+   stepByID(id) {
+      return this._step[id] ?? null;
+   }
+
+   /**
+    * stepRemove()
+    * remove a step from being displayed by this hint.
+    * @param {obj|ABStep} def
+    *        a definition of, or full Object instance of the ABStep
+    *        to remove.
+    */
+   stepRemove(def) {
+      delete this._steps[def.id];
    }
 };
