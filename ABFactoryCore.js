@@ -22,6 +22,7 @@ const ABObjectImport = require("../platform/ABObjectImport");
 const ABDataCollection = require("../platform/ABDataCollection");
 const ABObjectQuery = require("../platform/ABObjectQuery");
 
+const ABHint = require("../platform/ABHint");
 const ABProcess = require("../platform/ABProcess");
 
 const ABProcessParticipant = require("../platform/process/ABProcessParticipant");
@@ -74,6 +75,9 @@ class ABFactory extends EventEmitter {
 
       this._allObjects = [];
       // {array} of all the ABObject(s) in our site.
+
+      this._allHints = [];
+      // {array} of all the ABHint(s) in our site.
 
       this._allProcesses = [];
       // {array} of all the ABProcess(s) in our site.
@@ -318,6 +322,9 @@ class ABFactory extends EventEmitter {
                keyList: "_allDatacollections",
                keyFn: "datacollectionNew",
             };
+
+         case "hint":
+            return { keyList: "_allHints", keyFn: "hintNew" };
 
          case "object":
             return { keyList: "_allObjects", keyFn: "objectNew" };
@@ -686,6 +693,47 @@ class ABFactory extends EventEmitter {
 
    objectUser() {
       return this.objectByID("228e3d91-5e42-49ec-b37c-59323ae433a1");
+   }
+
+   //
+   // Hints
+   //
+   /**
+    * @method hints()
+    * return all the ABHints that match the provided filter.
+    * @param {fn} fn
+    *        A filter function to select specific ABHints.
+    *        Must return true to include the entry.
+    * @return {array}
+    */
+   hints(filter = () => true) {
+      return (this._allHints || []).filter(filter);
+   }
+
+   /**
+    * @method hintByID()
+    * return the specific hint requested by the provided id.
+    * @param {string} ID
+    * @return {obj}
+    */
+   hintID(ID) {
+      return this.hints((h) => {
+         return h.id == ID || h.name == ID || h.label == ID;
+      })[0];
+   }
+
+   /**
+    * @method hintNew()
+    * return an instance of a new (unsaved) ABHint that is tied to this
+    * ABApplication.
+    * NOTE: this new hint is not included in our this.hints until a .save()
+    * is performed on the object.
+    * @return {ABHint}
+    */
+   hintNew(values) {
+      var newHint = new ABHint(values, this);
+
+      return newHint;
    }
 
    //
