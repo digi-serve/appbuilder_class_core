@@ -9,6 +9,7 @@ const ABViewTabPropertyComponentDefaults = {
    sidebarWidth: 200, // width of sidebar menu when stacking tabs
    sidebarPos: "left", // the default position of sidebar
    iconOnTop: 0, // do you want to put the icon above the text label?
+   hintID: null, // store the ID of a webix hint tutorial for this view
 };
 
 const ABViewTabDefaults = {

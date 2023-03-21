@@ -270,17 +270,22 @@ class ABFactory extends EventEmitter {
       });
 
       // perform these in order:
-      ["object", "query", "datacollection", "process", "application"].forEach(
-         (type) => {
-            var objTypes = allDefinitions.filter((d) => d.type == type);
-            objTypes.forEach((def) => {
-               let { keyList, keyFn } = this.objectKeysByDef(def);
-               if (keyList) {
-                  this[keyList].push(this[keyFn](def.json));
-               }
-            });
-         }
-      );
+      [
+         "object",
+         "query",
+         "datacollection",
+         "process",
+         "hint",
+         "application",
+      ].forEach((type) => {
+         var objTypes = allDefinitions.filter((d) => d.type == type);
+         objTypes.forEach((def) => {
+            let { keyList, keyFn } = this.objectKeysByDef(def);
+            if (keyList) {
+               this[keyList].push(this[keyFn](def.json));
+            }
+         });
+      });
 
       this.emit("init.objects_ready");
       return Promise.resolve();
