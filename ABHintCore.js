@@ -40,8 +40,9 @@ module.exports = class ABProcessCore extends ABMLClass {
 
       let currSteps = this._steps || {};
       this._steps = {};
-      (attributes.stepIDs || []).forEach((sID) => {
-         var step = this.AB.stepNew(sID, this);
+      debugger;
+      (attributes.steps || []).forEach((sID) => {
+         var step = this.AB.stepID(sID);
          if (step) {
             this._steps[sID] = step;
          } else {
