@@ -237,6 +237,24 @@ module.exports = class SubProcessCore extends ABProcessElement {
       return data;
    }
 
+   allPreviousTasks(...params) {
+      return this.process.allPreviousTasks.call(this, ...params);
+   }
+
+   allPreviousConnectionsForElement(...params) {
+      return this.process.allPreviousConnectionsForElement.call(
+         this,
+         ...params
+      );
+   }
+
+   allPreviousConnectionsForConnection(...params) {
+      return this.process.allPreviousConnectionsForConnection.call(
+         this,
+         ...params
+      );
+   }
+
    //
    // Diagram Elements
    //
