@@ -285,6 +285,7 @@ class ABFactory extends EventEmitter {
          "datacollection",
          "process",
          "hint",
+         "step",
          "application",
       ].forEach((type) => {
          var objTypes = allDefinitions.filter((d) => d.type == type);
