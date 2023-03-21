@@ -38,6 +38,27 @@ module.exports = class ABProcessCore extends ABMLClass {
 
       this.json = attributes.json || null;
 
+      let currSteps = this._steps || {};
+      this._steps = {};
+      (attributes.stepIDs || []).forEach((sID) => {
+         var step = this.AB.stepNew(sID, this);
+         if (step) {
+            this._steps[sID] = step;
+         } else {
+            // current sID isn't one of our definitions yet, so might be
+            // a temporary .diagramID from an unsaved task:
+            if (currSteps[sID]) {
+               this._steps[sID] = currSteps[sID];
+            } else {
+               // this.emit(
+               //    "warning",
+               //    `P[${this.name}] is referencing an unknown process element id[${eID}]`,
+               //    { process: this.id, eID }
+               // );
+            }
+         }
+      });
+
       super.fromValues(attributes); // perform translation on this object.
       // NOTE: keep this at the end of .fromValues();
 
