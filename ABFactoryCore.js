@@ -29,6 +29,8 @@ const ABProcessParticipant = require("../platform/process/ABProcessParticipant")
 const ABProcessLane = require("../platform/process/ABProcessLane");
 const ABProcessTaskManager = require("./process/ABProcessTaskManager");
 
+const ABStep = require("../platform/ABStep");
+
 const ABViewDetailItem = require("../platform/views/ABViewDetailItem");
 const ABViewFormItem = require("../platform/views/ABViewFormItem");
 
@@ -325,6 +327,9 @@ class ABFactory extends EventEmitter {
 
          case "hint":
             return { keyList: "_allHints", keyFn: "hintNew" };
+
+         case "step":
+            return { keyList: "_allSteps", keyFn: "stepNew" };
 
          case "object":
             return { keyList: "_allObjects", keyFn: "objectNew" };
@@ -734,6 +739,47 @@ class ABFactory extends EventEmitter {
       var newHint = new ABHint(values, this);
 
       return newHint;
+   }
+
+   //
+   // Steps
+   //
+   /**
+    * @method steps()
+    * return all the ABSteps that match the provided filter.
+    * @param {fn} fn
+    *        A filter function to select specific ABSteps.
+    *        Must return true to include the entry.
+    * @return {array}
+    */
+   steps(filter = () => true) {
+      return (this._allSteps || []).filter(filter);
+   }
+
+   /**
+    * @method stepByID()
+    * return the specific step requested by the provided id.
+    * @param {string} ID
+    * @return {obj}
+    */
+   stepID(ID) {
+      return this.steps((s) => {
+         return s.id == ID || s.name == ID || s.label == ID;
+      })[0];
+   }
+
+   /**
+    * @method stepNew()
+    * return an instance of a new (unsaved) ABStep that is tied to this
+    * ABApplication.
+    * NOTE: this new step is not included in our this.steps until a .save()
+    * is performed on the object.
+    * @return {ABHint}
+    */
+   stepNew(values) {
+      var newStep = new ABStep(values, this);
+
+      return newStep;
    }
 
    //
