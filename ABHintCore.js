@@ -40,22 +40,21 @@ module.exports = class ABProcessCore extends ABMLClass {
 
       let currSteps = this._steps || {};
       this._steps = {};
-      debugger;
       (attributes.steps || []).forEach((sID) => {
-         var step = this.AB.stepID(sID);
-         if (step) {
-            this._steps[sID] = step;
+         var ele = this.AB.stepNew(sID, this);
+         if (ele) {
+            this._steps[sID] = ele;
          } else {
             // current sID isn't one of our definitions yet, so might be
             // a temporary .diagramID from an unsaved task:
-            if (currSteps[sID]) {
-               this._steps[sID] = currSteps[sID];
+            if (currElements[sID]) {
+               this._steps[sID] = currElements[sID];
             } else {
-               // this.emit(
-               //    "warning",
-               //    `P[${this.name}] is referencing an unknown process element id[${eID}]`,
-               //    { process: this.id, eID }
-               // );
+               this.emit(
+                  "warning",
+                  `H[${this.name}] is referencing an unknown step id[${sID}]`,
+                  { hint: this.id, sID }
+               );
             }
          }
       });
