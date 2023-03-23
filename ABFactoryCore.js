@@ -332,9 +332,6 @@ class ABFactory extends EventEmitter {
          case "hint":
             return { keyList: "_allHints", keyFn: "hintNew" };
 
-         case "step":
-            return { keyList: "_allSteps", keyFn: "stepNew" };
-
          case "object":
             return { keyList: "_allObjects", keyFn: "objectNew" };
 
