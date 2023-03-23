@@ -118,6 +118,13 @@ module.exports = class ABApplicationCore extends ABMLClass {
       if (typeof this.translationManagers == "string")
          this.translationManagers = JSON.parse(this.translationManagers);
 
+      this.isTutorialManaged = JSON.parse(
+         attributes.isTutorialManaged || false
+      );
+      this.tutorialManagers = attributes.tutorialManagers;
+      if (typeof this.tutorialManagers == "string")
+         this.tutorialManagers = JSON.parse(this.tutorialManagers);
+
       this.hintIDs = attributes.json.hintIDs || [];
       // {array} .hintIDs
       // All the {ABHint.id} values that have been pulled into this
