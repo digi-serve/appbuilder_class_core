@@ -3,9 +3,9 @@
 var ABMLClass = require("../platform/ABMLClass");
 const _concat = require("lodash/concat");
 
-module.exports = class ABProcessCore extends ABMLClass {
+module.exports = class ABHintCore extends ABMLClass {
    constructor(attributes, AB) {
-      super(["label"], AB);
+      super(["label", "description"], AB);
 
       this.fromValues(attributes);
 
@@ -58,7 +58,6 @@ module.exports = class ABProcessCore extends ABMLClass {
             }
          }
       });
-
       super.fromValues(attributes); // perform translation on this object.
       // NOTE: keep this at the end of .fromValues();
 
