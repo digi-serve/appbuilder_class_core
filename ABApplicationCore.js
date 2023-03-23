@@ -66,28 +66,23 @@ module.exports = class ABApplicationCore extends ABMLClass {
       // {obj} .json
       // the full settings of this ABApplication
 
-      // TODO @Achoobert clarify the datastructure for these before checking it in: is the data in the json or not?
-
-      this.versionNumber =
-         attributes.versionData?.versionNumber ||
-         attributes.json.versionData?.versionNumber ||
-         "1.0.0";
+      this.json["versionData"]["versionNumber"] =
+         attributes.json.versionData?.versionNumber || "1.0.0";
       // {string} '#.#.#'
       // the current version of this ABApplication
 
-      this.versionData = attributes.versionData ||
-         attributes.json.versionData || {
-            versionNumber: "1.0.0",
-            changeLog: {
-               "1.0.0": {
-                  author: "N/A",
-                  version: "1.0.0",
-                  keepVersion: 0,
-                  commitMessage: "Initial Version",
-                  timestamp: new Date().toISOString(),
-               },
+      this.json.versionData = attributes.json?.versionData || {
+         versionNumber: "1.0.0",
+         changeLog: {
+            "1.0.0": {
+               author: "N/A",
+               version: "1.0.0",
+               keepVersion: 0,
+               commitMessage: "Initial Version",
+               timestamp: new Date().toISOString(),
             },
-         };
+         },
+      };
       if (typeof this.versionData == "string")
          this.versionData = JSON.parse(this.versionData);
       // {obj} .json
