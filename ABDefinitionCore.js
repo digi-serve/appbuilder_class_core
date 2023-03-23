@@ -43,7 +43,6 @@ module.exports = class ABDefinitionCore {
       this.type = attributes.type || attributes?.json?.type || "";
       this.json = attributes.json || null;
 
-      this.json.version = attributes.json?.version || "1.0.0";
       this.json.versionData = attributes.json?.versionData || {
          versionNumber: "1.0.0",
          changeLog: {

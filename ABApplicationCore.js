@@ -66,12 +66,7 @@ module.exports = class ABApplicationCore extends ABMLClass {
       // {obj} .json
       // the full settings of this ABApplication
 
-      this.json["versionData"]["versionNumber"] =
-         attributes.json.versionData?.versionNumber || "1.0.0";
-      // {string} '#.#.#'
-      // the current version of this ABApplication
-
-      this.json.versionData = attributes.json?.versionData || {
+      this.json["versionData"] = attributes.json?.versionData || {
          versionNumber: "1.0.0",
          changeLog: {
             "1.0.0": {
@@ -83,6 +78,7 @@ module.exports = class ABApplicationCore extends ABMLClass {
             },
          },
       };
+
       if (typeof this.versionData == "string")
          this.versionData = JSON.parse(this.versionData);
       // {obj} .json
@@ -327,8 +323,6 @@ module.exports = class ABApplicationCore extends ABMLClass {
          id: this.id,
          type: this.type || "application",
          name: this.name,
-         versionNumber: this.versionNumber,
-         versionData: this.versionData,
          icon: this.icon,
          isSystemObject: this.isSystemObject,
          json: this.json,
