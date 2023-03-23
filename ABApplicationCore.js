@@ -324,8 +324,10 @@ module.exports = class ABApplicationCore extends ABMLClass {
          translations: this.json.translations,
          isAccessManaged: this.isAccessManaged,
          isTranslationManaged: this.isTranslationManaged,
+         isTutorialManaged: this.isTutorialManaged,
          accessManagers: this.accessManagers,
          translationManagers: this.translationManagers,
+         tutorialManagers: this.tutorialManagers,
       };
    }
 
