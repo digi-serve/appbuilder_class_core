@@ -79,8 +79,8 @@ module.exports = class ABApplicationCore extends ABMLClass {
          },
       };
 
-      if (typeof this.versionData == "string")
-         this.versionData = JSON.parse(this.versionData);
+      if (typeof this.json.versionData == "string")
+         this.json.versionData = JSON.parse(this.json.versionData);
       // {obj} .json
       // the full version log data of this ABApplication
 
@@ -295,8 +295,6 @@ module.exports = class ABApplicationCore extends ABMLClass {
       this.json = super.toObj();
 
       this.json.name = this.name;
-
-      this.json.versionNumber = this.versionData.versionNumber;
 
       this.json.versionData = this.versionData;
 
