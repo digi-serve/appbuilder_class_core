@@ -835,7 +835,7 @@ module.exports = class FilterComplexCore extends ABComponent {
          //            we will make a unique type for each field. and then
          //            add value selectors for that specific .type
          return {
-            id: f.columnName || f.id,
+            id: f.id,
             value: label,
             type: type,
             conditions: conditions,
