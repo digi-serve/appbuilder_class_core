@@ -296,8 +296,6 @@ module.exports = class ABApplicationCore extends ABMLClass {
 
       this.json.name = this.name;
 
-      this.json.versionData = this.versionData;
-
       this.json.objectIDs = this.objectIDs;
 
       this.json.objectListSettings = this.objectListSettings;
