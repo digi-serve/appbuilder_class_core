@@ -83,8 +83,17 @@ module.exports = class FilterComplexCore extends ABComponent {
          },
 
          removeHtmlTags: function (text) {
-            let doc = new DOMParser().parseFromString(text, "text/html");
-            return doc.body.textContent || doc.body.innerText || "";
+            let result = "";
+            try {
+               let div = document.createElement("div");
+               div.innerHTML = text;
+
+               result = div.textContent || div.innerText || "";
+            } catch (err) {
+               result = (text || "").replace(/(<([^>]+)>)/gi, "");
+            }
+
+            return result;
          },
       });
 
