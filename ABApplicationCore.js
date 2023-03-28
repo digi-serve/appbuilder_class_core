@@ -292,9 +292,13 @@ module.exports = class ABApplicationCore extends ABMLClass {
     */
    toObj() {
       // MLClass translation
+      let versionData = this.json.versionData;
+
       this.json = super.toObj();
 
       this.json.name = this.name;
+
+      this.json.versionData = versionData;
 
       this.json.objectIDs = this.objectIDs;
 

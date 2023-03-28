@@ -42,8 +42,6 @@ module.exports = class ABDefinitionCore {
       }
       this.type = attributes.type || attributes?.json?.type || "";
       this.json = attributes.json || null;
-
-      this.json.versionData = attributes.json?.versionData;
    }
 
    /**

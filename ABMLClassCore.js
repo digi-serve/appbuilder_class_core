@@ -96,7 +96,6 @@ module.exports = class ABMLClassCore extends ABEmitter {
 
       return {
          translations: this.translations,
-         versionData: this.json?.versionData,
       };
    }
 
