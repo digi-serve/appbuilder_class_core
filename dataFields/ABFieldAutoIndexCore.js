@@ -134,7 +134,7 @@ module.exports = class ABFieldAutoIndexCore extends ABField {
    }
 
    format(rowData) {
-      if (!rowData[this.columnName]) return "";
+      if (!rowData?.[this.columnName]) return "";
 
       try {
          const resultAutoIndex = this.constructor.setValueToIndex(
