@@ -247,7 +247,7 @@ module.exports = class ABObjectQueryCore extends ABObject {
          }
 
          if (!this.canFilterField(field)) {
-            this.__cantFilter == this.__cantFilter ?? [];
+            this.__cantFilter = this.__cantFilter ?? [];
             this.__cantFilter.push({ field, fieldInfo });
          }
 
