@@ -54,9 +54,19 @@ module.exports = class InsertRecordCore extends ABProcessElement {
    }
 
    get startElement() {
-      let startElem = this.process.elements(
-         (elem) => elem && elem.defaults && elem.defaults.category == "start"
-      )[0];
+      let startElem = null;
+      let currProcess = this.process;
+
+      // Find the start (trigger) task
+      while (!startElem && currProcess) {
+         startElem = currProcess.elements(
+            (elem) => elem?.defaults?.category == "start"
+         )[0];
+
+         // If .currProcess is a sub task, then go to the parent process for get the start task
+         currProcess = currProcess.process;
+      }
+
       return startElem;
    }
 
