@@ -130,6 +130,16 @@ module.exports = class ABViewMenuCore extends ABViewWidget {
       }
    }
 
+   /**
+    * @property datacollection
+    * return data source
+    * NOTE: this view doesn't track a DataCollection.
+    * @return {ABDataCollection}
+    */
+   get datacollection() {
+      return null;
+   }
+
    AddPagesToView(view, pages) {
       if (!view || !pages) return;
 

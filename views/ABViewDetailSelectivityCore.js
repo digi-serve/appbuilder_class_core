@@ -46,12 +46,4 @@ module.exports = class ABViewDetailSelectivityCore extends ABViewDetailItem {
          this.settings.height ?? ABViewDetailPropertyComponentDefaults.height
       );
    }
-
-   /**
-    * @method componentList
-    * return the list of components available on this view to display in the editor.
-    */
-   componentList() {
-      return [];
-   }
 };

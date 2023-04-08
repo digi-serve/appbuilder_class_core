@@ -11,7 +11,7 @@ const ABViewDataFilterPropertyComponentDefaults = {
 const ABViewDefaults = {
    key: "data-filter", // {string} unique key for this view
    icon: "filter", // {string} fa-[icon] reference for this view
-   labelKey: "ab.components.datafitler", // {string} the multilingual label key for the class label
+   labelKey: "Data Filter", // {string} the multilingual label key for the class label
 };
 
 module.exports = class ABViewDataFilterCore extends ABViewWidget {

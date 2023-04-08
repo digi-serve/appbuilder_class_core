@@ -60,4 +60,22 @@ module.exports = class ABViewDetailItemCore extends ABViewWidget {
       if (currData) return currData[field.columnName];
       else return null;
    }
+
+   /**
+    * @method componentList
+    * return the list of components available on this view to display in the editor.
+    */
+   componentList() {
+      return [];
+   }
+
+   /**
+    * @property datacollection
+    * return data source
+    * NOTE: this view doesn't track a DataCollection.
+    * @return {ABDataCollection}
+    */
+   get datacollection() {
+      return null;
+   }
 };

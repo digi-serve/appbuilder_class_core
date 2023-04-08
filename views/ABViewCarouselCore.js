@@ -66,8 +66,6 @@ module.exports = class ABViewCarouselCore extends ABViewWidget {
    fromValues(values) {
       super.fromValues(values);
 
-      debugger;
-
       // convert from "0" => 0
       parseIntOrDefault(this, "width");
       parseIntOrDefault(this, "height");

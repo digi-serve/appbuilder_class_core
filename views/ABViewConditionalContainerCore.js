@@ -62,4 +62,13 @@ module.exports = class ABViewConditionalContainerCore extends ABViewContainer {
    static defaultValues() {
       return ABViewPropertyDefaults;
    }
+
+   /**
+    * @method componentList
+    * return the list of components available on this view to display in the editor.
+    * For a Conditional Container, we don't allow any other items to be placed on it.
+    */
+   componentList() {
+      return [];
+   }
 };

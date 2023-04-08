@@ -69,4 +69,14 @@ module.exports = class ABViewLayoutCore extends ABViewWidget {
          }
       }
    }
+
+   /**
+    * @property datacollection
+    * return data source
+    * NOTE: this view doesn't track a DataCollection.
+    * @return {ABDataCollection}
+    */
+   get datacollection() {
+      return null;
+   }
 };

@@ -465,7 +465,9 @@ module.exports = class ABViewCore extends ABMLClass {
          } else {
             // These views shouldn't matter if they don't have a datacollection.
             if (
-               ["label", "page", "tab", "viewcontainer"].indexOf(this.key) == -1
+               ["button", "label", "page", "tab", "viewcontainer"].indexOf(
+                  this.key
+               ) == -1
             ) {
                console.warn(
                   `TODO: figure out which ABView* require a .dataviewID: ${this.key}?`

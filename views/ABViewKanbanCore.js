@@ -40,7 +40,7 @@ const ABViewKanbanPropertyComponentDefaults = {
 const ABViewDefaults = {
    key: "kanban",
    // {string}
-   // unique key identifier for this ABViewForm
+   // unique key identifier for this ABView object
 
    icon: "columns",
    // {string}
@@ -72,6 +72,9 @@ module.exports = class ABViewKanbanCore extends ABViewWidget {
    toObj() {
       var obj = super.toObj();
       obj.settings.template = this.TextTemplate.toObj();
+      // NOTE: this corrects the initial save where this.id == undefined
+      // all the rest will set the .id correctly.
+      obj.settings.template.id = `${this.id}_template`;
       return obj;
    }
 
