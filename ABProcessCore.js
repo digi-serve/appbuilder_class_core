@@ -159,17 +159,26 @@ module.exports = class ABProcessCore extends ABMLClass {
 
    /**
     * connections()
-    * return an array of connections that describe the relationships between
+    * Returns an array of connections that describe the relationships between
     * our process elements.
-    * @param {fn} fn an iterator that returns true if the provided element
-    *                should be returned.
-    * @return [{SimpleConnectionObj}]
+    *
+    * @param {rn} fn An iterator that returns `true` if the provided element
+    *                      should be returned.
+    * @return {[SimpleConnectionObj]} An array of `SimpleConnectionObj` objects
+    *                                 describing the relationships between the
+    *                                 process elements.
     */
    connections(fn) {
       if (!fn)
          fn = () => {
             return true;
          };
+
+      // If parent, merge connections
+      if (this.process) {
+         Object.assign(this._connections, this.process._connections);
+      }
+
       var allConnections = Object.keys(this._connections).map((e) => {
          return this._connections[e];
       });

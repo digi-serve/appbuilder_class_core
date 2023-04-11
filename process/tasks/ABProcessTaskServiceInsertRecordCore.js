@@ -35,6 +35,8 @@ module.exports = class InsertRecordCore extends ABProcessElement {
       attributes.type = attributes.type || "process.task.service.insertRecord";
       super(attributes, process, AB, InsertRecordDefaults);
 
+      this.results = [];
+
       // listen
    }
 
