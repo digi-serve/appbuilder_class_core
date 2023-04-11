@@ -134,9 +134,19 @@ module.exports = class SubProcessCore extends ABProcessElement {
    processDataFields(currElement) {
       if (this.parameterId == null) return [];
 
-      let dataFieldOpt = (this.process.processDataFields(this) || []).filter(
-         (opt) => opt.key == this.parameterId
+      // only call processDataFields once, filter it to get the different queries
+      let dataFieldsAll = this.process.processDataFields(this) || [];
+
+      // get the subtask data
+      let dataFieldOpt = dataFieldsAll.filter(
+         (opt) => opt.key === this.parameterId
       )[0];
+
+      // get data from insert tasks
+      let dataFieldsAllInserted = dataFieldsAll.filter(
+         (opt) => opt.field === "InsertedRecord"
+      );
+
       if (dataFieldOpt == null) return [];
 
       let result = [];
@@ -175,6 +185,16 @@ module.exports = class SubProcessCore extends ABProcessElement {
          });
       }
 
+      dataFieldsAllInserted.forEach((opt) => {
+         result.push({
+            key: `${opt.key || opt.id}`,
+            label: `Parent Process Data->${opt.label}`,
+            field: opt.field,
+            object: opt.object,
+         });
+      });
+
+      // ? this appears to not get anything?
       let previousFields = this.process.processDataFields.call(
          this,
          currElement
