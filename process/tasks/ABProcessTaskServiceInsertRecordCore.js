@@ -86,22 +86,7 @@ module.exports = class InsertRecordCore extends ABProcessElement {
 
    get objectOfPrevElement() {
       let prevElem = this.previousElement;
-      if (!prevElem) {
-         console.error("No previous element initially found ijs");
-         // Find the start (trigger) task
-         let currProcess = this.process;
-         while (!prevElem && currProcess) {
-            prevElem = currProcess.elements((elem) => elem.previousElement)[0];
-
-            // If .currProcess is a sub task, then go to the parent process for get the start task
-            currProcess = currProcess.process;
-         }
-         if (!prevElem) {
-            // if still not found, bail
-            console.error("No previous tasks found ijs");
-            return null;
-         }
-      }
+      if (!prevElem) return null;
 
       let objectID;
       switch (prevElem.type) {

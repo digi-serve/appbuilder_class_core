@@ -394,14 +394,6 @@ module.exports = class ABProcessTaskCore extends ABMLClass {
             // remove my current state
             delete instance.context.taskState[this.diagramID];
 
-            // TODO log here
-            var myDiagramObj = instance.hashDiagramObjects[this.diagramID];
-            if (!myDiagramObj) {
-               var error = new Error(
-                  `Configuration Error: We just deleted the definition for dID[${this.diagramID}]`
-               );
-            }
-
             // store a new state in the context
             this.initState(instance.context);
 
