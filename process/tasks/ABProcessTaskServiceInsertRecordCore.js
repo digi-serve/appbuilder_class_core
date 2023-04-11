@@ -110,6 +110,25 @@ module.exports = class InsertRecordCore extends ABProcessElement {
    }
 
    /**
+    * processDataFields()
+    * return a single available data field from this element
+    * this will be the record inserted by this task
+    * Different Process Elements can make data available to other
+    * process Elements.
+    * @return {array} | null
+    */
+   processDataFields() {
+      return [
+         {
+            key: `${this.id}.[PK]`,
+            label: `${this.label}-> Inserted record [PK]`,
+            field: "InsertedRecord",
+            object: this.objectID,
+            set: true,
+         },
+      ];
+   }
+   /**
     * @method toObj()
     *
     * properly compile the current state of this ABApplication instance
