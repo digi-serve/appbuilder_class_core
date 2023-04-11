@@ -23,6 +23,7 @@ var DefaultValues = {
       datasourceID: "", // id of ABObject or ABObjectQuery
       linkDatacollectionID: "", // id of ABDatacollection
       linkFieldID: "", // id of ABField
+      followDatacollectionID: "", // id of ABDatacollection
       objectWorkspace: {
          filterConditions: {
             // array of filters to apply to the data table
@@ -154,6 +155,12 @@ module.exports = class ABDataCollectionCore extends ABMLClass {
       // {string} .settings.linkFieldID
       // the uuid of the ABDataField of the .linkDatacollection ABObject
       // whose value is the trigger value for this ABDataCollection
+
+      this.settings.followDatacollectionID =
+         values.settings.followDatacollectionID ||
+         DefaultValues.settings.followDatacollectionID;
+      // {string} .settings.followDatacollectionID
+      // the uuid of another ABDataCollection that provides the follow cursor data collection
 
       this.settings.objectWorkspace = values.settings.objectWorkspace || {
          filterConditions:
