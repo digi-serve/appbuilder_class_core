@@ -27,38 +27,32 @@ module.exports = class ABHintCore extends ABMLClass {
     {
       id: uuid(),
       name: 'name',
-      type: 'xxxxx',
-      json: "{json}"
+      description: 'description',
+      type: 'hint',
+      settings: {
+         active: {boolean},
+         view: uuid
+      }
     }
     */
-      this.id = attributes.id;
-      this.name = attributes.name || "";
-      this.type = attributes.type || "hint";
-      // this.xmlDefinition = attributes.xmlDefinition || null;
+      this.id = attributes?.id || "";
+      this.name = attributes?.name || "New Tutorial";
+      this.description = attributes?.description || "";
+      this.type = attributes?.type || "hint";
+      this.settings = {};
+      this.settings.active = attributes?.settings?.active || "1";
+      this.settings.showIntroStep = attributes?.settings?.showIntroStep || "0";
+      this.settings.view = attributes?.settings?.view || "";
 
-      this.json = attributes.json || null;
-
-      let currSteps = this._steps || {};
+      let currSteps = this?._steps || {};
       this._steps = {};
-      (attributes.steps || []).forEach((sID) => {
+      (attributes?.steps || []).forEach((sID) => {
          var ele = this.AB.stepNew(sID, this);
          if (ele) {
             this._steps[sID] = ele;
-         } else {
-            // current sID isn't one of our definitions yet, so might be
-            // a temporary .diagramID from an unsaved task:
-            if (currElements[sID]) {
-               this._steps[sID] = currElements[sID];
-            } else {
-               this.emit(
-                  "warning",
-                  `H[${this.name}] is referencing an unknown step id[${sID}]`,
-                  { hint: this.id, sID }
-               );
-            }
          }
       });
-      super.fromValues(attributes); // perform translation on this object.
+      if (attributes) super.fromValues(attributes); // perform translation on this object.
       // NOTE: keep this at the end of .fromValues();
 
       if (!this.label) {
@@ -81,7 +75,7 @@ module.exports = class ABHintCore extends ABMLClass {
       // OP.Multilingual.unTranslate(this, this, ["label"]);
       var data = super.toObj();
 
-      var fieldsToSave = ["id", "name", "json"];
+      var fieldsToSave = ["type", "settings", "steps", "id", "name"];
       fieldsToSave.forEach((f) => {
          data[f] = this[f];
       });

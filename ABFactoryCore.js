@@ -777,10 +777,18 @@ class ABFactory extends EventEmitter {
     * is performed on the object.
     * @return {ABHint}
     */
-   stepNew(id) {
+   stepNew(id, hintID) {
       var stepDef = this.definitionByID(id);
       if (stepDef) {
-         var newStep = new ABStep(stepDef, this);
+         var getStep = new ABStep(stepDef, this);
+         return getStep;
+      } else {
+         var params = {
+            settings: {
+               hint: hintID,
+            },
+         };
+         var newStep = new ABStep(params, this);
          return newStep;
       }
       return null;

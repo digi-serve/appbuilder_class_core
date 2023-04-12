@@ -32,12 +32,11 @@ module.exports = class ABStepCore extends ABMLClass {
     }
     */
       this.id = attributes.id;
-      this.name = attributes.name || "";
+      this.name = attributes.name || "New Step";
       this.type = attributes.type || "step";
       this.settings = attributes.settings || {};
       // this.xmlDefinition = attributes.xmlDefinition || null;
 
-      this.json = attributes.json || null;
       super.fromValues(attributes); // perform translation on this object.
       // NOTE: keep this at the end of .fromValues();
 
@@ -53,6 +52,7 @@ module.exports = class ABStepCore extends ABMLClass {
     * @return {json}
     */
    toObj() {
+      // debugger;
       // default label value
       if (!this.label) {
          this.label = this.name;
@@ -61,7 +61,7 @@ module.exports = class ABStepCore extends ABMLClass {
       // OP.Multilingual.unTranslate(this, this, ["label"]);
       var data = super.toObj();
 
-      var fieldsToSave = ["id", "name", "json"];
+      var fieldsToSave = ["id", "name", "settings", "type"];
       fieldsToSave.forEach((f) => {
          data[f] = this[f];
       });
