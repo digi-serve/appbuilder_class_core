@@ -327,20 +327,22 @@ module.exports = class ABDataCollectionCore extends ABMLClass {
    destroy() {
       var removeFromApplications = () => {
          return new Promise((next, err) => {
-            this.AB.applications().then((apps) => {
-               // NOTE: apps is a webix datacollection
+            // this.AB.applications().then((apps) => {
 
-               var allRemoves = [];
+            const apps = this.AB.applications();
+            // NOTE: apps is a webix datacollection
 
-               var appsWithObject = apps.filter((a) => {
-                  return a.datacollectionsIncluded((o) => o.id == this.id);
-               });
-               appsWithObject.forEach((app) => {
-                  allRemoves.push(app.datacollectionRemove(this));
-               });
+            var allRemoves = [];
 
-               return Promise.all(allRemoves).then(next).catch(err);
+            var appsWithObject = apps.filter((a) => {
+               return a.datacollectionsIncluded((o) => o.id == this.id);
             });
+            appsWithObject.forEach((app) => {
+               allRemoves.push(app.datacollectionRemove(this));
+            });
+
+            return Promise.all(allRemoves).then(next).catch(err);
+            // });
          });
       };
 
@@ -678,6 +680,13 @@ module.exports = class ABDataCollectionCore extends ABMLClass {
 
             this.setCursorTree(this.settings.fixSelect);
          }
+      }
+
+      // Set the cursor to the first row
+      if (this.isCursorFollow) {
+         const rowId = this.__dataCollection.getFirstId();
+         this.__dataCollection.setCursor(rowId || null);
+         this.setCursorTree(rowId || null);
       }
    }
 
@@ -1471,6 +1480,19 @@ module.exports = class ABDataCollectionCore extends ABMLClass {
             },
          });
       }
+
+      // add listeners when cursor of the followed data collection is changed
+      const followDC = this.datacollectionFollow;
+      if (followDC) {
+         this.eventAdd({
+            emitter: followDC,
+            eventName: "changeCursor",
+            listener: () => {
+               this.clearAll();
+               this.loadData();
+            },
+         });
+      }
    }
 
    /*
@@ -1562,6 +1584,38 @@ module.exports = class ABDataCollectionCore extends ABMLClass {
          }
       }
 
+      // pull data rows following the follow data collection
+      if (this.datacollectionFollow) {
+         const followCursor = this.datacollectionFollow.getCursor();
+         if (followCursor) {
+            start = 0;
+            limit = null;
+            wheres = {
+               glue: "and",
+               rules: [
+                  {
+                     key: this.datasource.PK(),
+                     rule: "equals",
+                     value: followCursor[this.datasource.PK()],
+                  },
+               ],
+            };
+         }
+         // Set no return rows
+         else {
+            wheres = {
+               glue: "and",
+               rules: [
+                  {
+                     key: this.datasource.PK(),
+                     rule: "equals",
+                     value: "NO RESULT ROW",
+                  },
+               ],
+            };
+         }
+      }
+
       // set query condition
       var cond = {
          where: wheres || {},
@@ -1575,12 +1629,12 @@ module.exports = class ABDataCollectionCore extends ABMLClass {
 
       //// NOTE: we no longer set a default limit on loadData() but
       //// require the platform.loadData() to pass in a default limit.
-      if (limit) {
+      if (limit != null) {
          cond.limit = limit;
       }
 
       // if settings specify loadAll, then remove the limit
-      if (this.settings.loadAll) {
+      if (this.settings.loadAll && !this.isCursorFollow) {
          delete cond.limit;
       }
 
@@ -2447,5 +2501,20 @@ module.exports = class ABDataCollectionCore extends ABMLClass {
 
    get userScopes() {
       return [];
+   }
+
+   get isCursorFollow() {
+      return (
+         this.settings.followDatacollectionID &&
+         (!this.settings.linkDatacollectionID || !this.settings.linkFieldID)
+      );
+   }
+
+   get datacollectionFollow() {
+      if (!this.isCursorFollow) return null;
+
+      return (this.AB ?? AB).datacollectionByID(
+         this.settings.followDatacollectionID
+      );
    }
 };
