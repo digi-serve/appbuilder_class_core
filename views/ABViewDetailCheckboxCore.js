@@ -30,12 +30,4 @@ module.exports = class ABViewDetailCheckboxCore extends ABViewDetailItem {
    static defaultValues() {
       return ABViewDetailCheckboxPropertyComponentDefaults;
    }
-
-   /*
-    * @method componentList
-    * return the list of components available on this view to display in the editor.
-    */
-   componentList() {
-      return [];
-   }
 };

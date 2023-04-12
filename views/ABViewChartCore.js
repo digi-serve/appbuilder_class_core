@@ -90,7 +90,6 @@ module.exports = class ABViewChartCore extends ABViewContainer {
       );
 
       this.translate(this, this, ["chartLabel"]);
-      this.refreshData();
    }
 
    /**
@@ -98,13 +97,10 @@ module.exports = class ABViewChartCore extends ABViewContainer {
     * return the list of components available on this view to display in the editor.
     */
    componentList() {
-      const viewsToAllow = ["label", "pie", "bar", "line", "area"],
-         allComponents = this.application.viewAll(); // ABViewManager.allViews();
-
-      const ret = allComponents.filter((c) => {
+      const viewsToAllow = ["label", "pie", "bar", "line", "area"];
+      return this.application.viewAll((c) => {
          return viewsToAllow.indexOf(c.common().key) > -1;
       });
-      return ret;
    }
 
    labelField() {
@@ -114,7 +110,7 @@ module.exports = class ABViewChartCore extends ABViewContainer {
       const obj = dc.datasource;
       if (!obj) return null;
 
-      return obj.fields((f) => f.id == this.settings.columnLabel)[0];
+      return obj.fieldByID(this.settings.columnLabel);
    }
 
    valueField() {
@@ -124,7 +120,7 @@ module.exports = class ABViewChartCore extends ABViewContainer {
       const obj = dc.datasource;
       if (!obj) return null;
 
-      return obj.fields((f) => f.id == this.settings.columnValue)[0];
+      return obj.fieldByID(this.settings.columnValue);
    }
 
    valueField2() {
@@ -134,6 +130,6 @@ module.exports = class ABViewChartCore extends ABViewContainer {
       const obj = dc.datasource;
       if (!obj) return null;
 
-      return obj.fields((f) => f.id == this.settings.columnValue2)[0];
+      return obj.fieldByID(this.settings.columnValue2);
    }
 };

@@ -348,7 +348,7 @@ module.exports = class ABViewGridCore extends ABViewWidget {
          }
       }
 
-      // check to see if there are hidden fields
+      // check to see if there are Summary fields
       if (this.settings.summaryColumns?.length) {
          // find if the deleted field is in the array
          let index = this.settings.summaryColumns.indexOf(field.id);

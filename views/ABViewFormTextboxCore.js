@@ -36,4 +36,3 @@ module.exports = class ABViewFormTextboxCore extends ABViewFormItem {
       return [];
    }
 };
-

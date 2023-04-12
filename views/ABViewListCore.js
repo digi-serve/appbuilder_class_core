@@ -25,6 +25,14 @@ module.exports = class ABViewLabelCore extends ABViewWidget {
       return ABViewListPropertyComponentDefaults;
    }
 
+   /**
+    * @method componentList
+    * return the list of components available on this view to display in the editor.
+    */
+   componentList() {
+      return [];
+   }
+
    field() {
       var dv = this.datacollection;
       if (!dv) return null;
@@ -32,6 +40,6 @@ module.exports = class ABViewLabelCore extends ABViewWidget {
       var object = dv.datasource;
       if (!object) return null;
 
-      return object.fields((f) => f.id == this.settings.field)[0];
+      return object.fieldByID(this.settings.field);
    }
 };

@@ -52,12 +52,4 @@ module.exports = class ABViewDetailTextCore extends ABViewDetailItem {
             ABViewDetailTextPropertyComponentDefaults.height
       );
    }
-
-   /**
-    * @method componentList
-    * return the list of components available on this view to display in the editor.
-    */
-   componentList() {
-      return [];
-   }
 };
