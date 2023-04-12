@@ -194,7 +194,7 @@ module.exports = class SubProcessCore extends ABProcessElement {
          });
       });
 
-      // ? this appears to not get anything?
+      // Get any tasks that exist inside the subprocess
       let previousFields = this.process.processDataFields.call(
          this,
          currElement
