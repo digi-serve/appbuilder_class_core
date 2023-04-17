@@ -35,14 +35,20 @@ module.exports = class ABHintCore extends ABMLClass {
       }
     }
     */
+      let active = attributes?.settings.hasOwnProperty("active")
+         ? attributes?.settings?.active
+         : "1";
+
       this.id = attributes?.id || "";
       this.name = attributes?.name || "New Tutorial";
       this.description = attributes?.description || "";
       this.type = attributes?.type || "hint";
       this.settings = {};
-      this.settings.active = attributes?.settings?.active || "1";
-      this.settings.showIntroStep = attributes?.settings?.showIntroStep || "0";
+      this.settings.active = active;
+      this.settings.transition = attributes?.settings?.transition;
+      this.settings.showIntroStep = attributes?.settings?.showIntroStep;
       this.settings.view = attributes?.settings?.view || "";
+      this.stepIDs = attributes?.stepIDs || [];
 
       let currSteps = this?._steps || {};
       this._steps = {};
@@ -115,7 +121,7 @@ module.exports = class ABHintCore extends ABMLClass {
     * @return {ABStep[OBJ]}
     */
    stepByID(id) {
-      return this._step[id] ?? null;
+      return this._steps[id] ?? null;
    }
 
    /**
@@ -125,7 +131,13 @@ module.exports = class ABHintCore extends ABMLClass {
     *        a definition of, or full Object instance of the ABStep
     *        to remove.
     */
-   stepRemove(def) {
-      delete this._steps[def.id];
+   stepRemove(id) {
+      // remove from stepIDs array
+      let stepIndex = this.stepIDs.indexOf(id);
+      if (stepIndex > -1) {
+         this.stepIDs.splice(stepIndex, 1);
+      }
+      // remove from _steps definitions
+      delete this._steps[id];
    }
 };
