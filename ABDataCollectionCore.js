@@ -685,7 +685,7 @@ module.exports = class ABDataCollectionCore extends ABMLClass {
       // Set the cursor to the first row
       if (this.isCursorFollow) {
          const rowId = this.__dataCollection.getFirstId();
-         this.__dataCollection.setCursor(rowId || null);
+         this.setCursor(rowId || null);
          this.setCursorTree(rowId || null);
       }
    }
@@ -731,7 +731,9 @@ module.exports = class ABDataCollectionCore extends ABMLClass {
 
       // events
       this.on("ab.datacollection.create", (data) => {
-         // debugger;
+         // If this DC is following cursor for other DC, then it should not add the new item to their list.
+         if (this.isCursorFollow) return;
+
          let obj = this.datasource;
          if (!obj) return;
 
@@ -1003,6 +1005,14 @@ module.exports = class ABDataCollectionCore extends ABMLClass {
          // updated values
          let values = data.data;
          if (!values) return;
+
+         // DC who is following cursor should update only current cursor.
+         if (
+            this.isCursorFollow &&
+            this.getCursor()?.id != (values[obj.PK()] ?? values.id)
+         ) {
+            return;
+         }
 
          let needUpdate = false;
          let isExists = false;
@@ -1294,6 +1304,14 @@ module.exports = class ABDataCollectionCore extends ABMLClass {
             PK = "id";
          }
 
+         // DC who is following cursor should update only current cursor.
+         if (
+            this.isCursorFollow &&
+            this.getCursor()?.[PK] != (values[PK] ?? values.id)
+         ) {
+            return;
+         }
+
          if (values) {
             if (this.__dataCollection.exists(values[PK])) {
                var cond = { where: {} };
@@ -1348,6 +1366,10 @@ module.exports = class ABDataCollectionCore extends ABMLClass {
          let needDelete = false;
          let deletedIds = [];
          let deletedTreeIds = [];
+
+         if (this.isCursorFollow && this.getCursor()?.id != deleteId) {
+            return;
+         }
 
          // Query
          if (obj instanceof this.AB.Class.ABObjectQuery) {
