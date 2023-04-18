@@ -648,11 +648,9 @@ module.exports = class ABObjectCore extends ABMLClass {
     * @return {string}
     */
    urlRest() {
-      return (
-         "/app_builder/model/#objID#"
-            // .replace("#appID#", this.application.id)
-            .replace("#objID#", this.id)
-      );
+      return "/app_builder/model/application/#appID#/object/#objID#"
+         .replace("#appID#", this.application.id)
+         .replace("#objID#", this.id);
    }
 
    /**
@@ -661,11 +659,9 @@ module.exports = class ABObjectCore extends ABMLClass {
     * @return {string}
     */
    urlRestBatch() {
-      return (
-         "/app_builder/model/#objID#/batch"
-            // .replace("#appID#", this.application.id)
-            .replace("#objID#", this.id)
-      );
+      return "/app_builder/model/application/#appID#/object/#objID#/batch"
+         .replace("#appID#", this.application.id)
+         .replace("#objID#", this.id);
    }
 
    /**
@@ -674,14 +670,10 @@ module.exports = class ABObjectCore extends ABMLClass {
     * @return {string}
     */
    urlRestItem(id) {
-      // ? https://github.com/digi-serve/ab_service_api_sails/tree/develop#model-find---get-app_buildermodelobjid
-      // "/app_builder/model/#objID#/where/#id#"
-      return (
-         "/app_builder/model/#objID#/"
-            // .replace("#appID#", this.application.id)
-            .replace("#objID#", this.id)
-         // .replace("#id#", id)
-      );
+      return "/app_builder/model/application/#appID#/object/#objID#/#id#"
+         .replace("#appID#", this.application.id)
+         .replace("#objID#", this.id)
+         .replace("#id#", id);
    }
 
    /**
@@ -690,11 +682,9 @@ module.exports = class ABObjectCore extends ABMLClass {
     * @return {string}
     */
    urlRestRefresh() {
-      return (
-         "/app_builder/model/#objID#"
-            // .replace("#appID#", this.application.id)
-            .replace("#objID#", this.id)
-      );
+      return "/app_builder/model/application/#appID#/refreshobject/#objID#"
+         .replace("#appID#", this.application.id)
+         .replace("#objID#", this.id);
    }
 
    /**
@@ -703,11 +693,9 @@ module.exports = class ABObjectCore extends ABMLClass {
     * @return {string}
     */
    urlRestCount() {
-      return (
-         "/app_builder/model/#objID#/count"
-            // .replace("#appID#", this.application.id)
-            .replace("#objID#", this.id)
-      );
+      return "/app_builder/model/application/#appID#/count/#objID#"
+         .replace("#appID#", this.application.id)
+         .replace("#objID#", this.id);
    }
 
    ///
