@@ -122,7 +122,12 @@ module.exports = class InsertRecordCore extends ABProcessElement {
          {
             key: `${this.id}.[PK]`,
             label: `${this.label}-> Inserted record [PK]`,
-            field: "InsertedRecord",
+            field: {
+               id: this.id,
+               object: { id: this.objectID },
+               key: "InsertedRecord",
+               columnName: "uuid",
+            },
             object: this.objectID,
             set: true,
          },
