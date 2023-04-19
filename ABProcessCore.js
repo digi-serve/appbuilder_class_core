@@ -171,7 +171,7 @@ module.exports = class ABProcessCore extends ABMLClass {
       });
 
       // If parent, merge connections
-      if (this.process /*&& this.key === "SubProcess"*/) {
+      if (this.process && this.key === "SubProcess") {
          allConnections = allConnections.concat(this.process.connections());
       }
 
