@@ -149,7 +149,10 @@ module.exports = class ABProcessTriggerLifecycle extends ABProcessTrigger {
                   // in data base and we need to run format method
                   if (["calculate", "TextFormula"].indexOf(field.key) != -1) {
                      return field.format(myState["data"]);
-                  } else if (field.key == "connectObject") {
+                  } else if (
+                     field.key == "connectObject" ||
+                     field.key == "user"
+                  ) {
                      return (
                         myState["data"][field.columnName] ||
                         myState["data"][field.relationName()]
