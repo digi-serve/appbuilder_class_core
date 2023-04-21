@@ -830,6 +830,8 @@ module.exports = class FilterComplexCore extends ABComponent {
             conditions = conditions.concat(this.fieldsAddFiltersContext(f));
          }
 
+         conditions = conditions.concat(this.fieldsAddFiltersCustom(f));
+
          // let type = f.id; // the default unique identifier for our filter types
          // if (f.id == "this_object") {
          //    // if this happens to be our special "this_object" field, then our
@@ -1215,6 +1217,12 @@ module.exports = class FilterComplexCore extends ABComponent {
       }
 
       return result;
+   }
+
+   fieldsAddFiltersCustom(field) {
+      const customOptions = this._customOptions ?? {};
+      const options = customOptions[field.id || field] ?? {};
+      return options.conditions ?? [];
    }
 
    queriesLoad(queries = []) {
