@@ -42,6 +42,29 @@ class ABQLRowPluckCore extends ABQLSetPluck {
 
             break;
 
+         case "user":
+            // TODO set this up corectlys
+            if (
+               field.settings.linkType === "many" ||
+               field.settings.isMultiple // may be unnessicary
+            ) {
+               // NOTE: Could not require("./ABQLSet.js") on the top. It returns an empty object. Why ><
+               const ABQLSet = require("./ABQLSet.js");
+
+               nextQLOps = ABQLSet;
+
+               break;
+            }
+
+            // default
+            nextQLOps = this.prevOP.constructor.NextQLOps.filter(
+               (NextQLOp) =>
+                  NextQLOp.key === this.constructor.key ||
+                  NextQLOp.key === ABQLRowUpdate.key
+            );
+
+            break;
+
          default:
             // Normal field and _PK
             nextQLOps = this.prevOP.constructor.NextQLOps.filter(
