@@ -276,8 +276,8 @@ module.exports = class ABFieldNumberCore extends ABField {
 
    format(rowData) {
       if (
-	 rowData == null ||
-         rowData[this.columnName] == null ||
+         rowData == null ||
+	 rowData?.[this.columnName] == null ||
          (rowData[this.columnName] != 0 && rowData[this.columnName] == "")
       )
          return "";
