@@ -5,7 +5,7 @@ const _concat = require("lodash/concat");
 
 module.exports = class ABHintCore extends ABMLClass {
    constructor(attributes, AB) {
-      super(["label", "description"], AB);
+      super(["name", "description"], AB);
 
       this.fromValues(attributes);
 
@@ -52,8 +52,9 @@ module.exports = class ABHintCore extends ABMLClass {
 
       let currSteps = this?._steps || {};
       this._steps = {};
-      (attributes?.steps || []).forEach((sID) => {
-         var ele = this.AB.stepNew(sID, this);
+      (attributes?.stepIDs || []).forEach((sID) => {
+         if (!sID) return;
+         var ele = this.AB.stepNew(sID, this.id);
          if (ele) {
             this._steps[sID] = ele;
          }
@@ -81,7 +82,7 @@ module.exports = class ABHintCore extends ABMLClass {
       // OP.Multilingual.unTranslate(this, this, ["label"]);
       var data = super.toObj();
 
-      var fieldsToSave = ["type", "settings", "steps", "id", "name"];
+      var fieldsToSave = ["type", "settings", "stepIDs", "id", "name"];
       fieldsToSave.forEach((f) => {
          data[f] = this[f];
       });
@@ -127,8 +128,8 @@ module.exports = class ABHintCore extends ABMLClass {
    /**
     * stepRemove()
     * remove a step from being displayed by this hint.
-    * @param {obj|ABStep} def
-    *        a definition of, or full Object instance of the ABStep
+    * @param {id} ABStep ID
+    *        an ID of a step
     *        to remove.
     */
    stepRemove(id) {

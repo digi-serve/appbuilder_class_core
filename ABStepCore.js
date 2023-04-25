@@ -5,7 +5,7 @@ const _concat = require("lodash/concat");
 
 module.exports = class ABStepCore extends ABMLClass {
    constructor(attributes, AB) {
-      super(["title", "text"], AB);
+      super(["name", "text"], AB);
 
       this.fromValues(attributes);
 
@@ -34,7 +34,10 @@ module.exports = class ABStepCore extends ABMLClass {
       this.id = attributes.id;
       this.name = attributes.name || "New Step";
       this.type = attributes.type || "step";
+      this.text = attributes.text || "";
       this.settings = attributes.settings || {};
+      this.settings.event = attributes?.settings?.event || "click";
+      this.settings.el = attributes?.settings?.el || "";
       // this.xmlDefinition = attributes.xmlDefinition || null;
 
       super.fromValues(attributes); // perform translation on this object.
