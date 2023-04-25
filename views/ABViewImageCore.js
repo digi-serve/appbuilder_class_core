@@ -3,13 +3,13 @@ const ABViewWidget = require("../../platform/views/ABViewWidget");
 const ABViewImagePropertyComponentDefaults = {
    filename: "",
    width: 200,
-   height: 100
+   height: 100,
 };
 
 const ABViewDefaults = {
    key: "image", // {string} unique key for this view
    icon: "picture-o", // {string} fa-[icon] reference for this view
-   labelKey: "ab.components.image" // {string} the multilingual label key for the class label
+   labelKey: "Image", // {string} the multilingual label key for the class label
 };
 
 module.exports = class ABViewImageCore extends ABViewWidget {
@@ -28,6 +28,24 @@ module.exports = class ABViewImageCore extends ABViewWidget {
    ///
    /// Instance Methods
    ///
+
+   /**
+    * @method componentList
+    * return the list of components available on this view to display in the editor.
+    */
+   componentList() {
+      return [];
+   }
+
+   /**
+    * @property datacollection
+    * return data source
+    * NOTE: this view doesn't track a DataCollection.
+    * @return {ABDataCollection}
+    */
+   get datacollection() {
+      return null;
+   }
 
    /**
     * @method fromValues()

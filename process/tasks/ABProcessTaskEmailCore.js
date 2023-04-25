@@ -19,7 +19,9 @@ var ABProcessTaskEmailDefaults = {
       "toCustom",
       "fromCustom",
       "toUsers",
-      "fromUsers"
+      "fromUsers",
+      "toCustomFields",
+      "fromCustomFields",
    ],
    // fields: {array}
    // a list of internal setting values this Element tracks
@@ -28,15 +30,15 @@ var ABProcessTaskEmailDefaults = {
    // icon: {string}
    // font-awesome icon reference.  (without the 'fa-').  so 'user'  to reference 'fa-user'
 
-   key: "Email"
+   key: "Email",
    // key: {string}
    // unique key to reference this specific Task
 };
 
 module.exports = class ABProcessTaskEmailCore extends ABProcessElement {
-   constructor(attributes, process, application) {
+   constructor(attributes, process, AB) {
       attributes.type = attributes.type || "process.task.email";
-      super(attributes, process, application, ABProcessTaskEmailDefaults);
+      super(attributes, process, AB, ABProcessTaskEmailDefaults);
 
       // listen
    }
@@ -52,8 +54,8 @@ module.exports = class ABProcessTaskEmailCore extends ABProcessElement {
          actionName: "replace-with-send-task",
          className: "bpmn-icon-send",
          target: {
-            type: "bpmn:SendTask"
-         }
+            type: "bpmn:SendTask",
+         },
       };
    }
 
@@ -72,6 +74,11 @@ module.exports = class ABProcessTaskEmailCore extends ABProcessElement {
          this[f] = attributes[f];
       });
    }
+
+   /**
+    * onProcessReady()
+    * Perform our warnings checks once the parent Process is ready
+    */
 
    /**
     * @method toObj()
@@ -127,7 +134,7 @@ module.exports = class ABProcessTaskEmailCore extends ABProcessElement {
          to: [],
          from: [],
          subject: this.subject,
-         message: this.message
+         message: this.message,
       };
 
       super.initState(context, myDefaults, val);

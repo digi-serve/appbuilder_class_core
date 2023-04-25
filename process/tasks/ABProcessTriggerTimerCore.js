@@ -15,7 +15,7 @@ var ABProcessTaskTriggerLifecycleDefaults = {
       "repeatDaily",
       "repeatWeekly",
       "repeatMonthly",
-      "isEnabled"
+      "isEnabled",
    ],
    // fields: {array}
    // a list of internal setting values this Element tracks
@@ -33,7 +33,7 @@ var ABProcessTaskTriggerLifecycleDefaults = {
    repeatDaily: "day",
    repeatWeekly: "FRI",
    repeatMonthly: "last",
-   isEnabled: true
+   isEnabled: true,
 };
 
 module.exports = class ABProcessTriggerTimer extends ABProcessTrigger {
@@ -62,8 +62,8 @@ module.exports = class ABProcessTriggerTimer extends ABProcessTrigger {
             type: "bpmn:StartEvent",
             // type: {string} the general bpmn category
             //      "StartEvent", "Task", "EndEvent", "ExclusiveGateway"
-            eventDefinitionType: "ab:SignalTriggerTimer"
-         }
+            eventDefinitionType: "ab:SignalTriggerTimer",
+         },
       };
    }
 
@@ -97,9 +97,11 @@ module.exports = class ABProcessTriggerTimer extends ABProcessTrigger {
          this.repeatTime = ABProcessTaskTriggerLifecycleDefaults.repeatTime;
       }
 
-      this.isEnabled = JSON.parse(
-         attributes.isEnabled || ABProcessTaskTriggerLifecycleDefaults.isEnabled
-      );
+      if (typeof attributes.isEnabled != "undefined") {
+         this.isEnabled = JSON.parse(attributes.isEnabled);
+      } else {
+         this.isEnabled = ABProcessTaskTriggerLifecycleDefaults.isEnabled;
+      }
    }
 
    /**
@@ -163,4 +165,3 @@ module.exports = class ABProcessTriggerTimer extends ABProcessTrigger {
       return `${second} ${minute} ${hour} ${day} ${month} ${dayWeek} ${year}`;
    }
 };
-

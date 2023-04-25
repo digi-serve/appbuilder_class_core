@@ -43,10 +43,10 @@ function getFieldVal(rowData, field, returnSingular = true) {
 }
 
 module.exports = class RowFilterCore extends ABComponent {
-   constructor(App, idBase) {
+   constructor(App, idBase, AB) {
       idBase = idBase || "ab_row_filter";
 
-      super(App, idBase);
+      super(App, idBase, AB);
 
       this.Account = { username: "??" };
       this._settings = {};
@@ -59,7 +59,7 @@ module.exports = class RowFilterCore extends ABComponent {
       // internal business logic
       var _logic = (this._logic = {
          callbacks: {
-            onChange: () => {}
+            onChange: () => {},
          },
 
          /**
@@ -81,7 +81,7 @@ module.exports = class RowFilterCore extends ABComponent {
             return this.config_settings;
          },
 
-         removeHtmlTags: function(text) {
+         removeHtmlTags: function (text) {
             let result = "";
             try {
                let div = document.createElement("div");
@@ -95,16 +95,13 @@ module.exports = class RowFilterCore extends ABComponent {
             return result;
          },
 
-         textValid: function(rowData, field, rule, compareValue) {
+         textValid: function (rowData, field, rule, compareValue) {
             var result = false;
 
             var value = getFieldVal(rowData, field);
             if (value == null) value = "";
 
-            value = value
-               .toString()
-               .trim()
-               .toLowerCase();
+            value = value.toString().trim().toLowerCase();
             value = _logic.removeHtmlTags(value); // remove html tags - rich text editor
 
             compareValue = compareValue
@@ -161,7 +158,7 @@ module.exports = class RowFilterCore extends ABComponent {
             return result;
          },
 
-         dateValid: function(rowData, field, rule, compareValue) {
+         dateValid: function (rowData, field, rule, compareValue) {
             var result = false;
 
             var value = getFieldVal(rowData, field);
@@ -197,7 +194,7 @@ module.exports = class RowFilterCore extends ABComponent {
             return result;
          },
 
-         numberValid: function(rowData, field, rule, compareValue) {
+         numberValid: function (rowData, field, rule, compareValue) {
             var result = false;
 
             var value = getFieldVal(rowData, field);
@@ -231,7 +228,7 @@ module.exports = class RowFilterCore extends ABComponent {
             return result;
          },
 
-         listValid: function(rowData, field, rule, compareValue) {
+         listValid: function (rowData, field, rule, compareValue) {
             var result = false;
 
             var value = getFieldVal(rowData, field);
@@ -257,7 +254,7 @@ module.exports = class RowFilterCore extends ABComponent {
             return result;
          },
 
-         booleanValid: function(rowData, field, rule, compareValue) {
+         booleanValid: function (rowData, field, rule, compareValue) {
             var result = false;
 
             var value = getFieldVal(rowData, field);
@@ -349,7 +346,7 @@ module.exports = class RowFilterCore extends ABComponent {
          queryValid: (rowData, rule, compareValue) => {
             var result = false;
 
-            if (!this._Application || !compareValue) return result;
+            if (!this.AB || !compareValue) return result;
 
             // queryId:fieldId
             var queryId = compareValue.split(":")[0],
@@ -368,7 +365,7 @@ module.exports = class RowFilterCore extends ABComponent {
                   .replace("{id}", query.id),
                inQueryFieldFilter = new this.constructor(this.App, qIdBase);
             inQueryFieldFilter.Account = this.Account;
-            inQueryFieldFilter.applicationLoad(this._Application);
+            // inQueryFieldFilter.applicationLoad(this._Application);
             inQueryFieldFilter.fieldsLoad(query.fields());
             inQueryFieldFilter.setValue(query.workspaceFilterConditions);
 
@@ -391,7 +388,7 @@ module.exports = class RowFilterCore extends ABComponent {
                rowData = rowData[columnName] || {};
             }
 
-            if (!compareValue || !this._Application) return result;
+            if (!compareValue || !this.AB) return result;
 
             // if no query
             let query = this.queries((q) => q.id == compareValue)[0];
@@ -402,7 +399,7 @@ module.exports = class RowFilterCore extends ABComponent {
                   .replace("{id}", query.id),
                inQueryFilter = new this.constructor(this.App, qIdBase);
             inQueryFilter.Account = this.Account;
-            inQueryFilter.applicationLoad(this._Application);
+            // inQueryFilter.applicationLoad(this._Application);
             inQueryFilter.fieldsLoad(query.fields());
             inQueryFilter.setValue(query.workspaceFilterConditions);
 
@@ -421,15 +418,13 @@ module.exports = class RowFilterCore extends ABComponent {
          dataCollectionValid: (rowData, columnName, rule, compareValue) => {
             var result = false;
 
-            if (!compareValue || !this._Application) return result;
+            if (!compareValue || !this.AB) return result;
 
             if (columnName) {
                rowData = rowData[columnName] || {};
             }
 
-            let dc = this._Application.datacollections(
-               (d) => d.id == compareValue
-            )[0];
+            let dc = this.AB.datacollectionByID(compareValue);
 
             switch (rule) {
                case "in_data_collection":
@@ -453,7 +448,7 @@ module.exports = class RowFilterCore extends ABComponent {
             return result;
          },
 
-         connectFieldValid: function(rowData, field, rule, compareValue) {
+         connectFieldValid: function (rowData, field, rule, compareValue) {
             let relationName = field.relationName();
             let columnName = field.columnName;
 
@@ -541,10 +536,10 @@ module.exports = class RowFilterCore extends ABComponent {
                // if in_query condition
                case "in_query":
                case "not_in_query":
-                  if (!this._Application || !this._Object) return result;
+                  if (!this.AB || !this._Object) return result;
 
                   // if > 1 copy of this object in query ==> Error!
-                  let query = this.queries((q) => q.id == compareValue)[0];
+                  var query = this.queries((q) => q.id == compareValue)[0];
                   if (!query) return result;
 
                   var listThisObjects = query.objects((o) => {
@@ -577,7 +572,7 @@ module.exports = class RowFilterCore extends ABComponent {
                      rule,
                      compareValue
                   );
-                  break;
+               // break; /* eslint no-unreachable */
 
                // if in_datacollection condition
                case "in_data_collection":
@@ -589,9 +584,9 @@ module.exports = class RowFilterCore extends ABComponent {
                      rule,
                      compareValue
                   );
-                  break;
+               // break; /* eslint no-unreachable */
             }
-         }
+         },
       });
 
       // Interface methods for parent component:
@@ -734,21 +729,26 @@ module.exports = class RowFilterCore extends ABComponent {
     *
     * @param application {ABApplication}
     */
-   applicationLoad(application) {
-      this._Application = application;
-   }
+   // applicationLoad(application) {
+   //    this._Application = application;
+   // }
 
    /**
     * @method fieldsLoad
     * set fields
     *
-    * @param array {ABField}
-    * @param object {ABObject} [optional]
+    * @param {array} fields
+    *        an array of fields used in this Query
+    * @param {ABObject} object [optional]
+    *        (optional) ABObject reference if this Filter should support
+    *        the "this object" conditions.
     */
    fieldsLoad(fields = [], object = null) {
       this._Fields = fields.filter((f) => f && f.fieldIsFilterable());
+      // NOTE: User fields are now Connections, but we want to treat them
+      // differently.
       this._QueryFields = this._Fields
-         ? this._Fields.filter((f) => f && f.key == "connectObject")
+         ? this._Fields.filter((f) => f && f.isConnection && f.key != "user")
          : [];
 
       // insert our 'this object' entry if an Object was given.
@@ -757,7 +757,7 @@ module.exports = class RowFilterCore extends ABComponent {
 
          let thisObjOption = {
             id: "this_object",
-            label: object.label
+            label: object.label,
          };
 
          // If object is query ,then should define default alias: "BASE_OBJECT"
@@ -777,24 +777,15 @@ module.exports = class RowFilterCore extends ABComponent {
 
    /**
     * @method queries()
-    *
     * return an array of all the ABObjectQuery.
-    *
-    * @param filter {Object}
-    *
+    * @param {fn} filter
     * @return {array}
     */
-   queries(filter) {
-      filter =
-         filter ||
-         function() {
-            return true;
-         };
-
+   queries(filter = () => true) {
       let result = [];
 
-      if (this._Application) {
-         result = result.concat(this._Application.queries(filter));
+      if (this.AB) {
+         result = result.concat(this.AB.queries(filter));
       }
 
       if (this._Queries) {
@@ -810,7 +801,6 @@ module.exports = class RowFilterCore extends ABComponent {
 
    setValue(settings) {
       this.config_settings = settings || {};
-
       this.config_settings.rules = this.config_settings.rules || [];
    }
 };

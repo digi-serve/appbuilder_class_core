@@ -1,14 +1,14 @@
-const ABViewFormComponent = require("../../platform/views/ABViewFormComponent");
+const ABViewFormItem = require("../../platform/views/ABViewFormItem");
 
 const ABViewFormCheckboxPropertyComponentDefaults = {};
 
 const ABViewFormCheckboxDefaults = {
    key: "checkbox", // {string} unique key for this view
    icon: "check-square-o", // {string} fa-[icon] reference for this view
-   labelKey: "ab.components.checkbox" // {string} the multilingual label key for the class label
+   labelKey: "ab.components.checkbox", // {string} the multilingual label key for the class label
 };
 
-module.exports = class ABViewFormCheckboxCore extends ABViewFormComponent {
+module.exports = class ABViewFormCheckboxCore extends ABViewFormItem {
    constructor(values, application, parent, defaultValues) {
       super(
          values,
@@ -34,3 +34,4 @@ module.exports = class ABViewFormCheckboxCore extends ABViewFormComponent {
       return [];
    }
 };
+

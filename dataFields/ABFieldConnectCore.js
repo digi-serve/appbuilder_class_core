@@ -5,50 +5,70 @@
  *
  */
 
-var ABFieldSelectivity = require("../../platform/dataFields/ABFieldSelectivity");
+var ABField = require("../../platform/dataFields/ABField");
 
-function L(key, altText) {
-   // TODO:
-   return altText; // AD.lang.label.getLabel(key) || altText;
-}
+// function L(key, altText) {
+//    // TODO:
+//    return altText; // AD.lang.label.getLabel(key) || altText;
+// }
 
-var ABFieldConnectDefaults = {
-   key: "connectObject", // unique key to reference this specific DataField
+const ABFieldConnectDefaults = {
+   key: "connectObject",
+   // unique key to reference this specific DataField
 
-   icon: "external-link", // font-awesome icon reference.  (without the 'fa-').  so 'user'  to reference 'fa-user'
-
-   // menuName: what gets displayed in the Editor drop list
-   menuName: L(
-      "ab.dataField.connectObject.menuName",
-      "*Connect to another record"
-   ),
-
+   description: "Connect two data objects together",
    // description: what gets displayed in the Editor description.
-   description: L(
-      "ab.dataField.connectObject.description",
-      "*Connect two data objects together"
-   ),
+   // NOTE: this will be displayed using a Label: L(description)
+
+   icon: "external-link",
+   // font-awesome icon reference.  (without the 'fa-').  so 'external-link'  to
+   // reference 'fa-external-link'
+
+   isFilterable: true,
+   // {bool} / {fn}
+   // determines if the current ABField can be used to filter (FilterComplex
+   // or Query) data.
+   // if a {fn} is provided, it will be called with the ABField as a parameter:
+   //  (field) => field.setting.something == true
 
    isSortable: (field) => {
-      return (
-         field &&
-         field.settings &&
-         // 1:M
-         ((field.settings.linkType == "one" &&
-            field.settings.linkViaType == "many") ||
-            // 1:1 isSource = true
-            (field.settings.linkType == "one" &&
-               field.settings.linkViaType == "one" &&
-               field.settings.isSource))
-      );
+      const linkType = `${field?.settings?.linkType}:${field?.settings?.linkViaType}`;
+      return ["one:many", "one:one"].indexOf(linkType) > -1;
    },
-   isFilterable: true, // now we can filter using Queries
-   useAsLabel: false,
+   // {bool} / {fn}
+   // determines if the current ABField can be used to Sort data.
+   // if a {fn} is provided, it will be called with the ABField as a parameter:
+   //  (field) => true/false
 
-   supportRequire: false
+   menuName: "Connect to another record",
+   // menuName: what gets displayed in the Editor drop list
+   // NOTE: this will be displayed using a Label: L(menuName)
+
+   supportRequire: false,
+   // {bool}
+   // does this ABField support the Required setting?
+
+   supportUnique: false,
+   // {bool}
+   // does this ABField support the Unique setting?
+
+   useAsLabel: false,
+   // {bool} / {fn}
+   // determines if this ABField can be used in the display of an ABObject's
+   // label.
+
+   compatibleOrmTypes: ["string"],
+   // {array}
+   // what types of Sails ORM attributes can be imported into this data type?
+   // http://sailsjs.org/documentation/concepts/models-and-orm/attributes#?attribute-options
+
+   compatibleMysqlTypes: ["char", "varchar", "tinytext"],
+   // {array}
+   // what types of MySql column types can be imported into this data type?
+   // https://www.techonthenet.com/mysql/datatypes.php
 };
 
-var defaultValues = {
+const defaultValues = {
    linkObject: "", // ABObject.id
    // the .id of the ABObject we are connected to
 
@@ -71,18 +91,43 @@ var defaultValues = {
    // if linkType == one, and isSource = 0, then the linkObject has this obj.id
    //  	in it's connected field (linkColumn)
 
+   // the next 3 Fields are concerning how we connect to other ABObjects when
+   // we are NOT using the .uuid as the connecting Value. Instead, there is an
+   // ABIndex setting we are connecting with.
    isCustomFK: 0,
+   // {bool} truthy [0,1, etc...]
+   // indicates that this connection is using 1 or more custom foreign keys
+   // for the data it is storing in it's relationship.
+
    indexField: "", // ABField.id
-   indexField2: "" // ABField.id
+   // {string} {ABField.id}
+   // In a Connection defined between A --> B, this field represents the ABField
+   // that is used for the data being stored.
+   // In 1:1,  1:M  or M:1  relationships, .indexField always refers to the
+   //       field we are pulling the Data FROM.
+   // In M:N relationships:  this will refer to the A.Field.id that is a custom
+   //       key (if any).
+
+   indexField2: "", // ABField.id
+   // {string}  {ABField.id}
+   // In the M:N relationship: this field refers to the B.Field.id that is a
+   //       custom Key for the data we are storing.
 };
 
-module.exports = class ABFieldConnectCore extends ABFieldSelectivity {
-   constructor(values, object) {
-      super(values, object, ABFieldConnectDefaults);
+module.exports = class ABFieldConnectCore extends ABField {
+   constructor(values, object, fieldDefaults = ABFieldConnectDefaults) {
+      super(values, object, fieldDefaults);
 
-      // text to Int:
-      this.settings.isSource = parseInt(this.settings.isSource || 0);
-      this.settings.isCustomFK = parseInt(this.settings.isCustomFK || 0);
+      this.isConnection = true;
+      // {bool}
+      // is this an ABFieldConnect type of field.
+      // this is a simplified helper to identify if an ABField is a type
+      // of connect field.  Since this is the only place it is defined,
+      // all other field types will be falsy
+
+      // // text to Int:
+      // this.settings.isSource = parseInt(this.settings.isSource || 0);
+      // this.settings.isCustomFK = parseInt(this.settings.isCustomFK || 0);
    }
 
    // return the default values for this DataField
@@ -116,7 +161,7 @@ module.exports = class ABFieldConnectCore extends ABFieldSelectivity {
     * for this field.
     * @param {obj} values a key=>value hash of the current values.
     */
-   defaultValue(values) {}
+   defaultValue(/* values */) {}
 
    /**
     * @method isValidData
@@ -133,18 +178,10 @@ module.exports = class ABFieldConnectCore extends ABFieldSelectivity {
    relationName() {
       // there is object name - {objectName}.{columnName}
       if (this.columnName.indexOf(".") > -1) {
-         let names = this.columnName.split(".");
-
-         return (
-            names[0] +
-            "." +
-            (String(names[1]).replace(/[^a-z0-9\.]/gi, "") + "__relation")
-         );
+         const names = this.columnName.split(".");
+         return `${names[0]}.${this.AB.rules.toFieldRelationFormat(names[1])}`;
       } else {
-         let relationName =
-            String(this.columnName).replace(/[^a-z0-9\.]/gi, "") + "__relation";
-
-         return relationName;
+         return this.AB.rules.toFieldRelationFormat(this.columnName);
       }
    }
 
@@ -154,9 +191,17 @@ module.exports = class ABFieldConnectCore extends ABFieldSelectivity {
     * @return {ABObject}
     */
    get datasourceLink() {
-      return this.object.application.objects(
-         (obj) => obj.id == this.settings.linkObject
-      )[0];
+      const linkObj = this.AB.objectByID(this.settings.linkObject);
+      if (!linkObj) {
+         const configError = new Error(
+            `ConnectField[${this.label}][${this.id}] unable to find linkObject[${this.settings.linkObject}]`
+         );
+         this.AB.notify.builder(configError, {
+            field: this,
+            linkObject: this.settings.linkObject,
+         });
+      }
+      return linkObj;
    }
 
    /**
@@ -165,13 +210,20 @@ module.exports = class ABFieldConnectCore extends ABFieldSelectivity {
     * @return {ABDataField}  or undefined if not found.
     */
    get fieldLink() {
-      var objectLink = this.datasourceLink;
-      if (!objectLink) return null;
+      const objectLink = this.datasourceLink;
+      if (!objectLink) return null; // note: already Notified
 
-      return objectLink.fields(
-         (f) => f.id == this.settings.linkColumn,
-         true
-      )[0];
+      const linkColumn = objectLink.fieldByID(this.settings.linkColumn);
+      if (!linkColumn) {
+         const configError = new Error(
+            `ConnectField[${this.label}][${this.id}] unable to find linkColumn[${this.settings.linkColumn}]`
+         );
+         this.AB.notify.builder(configError, {
+            field: this,
+            linkColumn: this.settings.linkColumn,
+         });
+      }
+      return linkColumn;
    }
 
    /**
@@ -181,16 +233,12 @@ module.exports = class ABFieldConnectCore extends ABFieldSelectivity {
     * @return {array}
     */
    pullRelationValues(row) {
-      var selectedData = [];
-
-      /// LEFT OFF HERE:
-      /// debug invalid data for JSON.parse() on line 183
-      // debugger;
+      let selectedData;
 
       // Get linked object
-      var linkedObject = this.datasourceLink;
+      const linkedObject = this.datasourceLink;
 
-      var data = this.dataValue(row);
+      let data = this.dataValue(row);
       if (data && linkedObject) {
          // convert to JSON
          if (typeof data == "string") {
@@ -212,9 +260,7 @@ module.exports = class ABFieldConnectCore extends ABFieldSelectivity {
    dataValue(rowData) {
       if (rowData == null) return "";
 
-      let propName = "{objectName}.{relationName}"
-         .replace("{objectName}", this.object.name)
-         .replace("{relationName}", this.relationName());
+      const propName = `${this.object.name}.${this.relationName()}`;
 
       return (
          rowData[this.relationName()] ||
@@ -225,8 +271,8 @@ module.exports = class ABFieldConnectCore extends ABFieldSelectivity {
    }
 
    format(rowData) {
-      let val = this.pullRelationValues(rowData);
-      let linkedObject = this.datasourceLink;
+      const val = this.pullRelationValues(rowData);
+      const linkedObject = this.datasourceLink;
 
       // array
       if (Array.isArray(val))
@@ -280,59 +326,31 @@ module.exports = class ABFieldConnectCore extends ABFieldSelectivity {
       if (!this.settings.isCustomFK || !this.settings.indexField) {
          return null;
       }
-
+      const linkType = `${this.settings.linkType}:${this.settings.linkViaType}`;
       // 1:M
-      if (
-         this.settings.linkType == "one" &&
-         this.settings.linkViaType == "many"
-      ) {
-         return this.datasourceLink.fields(
-            (f) => f.id == this.settings.indexField,
-            true
-         )[0];
+      if (linkType === "one:many") {
+         return this.datasourceLink.fieldByID(this.settings.indexField);
       }
       // 1:1
-      else if (
-         this.settings.linkType == "one" &&
-         this.settings.linkViaType == "one"
-      ) {
+      else if (linkType === "one:one") {
          if (this.settings.isSource) {
-            return this.datasourceLink.fields(
-               (f) => f.id == this.settings.indexField,
-               true
-            )[0];
+            return this.datasourceLink.fieldByID(this.settings.indexField);
          } else {
-            return this.object.fields(
-               (f) => f.id == this.settings.indexField,
-               true
-            )[0];
+            return this.object.fieldByID(this.settings.indexField);
          }
       }
       // M:1
-      else if (
-         this.settings.linkType == "many" &&
-         this.settings.linkViaType == "one"
-      ) {
-         return this.object.fields(
-            (f) => f.id == this.settings.indexField,
-            true
-         )[0];
+      else if (linkType === "many:one") {
+         return this.object.fieldByID(this.settings.indexField);
       }
       // M:N
-      else if (
-         this.settings.linkType == "many" &&
-         this.settings.linkViaType == "many"
-      ) {
-         let indexField = this.object.fields(
-            (f) => f.id == this.settings.indexField,
-            true
-         )[0];
+      else if (linkType === "many:many") {
+         let indexField = this.object.fieldByID(this.settings.indexField);
 
          if (indexField == null)
-            indexField = this.datasourceLink.fields(
-               (f) => f.id == this.settings.indexField,
-               true
-            )[0];
+            indexField = this.datasourceLink.fieldByID(
+               this.settings.indexField
+            );
 
          return indexField;
       }
@@ -356,16 +374,12 @@ module.exports = class ABFieldConnectCore extends ABFieldSelectivity {
          this.settings.linkType == "many" &&
          this.settings.linkViaType == "many"
       ) {
-         indexField = this.object.fields(
-            (f) => f.id == this.settings.indexField2,
-            true
-         )[0];
+         indexField = this.object.fieldByID(this.settings.indexField2);
 
          if (indexField == null)
-            indexField = this.datasourceLink.fields(
-               (f) => f.id == this.settings.indexField2,
-               true
-            )[0];
+            indexField = this.datasourceLink.fieldByID(
+               this.settings.indexField2
+            );
       }
 
       return indexField;
@@ -383,16 +397,15 @@ module.exports = class ABFieldConnectCore extends ABFieldSelectivity {
    getRelationValue(rowData, options = {}) {
       if (rowData == null) return;
       let colName;
-      let indexField = this.indexField;
-      let datasourceLink = this.datasourceLink;
+      const indexField = this.indexField;
+      const datasourceLink = this.datasourceLink;
+
+      const linkType = `${this.settings.linkType}:${this.settings.linkViaType}`;
 
       // custom index
       // M:N
-      if (
-         this.settings.linkType == "many" &&
-         this.settings.linkViaType == "many"
-      ) {
-         let indexField2 = this.indexField2;
+      if (linkType === "many:many") {
+         const indexField2 = this.indexField2;
 
          if (indexField && indexField.object.id == datasourceLink.id) {
             colName = indexField.columnName;
@@ -403,19 +416,13 @@ module.exports = class ABFieldConnectCore extends ABFieldSelectivity {
       // 1:M, 1:1 isSource = true
       else if (
          indexField &&
-         ((this.settings.linkType == "one" &&
-            this.settings.linkViaType == "many") ||
-            (this.settings.linkType == "one" &&
-               this.settings.linkViaType == "one" &&
-               this.settings.isSource))
+         (linkType === "one:many" ||
+            (linkType === "one:one" && this.settings.isSource))
       ) {
          colName = indexField.columnName;
       }
       // M:1
-      else if (
-         this.settings.linkType == "many" &&
-         this.settings.linkViaType == "one"
-      ) {
+      else if (linkType === "many:one") {
          // NOTE: M:1 has special case
          // it uses different value for search and update.
          // UPDATE uses row id

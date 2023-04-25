@@ -14,11 +14,11 @@
 //
 
 var ABObject = require("../platform/ABObject");
-var ABModel = require("../platform/ABModel");
+var ABModelQuery = require("../platform/ABModelQuery");
 
 module.exports = class ABObjectQueryCore extends ABObject {
-   constructor(attributes, application) {
-      super(attributes, application);
+   constructor(attributes, AB) {
+      super(attributes, AB);
       /*
 {
 	id: uuid(),
@@ -66,8 +66,29 @@ module.exports = class ABObjectQueryCore extends ABObject {
 	where: { QBWhere }
 }
 */
+      this.isQuery = true;
+      // {bool}
+      // a property to mark the difference between an ABObject and ABObjectQuery.
 
-      // this.fromValues(attributes);
+      this.__missingObject = this.__missingObject ?? [];
+      // {array} fieldInfo
+      // the field info that defined an object we can't find.
+
+      this.__missingFields = this.__missingFields ?? [];
+      // {array} [ { objID, fieldID }, ... ]
+      // a list of field definitions that we are unable to resolve.
+
+      this.__cantFilter = [];
+      // {array} [ {field, fieldInfo}, ... ]
+      // a list of field that were assigned but can't be used for filtering.
+
+      this.__duplicateFields = [];
+      // {array} [ {fieldInfo}, ... ]
+      // a list of duplicate field definitions.
+
+      this.__linkProblems = [];
+      // {array} [ { message, data }, ...]
+      // a list of warning messages related to link objects
    }
 
    ///
@@ -113,13 +134,22 @@ module.exports = class ABObjectQueryCore extends ABObject {
       // this gets built in the .importJoins();
 
       this.viewName = attributes.viewName || "";
-      // knex does not like .(dot) in table and column names
-      // https://github.com/knex/knex/issues/2762
-      this.viewName = this.viewName.replace(/[^a-zA-Z0-9_ ]/gi, "");
+      // {string}
+      // this is the SQL tablename of where our Query will store it's
+      // view data.
 
       // import all our ABObjects
       this.importJoins(attributes.joins || {});
-      this.importFields(attributes.fields || []); // import after joins are imported
+
+      // import fields after joins are imported
+      this._fields = null;
+      this.importFields(attributes.fields || []);
+      // {array} [ { alias, field}, {},... ]
+      // an array of field definition structures that mark what fields this
+      // query is interested in pulling data from.
+      //    .alias : {string} matches the alias of the ABObject that the field
+      //             is from
+      //    .field : {ABFieldXXX} the link to the actual ABField instance
 
       // Import our Where condition
       this.where = attributes.where || {}; // .workspaceFilterConditions
@@ -179,7 +209,6 @@ module.exports = class ABObjectQueryCore extends ABObject {
     * Our attributes are a set of field URLs That should already be created in their respective
     * ABObjects.
     * @param {array} fieldSettings The different field urls for each field
-    *					{ }
     */
    importFields(fieldSettings) {
       var newFields = [];
@@ -189,11 +218,9 @@ module.exports = class ABObjectQueryCore extends ABObject {
          // pull object by alias name
          let object = this.objectByAlias(fieldInfo.alias);
 
-         // Pull object from .application
-         if (!object && this.application) {
-            object = this.application.objects(
-               (obj) => obj.id == fieldInfo.objectID
-            )[0];
+         // Pull object from .AB
+         if (!object && this.AB) {
+            object = this.AB.objectByID(fieldInfo.objectID);
 
             // keep
             if (object) {
@@ -202,22 +229,44 @@ module.exports = class ABObjectQueryCore extends ABObject {
             }
          }
 
-         if (!object) return;
+         if (!object) {
+            this.__missingObject = this.__missingObject ?? [];
+            this.__missingObject.push(fieldInfo);
+            return;
+         }
 
-         let field = object.fields((f) => f.id == fieldInfo.fieldID, true)[0];
+         let field = object.fieldByID(fieldInfo.fieldID);
+         if (!field) {
+            this.__missingFields = this.__missingFields ?? [];
+            this.__missingFields.push({
+               objID: object.id,
+               fieldID: fieldInfo.fieldID,
+               fieldInfo,
+            });
+            return;
+         }
 
-         // should be a field of base/join objects
-         if (
-            field &&
-            this.canFilterField(field) &&
-            // check duplicate
+         if (!this.canFilterField(field)) {
+            this.__cantFilter = this.__cantFilter ?? [];
+            this.__cantFilter.push({ field, fieldInfo });
+         }
+
+         // check duplicate
+         let isNew =
             newFields.filter(
                (f) =>
                   f.alias == fieldInfo.alias && f.field.id == fieldInfo.fieldID
-            ).length < 1
-         ) {
+            ).length < 1;
+
+         if (!isNew) {
+            this.__duplicateFields = this.__duplicateFields ?? [];
+            this.__duplicateFields.push({ fieldInfo });
+         }
+
+         // should be a field of base/join objects
+         if (field && this.canFilterField(field) && isNew) {
             // add alias to field
-            // refactor _.clone() to actually return a new instance of this same ABDataField obj:
+            // create new instance of this field:
             var def = field.toObj();
             let clonedField = new field.constructor(def, field.object);
 
@@ -231,7 +280,7 @@ module.exports = class ABObjectQueryCore extends ABObject {
 
             newFields.push({
                alias: alias,
-               field: clonedField
+               field: clonedField,
             });
          }
       });
@@ -249,9 +298,20 @@ module.exports = class ABObjectQueryCore extends ABObject {
          currFields.push({
             alias: fieldInfo.alias,
             objectID: fieldInfo.field.object.id,
-            fieldID: fieldInfo.field.id
+            fieldID: fieldInfo.field.id,
          });
       });
+
+      // let's persist the faulty settings so a developer or builder can
+      // review and fix it by hand.
+      (this.__missingObject || []).forEach((f) => {
+         currFields.push(f);
+      });
+
+      (this.__cantFilter || []).forEach((f) => {
+         currFields.push(f.fieldInfo);
+      });
+
       return currFields;
    }
 
@@ -291,15 +351,12 @@ module.exports = class ABObjectQueryCore extends ABObject {
     * @return {array}
     */
    objects(fn = () => true) {
-      // TODO: find the case where limiting to this.objectIDs was
-      // problematic, and refactor the code making the call:
-
       // FOR proper expected operation, this fn must only return object
       // matches for which this ABQuery is managing objects:
 
-      return this.application
-         .objects((o) => this.objectIDs.indexOf(o.id) > -1)
-         .filter(fn);
+      return this.AB.objects((o) => this.objectIDs.indexOf(o.id) > -1).filter(
+         fn
+      );
    }
 
    /**
@@ -330,10 +387,7 @@ module.exports = class ABObjectQueryCore extends ABObject {
    objectBase() {
       if (!this._joins.objectID) return null;
 
-      return (
-         this.application.objects((obj) => obj.id == this._joins.objectID)[0] ||
-         null
-      );
+      return this.AB.objectByID(this._joins.objectID) || null;
    }
 
    /**
@@ -345,6 +399,20 @@ module.exports = class ABObjectQueryCore extends ABObject {
     */
    objectByAlias(alias) {
       var objID = this.alias2Obj[alias];
+      if (objID) {
+         return this.objects((o) => o.id == objID)[0];
+      }
+      return null;
+   }
+
+   /**
+    * @method objectByID()
+    * return ABObject search by ID
+    * @param {string} objID
+    *        The requested {ABObject}.id of the object to return.
+    * @return {ABObject} | null
+    */
+   objectByID(objID) {
       if (objID) {
          return this.objects((o) => o.id == objID)[0];
       }
@@ -371,7 +439,7 @@ module.exports = class ABObjectQueryCore extends ABObject {
     */
    importJoins(settings) {
       // copy join settings
-      this._joins = _.cloneDeep(settings);
+      this._joins = this.AB.cloneDeep(settings);
 
       var uniqueObjectIDs = {};
       // { obj.id : obj.id }
@@ -410,6 +478,8 @@ module.exports = class ABObjectQueryCore extends ABObject {
       let processJoin = (baseObject, joins) => {
          if (!baseObject) return;
 
+         this.__linkProblems = this.__linkProblems ?? [];
+
          (joins || []).forEach((link) => {
             // Convert our saved settings:
             //	{
@@ -428,17 +498,28 @@ module.exports = class ABObjectQueryCore extends ABObject {
             //		]
             //	},
 
-            var linkField = baseObject.fields(
-               (f) => f.id == link.fieldID,
-               true
-            )[0];
-            if (!linkField) return;
+            var linkField = baseObject.fieldByID(link.fieldID);
+            if (!linkField) {
+               this.__linkProblems.push({
+                  message: `could not resolve our linkField[${link.fieldID}]`,
+                  data: {
+                     link,
+                  },
+               });
+               return;
+            }
 
             // track our linked object
-            var linkObject = this.application.objects(
-               (obj) => obj.id == linkField.settings.linkObject
-            )[0];
-            if (!linkObject) return;
+            var linkObject = this.AB.objectByID(linkField.settings.linkObject);
+            if (!linkObject) {
+               this.__linkProblems.push({
+                  message: `could not resolve our linked field -> linkObject[${linkField.settings.linkObject}]`,
+                  data: {
+                     link,
+                  },
+               });
+               return;
+            }
 
             storeObject(linkObject, link.alias);
 
@@ -456,6 +537,12 @@ module.exports = class ABObjectQueryCore extends ABObject {
       var rootObject = this.objectBase();
       if (!rootObject) {
          // this._objects = newObjects;
+         this.__linkProblems.push({
+            message: "could not resolve our base object",
+            data: {
+               objectID: this._joins?.objectID,
+            },
+         });
          return;
       }
 
@@ -476,7 +563,7 @@ module.exports = class ABObjectQueryCore extends ABObject {
     * @param {array} settings
     */
    exportJoins() {
-      return _.cloneDeep(this._joins || {});
+      return this.AB.cloneDeep(this._joins || {});
    }
 
    ///
@@ -489,21 +576,13 @@ module.exports = class ABObjectQueryCore extends ABObject {
     * this ABObjectQuery.
     */
    model() {
-      // NOTE: now that a DataCollection overwrites the context of it's
-      // object's model, it is no longer a good idea to only have a single
-      // instance of this._model per ABObject.  We should provide a new
-      // instance each time.
-
-      // if (!this._model) {
-
-      this._model = new ABModel(this);
+      var model = new ABModelQuery(this);
 
       // default the context of this model's operations to this object
-      this._model.contextKey(this.constructor.contextKey());
-      this._model.contextValues({ id: this.id }); // the datacollection.id
-      // }
+      model.contextKey(this.constructor.contextKey());
+      model.contextValues({ id: this.id }); // the datacollection.id
 
-      return this._model;
+      return model;
    }
 
    /**
@@ -548,7 +627,7 @@ module.exports = class ABObjectQueryCore extends ABObject {
    /**
     * @method urlPointer()
     * return the url pointer that references this object. This url pointer
-    * should be able to be used by this.application.urlResolve() to return
+    * should be able to be used by this.AB.urlResolve() to return
     * this object.
     *
     * @param {boolean} acrossApp - flag to include application id to url
@@ -556,6 +635,9 @@ module.exports = class ABObjectQueryCore extends ABObject {
     * @return {string}
     */
    urlPointer(acrossApp) {
+      console.error(
+         "ABQueryCore.urlPointer(): Depreciated: Where is this being called?"
+      );
       return this.application.urlQuery(acrossApp) + this.id;
    }
 

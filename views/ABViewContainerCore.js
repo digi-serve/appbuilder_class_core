@@ -16,12 +16,14 @@ const ABView = require("../../platform/views/ABView");
 const ABViewDefaults = {
    key: "viewcontainer", // {string} unique key for this view
    icon: "braille", // {string} fa-[icon] reference for this view
-   labelKey: "ab.components.container" // {string} the multilingual label key for the class label
+   labelKey: "Container", // {string} the multilingual label key for the class label
 };
 
 const ABPropertyComponentDefaults = {
    columns: 1,
-   gravity: 1
+   gravity: 1,
+   movable: true,
+   removable: true,
 };
 
 module.exports = class ABViewContainerCore extends ABView {
@@ -58,7 +60,7 @@ module.exports = class ABViewContainerCore extends ABView {
       );
 
       if (typeof this.settings.gravity != "undefined") {
-         this.settings.gravity.map(function(gravity) {
+         this.settings.gravity.map(function (gravity) {
             return parseInt(gravity);
          });
       }
@@ -66,13 +68,13 @@ module.exports = class ABViewContainerCore extends ABView {
       if (this.settings.removable != null) {
          this.settings.removable = JSON.parse(this.settings.removable); // convert to boolean
       } else {
-         this.settings.removable = true;
+         this.settings.removable = ABPropertyComponentDefaults.removable;
       }
 
       if (this.settings.movable != null) {
          this.settings.movable = JSON.parse(this.settings.movable); // convert to boolean
       } else {
-         this.settings.movable = true;
+         this.settings.movable = ABPropertyComponentDefaults.movable;
       }
    }
 

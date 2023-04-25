@@ -1,8 +1,8 @@
 // import ABApplication from "./ABApplication"
 
 module.exports = class ABDefinitionCore {
-   constructor(attributes, application) {
-      this.application = application;
+   constructor(attributes, AB) {
+      this.AB = AB;
       this.fromValues(attributes);
    }
 
@@ -26,8 +26,21 @@ module.exports = class ABDefinitionCore {
          this.id = attributes.id;
       }
       this.name =
-         attributes.name || attributes.json.name || attributes.json.label || "";
-      this.type = attributes.type || attributes.json.type || "";
+         attributes?.name ||
+         attributes?.json?.name ||
+         attributes?.json?.label ||
+         attributes?.json?.translations?.[0]?.label ||
+         "";
+      if (!this.name) {
+         this.AB.notify.builder(
+            new Error("Attributes for definition had no 'name'"),
+            {
+               context: "ABDefinitionCore.fromValues()",
+               attributes,
+            }
+         );
+      }
+      this.type = attributes.type || attributes?.json?.type || "";
       this.json = attributes.json || null;
    }
 
@@ -43,13 +56,35 @@ module.exports = class ABDefinitionCore {
     * @return {json}
     */
    toObj() {
-      // OP.Multilingual.unTranslate(this, this, ["label"]);
-
       return {
          id: this.id,
          name: this.name,
          type: this.type,
-         json: this.json
+         json: this.json,
       };
+   }
+
+   /**
+    * @method destroy()
+    * destroy the current instance of ABDefinition
+    * Also remove it from our parent application
+    * @return {Promise}
+    */
+   destroy() {
+      return this.AB.definitionDestroy(this.id);
+   }
+
+   /**
+    * @method save()
+    * persist this instance of ABObject with it's parent ABApplication
+    * @return {Promise}
+    *         .resolve( {this} )
+    */
+   async save() {
+      if (this.id) {
+         return this.AB.definitionUpdate(this.id, this.toObj());
+      } else {
+         return this.AB.definitionCreate(this.toObj());
+      }
    }
 };

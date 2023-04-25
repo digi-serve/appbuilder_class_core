@@ -15,14 +15,30 @@ const ABViewCarouselPropertyComponentDefaults = {
    detailsPage: null, // uuid
    detailsTab: null, // uuid
    editPage: null, // uuid
-   editTab: null // uuid
+   editTab: null, // uuid
 };
 
 const ABViewDefaults = {
    key: "carousel", // {string} unique key for this view
    icon: "clone", // {string} fa-[icon] reference for this view
-   labelKey: "ab.components.carousel" // {string} the multilingual label key for the class label
+   labelKey: "Carousel", // {string} the multilingual label key for the class label
 };
+
+function parseIntOrDefault(_this, key) {
+   if (typeof _this.settings[key] != "undefined") {
+      _this.settings[key] = parseInt(_this.settings[key]);
+   } else {
+      _this.settings[key] = ABViewCarouselPropertyComponentDefaults[key];
+   }
+}
+
+function parseOrDefault(_this, key) {
+   try {
+      _this.settings[key] = JSON.parse(_this.settings[key]);
+   } catch (e) {
+      _this.settings[key] = ABViewCarouselPropertyComponentDefaults[key];
+   }
+}
 
 module.exports = class ABViewCarouselCore extends ABViewWidget {
    constructor(values, application, parent, defaultValues) {
@@ -51,45 +67,27 @@ module.exports = class ABViewCarouselCore extends ABViewWidget {
       super.fromValues(values);
 
       // convert from "0" => 0
-      if (typeof this.settings.width != "undefined") {
-         this.settings.width = parseInt(this.settings.width);
-      } else {
-         this.settings.width = ABViewCarouselPropertyComponentDefaults.width;
-      }
-      if (typeof this.settings.height != "undefined") {
-         this.settings.height = parseInt(this.settings.height);
-      } else {
-         this.settings.height = ABViewCarouselPropertyComponentDefaults.height;
-      }
-      try {
-         this.settings.showLabel = JSON.parse(this.settings.showLabel);
-      } catch (e) {
-         this.settings.showLabel =
-            ABViewCarouselPropertyComponentDefaults.showLabel;
-      }
-      try {
-         this.settings.hideItem = JSON.parse(this.settings.hideItem);
-      } catch (e) {
-         this.settings.hideItem =
-            ABViewCarouselPropertyComponentDefaults.hideItem;
-      }
-      try {
-         this.settings.hideButton = JSON.parse(this.settings.hideButton);
-      } catch (e) {
-         this.settings.hideButton =
-            ABViewCarouselPropertyComponentDefaults.hideButton;
-      }
+      parseIntOrDefault(this, "width");
+      parseIntOrDefault(this, "height");
+
+      // json
+      parseOrDefault(this, "showLabel");
+      parseOrDefault(this, "hideItem");
+      parseOrDefault(this, "hideButton");
+
       this.settings.navigationType =
          this.settings.navigationType ||
          ABViewCarouselPropertyComponentDefaults.navigationType;
-      try {
-         this.settings.filterByCursor = JSON.parse(
-            this.settings.filterByCursor
-         );
-      } catch (e) {
-         this.settings.filterByCursor =
-            ABViewCarouselPropertyComponentDefaults.filterByCursor;
-      }
+
+      parseOrDefault(this, "filterByCursor");
+   }
+
+   /**
+    * @method componentList
+    * return the list of components available on this view to display in the editor.
+    */
+   componentList() {
+      return [];
    }
 
    get imageField() {
@@ -99,6 +97,6 @@ module.exports = class ABViewCarouselCore extends ABViewWidget {
       let obj = dc.datasource;
       if (!obj) return null;
 
-      return obj.fields((f) => f.id == this.settings.field)[0];
+      return obj.fieldByID(this.settings.field);
    }
 };

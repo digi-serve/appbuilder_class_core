@@ -8,13 +8,13 @@ const ABViewTabPropertyComponentDefaults = {
    darkTheme: 0, // set dark theme css or not
    sidebarWidth: 200, // width of sidebar menu when stacking tabs
    sidebarPos: "left", // the default position of sidebar
-   iconOnTop: 0 // do you want to put the icon above the text label?
+   iconOnTop: 0, // do you want to put the icon above the text label?
 };
 
 const ABViewTabDefaults = {
    key: "tab", // {string} unique key for this view
    icon: "window-maximize", // {string} fa-[icon] reference for this view
-   labelKey: "ab.components.tab" // {string} the multilingual label key for the class label
+   labelKey: "Tab", // {string} the multilingual label key for the class label
 };
 
 module.exports = class ABViewTabCore extends ABViewWidget {
@@ -64,7 +64,7 @@ module.exports = class ABViewTabCore extends ABViewWidget {
             {
                key: ABViewContainer.common().key,
                label: tabName,
-               tabicon: tabIcon
+               tabicon: tabIcon,
             },
             this.application,
             this

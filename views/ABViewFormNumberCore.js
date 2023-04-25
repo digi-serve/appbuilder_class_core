@@ -1,16 +1,16 @@
-const ABViewFormComponent = require("../../platform/views/ABViewFormComponent");
+const ABViewFormItem = require("../../platform/views/ABViewFormItem");
 
 const ABViewFormNumberPropertyComponentDefaults = {
-   isStepper: 0
+   isStepper: 0,
 };
 
 const ABViewFormNumberDefaults = {
    key: "numberbox", // {string} unique key for this view
    icon: "hashtag", // {string} fa-[icon] reference for this view
-   labelKey: "ab.components.number" // {string} the multilingual label key for the class label
+   labelKey: "ab.components.number", // {string} the multilingual label key for the class label
 };
 
-module.exports = class ABViewFormNumberCore extends ABViewFormComponent {
+module.exports = class ABViewFormNumberCore extends ABViewFormItem {
    constructor(values, application, parent, defaultValues) {
       super(
          values,
@@ -41,7 +41,7 @@ module.exports = class ABViewFormNumberCore extends ABViewFormComponent {
     * @return {json}
     */
    toObj() {
-      this.application.unTranslate(this, this, ["label", "formLabel"]);
+      this.unTranslate(this, this, ["label", "formLabel"]);
 
       var obj = super.toObj();
       obj.views = []; // no subviews
@@ -74,3 +74,4 @@ module.exports = class ABViewFormNumberCore extends ABViewFormComponent {
       return [];
    }
 };
+

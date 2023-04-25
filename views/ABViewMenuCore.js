@@ -22,13 +22,13 @@ const ABViewMenuPropertyComponentDefaults = {
    //		}
    // ]
    pages: [],
-   order: []
+   order: [],
 };
 
 const ABMenuDefaults = {
    key: "menu", // {string} unique key for this view
    icon: "th-large", // {string} fa-[icon] reference for this view
-   labelKey: "ab.components.menu" // {string} the multilingual label key for the class label
+   labelKey: "Menu", // {string} the multilingual label key for the class label
 };
 
 module.exports = class ABViewMenuCore extends ABViewWidget {
@@ -65,7 +65,7 @@ module.exports = class ABViewMenuCore extends ABViewWidget {
       this.unTranslate(this, this, [
          "menuTextLeft",
          "menuTextCenter",
-         "menuTextRight"
+         "menuTextRight",
       ]);
       if (this.settings.pages) {
          this.settings.pages.forEach((page) => {
@@ -90,7 +90,7 @@ module.exports = class ABViewMenuCore extends ABViewWidget {
       this.translate(this, this, [
          "menuTextLeft",
          "menuTextCenter",
-         "menuTextRight"
+         "menuTextRight",
       ]);
 
       this.settings.pages =
@@ -107,7 +107,7 @@ module.exports = class ABViewMenuCore extends ABViewWidget {
          else if (typeof page == "string") {
             this.settings.pages[i] = {
                pageId: page,
-               isChecked: true
+               isChecked: true,
             };
          }
       }
@@ -128,6 +128,16 @@ module.exports = class ABViewMenuCore extends ABViewWidget {
             view.remove(item.id);
          });
       }
+   }
+
+   /**
+    * @property datacollection
+    * return data source
+    * NOTE: this view doesn't track a DataCollection.
+    * @return {ABDataCollection}
+    */
+   get datacollection() {
+      return null;
    }
 
    AddPagesToView(view, pages) {
@@ -188,7 +198,7 @@ module.exports = class ABViewMenuCore extends ABViewWidget {
                   pageId: displayPage.pageId,
                   icon: displayPage.icon
                      ? "fa fa-fw fa-" + displayPage.icon
-                     : ""
+                     : "",
                },
                displayPage.position ? parseInt(displayPage.position) : 0
             );
@@ -211,8 +221,9 @@ module.exports = class ABViewMenuCore extends ABViewWidget {
     * @return {string}
     */
    getAliasname(pageInfo) {
+      var lang = this.AB.Multilingual.currentLanguage();
       var translation = pageInfo.translations.filter((t) => {
-         return t.language_code == AD.lang.currentLanguage;
+         return t.language_code == lang;
       });
 
       var label = "";

@@ -1,25 +1,31 @@
-const ABViewFormCustom = require("../../platform/views/ABViewFormCustom");
+const ABViewFormItem = require("../../platform/views/ABViewFormItem");
 
 const ABViewFormConnectPropertyComponentDefaults = {
    formView: "", // id of form to add new data
-   objectWorkspace: {
-      filterConditions: {
-         // array of filters to apply to the data table
-         glue: "and",
-         rules: []
-      }
+   filterConditions: {
+      // array of filters to apply to the data table
+      glue: "and",
+      rules: [],
    },
+   sortFields: [],
+   // objectWorkspace: {
+   //    filterConditions: {
+   //       // array of filters to apply to the data table
+   //       glue: "and",
+   //       rules: [],
+   //    },
+   // },
    popupWidth: 700,
-   popupHeight: 450
+   popupHeight: 450,
 };
 
 const ABViewFormConnectDefaults = {
    key: "connect", // {string} unique key for this view
    icon: "list-ul", // {string} fa-[icon] reference for this view
-   labelKey: "ab.components.connect" // {string} the multilingual label key for the class label
+   labelKey: "Connect", // {string} the multilingual label key for the class label
 };
 
-module.exports = class ABViewFormConnectCore extends ABViewFormCustom {
+module.exports = class ABViewFormConnectCore extends ABViewFormItem {
    constructor(values, application, parent, defaultValues) {
       super(
          values,
@@ -50,9 +56,9 @@ module.exports = class ABViewFormConnectCore extends ABViewFormCustom {
    fromValues(values) {
       super.fromValues(values);
 
-      this.settings.objectWorkspace =
-         this.settings.objectWorkspace ||
-         ABViewFormConnectPropertyComponentDefaults.objectWorkspace;
+      this.settings.filterConditions =
+         this.settings.filterConditions ||
+         ABViewFormConnectPropertyComponentDefaults.filterConditions;
    }
 
    /**
@@ -63,3 +69,4 @@ module.exports = class ABViewFormConnectCore extends ABViewFormCustom {
       return [];
    }
 };
+

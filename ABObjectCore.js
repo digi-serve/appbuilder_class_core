@@ -6,12 +6,13 @@
  */
 
 var ABModel = require("../platform/ABModel");
-var ABDefinition = require("../platform/ABDefinition");
 var ABMLClass = require("../platform/ABMLClass");
 
+const L = (...params) => AB.Multilingual.label(...params);
+
 module.exports = class ABObjectCore extends ABMLClass {
-   constructor(attributes, application) {
-      super(["label"]);
+   constructor(attributes, AB) {
+      super(["label"], AB);
 
       /*
 {
@@ -39,8 +40,6 @@ module.exports = class ABObjectCore extends ABMLClass {
    ]
 }
 */
-      // link me to my parent ABApplication
-      this.application = application;
 
       this.fromValues(attributes);
    }
@@ -88,7 +87,6 @@ module.exports = class ABObjectCore extends ABMLClass {
         }
         */
 
-      // ABApplication Attributes (or is it ABObject attributes?)
       this.id = attributes.id;
       // {string} .id
       // the uuid of this ABObject Definition.
@@ -191,7 +189,7 @@ module.exports = class ABObjectCore extends ABMLClass {
          sortFields: [], // array of columns with their sort configurations
          filterConditions: [], // array of filters to apply to the data table
          frozenColumnID: "", // id of column you want to stop freezing
-         hiddenFields: [] // array of [ids] to add hidden:true to
+         hiddenFields: [], // array of [ids] to add hidden:true to
       };
       // {obj} .objectWorkspace
       // When in the ABObject editor in the AppBuilder Designer, different
@@ -200,20 +198,32 @@ module.exports = class ABObjectCore extends ABMLClass {
 
       // pull in field definitions:
       var fields = [];
-      (attributes.fieldIDs || []).forEach((id) => {
-         var def = ABDefinition.definition(id);
+      this.fieldIDs = attributes.fieldIDs || [];
+      // {array}  [ ABField.id, ... ]
+      // this is a collection of ALL the ABFields this object references.
+      // This will include ABFields that were directly created for this object
+      // and will include ABFields that were imported.
+
+      this.importedFieldIDs = attributes.importedFieldIDs || [];
+      // {array} [ ABField.id, ... ]
+      // this is a collection of the ABFields in our .fieldIDs that were
+      // IMPORTED.
+
+      this._unknownFieldIDs = [];
+      this.fieldIDs.forEach((id) => {
+         if (!id) return;
+
+         var def = this.AB.definitionByID(id);
          if (def) {
-            fields.push(this.application.fieldNew(def, this));
+            fields.push(this.AB.fieldNew(def, this));
          } else {
-            console.error(
-               "Object [" +
-                  this.name +
-                  "][" +
-                  this.id +
-                  "] referenced an unknown field id [" +
-                  id +
-                  "]"
+            this._unknownFieldIDs.push(id);
+            let err = new Error(
+               `O[${this.name}] is referenceing an unknown field id[${id}]`
             );
+            this.AB.notify.builder(err, {
+               field: { id, object: { id: this.id, name: this.name } },
+            });
          }
       });
       this._fields = fields;
@@ -226,35 +236,26 @@ module.exports = class ABObjectCore extends ABMLClass {
    }
 
    /**
-    * @method importFields
-    * instantiate a set of fields from the given field ids.
-    * @param {array} fieldIDs The different ABDefinition IDs for each field
-    *	       [ "uuid11", "uuid2", ... "uuidN" ]
-    */
-   // importFields(fieldIDs) {}
-
-   /**
     * @method importIndexes
     * instantiate a set of indexes from the given ids.
     * @param {array} indexIDs The different ABDefinition IDs for each index
     *        [ "uuid11", "uuid2", ... "uuidN" ]
     */
    importIndexes(indexIDs) {
+      this._unknownIndex = [];
       var indexes = [];
       (indexIDs || []).forEach((id) => {
-         var def = ABDefinition.definition(id);
+         var def = this.AB.definitionByID(id);
          if (def) {
-            indexes.push(this.application.indexNew(def, this));
+            indexes.push(this.AB.indexNew(def, this));
          } else {
-            console.error(
-               "Object [" +
-                  this.name +
-                  "][" +
-                  this.id +
-                  "] referenced an unknown index id [" +
-                  id +
-                  "]"
+            this._unknownIndex.push(id);
+            let err = new Error(
+               `O[${this.name}] is referenceing an unknown index id[${id}]`
             );
+            this.AB.notify.builder(err, {
+               field: { id, object: { id: this.id, name: this.name } },
+            });
          }
       });
       this._indexes = indexes;
@@ -302,10 +303,19 @@ module.exports = class ABObjectCore extends ABMLClass {
       var obj = super.toObj();
 
       // track the field .ids of our fields
-      var fieldIDs = this.fields(null, true).map((f) => f.id);
+      var fieldIDs = this.fields().map((f) => f.id);
+      (this._unknownFieldIDs || []).forEach((id) => {
+         fieldIDs.push(id);
+      });
+      // NOTE: we keep the ._unknownFieldIDs so a developer/builder
+      // can come back and track down what happened to the missing
+      // ids.
 
       // track the index .ids of our indexes
       var indexIDs = this.indexes().map((f) => f.id);
+      (this._unknownIndex || []).forEach((id) => {
+         indexIDs.push(id);
+      });
 
       return {
          id: this.id,
@@ -329,8 +339,9 @@ module.exports = class ABObjectCore extends ABMLClass {
 
          translations: obj.translations,
          fieldIDs: fieldIDs,
+         importedFieldIDs: this.importedFieldIDs,
          indexIDs: indexIDs,
-         createdInAppID: this.createdInAppID
+         createdInAppID: this.createdInAppID,
       };
    }
 
@@ -358,54 +369,73 @@ module.exports = class ABObjectCore extends ABMLClass {
 
    /**
     * @method fields()
-    *
     * return an array of all the ABFields for this ABObject.
-    *
-    * @param filter {Object}
-    * @param getAll {Boolean} - [Optional]
-    *
-    * @return {array}
+    * @param {fn} fn
+    *        a filter function that returns {true} if a value should
+    *        be included, or {false} otherwise.
+    * @return {array[ABFieldxxx]}
     */
-   fields(filter = () => true, getAll = true) {
-      // NOTE: keep this check here in case we pass in .fields(null, true);
-      if (!filter) filter = () => true;
-      let result = this._fields.filter(filter);
+   fields(fn = () => true) {
+      return this._fields.filter(fn);
+   }
 
-      // limit connectObject fields to only fields that connect to other
-      // objects this application currently references ...
-      if (this.application) {
-         let availableConnectFn = (f) => {
-            if (
-               f &&
-               f.key == "connectObject" &&
-               this.application &&
-               this.application.objectsIncluded(
-                  (obj) => obj.id == f.settings.linkObject
-               ).length < 1
-            ) {
-               return false;
-            } else {
-               return true;
-            }
-         };
-
-         if (!getAll) {
-            result = result.filter(availableConnectFn);
-         }
-      }
-
-      return result;
+   /**
+    * @method fieldByID()
+    * return the object's field from the given {ABField.id}
+    * @param {string} id
+    *        the uuid of the field to return.
+    * @return {ABFieldxxx}
+    */
+   fieldByID(id) {
+      return this.fields((f) => f?.id == id)[0];
    }
 
    /**
     * @method connectFields()
     *
     * return an array of the ABFieldConnect that is connect object fields.
-    *
+    * @param {fn} fn
+    *        a filter function that returns {true} if a value should
+    *        be included, or {false} otherwise.
     * @return {array}
     */
-   connectFields(getAll = false) {
-      return this.fields((f) => f && f.key == "connectObject", getAll);
+   connectFields(fn = () => true) {
+      return this.fields((f) => f && f.isConnection).filter(fn);
+   }
+
+   /**
+    * @method fieldImport
+    * register the given ABField.id as an imported field for this ABObject.
+    * The ABField definition should be available before making this call.
+    * After this call, the ABField is included in the ABObject, but the ABObject
+    * has NOT been saved.
+    * @param {ABField} fieldID The ABDefinition.id for a field that is imported
+    *        into this object.
+    */
+   fieldImport(id) {
+      if (!id) return;
+
+      if (this.importedFieldIDs.indexOf(id) == -1) {
+         this.importedFieldIDs.push(id);
+      }
+
+      // just to be safe:
+      var isThere = this._fields.find((f) => f.id == id);
+      if (!isThere) {
+         var def = this.AB.definitionByID(id);
+         if (def) {
+            this._fields.push(this.AB.fieldNew(def, this));
+         } else {
+            this._unknownFieldIDs = this._unknownFieldIDs || [];
+            this._unknownFieldIDs.push(id);
+            let err = new Error(
+               `O[${this.name}] is importing an unknown field id[${id}]`
+            );
+            this.AB.notify.builder(err, {
+               field: { id, object: { id: this.id, name: this.name } },
+            });
+         }
+      }
    }
 
    /**
@@ -420,7 +450,7 @@ module.exports = class ABObjectCore extends ABMLClass {
     * @return {ABField}
     */
    fieldNew(values) {
-      return this.application.fieldNew(values, this);
+      return this.AB.fieldNew(values, this);
    }
 
    /**
@@ -434,9 +464,15 @@ module.exports = class ABObjectCore extends ABMLClass {
     */
    fieldRemove(field) {
       var origLen = this._fields.length;
-      this._fields = this.fields(function(o) {
+      this._fields = this.fields(function (o) {
          return o.id != field.id;
       });
+
+      // be sure to remove this from our imported ids if it was
+      // listed there.
+      this.importedFieldIDs = this.importedFieldIDs.filter(
+         (fid) => fid != field.id
+      );
 
       if (this._fields.length < origLen) {
          return this.save();
@@ -497,10 +533,7 @@ module.exports = class ABObjectCore extends ABMLClass {
     * @return {Promise}
     */
    fieldSave(field) {
-      var isIncluded =
-         this.fields(function(o) {
-            return o.id == field.id;
-         }).length > 0;
+      var isIncluded = this.fieldByID(field.id);
       if (!isIncluded) {
          this._fields.push(field);
          return this.save();
@@ -519,10 +552,7 @@ module.exports = class ABObjectCore extends ABMLClass {
     * @return {Promise}
     */
    fieldAdd(field) {
-      var isIncluded =
-         this.fields(function(o) {
-            return o.id == field.id;
-         }).length > 0;
+      var isIncluded = this.fieldByID(field.id);
       if (!isIncluded) {
          // if not already included, then add and save the Obj definition:
          this._fields.push(field);
@@ -531,6 +561,19 @@ module.exports = class ABObjectCore extends ABMLClass {
 
       // Nothing was required so return
       return Promise.resolve();
+   }
+
+   /**
+    * @method imageFields()
+    *
+    * return an array of the ABFieldImage fields this object has.
+    * @param {fn} fn
+    *        a filter function that returns {true} if a value should
+    *        be included, or {false} otherwise.
+    * @return {array}
+    */
+   imageFields(fn = () => true) {
+      return this.fields((f) => f && f.key == "image").filter(fn);
    }
 
    /**
@@ -558,17 +601,26 @@ module.exports = class ABObjectCore extends ABMLClass {
    }
 
    /**
+    * @method indexByID()
+    * return the object's index from the given {ABIndex.id}
+    * @param {string} id
+    *        the id of the ABIndex to return.
+    * @return {ABIndex}
+    */
+   indexByID(id) {
+      return this.indexes((f) => f.id == id)[0];
+   }
+
+   /**
     * @method indexRemove()
-    *
     * remove the given ABIndex from our ._indexes array and persist the current
     * values.
-    *
-    * @param {ABIndex}
+    * @param {ABIndex} index
     * @return {Promise}
     */
    indexRemove(index) {
       var origLen = this._indexes.length;
-      this._indexes = this.indexes(function(idx) {
+      this._indexes = this.indexes(function (idx) {
          return idx.id != index.id;
       });
 
@@ -583,18 +635,13 @@ module.exports = class ABObjectCore extends ABMLClass {
 
    /**
     * @method indexSave()
-    *
     * save the given ABIndex in our ._indexes array and persist the current
     * values.
-    *
-    * @param {ABIndex}
+    * @param {ABIndex} index
     * @return {Promise}
     */
    indexSave(index) {
-      var isIncluded =
-         this.indexes(function(idx) {
-            return idx.id == index.id;
-         }).length > 0;
+      var isIncluded = this.indexByID(index.id);
       if (!isIncluded) {
          this._indexes.push(index);
          return this.save();
@@ -613,29 +660,13 @@ module.exports = class ABObjectCore extends ABMLClass {
     * this ABObject.
     */
    model() {
-      // NOTE: now that a DataCollection overwrites the context of it's
-      // object's model, it is no longer a good idea to only have a single
-      // instance of this._model per ABObject.  We should provide a new
-      // instance each time.
-
-      // if (!this._model) {
-
-      //// TODO: what do we do with imported Objects?
-      // if (this.isImported) {
-      //     //// TODO:
-      //     var obj = ABApplication.objectFromRef(this.importFromObject);
-      //     this._model = new ABModel(obj);
-      // } else {
-      this._model = new ABModel(this);
-      // }
+      var model = new ABModel(this);
 
       // default the context of this model's operations to this object
-      this._model.contextKey(ABObjectCore.contextKey());
-      this._model.contextValues({ id: this.id }); // the datacollection.id
+      model.contextKey(ABObjectCore.contextKey());
+      model.contextValues({ id: this.id });
 
-      // }
-
-      return this._model;
+      return model;
    }
 
    ///
@@ -648,9 +679,7 @@ module.exports = class ABObjectCore extends ABMLClass {
     * @return {string}
     */
    urlRest() {
-      return "/app_builder/model/application/#appID#/object/#objID#"
-         .replace("#appID#", this.application.id)
-         .replace("#objID#", this.id);
+      return `/app_builder/model/${this.id}`;
    }
 
    /**
@@ -659,9 +688,7 @@ module.exports = class ABObjectCore extends ABMLClass {
     * @return {string}
     */
    urlRestBatch() {
-      return "/app_builder/model/application/#appID#/object/#objID#/batch"
-         .replace("#appID#", this.application.id)
-         .replace("#objID#", this.id);
+      return `/app_builder/batch/model/${this.id}`;
    }
 
    /**
@@ -670,10 +697,16 @@ module.exports = class ABObjectCore extends ABMLClass {
     * @return {string}
     */
    urlRestItem(id) {
-      return "/app_builder/model/application/#appID#/object/#objID#/#id#"
-         .replace("#appID#", this.application.id)
-         .replace("#objID#", this.id)
-         .replace("#id#", id);
+      return `/app_builder/model/${this.id}/${id}`;
+   }
+
+   /**
+    * @method urlRestLog
+    * return the url to access the logs for this ABObject.
+    * @return {string}
+    */
+   urlRestLog() {
+      return `/app_builder/object/${this.id}/track`;
    }
 
    /**
@@ -682,9 +715,7 @@ module.exports = class ABObjectCore extends ABMLClass {
     * @return {string}
     */
    urlRestRefresh() {
-      return "/app_builder/model/application/#appID#/refreshobject/#objID#"
-         .replace("#appID#", this.application.id)
-         .replace("#objID#", this.id);
+      return `/app_builder/model/refreshobject/${this.id}`;
    }
 
    /**
@@ -693,9 +724,7 @@ module.exports = class ABObjectCore extends ABMLClass {
     * @return {string}
     */
    urlRestCount() {
-      return "/app_builder/model/application/#appID#/count/#objID#"
-         .replace("#appID#", this.application.id)
-         .replace("#objID#", this.id);
+      return `/app_builder/model/count/${this.id}`;
    }
 
    ///
@@ -816,6 +845,8 @@ module.exports = class ABObjectCore extends ABMLClass {
     * @return {string}
     */
    urlPointer(acrossApp) {
+      console.error("Who is calling this?");
+
       if (this.application == null) return null;
 
       return this.application.urlObject(acrossApp) + this.id;
@@ -830,6 +861,8 @@ module.exports = class ABObjectCore extends ABMLClass {
     * @return {string}
     */
    urlField(acrossApp) {
+      console.error("Who is calling this?");
+
       return this.urlPointer(acrossApp) + "/_fields/";
    }
 
@@ -877,7 +910,7 @@ module.exports = class ABObjectCore extends ABMLClass {
       // translate multilingual
       //// TODO: isn't this a MLObject??  use this.translate()
       var mlFields = this.multilingualFields();
-      this.application.translate(rowData, rowData, mlFields);
+      this.translate(rowData, rowData, mlFields);
 
       var labelData = this.labelFormat || "";
       let labelSettings = this.labelSettings || {};
@@ -886,8 +919,20 @@ module.exports = class ABObjectCore extends ABMLClass {
       if (!labelData && this.fields().length > 0) {
          var defaultField = this.fields((f) => f.fieldUseAsLabel())[0];
          if (defaultField) labelData = "{" + defaultField.id + "}";
-         else
-            labelData = `${this.isUuid(rowData.id) ? "ID: " : ""}${rowData.id}`; // show id of row
+         else {
+            // if label is empty, then show .id
+            if (!labelData.trim()) {
+               let labelSettings = this.labelSettings || {};
+               if (labelSettings && labelSettings.isNoLabelDisplay) {
+                  labelData = L(labelSettings.noLabelText || "[No Label]");
+               } else {
+                  // show id of row
+                  labelData = `${
+                     this.AB.rules.isUUID(rowData.id) ? "ID: " : ""
+                  }${rowData.id}`;
+               }
+            }
+         }
       }
 
       // get column ids in {colId} template
@@ -898,7 +943,7 @@ module.exports = class ABObjectCore extends ABMLClass {
          colIds.forEach((colId) => {
             var colIdNoBracket = colId.replace("{", "").replace("}", "");
 
-            var field = this.fields((f) => f.id == colIdNoBracket)[0];
+            var field = this.fieldByID(colIdNoBracket);
             if (field == null) return;
 
             labelData = labelData.replace(colId, field.format(rowData) || "");
@@ -907,11 +952,14 @@ module.exports = class ABObjectCore extends ABMLClass {
 
       // if label is empty, then show .id
       if (!labelData.trim()) {
+         let labelSettings = this.labelSettings || {};
          if (labelSettings && labelSettings.isNoLabelDisplay) {
-            labelData = labelSettings.noLabelText || "[No Label]";
+            labelData = L(labelSettings.noLabelText || "[No Label]");
          } else {
             // show id of row
-            labelData = `${this.isUuid(rowData.id) ? "ID: " : ""}${rowData.id}`;
+            labelData = `${this.AB.rules.isUUID(rowData.id) ? "ID: " : ""}${
+               rowData.id
+            }`;
          }
       }
 

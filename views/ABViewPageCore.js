@@ -19,7 +19,7 @@ const ABViewContainer = require("../../platform/views/ABViewContainer");
 
 const ABViewDefaults = {
    key: "page", // unique key identifier for this ABView
-   icon: "file" // icon reference: (without 'fa-' )
+   icon: "file", // icon reference: (without 'fa-' )
 };
 
 const ABPropertyComponentDefaults = {
@@ -28,7 +28,7 @@ const ABPropertyComponentDefaults = {
    popupHeight: 450,
    pageWidth: null,
    fixedPageWidth: 0,
-   pageBackground: "ab-background-default"
+   pageBackground: "ab-background-default",
 };
 
 module.exports = class ABViewPageCore extends ABViewContainer {
@@ -73,7 +73,7 @@ module.exports = class ABViewPageCore extends ABViewContainer {
          String(view.name)
             .replace(/[^a-z0-9]/gi, "")
             .toLowerCase(),
-         "view"
+         "view",
       ].join(".");
    }
 
@@ -128,11 +128,11 @@ module.exports = class ABViewPageCore extends ABViewContainer {
       // now properly handle our sub pages.
       var pages = [];
       (values.pageIDs || []).forEach((id) => {
-         var def = this.application.definitionForID(id);
+         var def = this.AB.definitionByID(id);
          if (def) {
             pages.push(this.pageNew(def));
          } else {
-            console.error(
+            this.AB.error(
                `App[${this.application.name}][${this.application.id}]->Page[${this.name}][${this.id}] referenced an unknown Page[${id}]`
             );
          }
@@ -176,6 +176,7 @@ module.exports = class ABViewPageCore extends ABViewContainer {
          })
          .then(() => {
             var parent = this.parent || this.application;
+
             return parent.pageRemove(this);
          })
          .then(() => {
@@ -219,44 +220,12 @@ module.exports = class ABViewPageCore extends ABViewContainer {
          .then(() => {
             // now we can persist ourself in our parent
             var parent = this.parent || this.application;
+
             return parent.pageInsert(this);
          })
          .then(() => {
             return this;
          });
-
-      /*
-      return new Promise((resolve, reject) => {
-         // if this is our initial save()
-         if (!this.id) {
-            //// TODO: OP.*  code should be move to platform version of code.
-            this.id = OP.Util.uuid(); // setup default .id
-            this.name = this.name + "_" + this.id.split("-")[1]; // add a unique string to the name so it doesnt collide with a previous page name
-         }
-
-         // if name is empty
-         if (!this.name) {
-            this.name = this.label + "_" + this.id.split("-")[1];
-         }
-
-         this.application
-            .viewSave(this, includeSubViews, updateUi)
-            .then(() => {
-               // persist the current ABViewPage in our list of ._pages.
-               var parent = this.parent || this.application;
-               var isIncluded =
-                  parent.pages((p) => {
-                     return p.id == this.id;
-                  }).length > 0;
-               if (!isIncluded) {
-                  parent._pages.push(this);
-               }
-
-               resolve();
-            })
-            .catch(reject);
-      });
-      */
    }
 
    ///
@@ -310,10 +279,7 @@ module.exports = class ABViewPageCore extends ABViewContainer {
     * @return {Promise}
     */
    pageInsert(page) {
-      var isIncluded =
-         this.pages(function(o) {
-            return o.id == page.id;
-         }).length > 0;
+      var isIncluded = this.pages((o) => o.id === page.id).length > 0;
       if (!isIncluded) {
          // if not already included, then add and save the Obj definition:
          this._pages.push(page);
@@ -358,7 +324,7 @@ module.exports = class ABViewPageCore extends ABViewContainer {
     */
    pageRemove(page) {
       var origLen = this._pages.length;
-      this._pages = this.pages(function(p) {
+      this._pages = this.pages(function (p) {
          return p.id != page.id;
       });
 
@@ -424,7 +390,7 @@ module.exports = class ABViewPageCore extends ABViewContainer {
 
          let mapNewIdFn = (currView) => {
             if (!lookUpIds[currView.id])
-               lookUpIds[currView.id] = this.application.uuid();
+               lookUpIds[currView.id] = this.AB.uuid();
 
             if (currView.pages) {
                currView.pages().forEach((p) => mapNewIdFn(p));
@@ -462,7 +428,7 @@ module.exports = class ABViewPageCore extends ABViewContainer {
     * @return {Promise}
     *        .resolved with the instance of the copied ABView
     */
-   copy(lookUpIds, parent) {
+   copy(lookUpIds, parent, options) {
       // initial new ids of pages and components
       if (lookUpIds == null) {
          // create a hash of { oldID : newID } of any sub Pages and Views.
@@ -470,7 +436,7 @@ module.exports = class ABViewPageCore extends ABViewContainer {
 
          let mapNewIdFn = (currView) => {
             if (!lookUpIds[currView.id])
-               lookUpIds[currView.id] = this.application.uuid();
+               lookUpIds[currView.id] = this.AB.uuid();
 
             if (currView.pages) {
                currView.pages().forEach((p) => mapNewIdFn(p));
@@ -486,13 +452,6 @@ module.exports = class ABViewPageCore extends ABViewContainer {
       }
 
       // now continue with the default .copy()
-      return super.copy(lookUpIds, parent).then((result) => {
-         // NOTE: move this to ABViewCore because this part is set after save to the server
-         // page's name should not be duplicate
-         // result.name = result.name +=
-         //    "_copied_" + this.application.uuid().slice(0, 3);
-         return result;
-      });
+      return super.copy(lookUpIds, parent, options);
    }
 };
-

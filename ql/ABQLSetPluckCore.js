@@ -10,16 +10,16 @@
 const ABQL = require("../../platform/ql/ABQL.js");
 // const ABQLSet = require("./ABQLSet.js");
 
-var ParameterDefinitions = [
+const ParameterDefinitions = [
    {
       type: "objectFields",
-      name: "field"
-   }
+      name: "fieldID",
+   },
 ];
 
 class ABQLSetPluckCore extends ABQL {
-   constructor(attributes, prevOP, task, application) {
-      super(attributes, ParameterDefinitions, prevOP, task, application);
+   constructor(attributes, prevOP, task, AB) {
+      super(attributes, ParameterDefinitions, prevOP, task, AB);
    }
 
    ///
@@ -36,43 +36,51 @@ class ABQLSetPluckCore extends ABQL {
       // allow our base class to continue forward:
 
       this.fieldID = attributes.fieldID;
-      // v2 method:
-      // this.field = this.object.fieldByID(this.fieldID);
-      this.field = this.object.fields((f) => f.id == this.fieldID)[0];
+      this.field = this.object?.fieldByID(this.fieldID);
 
-      if (attributes.objectOutID) {
+      //// TODO: figure out how to dynamically update the next row of options
+      //// based upon the current choice of field.
+      // // based upon the type of field, we now configure what next steps
+      // // are available.
+      // if (this.field) {
+      //    // if connected, then we can stay with same .NextQLOps
+      //    // so we can just leave what we did above.
+
+      //    // if a discreet value, then we need to remove SetPluck
+      //    if (!this.field.isConnection) {
+      //       this.constructor.NextQLOps = [
+      //          ...this.prevOP.constructor.NextQLOps,
+      //       ].filter((o) => o.key != this.constructor.key);
+      //    }
+      // }
+
+      if (attributes.objectOutID)
          this.objectOut = this.objectLookup(attributes.objectOutID);
-      }
 
       super.fromAttributes(attributes);
    }
 
    toObj() {
-      var obj = super.toObj();
+      const obj = super.toObj();
 
       if (this.fieldID) {
          obj.fieldID = this.fieldID;
-         if (this.objectOut) {
-            obj.objectOutID = this.objectOut.id;
-         }
+
+         if (this.objectOut) obj.objectOutID = this.objectOut.id;
       } else {
          obj.fieldID = this.params.field || null;
-         // v2 method:
-         // var field = this.object.fieldByID(obj.fieldID);
-         var field = this.object.fields((f) => f.id == obj.fieldID)[0];
 
-         // v2 method:
-         // if (field && field.isConnected) {
-         if (field && field.key == "connectObject") {
-            obj.objectOutID = field.datasourceLink.id;
-         }
+         const field = this.object.fieldByID(obj.fieldID);
+
+         if (field?.isConnection) obj.objectOutID = field.datasourceLink.id;
       }
+
       return obj;
    }
 }
 
 ABQLSetPluckCore.key = "set_pluck";
-ABQLSetPluckCore.label = "pluck";
+ABQLSetPluckCore.label = "Read the value from the field";
 ABQLSetPluckCore.NextQLOps = [];
 
 module.exports = ABQLSetPluckCore;

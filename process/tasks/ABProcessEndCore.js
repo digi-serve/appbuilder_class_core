@@ -13,19 +13,20 @@ var ABProcessTaskEndDefaults = {
    // fields: {array}
    // a list of internal setting values this Element tracks
 
-   icon: "stop", // font-awesome icon reference.  (without the 'fa-').  so 'user'  to reference 'fa-user'
+   icon: "stop",
    // icon: {string}
-   // font-awesome icon reference.  (without the 'fa-').  so 'user'  to reference 'fa-user'
+   // font-awesome icon reference.  (without the 'fa-').  so 'user'  to
+   // reference 'fa-user'
 
-   key: "End"
+   key: "End",
    // key: {string}
    // unique key to reference this specific Task
 };
 
 module.exports = class ABProcessTaskEndCore extends ABProcessElement {
-   constructor(attributes, process, application) {
+   constructor(attributes, process, AB) {
       attributes.type = attributes.type || "process.task.end";
-      super(attributes, process, application, ABProcessTaskEndDefaults);
+      super(attributes, process, AB, ABProcessTaskEndDefaults);
 
       // listen
    }
@@ -42,8 +43,8 @@ module.exports = class ABProcessTaskEndCore extends ABProcessElement {
          className: "bpmn-icon-end-event-terminate",
          target: {
             type: "bpmn:EndEvent",
-            eventDefinitionType: "bpmn:TerminateEventDefinition"
-         }
+            eventDefinitionType: "bpmn:TerminateEventDefinition",
+         },
       };
    }
 
@@ -75,10 +76,19 @@ module.exports = class ABProcessTaskEndCore extends ABProcessElement {
     */
    initState(context, val) {
       var myDefaults = {
-         triggered: false
+         triggered: false,
       };
 
       super.initState(context, myDefaults, val);
+   }
+
+   /*
+    * @function isEndTask
+    * return true if the current type of task is an End task. False otherwise.
+    * @return {bool}
+    */
+   isEndTask() {
+      return true;
    }
 
    /**

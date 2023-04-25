@@ -1,16 +1,16 @@
-const ABViewFormComponent = require("../../platform/views/ABViewFormComponent");
+const ABViewFormItem = require("../../platform/views/ABViewFormItem");
 
 const ABViewFormDatepickerPropertyComponentDefaults = {
-   timepicker: false
+   timepicker: false,
 };
 
 const ABViewFormDatepickerDefaults = {
    key: "datepicker", // {string} unique key for this view
    icon: "calendar", // {string} fa-[icon] reference for this view
-   labelKey: "ab.components.datepicker" // {string} the multilingual label key for the class label
+   labelKey: "ab.components.datepicker", // {string} the multilingual label key for the class label
 };
 
-module.exports = class ABViewFormDatepickerCore extends ABViewFormComponent {
+module.exports = class ABViewFormDatepickerCore extends ABViewFormItem {
    constructor(values, application, parent, defaultValues) {
       super(
          values,

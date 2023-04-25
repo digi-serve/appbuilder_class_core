@@ -8,13 +8,13 @@ const ABViewDocxBuilderPropertyComponentDefaults = {
    filelabel: "output.docx",
    language: "en", // en
    toolbarBackground: "ab-background-default",
-   buttonPosition: "left"
+   buttonPosition: "left",
 };
 
 const ABViewDefaults = {
    key: "docxBuilder", // {string} unique key for this view
    icon: "file-word-o", // {string} fa-[icon] reference for this view
-   labelKey: "ab.components.docxBuilder" // {string} the multilingual label key for the class label
+   labelKey: "DOCX Builder", // {string} the multilingual label key for the class label
 };
 
 module.exports = class ABViewDocxBuilderCore extends ABViewWidget {
@@ -45,7 +45,7 @@ module.exports = class ABViewDocxBuilderCore extends ABViewWidget {
    toObj() {
       this.unTranslate(this, this, ["filelabel", "buttonlabel"]);
 
-      var obj = super.toObj();
+      let obj = super.toObj();
       obj.viewIDs = [];
       return obj;
    }
@@ -68,17 +68,19 @@ module.exports = class ABViewDocxBuilderCore extends ABViewWidget {
    }
 
    uploadUrl() {
-      let actionKey =
-         "opstool.AB_" + this.application.name.replace("_", "") + ".view";
+      // TODO: Convert this to use ABFactory.urlFileUpload() or a ABFieldFile
+      // to get the URL:
 
-      return (
-         "/" +
-         ["opsportal", "file", this.application.name, actionKey, "1"].join("/")
-      );
+      const object = this.datacollection.datasource;
+
+      // NOTE: file-upload API needs to have the id of ANY field.
+      const field = object ? object.fields()[0] : null;
+
+      return `/file/upload/${object?.id}/${field?.id}/1`;
    }
 
    downloadUrl() {
-      return `/opsportal/file/${this.application.name}/${this.settings.filename}`;
+      return `/file/${this.settings.filename}`;
    }
 
    get languageCode() {
@@ -94,9 +96,6 @@ module.exports = class ABViewDocxBuilderCore extends ABViewWidget {
 
       let dvList = dataviewID.split(",") || [];
 
-      return (
-         this.application.datacollections((dv) => dvList.indexOf(dv.id) > -1) ||
-         []
-      );
+      return this.AB.datacollections((dv) => dvList.indexOf(dv.id) > -1) || [];
    }
 };

@@ -2,19 +2,42 @@ const ABViewWidget = require("../../platform/views/ABViewWidget");
 
 const ABViewTextPropertyComponentDefaults = {
    text: "",
+   // {string}
+   // A multilingual text template that is used to display a given set of
+   // values.
+
    height: 0,
-   dataviewID: null
+   // {integer}
+   // The default height of this widget.
+
+   dataviewID: null,
+   // {uuid}
+   // The {ABDataCollection.id} of the datacollection this ABViewText is
+   // pulling data from.
+   // In most usage situations this ABView is tied to the data in an
+   // ABDataCollection.  However, it is possible for an ABObject to be
+   // directly assigned to the ABView, and that will be used instead.
 };
 
 const ABViewDefaults = {
-   key: "text", // {string} unique key for this view
-   icon: "font", // {string} fa-[icon] reference for this view
-   labelKey: "ab.components.text" // {string} the multilingual label key for the class label
+   key: "text",
+   // {string}
+   // unique key for this view
+
+   icon: "font",
+   // {string}
+   // fa-[icon] reference for this view
+
+   labelKey: "Text",
+   // {string}
+   // the multilingual label key for the class label
 };
 
 module.exports = class ABViewTextCore extends ABViewWidget {
    constructor(values, application, parent, defaultValues) {
       super(values, application, parent, defaultValues || ABViewDefaults);
+
+      this._object = null;
    }
 
    static common() {
@@ -38,7 +61,9 @@ module.exports = class ABViewTextCore extends ABViewWidget {
     * @return {json}
     */
    toObj() {
-      this.application.unTranslate(this, this, ["text"]);
+      // NOTE: ABView auto translates/untranslates "label"
+      // add in any additional fields here:
+      this.unTranslate(this, this, ["text"]);
 
       var obj = super.toObj();
       obj.views = [];
@@ -64,7 +89,9 @@ module.exports = class ABViewTextCore extends ABViewWidget {
       // if this is being instantiated on a read from the Property UI,
       this.text = values.text || ABViewTextPropertyComponentDefaults.text;
 
-      this.application.translate(this, this, ["text"]);
+      // NOTE: ABView auto translates/untranslates "label"
+      // add in any additional fields here:
+      this.translate(this, this, ["text"]);
    }
 
    /**
@@ -82,15 +109,18 @@ module.exports = class ABViewTextCore extends ABViewWidget {
     * @return {ABDatacollection}
     */
    get datacollection() {
-      if (this.parent.key == "dataview") {
-         return this.application.datacollections(
-            (dv) => dv.id == this.parent.settings.dataviewID
-         )[0];
+      if (this.parent?.key == "dataview") {
+         return this.AB.datacollectionByID(this.parent.settings.dataviewID);
       } else {
-         return this.application.datacollections(
-            (dv) => dv.id == this.settings.dataviewID
-         )[0];
+         return this.AB.datacollectionByID(this.settings.dataviewID);
       }
+   }
+
+   fieldKey(field) {
+      let label = field.label || "";
+      label = label.replace(/\(/g, "\\(");
+      label = label.replace(/\)/g, "\\)");
+      return label;
    }
 
    displayText(val, componentID) {
@@ -101,64 +131,84 @@ module.exports = class ABViewTextCore extends ABViewWidget {
       };
 
       var dv = this.datacollection;
-      if (!dv) return clearTemplateValue(result);
+      // if (!dv) return clearTemplateValue(result);
 
-      var object = dv.datasource;
+      var object = dv?.datasource ?? this._object;
       if (!object) return clearTemplateValue(result);
 
-      object.fields(null, true).forEach((f) => {
-         var rowData = val || dv.getCursor() || {};
+      const rowData = val || dv.getCursor() || {};
 
+      object.fields().forEach((f) => {
          // add \\ in front of the regular expression special charactors
-         let label = f.label || "";
-         label = label.replace(/\(/g, "\\(");
-         label = label.replace(/\)/g, "\\)");
+         // let label = f.label || "";
+         // label = label.replace(/\(/g, "\\(");
+         // label = label.replace(/\)/g, "\\)");
+         let label = this.fieldKey(f);
 
          var template = new RegExp("{" + label + "}", "g");
 
-         var prepend = "";
-         if (f.key == "image") {
-            prepend = "/opsportal/image/" + this.application.name + "/";
-         }
-         var data = prepend + f.format(rowData) || "???"; // "???" default value
+         // IDEA: I'd like to keep all the image url logic INSIDE the ABFieldImage
+         // object.  Is there some way we can simply call: f.imageTemplate(rowData)
+         // and parse the results for the url to display here?
 
-         if (
-            data == prepend &&
-            f.key == "image" &&
-            f.settings.defaultImageUrl &&
-            f.settings.useDefaultImage
-         ) {
-            data = prepend + f.settings.defaultImageUrl;
-            result = result.replace(
-               "img",
-               'img onload=\'AD.comm.hub.publish("component.adjust", {"containerID": "' +
-                  componentID +
-                  "\"});' "
-            );
-         } else if (
-            f.format(rowData) != "" &&
-            f.key == "image" &&
-            result.indexOf("onload") == -1 &&
-            componentID
-         ) {
-            result = result.replace(
-               "img",
-               'img onload=\'AD.comm.hub.publish("component.adjust", {"containerID": "' +
-                  componentID +
-                  "\"});' "
-            );
-         } else if (f.key == "image") {
-            result = result.replace(
-               "img",
-               "img onerror='this.parentNode.removeChild(this);' "
-            );
+         var data = f.format(rowData);
+         if (f.key == "image") {
+            var fData = data;
+            data = f.urlImage(fData);
+
+            // Question: should we change f.urlImage() to return the defaultImageUrl
+            // if fData is "" and .useDefaultImage = true?
+
+            if (
+               !fData &&
+               f.settings.defaultImageUrl &&
+               f.settings.useDefaultImage
+            ) {
+               data = f.urlImage(f.settings.defaultImageUrl);
+
+               ////
+               //// James:  Revisit this and make sure we are handling things ok now.
+               // result = result.replace(
+               //    "img",
+               //    'img onload=\'AD.comm.hub.publish("component.adjust", {"containerID": "' +
+               //       componentID +
+               //       "\"});' "
+               // );
+               // } else if (
+               //    fData != "" &&
+               //    result.indexOf("onload") == -1 &&
+               //    componentID
+               // ) {
+               // result = result.replace(
+               //    "img",
+               //    'img onload=\'AD.comm.hub.publish("component.adjust", {"containerID": "' +
+               //       componentID +
+               //       "\"});' "
+               // );
+            } else {
+               ////
+               //// James: It looks like this routine assumes the this.text template will
+               //// only have 1 <img> tag in it.  Is that necessarilly true?
+               ////
+               //// If NOT, then we need to rethink this next line:
+
+               result = result.replace(
+                  "img",
+                  "img onerror='this.parentNode.removeChild(this);' "
+               );
+            }
          }
 
          result = result.replace(template, data);
       });
 
+      // Support {uuid} tag in tempalte
+      result = result.replace(/{PK}/g, rowData[object.PK()]);
+
       return result;
    }
+
+   objectLoad(object) {
+      this._object = object;
+   }
 };
-
-

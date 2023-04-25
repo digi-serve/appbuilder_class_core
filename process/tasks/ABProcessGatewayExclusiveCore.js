@@ -9,9 +9,10 @@ var ABProcessGatewayExclusiveDefaults = {
    //
    // if it shouldn't show up under the popup menu, then leave this null
 
-   icon: "check-circle", // font-awesome icon reference.  (without the 'fa-').  so 'user'  to reference 'fa-user'
+   icon: "check-circle",
    // icon: {string}
-   // font-awesome icon reference.  (without the 'fa-').  so 'user'  to reference 'fa-user'
+   // font-awesome icon reference.  (without the 'fa-').  so 'user'  to
+   // reference 'fa-user'
 
    instanceValues: [],
    // instanceValues: {array}
@@ -21,21 +22,16 @@ var ABProcessGatewayExclusiveDefaults = {
    // key: {string}
    // unique key to reference this specific Task
 
-   settings: ["conditions"]
+   settings: ["conditions"],
    // settings: {array}
    // a list of internal setting values this Element tracks. These are the
    // values set by the platform .propertiesStash()
 };
 
 module.exports = class ABProcessGatewayExclusiveCore extends ABProcessElement {
-   constructor(attributes, process, application) {
+   constructor(attributes, process, AB) {
       attributes.type = attributes.type || "process.gateway.exclusive";
-      super(
-         attributes,
-         process,
-         application,
-         ABProcessGatewayExclusiveDefaults
-      );
+      super(attributes, process, AB, ABProcessGatewayExclusiveDefaults);
 
       // listen
    }
@@ -51,28 +47,24 @@ module.exports = class ABProcessGatewayExclusiveCore extends ABProcessElement {
          actionName: "replace-with-exclusive-gateway",
          className: "bpmn-icon-gateway-xor",
          target: {
-            type: "bpmn:ExclusiveGateway"
-         }
+            type: "bpmn:ExclusiveGateway",
+         },
       };
    }
 
-   /*
-    fromValues(attributes) {
-        /*
+   fromValues(attributes) {
+      /*
         {
             id: uuid(),
             name: 'name',
             type: 'xxxxx',
             json: "{json}"
         }
-        * /
-        super.fromValues(attributes);
+        */
+      super.fromValues(attributes);
 
-        ABProcessGatewayExclusiveDefaults.fields.forEach((f) => {
-            this[f] = attributes[f];
-        });
-    }
-    */
+      this.conditions = this.conditions || {};
+   }
 
    /**
     * @method toObj()
@@ -100,6 +92,7 @@ module.exports = class ABProcessGatewayExclusiveCore extends ABProcessElement {
    ////
    //// Process Instance Methods
    ////
+
 
    /**
     * initState()

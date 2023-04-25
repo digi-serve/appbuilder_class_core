@@ -1,17 +1,17 @@
-const ABViewDetailComponent = require("../../platform/views/ABViewDetailComponent");
+const ABViewDetailItem = require("../../platform/views/ABViewDetailItem");
 
 const ABViewDetailImagePropertyComponentDefaults = {
    height: 80,
-   width: 120
+   width: 120,
 };
 
 const ABViewDetailImageDefaults = {
    key: "detailimage", // {string} unique key for this view
    icon: "image", // {string} fa-[icon] reference for this view
-   labelKey: "ab.components.detail.image" // {string} the multilingual label key for the class label
+   labelKey: "ab.components.detail.image", // {string} the multilingual label key for the class label
 };
 
-module.exports = class ABViewDetailImageCore extends ABViewDetailComponent {
+module.exports = class ABViewDetailImageCore extends ABViewDetailItem {
    /**
     * @param {obj} values  key=>value hash of ABView values
     * @param {ABApplication} application the application object this view is under
@@ -22,7 +22,7 @@ module.exports = class ABViewDetailImageCore extends ABViewDetailComponent {
          values,
          application,
          parent,
-         defaultValues || ABViewDetailImageDefaults
+         defaultValues ?? ABViewDetailImageDefaults
       );
    }
 
@@ -53,15 +53,7 @@ module.exports = class ABViewDetailImageCore extends ABViewDetailComponent {
             ABViewDetailImagePropertyComponentDefaults.height
       );
       this.settings.width = parseInt(
-         this.settings.width || ABViewDetailImagePropertyComponentDefaults.width
+         this.settings.width ?? ABViewDetailImagePropertyComponentDefaults.width
       );
-   }
-
-   /**
-    * @method componentList
-    * return the list of components available on this view to display in the editor.
-    */
-   componentList() {
-      return [];
    }
 };

@@ -7,13 +7,13 @@ const ABViewPivotPropertyComponentDefaults = {
    separateLabel: 0,
    min: 0,
    max: 0,
-   height: 0
+   height: 0,
 };
 
 const ABViewDefaults = {
    key: "pivot", // {string} unique key for this view
    icon: "cube", // {string} fa-[icon] reference for this view
-   labelKey: "ab.components.pivot" // {string} the multilingual label key for the class label
+   labelKey: "Pivot", // {string} the multilingual label key for the class label
 };
 
 module.exports = class ABViewPivotCore extends ABViewWidget {
@@ -56,7 +56,7 @@ module.exports = class ABViewPivotCore extends ABViewWidget {
             ABViewPivotPropertyComponentDefaults.separateLabel
       );
       this.settings.min = JSON.parse(
-         this.settings.allowDelete || ABViewPivotPropertyComponentDefaults.min
+         this.settings.min || ABViewPivotPropertyComponentDefaults.min
       );
       this.settings.max = JSON.parse(
          this.settings.max || ABViewPivotPropertyComponentDefaults.max

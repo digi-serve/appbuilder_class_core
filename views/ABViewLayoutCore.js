@@ -3,13 +3,13 @@ const ABViewWidget = require("../../platform/views/ABViewWidget");
 
 const PropertyComponentDefaults = {
    label: "",
-   numColumns: 1 // The number of columns for this layout
+   numColumns: 1, // The number of columns for this layout
 };
 
 const ABViewDefaults = {
    key: "layout", // {string} unique key for this view
    icon: "columns", // {string} fa-[icon] reference for this view
-   labelKey: "ab.components.layout" // {string} the multilingual label key for the class label
+   labelKey: "Layout", // {string} the multilingual label key for the class label
 };
 
 module.exports = class ABViewLayoutCore extends ABViewWidget {
@@ -39,7 +39,7 @@ module.exports = class ABViewLayoutCore extends ABViewWidget {
       this._views.push(
          this.application.viewNew(
             {
-               key: ABViewContainer.common().key
+               key: ABViewContainer.common().key,
             },
             this.application,
             this
@@ -68,5 +68,15 @@ module.exports = class ABViewLayoutCore extends ABViewWidget {
             return [];
          }
       }
+   }
+
+   /**
+    * @property datacollection
+    * return data source
+    * NOTE: this view doesn't track a DataCollection.
+    * @return {ABDataCollection}
+    */
+   get datacollection() {
+      return null;
    }
 };

@@ -2,13 +2,13 @@ const ABViewWidget = require("../../platform/views/ABViewWidget");
 
 const ABViewReportManagerPropertyComponentDefaults = {
    moduleList: [],
-   queryList: []
+   queryList: [],
 };
 
 const ABViewDefaults = {
    key: "reportsManager", // {string} unique key for this view
    icon: "wpforms", // {string} fa-[icon] reference for this view
-   labelKey: "ab.components.reportsManager" // {string} the multilingual label key for the class label
+   labelKey: "Reports Manager", // {string} the multilingual label key for the class label
 };
 
 module.exports = class ABViewReportsManagerCore extends ABViewWidget {
@@ -69,5 +69,14 @@ module.exports = class ABViewReportsManagerCore extends ABViewWidget {
    componentList() {
       return [];
    }
-};
 
+   /**
+    * @property datacollection
+    * return data source
+    * NOTE: this view doesn't track a DataCollection.
+    * @return {ABDataCollection}
+    */
+   get datacollection() {
+      return null;
+   }
+};

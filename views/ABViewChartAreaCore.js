@@ -1,22 +1,22 @@
-const ABViewChartComponent = require("../../platform/views/ABViewChartComponent");
+const ABViewChartContainer = require("../../platform/views/ABViewChartContainer");
 
 const ABViewChartAreaPropertyComponentDefaults = {
    areaType: "area",
-   isLegend: true,
+   isLegend: 1,
    // chartWidth: 600,
-   chartHeight: 0,
+   chartHeight: 200,
    labelFontSize: 12,
    stepValue: 20,
-   maxValue: 100
+   maxValue: 100,
 };
 
 const ABViewDefaults = {
    key: "area", // {string} unique key for this view
    icon: "area-chart", // {string} fa-[icon] reference for this view
-   labelKey: "ab.components.chart.area" // {string} the multilingual label key for the class label
+   labelKey: "Area", // {string} the multilingual label key for the class label
 };
 
-module.exports = class ABViewChartAreaCore extends ABViewChartComponent {
+module.exports = class ABViewChartAreaCore extends ABViewChartContainer {
    constructor(values, application, parent, defaultValues) {
       super(values, application, parent, defaultValues || ABViewDefaults);
    }
@@ -42,31 +42,35 @@ module.exports = class ABViewChartAreaCore extends ABViewChartComponent {
    fromValues(values) {
       super.fromValues(values);
 
-      this.settings.isLegend = JSON.parse(
-         this.settings.isLegend ||
+      this.settings.areaType =
+         this.settings.areaType ||
+         ABViewChartAreaPropertyComponentDefaults.areaType;
+
+      this.settings.isLegend = parseInt(
+         this.settings.isLegend ??
             ABViewChartAreaPropertyComponentDefaults.isLegend
       );
 
       // this.settings.chartWidth = parseInt(this.settings.chartWidth || ABViewChartAreaPropertyComponentDefaults.chartWidth);
       this.settings.chartHeight = parseInt(
-         this.settings.chartHeight ||
+         this.settings.chartHeight ??
             ABViewChartAreaPropertyComponentDefaults.chartHeight
       );
 
       this.settings.labelFontSize = parseInt(
-         this.settings.labelFontSize ||
+         this.settings.labelFontSize ??
             ABViewChartAreaPropertyComponentDefaults.labelFontSize
       );
       this.settings.stepValue = parseInt(
-         this.settings.stepValue ||
+         this.settings.stepValue ??
             ABViewChartAreaPropertyComponentDefaults.stepValue
       );
       this.settings.maxValue = parseInt(
-         this.settings.maxValue ||
+         this.settings.maxValue ??
             ABViewChartAreaPropertyComponentDefaults.maxValue
       );
 
-      this.application.translate(this, this, ["areaLabel"]);
+      this.translate(this, this, ["areaLabel"]);
    }
 
    /**

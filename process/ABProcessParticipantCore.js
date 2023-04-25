@@ -7,19 +7,21 @@
 const ABMLClass = require("../../platform/ABMLClass");
 
 const ABProcessParticipantDefaults = {
-   type: "process.participant" // unique key to reference this specific Task
+   type: "process.participant",
+   // {string} .type
+   // unique key to reference this specific object
+
    // icon: "key" // font-awesome icon reference.  (without the 'fa-').  so 'user'  to reference 'fa-user'
 };
 
 module.exports = class ABProcessParticipantCore extends ABMLClass {
-   constructor(attributes, process, application) {
-      super(["label"]);
+   constructor(attributes, process, AB) {
+      super(["label"], AB);
 
       this.process = process;
       if (!this.processID) {
          this.processID = process.id;
       }
-      this.application = application;
 
       this.fromValues(attributes);
 
@@ -45,6 +47,7 @@ module.exports = class ABProcessParticipantCore extends ABMLClass {
       this.id = attributes.id;
       this.name = attributes.name || "";
       this.type = attributes.type || ABProcessParticipantDefaults.type;
+      this.key = attributes.key || ABProcessParticipantDefaults.type;
 
       // Process Values:
       this.processID = attributes.processID || null;
@@ -55,33 +58,43 @@ module.exports = class ABProcessParticipantCore extends ABMLClass {
          this.stashed = attributes.stashed;
       }
 
+      function validChecker(attribute) {
+         return typeof attribute != "undefined" && attribute != null;
+      }
+
       this.useRole = 0;
-      if (typeof attributes.useRole != "undefined") {
+      if (validChecker(attributes.useRole)) {
          this.useRole = parseInt(attributes.useRole);
       }
 
       this.role = 0;
-      if (typeof attributes.role != "undefined") {
+      if (validChecker(attributes.role)) {
          this.role = attributes.role;
       }
 
       this.useAccount = 0;
-      if (typeof attributes.useAccount != "undefined") {
+      if (validChecker(attributes.useAccount)) {
          this.useAccount = parseInt(attributes.useAccount);
       }
 
       this.account = 0;
-      if (typeof attributes.account != "undefined") {
+      if (validChecker(attributes.account)) {
          this.account = attributes.account;
       }
 
       this.useField = 0;
-      if (typeof attributes.useField != "undefined") {
+      if (validChecker(attributes.useField)) {
          this.useField = parseInt(attributes.useField);
       }
 
+      this.userField = [];
+      if (validChecker(attributes.userField)) {
+         this.userField = attributes.userField;
+      }
+
+      // depreciated
       this.fields = [];
-      if (typeof attributes.fields != "undefined") {
+      if (validChecker(attributes.fields)) {
          this.fields = attributes.fields;
       }
 
@@ -126,8 +139,9 @@ module.exports = class ABProcessParticipantCore extends ABMLClass {
          "useAccount",
          "account",
          "useField",
+         "userField",
          "fields",
-         "stashed"
+         "stashed",
       ];
       fieldsToSave.forEach((f) => {
          data[f] = this[f];
@@ -135,4 +149,11 @@ module.exports = class ABProcessParticipantCore extends ABMLClass {
 
       return data;
    }
+
+   /**
+    * @method onProcessReady()
+    * perform any tasks/checks necessary after the parent Process is
+    * setup and ready.
+    */
+   onProcessReady() {}
 };

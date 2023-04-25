@@ -1,5 +1,3 @@
-// import ABApplication from "./ABApplication"
-// const ABApplication = require("./ABApplication"); // NOTE: change to require()
 const ABProcessElement = require("../../../platform/process/tasks/ABProcessElement.js");
 
 var ABProcessTriggerDefaults = {
@@ -19,15 +17,15 @@ var ABProcessTriggerDefaults = {
    // icon: {string}
    // font-awesome icon reference.  (without the 'fa-').  so 'user'  to reference 'fa-user'
 
-   key: "Trigger"
+   key: "Trigger",
    // key: {string}
    // unique key to reference this specific Task
 };
 
 module.exports = class ABProcessTriggerCore extends ABProcessElement {
-   constructor(attributes, process, application) {
+   constructor(attributes, process, AB) {
       attributes.type = attributes.type || "trigger";
-      super(attributes, process, application, ABProcessTriggerDefaults);
+      super(attributes, process, AB, ABProcessTriggerDefaults);
 
       // listen
    }
@@ -46,8 +44,8 @@ module.exports = class ABProcessTriggerCore extends ABProcessElement {
             type: "bpmn:StartEvent",
             // type: {string} the general bpmn category
             //      "StartEvent", "Task", "EndEvent", "ExclusiveGateway"
-            eventDefinitionType: "bpmn:SignalEventDefinition"
-         }
+            eventDefinitionType: "bpmn:SignalEventDefinition",
+         },
       };
    }
 

@@ -1,31 +1,76 @@
 /*
- * ABFieldBoolean
+ * ABFieldAutoIndex
  *
- * An ABFieldBoolean defines a boolean field type.
+ * An ABFieldAutoIndex defines a AutoIndex field type.
  *
  */
 
-var ABField = require("../../platform/dataFields/ABField");
+const ABField = require("../../platform/dataFields/ABField");
 
 function L(key, altText) {
    // TODO:
    return altText; // AD.lang.label.getLabel(key) || altText;
 }
 
-var ABFieldAutoIndexDefaults = {
-   key: "AutoIndex", // unique key to reference this specific DataField
-   icon: "key", // font-awesome icon reference.  (without the 'fa-').  so 'user'  to reference 'fa-user'
+const ABFieldAutoIndexDefaults = {
+   key: "AutoIndex",
+   // unique key to reference this specific DataField
 
-   // menuName: what gets displayed in the Editor drop list
-   menuName: L("ab.dataField.AutoIndex.menuName", "*Auto Index"),
-
+   description: "Auto Increment Value",
    // description: what gets displayed in the Editor description.
-   description: L("ab.dataField.AutoIndex.description", "*Auto Increment Value")
+   // NOTE: this will be displayed using a Label: L(description)
+
+   icon: "key",
+   // font-awesome icon reference.  (without the 'fa-').  so 'key'  to
+   // reference 'fa-key'
+
+   isFilterable: true,
+   // {bool} / {fn}
+   // determines if the current ABField can be used to filter (FilterComplex
+   // or Query) data.
+   // if a {fn} is provided, it will be called with the ABField as a parameter:
+   //  (field) => field.setting.something == true
+
+   isSortable: true,
+   // {bool} / {fn}
+   // determines if the current ABField can be used to Sort data.
+   // if a {fn} is provided, it will be called with the ABField as a parameter:
+   //  (field) => true/false
+
+   menuName: "Auto Index",
+   // menuName: what gets displayed in the Editor drop list
+   // NOTE: this will be displayed using a Label: L(menuName)
+
+   supportRequire: false,
+   // {bool}
+   // does this ABField support the Required setting?
+
+   supportUnique: false,
+   // {bool}
+   // does this ABField support the Unique setting?
+
+   useAsLabel: true,
+   // {bool} / {fn}
+   // determines if this ABField can be used in the display of an ABObject's
+   // label.
+
+   compatibleOrmTypes: ["number"],
+   // {array}
+   // what types of Sails ORM attributes can be imported into this data type?
+   // http://sailsjs.org/documentation/concepts/models-and-orm/attributes#?attribute-options
+
+   compatibleMysqlTypes: ["tinyint", "smallint", "mediumint", "int", "integer"],
+   // {array}
+   // what types of MySql column types can be imported into this data type?
+   // https://www.techonthenet.com/mysql/datatypes.php
 };
 
 // defaultValues: the keys must match a .name of your elements to set it's default value.
-var defaultValues = {
-   displayLength: 4
+const defaultValues = {
+   prefix: "",
+   delimiter: "none",
+   displayLength: 4,
+   previewText: "0000",
 };
 
 module.exports = class ABFieldAutoIndexCore extends ABField {
@@ -43,7 +88,7 @@ module.exports = class ABFieldAutoIndexCore extends ABField {
    }
 
    static getDelimiterSign(text) {
-      var delimiterItem = this.delimiterList().filter((item) => {
+      const delimiterItem = this.delimiterList().filter((item) => {
          return item.id == text;
       })[0];
 
@@ -52,16 +97,17 @@ module.exports = class ABFieldAutoIndexCore extends ABField {
 
    static delimiterList() {
       return [
-         { id: "comma", value: "Comma", sign: ", " },
-         { id: "slash", value: "Slash", sign: "/" },
-         { id: "space", value: "Space", sign: " " },
-         { id: "dash", value: "Dash", sign: "-" },
-         { id: "colon", value: "Colon", sign: ":" }
+         { id: "none", value: L("None"), sign: "" },
+         { id: "comma", value: L("Comma"), sign: ", " },
+         { id: "slash", value: L("Slash"), sign: "/" },
+         { id: "space", value: L("Space"), sign: " " },
+         { id: "dash", value: L("Dash"), sign: "-" },
+         { id: "colon", value: L("Colon"), sign: ":" },
       ];
    }
 
    static setValueToIndex(prefix, delimiter, displayLength, displayNumber) {
-      var resultIndex =
+      const resultIndex =
          prefix +
          this.getDelimiterSign(delimiter) +
          ("0000000000" + displayNumber).slice(-parseInt(displayLength));
@@ -88,10 +134,10 @@ module.exports = class ABFieldAutoIndexCore extends ABField {
    }
 
    format(rowData) {
-      if (!rowData[this.columnName]) return "";
+      if (!rowData?.[this.columnName]) return "";
 
       try {
-         var resultAutoIndex = this.constructor.setValueToIndex(
+         const resultAutoIndex = this.constructor.setValueToIndex(
             this.settings.prefix,
             this.settings.delimiter,
             this.settings.displayLength,
@@ -104,3 +150,4 @@ module.exports = class ABFieldAutoIndexCore extends ABField {
       }
    }
 };
+

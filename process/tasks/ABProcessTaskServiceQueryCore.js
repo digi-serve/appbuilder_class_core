@@ -2,7 +2,7 @@ const ABProcessElement = require("../../../platform/process/tasks/ABProcessEleme
 
 const ABQLManager = require("../../../platform/ql/ABQLManager.js");
 
-var ABProcessTaskServiceQueryDefaults = {
+const ABProcessTaskServiceQueryDefaults = {
    category: null,
    // category: {string} | null
    // if this Element should show up on one of the popup replace menus, then
@@ -23,21 +23,16 @@ var ABProcessTaskServiceQueryDefaults = {
    // key: {string}
    // unique key to reference this specific Task
 
-   settings: ["qlObj"]
+   settings: ["qlObj"],
    // settings: {array}
    // a list of internal setting values this Element tracks. These are the
    // values set by the platform .propertiesStash()
 };
 
 module.exports = class ABProcessTaskServiceQueryCore extends ABProcessElement {
-   constructor(attributes, process, application) {
+   constructor(attributes, process, AB) {
       attributes.type = attributes.type || "process.task.service.query";
-      super(
-         attributes,
-         process,
-         application,
-         ABProcessTaskServiceQueryDefaults
-      );
+      super(attributes, process, AB, ABProcessTaskServiceQueryDefaults);
 
       // listen
    }
@@ -59,32 +54,21 @@ module.exports = class ABProcessTaskServiceQueryCore extends ABProcessElement {
 
       // comvert our qlObj into an ABQLxxx instance.
       if (this.qlObj) {
-         this.qlObj = ABQLManager.fromAttributes(
-            this.qlObj,
-            this,
-            this.application
-         );
+         this.qlObj = ABQLManager.fromAttributes(this.qlObj, this, this.AB);
       }
    }
 
    /**
     * @method toObj()
-    *
-    * properly compile the current state of this ABApplication instance
+    * properly compile the current state of this object instance
     * into the values needed for saving to the DB.
-    *
-    * Most of the instance data is stored in .json field, so be sure to
-    * update that from all the current values of our child fields.
-    *
     * @return {json}
     */
    toObj() {
-      var data = super.toObj();
+      const data = super.toObj();
 
       // convert qlObj into obj format:
-      if (this.qlObj) {
-         data.qlObj = this.qlObj.toObj();
-      }
+      if (this.qlObj) data.qlObj = this.qlObj.toObj();
 
       return data;
    }
@@ -105,7 +89,7 @@ module.exports = class ABProcessTaskServiceQueryCore extends ABProcessElement {
     */
    /*
     initState(context, val) {
-        var myDefaults = {
+        const myDefaults = {
             instanceVariable1: null,
             instanceVariable2: null
         };
@@ -124,16 +108,20 @@ module.exports = class ABProcessTaskServiceQueryCore extends ABProcessElement {
     */
    processDataFields() {
       // in this Task, we can return the Response to the UserForm
-      var fields = null;
+      let fields = null;
+
       if (this._datasources.length > 0) {
          fields = [];
+
          this._datasources.forEach((s) => {
-            var param = s.processDataField(this.id, this.label);
+            const param = s.processDataField(this.id, this.label);
+
             if (param) {
                fields.push(param);
             }
          });
       }
+
       return fields;
    }
 
@@ -143,14 +131,15 @@ module.exports = class ABProcessTaskServiceQueryCore extends ABProcessElement {
     * @param {obj} instance
     * @return {mixed} | null
     */
-   /*
-    processData(instance, key) {
-        var parts = key.split(".");
-        if (parts[0] == this.id) {
-            var myState = this.myState(instance);
-            return myState[parts[1]];
-        }
-        return null;
-    }
-    */
+   processData(instance, key) {
+      const parts = key.split(".");
+
+      if (parts[0] === this.id) {
+         const myState = this.myState(instance);
+
+         return myState[parts[1]];
+      }
+
+      return null;
+   }
 };

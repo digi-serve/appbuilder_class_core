@@ -1,14 +1,14 @@
-const ABViewDetailComponent = require("../../platform/views/ABViewDetailComponent");
+const ABViewDetailItem = require("../../platform/views/ABViewDetailItem");
 
 const ABViewDetailCheckboxPropertyComponentDefaults = {};
 
 const ABViewDetailCheckboxDefaults = {
    key: "detailcheckbox", // {string} unique key for this view
    icon: "check-square-o", // {string} fa-[icon] reference for this view
-   labelKey: "ab.components.detail.checkbox" // {string} the multilingual label key for the class label
+   labelKey: "ab.components.detail.checkbox", // {string} the multilingual label key for the class label
 };
 
-module.exports = class ABViewDetailCheckboxCore extends ABViewDetailComponent {
+module.exports = class ABViewDetailCheckboxCore extends ABViewDetailItem {
    /**
     * @param {obj} values  key=>value hash of ABView values
     * @param {ABApplication} application the application object this view is under
@@ -19,7 +19,7 @@ module.exports = class ABViewDetailCheckboxCore extends ABViewDetailComponent {
          values,
          application,
          parent,
-         defaultValues || ABViewDetailCheckboxDefaults
+         defaultValues ?? ABViewDetailCheckboxDefaults
       );
    }
 
@@ -29,13 +29,5 @@ module.exports = class ABViewDetailCheckboxCore extends ABViewDetailComponent {
 
    static defaultValues() {
       return ABViewDetailCheckboxPropertyComponentDefaults;
-   }
-
-   /*
-    * @method componentList
-    * return the list of components available on this view to display in the editor.
-    */
-   componentList() {
-      return [];
    }
 };

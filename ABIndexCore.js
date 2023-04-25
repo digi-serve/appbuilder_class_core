@@ -2,7 +2,7 @@ const ABMLClass = require("../platform/ABMLClass");
 
 module.exports = class ABIndexCore extends ABMLClass {
    constructor(attributes, object) {
-      super(/* ["label"] */);
+      super(["label"], object.AB);
       this.object = object;
 
       this.fromValues(attributes);
@@ -29,13 +29,33 @@ module.exports = class ABIndexCore extends ABMLClass {
          attributes.fieldIDs = [attributes.fieldIDs];
       }
 
+      this._unknownFieldIDs = [];
       this.fields = (attributes.fieldIDs || [])
          .map((f) => {
-            // NOTE: to prevent a Race Condition on load, we need to
-            // send .fields(filter(), TRUE);
-            return this.object.fields((fld) => fld.id == f, true)[0];
+            let field = this.object.fieldByID(f);
+            if (!field) {
+               this._unknownFieldIDs.push(f);
+               let err = new Error(
+                  `Index[${this.name}][${this.id}] is referencing an unknown field[${f}]`
+               );
+               this.AB.notify.developer(err, {
+                  index: this.id,
+                  field: f,
+               });
+            }
+            return field;
          })
          .filter((fId) => fId);
+
+      if (this.fields.length == 0) {
+         let err = new Error(
+            `Index[${this.name}][${this.id}] is not referencing any fields`
+         );
+         this.AB.notify.developer(err, {
+            index: this.id,
+            attributeFieldIDs: attributes.fieldIDs || [],
+         });
+      }
 
       // let the MLClass process the Translations
       super.fromValues(attributes);
@@ -71,6 +91,13 @@ module.exports = class ABIndexCore extends ABMLClass {
             return f.id || f;
          })
          .filter((fId) => fId);
+
+      // carry along the unknown Field IDs so a
+      // developer/builder can come along and trace
+      // what happened.
+      this._unknownFieldIDs.forEach((f) => {
+         result.fieldIDs.push(f);
+      });
 
       return result;
    }
