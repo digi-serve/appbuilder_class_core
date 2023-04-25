@@ -36,16 +36,16 @@ var ABProcessTaskUserDefaults = {
    // key: {string}
    // unique key to reference this specific Task
 
-   settings: [],
+   settings: []
    // settings: {array}
    // a list of internal setting values this Element tracks. These are the
    // values set by the platform .propertiesStash()
 };
 
 module.exports = class ABProcessTaskUserCore extends ABProcessElement {
-   constructor(attributes, process, AB) {
+   constructor(attributes, process, application) {
       attributes.type = attributes.type || "process.task.user";
-      super(attributes, process, AB, ABProcessTaskUserDefaults);
+      super(attributes, process, application, ABProcessTaskUserDefaults);
 
       // listen
    }
@@ -62,8 +62,8 @@ module.exports = class ABProcessTaskUserCore extends ABProcessElement {
          actionName: "replace-with-user-task",
          className: "bpmn-icon-user",
          target: {
-            type: "bpmn:UserTask",
-         },
+            type: "bpmn:UserTask"
+         }
       };
    }
 
@@ -98,7 +98,7 @@ module.exports = class ABProcessTaskUserCore extends ABProcessElement {
    initState(context, val) {
       var myDefaults = {
          roles: [],
-         ui: null,
+         ui: null
       };
 
       super.initState(context, myDefaults, val);

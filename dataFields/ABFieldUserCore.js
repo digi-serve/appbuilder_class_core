@@ -5,32 +5,24 @@
  *
  */
 
-const ABFieldConnect = require("../../platform/dataFields/ABFieldConnect");
+var ABFieldSelectivity = require("../../platform/dataFields/ABFieldSelectivity");
+// import ABFieldSelectivity from "./ABFieldSelectivity"
+// import ABFieldComponent from "./ABFieldComponent"
 
 function L(key, altText) {
    // TODO:
    return altText; // AD.lang.label.getLabel(key) || altText;
 }
 
-const ABFieldUserDefaults = {
-   key: "user",
-   // unique key to reference this specific DataField
+var ABFieldUserDefaults = {
+   key: "user", // unique key to reference this specific DataField
+   icon: "user-o", // font-awesome icon reference.  (without the 'fa-').  so 'user'  to reference 'fa-user'
 
-   description: "Add users to a record.",
+   // menuName: what gets displayed in the Editor drop list
+   menuName: L("ab.dataField.user.menuName", "*User"),
+
    // description: what gets displayed in the Editor description.
-   // NOTE: this will be displayed using a Label: L(description)
-
-   icon: "user-o",
-   // font-awesome icon reference.  (without the 'fa-').  so 'user-o'  to
-   // reference 'fa-user-o'
-
-   isFilterable: true,
-   // {bool} / {fn}
-   // determines if the current ABField can be used to filter (FilterComplex
-   // or Query) data.
-   // if a {fn} is provided, it will be called with the ABField as a parameter:
-   //  (field) => field.setting.something == true
-
+   description: L("ab.dataField.user.description", "*Add user/s to a record."),
    isSortable: (field) => {
       if (field.settings.isMultiple) {
          return false;
@@ -38,53 +30,23 @@ const ABFieldUserDefaults = {
          return true;
       }
    },
-   // {bool} / {fn}
-   // determines if the current ABField can be used to Sort data.
-   // if a {fn} is provided, it will be called with the ABField as a parameter:
-   //  (field) => true/false
-
-   menuName: "User",
-   // menuName: what gets displayed in the Editor drop list
-   // NOTE: this will be displayed using a Label: L(menuName)
 
    supportRequire: false,
-   // {bool}
-   // does this ABField support the Required setting?
 
-   supportUnique: false,
-   // {bool}
-   // does this ABField support the Unique setting?
-
-   useAsLabel: true,
-   // {bool} / {fn}
-   // determines if this ABField can be used in the display of an ABObject's
-   // label.
-
-   compatibleOrmTypes: ["string"],
-   // {array}
    // what types of Sails ORM attributes can be imported into this data type?
    // http://sailsjs.org/documentation/concepts/models-and-orm/attributes#?attribute-options
-
-   compatibleMysqlTypes: ["char", "varchar", "tinytext"],
-   // {array}
-   // what types of MySql column types can be imported into this data type?
-   // https://www.techonthenet.com/mysql/datatypes.php
-
-   USERNAME_FIELD_ID: "5760560b-c078-47ca-98bf-e18ac492a561",
-   // {string} .uuid
-   // the ABField.id of the SiteUser.username field.  This is what other
-   // objects will link to in their ABFieldUser connections.
+   compatibleOrmTypes: []
 };
 
-const defaultValues = {
+var defaultValues = {
    editable: 1,
    isMultiple: 0,
    isCurrentUser: 0,
    isShowProfileImage: 0,
-   isShowUsername: 1,
+   isShowUsername: 1
 };
 
-module.exports = class ABFieldUserCore extends ABFieldConnect {
+module.exports = class ABFieldUserCore extends ABFieldSelectivity {
    constructor(values, object) {
       super(values, object, ABFieldUserDefaults);
    }
@@ -118,12 +80,37 @@ module.exports = class ABFieldUserCore extends ABFieldConnect {
    /// Working with Actual Object Values:
    ///
 
+   /**
+    * @method defaultValue
+    * insert a key=>value pair that represent the default value
+    * for this field.
+    * @param {obj} values a key=>value hash of the current values.
+    */
+   defaultValue(values) {
+      if (this.settings.isCurrentUser) {
+         if (this.settings.isMultiple) {
+            values[this.columnName] = [
+               {
+                  id: OP.User.username(),
+                  text: OP.User.username()
+               }
+            ];
+         } else {
+            values[this.columnName] = OP.User.username();
+         }
+      }
+   }
+
    format(rowData) {
-      let val = this.dataValue(rowData) || [];
+      var val = this.dataValue(rowData) || [];
 
       if (val && !Array.isArray(val)) val = [val];
-      if (!val) val = [];
 
-      return val.map((v) => v.username || v).join(", ");
+      return val.map((v) => v.text || v).join(", ");
    }
+   
+   relationName() { 
+      return this.columnName;
+   }
+
 };

@@ -3,7 +3,7 @@ const ABViewWidget = require("../../platform/views/ABViewWidget");
 const ABViewCSVExporterDefaults = {
    key: "csvExporter", // unique key identifier for this ABViewForm
    icon: "download", // icon reference: (without 'fa-' )
-   labelKey: "CSV Exporter", // {string} the multilingual label key for the class label
+   labelKey: "ab.components.csvExporter" // {string} the multilingual label key for the class label
 };
 
 const ABViewCSVExporterPropertyComponentDefaults = {
@@ -12,7 +12,7 @@ const ABViewCSVExporterPropertyComponentDefaults = {
    buttonLabel: "Export CSV",
    filename: "exportCSV",
    hasHeader: true,
-   width: 150,
+   width: 150
 };
 
 module.exports = class ABViewCSVExporterCore extends ABViewWidget {
@@ -61,3 +61,5 @@ module.exports = class ABViewCSVExporterCore extends ABViewWidget {
       );
    }
 };
+
+

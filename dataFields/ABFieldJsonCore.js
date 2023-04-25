@@ -5,62 +5,33 @@
  *
  */
 
-const ABField = require("../../platform/dataFields/ABField");
+var ABField = require("../../platform/dataFields/ABField");
 
-const ABFieldJsonDefaults = {
-   key: "json",
-   // unique key to reference this specific DataField
+function L(key, altText) {
+   // TODO:
+   return altText; // AD.lang.label.getLabel(key) || altText;
+}
 
-   description: "JSON value",
-   // description: what gets displayed in the Editor description.
-   // NOTE: this will be displayed using a Label: L(description)
+var ABFieldJsonDefaults = {
+   key: "json", // unique key to reference this specific DataField
+   icon: "font", // font-awesome icon reference.  (without the 'fa-').  so 'user'  to reference 'fa-user'
 
-   icon: "font",
-   // font-awesome icon reference.  (without the 'fa-').  so 'font'  to
-   // reference 'fa-font'
-
-   isFilterable: false,
-   // {bool} / {fn}
-   // determines if the current ABField can be used to filter (FilterComplex
-   // or Query) data.
-   // if a {fn} is provided, it will be called with the ABField as a parameter:
-   //  (field) => field.setting.something == true
-
-   isSortable: false,
-   // {bool} / {fn}
-   // determines if the current ABField can be used to Sort data.
-   // if a {fn} is provided, it will be called with the ABField as a parameter:
-   //  (field) => true/false
-
-   menuName: "JSON",
    // menuName: what gets displayed in the Editor drop list
-   // NOTE: this will be displayed using a Label: L(menuName)
+   menuName: L("ab.dataField.json.menuName", "*JSON"),
 
-   supportRequire: false,
-   // {bool}
-   // does this ABField support the Required setting?
+   // description: what gets displayed in the Editor description.
+   description: L("ab.dataField.json.description", "*JSON value"),
 
-   supportUnique: false,
-   // {bool}
-   // does this ABField support the Unique setting?
-
-   useAsLabel: true,
-   // {bool} / {fn}
-   // determines if this ABField can be used in the display of an ABObject's
-   // label.
-
-   compatibleOrmTypes: ["json"],
-   // {array}
    // what types of Sails ORM attributes can be imported into this data type?
    // http://sailsjs.org/documentation/concepts/models-and-orm/attributes#?attribute-options
+   compatibleOrmTypes: ["json"],
 
-   compatibleMysqlTypes: ["json"],
-   // {array}
    // what types of MySql column types can be imported into this data type?
    // https://www.techonthenet.com/mysql/datatypes.php
+   compatibleMysqlTypes: ["json"]
 };
 
-const defaultValues = {};
+var defaultValues = {};
 
 module.exports = class ABFieldJsonCore extends ABField {
    constructor(values, object) {
@@ -74,17 +45,5 @@ module.exports = class ABFieldJsonCore extends ABField {
 
    static defaultValues() {
       return defaultValues;
-   }
-
-   /**
-    * @method defaultValue
-    * insert a key=>value pair that represent the default value
-    * for this field.
-    * @param {obj} values a key=>value hash of the current values.
-    */
-   defaultValue(values) {
-      // in the case of a JSON data type, we should NOT insert a ""
-      //
-      // values[this.columnName] = "";
    }
 };

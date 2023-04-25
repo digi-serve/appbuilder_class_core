@@ -34,14 +34,12 @@ var AllProcessElements = [
    require("../../platform/process/tasks/ABProcessTaskServiceCalculate"),
    require("../../platform/process/tasks/ABProcessTaskServiceInsertRecord"),
    require("../../platform/process/tasks/ABProcessTaskServiceQuery"),
-   require("../../platform/process/tasks/ABProcessTaskServiceGetResetPasswordUrl"),
    require("../../platform/process/tasks/ABProcessTaskSubProcess"),
    require("../../platform/process/tasks/ABProcessTaskUser"),
    require("../../platform/process/tasks/ABProcessTaskUserApproval"),
-   require("../../platform/process/tasks/ABProcessTaskUserExternal"),
    require("../../platform/process/tasks/ABProcessTrigger"),
    require("../../platform/process/tasks/ABProcessTriggerLifecycle"),
-   require("../../platform/process/tasks/ABProcessTriggerTimer"),
+   require("../../platform/process/tasks/ABProcessTriggerTimer")
 ];
 
 AllProcessElements.forEach((ELEMENT) => {
@@ -70,7 +68,7 @@ module.exports = {
     * return all the currently defined ABProcessTasks in an array.
     * @return [{ABProcessTask},...]
     */
-   allTasks: function () {
+   allTasks: function() {
       var tasks = [];
       for (var t in Tasks) {
          tasks.push(Tasks[t]);
@@ -83,15 +81,15 @@ module.exports = {
     * return an instance of an ABProcessTask based upon the values.type value.
     * @return {ABProcessTask}
     */
-   newTask: function (values, process, AB) {
+   newTask: function(values, object, application) {
       if (values.key) {
-         return new Tasks[values.key](values, process, AB);
+         return new Tasks[values.key](values, object, application);
       } else {
          //// TODO: what to do here?
       }
    },
 
-   DiagramReplaceDefinitionsForType: function (type) {
+   DiagramReplaceDefinitionsForType: function(type) {
       var definitions = AllProcessElements.filter((e) => {
          return e.defaults().category == type;
       }).map((e) => {
@@ -100,23 +98,23 @@ module.exports = {
       return definitions;
    },
 
-   StartEvents: function () {
+   StartEvents: function() {
       return this.DiagramReplaceDefinitionsForType("start");
    },
 
-   Gateways: function () {
+   Gateways: function() {
       return this.DiagramReplaceDefinitionsForType("gateway");
    },
 
-   Tasks: function () {
+   Tasks: function() {
       return this.DiagramReplaceDefinitionsForType("task");
    },
 
-   EndEvents: function () {
+   EndEvents: function() {
       return this.DiagramReplaceDefinitionsForType("end");
    },
 
-   definitionForElement: function (element) {
+   definitionForElement: function(element) {
       // pull the key from the embedded .eventDefinition
       // if there is one
       var key = null;
@@ -133,6 +131,5 @@ module.exports = {
       }
 
       return DEFINITIONTYPES[key];
-   },
+   }
 };
-

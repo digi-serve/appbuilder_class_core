@@ -1,16 +1,16 @@
-const ABViewDetailItem = require("../../platform/views/ABViewDetailItem");
+const ABViewDetailComponent = require("../../platform/views/ABViewDetailComponent");
 
 const ABViewDetailTextPropertyComponentDefaults = {
-   height: 0,
+   height: 0
 };
 
 const ABViewDetailTextDefaults = {
    key: "detailtext", // {string} unique key for this view
    icon: "etsy", // {string} fa-[icon] reference for this view
-   labelKey: "ab.components.detail.text", // {string} the multilingual label key for the class label
+   labelKey: "ab.components.detail.text" // {string} the multilingual label key for the class label
 };
 
-module.exports = class ABViewDetailTextCore extends ABViewDetailItem {
+module.exports = class ABViewDetailTextCore extends ABViewDetailComponent {
    /**
     * @param {obj} values  key=>value hash of ABView values
     * @param {ABApplication} application the application object this view is under
@@ -21,7 +21,7 @@ module.exports = class ABViewDetailTextCore extends ABViewDetailItem {
          values,
          application,
          parent,
-         defaultValues ?? ABViewDetailTextDefaults
+         defaultValues || ABViewDetailTextDefaults
       );
    }
 
@@ -51,5 +51,13 @@ module.exports = class ABViewDetailTextCore extends ABViewDetailItem {
          this.settings.height ||
             ABViewDetailTextPropertyComponentDefaults.height
       );
+   }
+
+   /**
+    * @method componentList
+    * return the list of components available on this view to display in the editor.
+    */
+   componentList() {
+      return [];
    }
 };

@@ -42,18 +42,18 @@ var AccountingFPYearCloseDefaults = {
       "fieldAccType",
       "fieldAccTypeIncome",
       "fieldAccTypeExpense",
-      "fieldAccTypeEquity",
-   ],
+      "fieldAccTypeEquity"
+   ]
    // settings: {array}
    // a list of internal setting values this Element tracks. These are the
    // values set by the platform .propertiesStash()
 };
 
 module.exports = class AccountingFPYearCloseCore extends ABProcessElement {
-   constructor(attributes, process, AB) {
+   constructor(attributes, process, application) {
       attributes.type =
          attributes.type || "process.task.service.accounting.fpYearClose";
-      super(attributes, process, AB, AccountingFPYearCloseDefaults);
+      super(attributes, process, application, AccountingFPYearCloseDefaults);
 
       // listen
    }
@@ -166,3 +166,7 @@ module.exports = class AccountingFPYearCloseCore extends ABProcessElement {
     }
     */
 };
+
+
+
+

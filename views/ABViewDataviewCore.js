@@ -5,13 +5,13 @@ const ABViewDataviewPropertyComponentDefaults = {
    detailsPage: "",
    detailsTab: "",
    editPage: "",
-   editTab: "",
+   editTab: ""
 };
 
 const ABViewDataviewDefaults = {
    key: "dataview", // {string} unique key for this view
    icon: "th", // {string} fa-[icon] reference for this view
-   labelKey: "Data view", // {string} the multilingual label key for the class label
+   labelKey: "ab.components.dataview" // {string} the multilingual label key for the class label
 };
 
 module.exports = class ABViewDataviewCore extends ABViewDetail {
@@ -65,20 +65,5 @@ module.exports = class ABViewDataviewCore extends ABViewDetail {
       this.settings.editTab =
          this.settings.editTab ||
          ABViewDataviewPropertyComponentDefaults.editTab;
-   }
-
-   parentDetailComponent() {
-      let dataview = null;
-
-      let curr = this;
-      while (curr.key != "dataview" && !curr.isRoot() && curr.parent) {
-         curr = curr.parent;
-      }
-
-      if (curr.key == "dataview") {
-         dataview = curr;
-      }
-
-      return dataview;
    }
 };

@@ -1,5 +1,5 @@
 const ABViewContainer = require("../../platform/views/ABViewContainer");
-const ABViewFormItem = require("../../platform/views/ABViewFormItem");
+const ABViewFormComponent = require("../../platform/views/ABViewFormComponent");
 
 const ABRecordRule = require("../../rules/ABViewRuleListFormRecordRules");
 const ABSubmitRule = require("../../rules/ABViewRuleListFormSubmitRules");
@@ -7,7 +7,7 @@ const ABSubmitRule = require("../../rules/ABViewRuleListFormSubmitRules");
 const ABViewFormDefaults = {
    key: "form", // unique key identifier for this ABViewForm
    icon: "list-alt", // icon reference: (without 'fa-' )
-   labelKey: "Form", // {string} the multilingual label key for the class label
+   labelKey: "ab.components.form" // {string} the multilingual label key for the class label
 };
 
 const ABViewFormPropertyComponentDefaults = {
@@ -50,7 +50,7 @@ const ABViewFormPropertyComponentDefaults = {
    //		],
    //		value: {string}
    //	}]
-   submitRules: [],
+   submitRules: []
 };
 
 module.exports = class ABViewFormCore extends ABViewContainer {
@@ -141,27 +141,26 @@ module.exports = class ABViewFormCore extends ABViewContainer {
     * @return {array} 	array of ABViewFormField
     */
    fieldComponents(filter) {
-      const flattenComponents = (views) => {
-         let components = [];
+      var flattenComponents = (views) => {
+         var components = [];
 
-         views.forEach((v) => {
-            if (v == null) return;
-
-            components.push(v);
-
-            if (v._views?.length) {
-               components = components.concat(flattenComponents(v._views));
-            }
+         _.each(views, (comp) => {
+            components.push(comp);
+            comp._views &&
+               (components = _.union(
+                  components,
+                  flattenComponents(comp._views)
+               ));
          });
 
          return components;
       };
 
-      if (this._views?.length) {
-         const allComponents = flattenComponents(this._views);
+      if (this._views && this._views.length > 0) {
+         var allComponents = flattenComponents(this._views);
 
          if (filter == null) {
-            filter = (comp) => comp instanceof ABViewFormItem;
+            filter = (comp) => comp instanceof ABViewFormComponent;
          }
 
          return allComponents.filter(filter);
@@ -236,4 +235,3 @@ module.exports = class ABViewFormCore extends ABViewContainer {
       return SubmitRules.process({ data: rowData, form: this });
    }
 };
-

@@ -5,70 +5,40 @@
  *
  */
 
-const ABField = require("../../platform/dataFields/ABField");
+var ABField = require("../../platform/dataFields/ABField");
+
+function L(key, altText) {
+   // TODO:
+   return altText; // AD.lang.label.getLabel(key) || altText;
+}
 
 const MAX_CHAR_LENGTH = 255;
 
-const ABFieldStringDefaults = {
-   key: "string",
-   // unique key to reference this specific DataField
+var ABFieldStringDefaults = {
+   key: "string", // unique key to reference this specific DataField
+   // type : 'string', // http://sailsjs.org/documentation/concepts/models-and-orm/attributes#?attribute-options
+   icon: "font", // font-awesome icon reference.  (without the 'fa-').  so 'user'  to reference 'fa-user'
 
-   description: "short string value",
-   // description: what gets displayed in the Editor description.
-   // NOTE: this will be displayed using a Label: L(description)
-
-   icon: "font",
-   // font-awesome icon reference.  (without the 'fa-').  so 'font'  to
-   // reference 'fa-font'
-
-   isFilterable: true,
-   // {bool} / {fn}
-   // determines if the current ABField can be used to filter (FilterComplex
-   // or Query) data.
-   // if a {fn} is provided, it will be called with the ABField as a parameter:
-   //  (field) => field.setting.something == true
-
-   isSortable: true,
-   // {bool} / {fn}
-   // determines if the current ABField can be used to Sort data.
-   // if a {fn} is provided, it will be called with the ABField as a parameter:
-   //  (field) => true/false
-
-   menuName: "Single line text",
    // menuName: what gets displayed in the Editor drop list
-   // NOTE: this will be displayed using a Label: L(menuName)
+   menuName: L("ab.dataField.string.menuName", "*Single line text"),
+
+   // description: what gets displayed in the Editor description.
+   description: L("ab.dataField.string.description", "*short string value"),
 
    supportRequire: true,
-   // {bool}
-   // does this ABField support the Required setting?
 
-   supportUnique: false,
-   // {bool}
-   // does this ABField support the Unique setting?
-
-   useAsLabel: true,
-   // {bool} / {fn}
-   // determines if this ABField can be used in the display of an ABObject's
-   // label.
-
-   compatibleOrmTypes: ["string"],
-   // {array}
    // what types of Sails ORM attributes can be imported into this data type?
    // http://sailsjs.org/documentation/concepts/models-and-orm/attributes#?attribute-options
+   compatibleOrmTypes: ["string"],
 
-   compatibleMysqlTypes: ["char", "varchar", "tinytext"],
-   // {array}
    // what types of MySql column types can be imported into this data type?
    // https://www.techonthenet.com/mysql/datatypes.php
-
-   MAX_CHAR_LENGTH,
-   // {integer}
-   // The maximum length our ABFieldString can be.
+   compatibleMysqlTypes: ["char", "varchar", "tinytext"]
 };
 
-const defaultValues = {
+var defaultValues = {
    default: "",
-   supportMultilingual: 0,
+   supportMultilingual: 0
 };
 
 module.exports = class ABFieldStringCore extends ABField {
@@ -135,7 +105,7 @@ module.exports = class ABFieldStringCore extends ABField {
     * @return {json}
     */
    toObj() {
-      const obj = super.toObj();
+      var obj = super.toObj();
 
       if (this.settings.supportMultilingual) {
          this.unTranslate(obj.settings, obj.settings, ["default"]);
@@ -160,7 +130,7 @@ module.exports = class ABFieldStringCore extends ABField {
          // Set default string
          if (this.settings.default) {
             if (this.settings.default.indexOf("{uuid}") >= 0) {
-               values[this.columnName] = this.AB.uuid();
+               values[this.columnName] = OP.Util.uuid();
             } else {
                values[this.columnName] = this.settings.default;
             }
@@ -179,8 +149,6 @@ module.exports = class ABFieldStringCore extends ABField {
    isValidData(data, validator) {
       super.isValidData(data, validator);
 
-      const L = this.AB.Label();
-
       if (
          data &&
          data[this.columnName] &&
@@ -188,7 +156,7 @@ module.exports = class ABFieldStringCore extends ABField {
       ) {
          validator.addError(
             this.columnName,
-            L("should NOT be longer than {0} characters", [MAX_CHAR_LENGTH])
+            `should NOT be longer than ${MAX_CHAR_LENGTH} characters`
          );
       }
    }

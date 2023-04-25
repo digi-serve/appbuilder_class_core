@@ -8,21 +8,17 @@
 
 const ABQL = require("../../platform/ql/ABQL.js");
 const NextQLOps = require("./ABQLSet.js");
-// {array} of {ABQLxxx} options
-// this is an array of what possible next Operations can come after an
-// ABQLFind task is complete.  In this case the {ABQLSet} operations come
-// next.  {ABQLSet} operations work on a Set|{Array} or data results.
 
-const ParameterDefinitions = [
+var ParameterDefinitions = [
    {
       type: "objectConditions",
-      name: "cond",
-   },
+      name: "cond"
+   }
 ];
 
 class ABQLFindCore extends ABQL {
-   constructor(attributes, prevOP, task, AB) {
-      super(attributes, ParameterDefinitions, prevOP, task, AB);
+   constructor(attributes, prevOP, task, application) {
+      super(attributes, ParameterDefinitions, prevOP, task, application);
    }
 
    ///

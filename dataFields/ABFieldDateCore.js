@@ -5,64 +5,36 @@
  *
  */
 
-const ABField = require("../../platform/dataFields/ABField");
+var ABField = require("../../platform/dataFields/ABField");
 
 function L(key, altText) {
    // TODO:
    return altText; // AD.lang.label.getLabel(key) || altText;
 }
 
-const ABFieldDateDefaults = {
-   key: "date",
-   // unique key to reference this specific DataField
+var ABFieldDateDefaults = {
+   key: "date", // unique key to reference this specific DataField
 
-   description: "Pick one from a calendar.",
-   // description: what gets displayed in the Editor description.
-   // NOTE: this will be displayed using a Label: L(description)
+   icon: "calendar", // font-awesome icon reference.  (without the 'fa-').  so 'user'  to reference 'fa-user'
 
-   icon: "calendar",
-   // font-awesome icon reference.  (without the 'fa-').  so 'calendar'  to
-   // reference 'fa-calendar'
-
-   isFilterable: true,
-   // {bool} / {fn}
-   // determines if the current ABField can be used to filter (FilterComplex
-   // or Query) data.
-   // if a {fn} is provided, it will be called with the ABField as a parameter:
-   //  (field) => field.setting.something == true
-
-   isSortable: true,
-   // {bool} / {fn}
-   // determines if the current ABField can be used to Sort data.
-   // if a {fn} is provided, it will be called with the ABField as a parameter:
-   //  (field) => true/false
-
-   menuName: "Date",
    // menuName: what gets displayed in the Editor drop list
-   // NOTE: this will be displayed using a Label: L(menuName)
+   menuName: L("ab.dataField.date.menuName", "*Date"),
+
+   // description: what gets displayed in the Editor description.
+   description: L(
+      "ab.dataField.date.description",
+      "*Pick one from a calendar."
+   ),
 
    supportRequire: true,
-   // {bool}
-   // does this ABField support the Required setting?
 
-   supportUnique: false,
-   // {bool}
-   // does this ABField support the Unique setting?
-
-   useAsLabel: true,
-   // {bool} / {fn}
-   // determines if this ABField can be used in the display of an ABObject's
-   // label.
-
-   compatibleOrmTypes: ["date"],
-   // {array}
    // what types of Sails ORM attributes can be imported into this data type?
    // http://sailsjs.org/documentation/concepts/models-and-orm/attributes#?attribute-options
+   compatibleOrmTypes: ["date"],
 
-   compatibleMysqlTypes: ["date"],
-   // {array}
    // what types of MySql column types can be imported into this data type?
    // https://www.techonthenet.com/mysql/datatypes.php
+   compatibleMysqlTypes: ["date"]
 };
 
 const defaultValues = {
@@ -74,7 +46,7 @@ const defaultValues = {
    validateRangeBefore: 0,
    validateRangeAfter: 0,
    validateStartDate: null,
-   validateEndDate: null,
+   validateEndDate: null
 };
 
 module.exports = class ABFieldDateCore extends ABField {
@@ -90,10 +62,6 @@ module.exports = class ABFieldDateCore extends ABField {
    static defaultValues() {
       return defaultValues;
    }
-
-   // TODO: current webpack install fails here without babel-loader,
-   // so swtich this to old JS method of Static Values (see bottom)
-   // static RegEx = "^[0-9]{4}-[0-9]{2}-[0-9]{2}$";
 
    ///
    /// Instance Methods
@@ -142,9 +110,12 @@ module.exports = class ABFieldDateCore extends ABField {
 
       // if no default value is set, then don't insert a value.
       if (dateResult != null) {
-         values[this.columnName] = this.AB.rules.toDateFormat(dateResult, {
-            format: "YYYY-MM-DD",
-         });
+         values[this.columnName] = this.object.application.toDateFormat(
+            dateResult,
+            {
+               format: "YYYY-MM-DD"
+            }
+         );
          // values[this.columnName] = moment(dateResult).format("YYYY-MM-DD");
       }
    }
@@ -160,10 +131,10 @@ module.exports = class ABFieldDateCore extends ABField {
       super.isValidData(data, validator);
 
       if (data[this.columnName]) {
-         let value = data[this.columnName];
+         var value = data[this.columnName];
 
          if (!(value instanceof Date)) {
-            value = this.AB.rules.toDate(value);
+            value = this.object.application.toDate(value);
             // value = new Date(this.convertToMoment(value));
          }
 
@@ -172,11 +143,11 @@ module.exports = class ABFieldDateCore extends ABField {
             Object.prototype.toString.call(value) === "[object Date]" &&
             isFinite(value)
          ) {
-            let isValid = true;
+            var isValid = true;
 
             // Custom vaildate is here
             if (this.settings && this.settings.validateCondition) {
-               const startDate = this.settings.validateStartDate
+               var startDate = this.settings.validateStartDate
                      ? new Date(this.settings.validateStartDate)
                      : null,
                   endDate = this.settings.validateEndDate
@@ -184,27 +155,36 @@ module.exports = class ABFieldDateCore extends ABField {
                      : null,
                   startDateDisplay = this.getDateDisplay(startDate),
                   endDateDisplay = this.getDateDisplay(endDate);
-               const minDate = this.AB.rules.subtractDate(
-                  new Date(),
-                  this.settings.validateRangeBefore,
-                  this.settings.validateRangeUnit
-               );
-               const maxDate = this.AB.rules.addDate(
-                  new Date(),
-                  this.settings.validateRangeAfter,
-                  this.settings.validateRangeUnit
-               );
+
                switch (this.settings.validateCondition) {
                   case "dateRange":
+                     var minDate = this.object.application.subtractDate(
+                        new Date(),
+                        this.settings.validateRangeBefore,
+                        this.settings.validateRangeUnit
+                     );
+                     var maxDate = this.object.application.addDate(
+                        new Date(),
+                        this.settings.validateRangeAfter,
+                        this.settings.validateRangeUnit
+                     );
                      if (minDate < value && value < maxDate) isValid = true;
                      else {
                         isValid = false;
                         validator.addError(
                            this.columnName,
-                           L("Should be in between {0} and {1}", [
-                              this.getDateDisplay(minDate),
-                              this.getDateDisplay(maxDate),
-                           ])
+                           L(
+                              "ab.dataField.date.error.dateRange",
+                              "*Should be in between {startdate} and {enddate}"
+                           )
+                              .replace(
+                                 "{startdate}",
+                                 this.getDateDisplay(minDate)
+                              )
+                              .replace(
+                                 "{enddate}",
+                                 this.getDateDisplay(maxDate)
+                              )
                         );
                      }
 
@@ -215,10 +195,12 @@ module.exports = class ABFieldDateCore extends ABField {
                         isValid = false;
                         validator.addError(
                            this.columnName,
-                           L("Should be in between {0} and {1}", [
-                              startDateDisplay,
-                              endDateDisplay,
-                           ])
+                           L(
+                              "ab.dataField.date.error.between",
+                              "*Should be in between {startdate} and {enddate}"
+                           )
+                              .replace("{startdate}", startDateDisplay)
+                              .replace("{enddate}", endDateDisplay)
                         );
                      }
                      break;
@@ -228,10 +210,12 @@ module.exports = class ABFieldDateCore extends ABField {
                         isValid = false;
                         validator.addError(
                            this.columnName,
-                           L("Should not be in between {0} and {1}", [
-                              startDateDisplay,
-                              endDateDisplay,
-                           ])
+                           L(
+                              "ab.dataField.date.error.notBetween",
+                              "*Should not be in between {startdate} and {enddate}"
+                           )
+                              .replace("{startdate}", startDateDisplay)
+                              .replace("{enddate}", endDateDisplay)
                         );
                      }
                      break;
@@ -243,7 +227,10 @@ module.exports = class ABFieldDateCore extends ABField {
                      if (!isValid)
                         validator.addError(
                            this.columnName,
-                           L("Should equal {0}", [startDateDisplay])
+                           L(
+                              "ab.dataField.date.error.equal",
+                              "*Should equal {startdate}"
+                           ).replace("{startdate}", startDateDisplay)
                         );
                      break;
                   case "<>":
@@ -254,7 +241,10 @@ module.exports = class ABFieldDateCore extends ABField {
                      if (!isValid)
                         validator.addError(
                            this.columnName,
-                           L("Should not equal {0}", [startDateDisplay])
+                           L(
+                              "ab.dataField.date.error.notEqual",
+                              "*Should not equal {startdate}"
+                           ).replace("{startdate}", startDateDisplay)
                         );
                      break;
                   case ">":
@@ -265,7 +255,10 @@ module.exports = class ABFieldDateCore extends ABField {
                      if (!isValid)
                         validator.addError(
                            this.columnName,
-                           L("Should after {0}", [startDateDisplay])
+                           L(
+                              "ab.dataField.date.error.after",
+                              "*Should after {startdate}"
+                           ).replace("{startdate}", startDateDisplay)
                         );
                      break;
                   case "<":
@@ -276,7 +269,10 @@ module.exports = class ABFieldDateCore extends ABField {
                      if (!isValid)
                         validator.addError(
                            this.columnName,
-                           L("Should before {0}", [startDateDisplay])
+                           L(
+                              "ab.dataField.date.error.before",
+                              "*Should before {startdate}"
+                           ).replace("{startdate}", startDateDisplay)
                         );
                      break;
                   case ">=":
@@ -287,7 +283,10 @@ module.exports = class ABFieldDateCore extends ABField {
                      if (!isValid)
                         validator.addError(
                            this.columnName,
-                           L("Should after or equal {0}", [startDateDisplay])
+                           L(
+                              "ab.dataField.date.error.afterOrEqual",
+                              "*Should after or equal {startdate}"
+                           ).replace("{startdate}", startDateDisplay)
                         );
                      break;
                   case "<=":
@@ -298,7 +297,10 @@ module.exports = class ABFieldDateCore extends ABField {
                      if (!isValid)
                         validator.addError(
                            this.columnName,
-                           L("Should before or equal {0}", [startDateDisplay])
+                           L(
+                              "ab.dataField.date.error.beforeOrEqual",
+                              "*Should before or equal {startdate}"
+                           ).replace("{startdate}", startDateDisplay)
                         );
                      break;
                }
@@ -317,24 +319,24 @@ module.exports = class ABFieldDateCore extends ABField {
    }
 
    format(rowData) {
-      const d = this.dataValue(rowData);
+      var d = this.dataValue(rowData);
 
       if (d == "" || d == null) {
          return "";
       }
 
       // pull format from settings.
-      const dateObj = this.AB.rules.toDate(d);
+      let dateObj = this.object.application.toDate(d);
       return this.getDateDisplay(dateObj);
 
-      // const momentObj = this.convertToMoment(d);
+      // let momentObj = this.convertToMoment(d);
       // return this.getDateDisplay(new Date(momentObj));
    }
 
    getFormat() {
       let dateFormatString = "";
 
-      const dateFormat =
+      let dateFormat =
          this.settings && this.settings.dateFormat
             ? this.settings.dateFormat
             : "";
@@ -375,15 +377,15 @@ module.exports = class ABFieldDateCore extends ABField {
    }
 
    getDateDisplay(dateData) {
-      const dateFormat = this.getFormat();
+      let dateFormat = this.getFormat();
 
       return this.dateToString(dateFormat, dateData);
    }
 
    // convertToMoment(string) {
-   //    const result = moment(string);
+   //    let result = moment(string);
 
-   //    const supportFormats = [
+   //    let supportFormats = [
    //       "DD/MM/YYYY",
    //       "MM/DD/YYYY",
    //       "DD-MM-YYYY",
@@ -398,9 +400,9 @@ module.exports = class ABFieldDateCore extends ABField {
    // }
 
    exportValue(value) {
-      return value ? this.AB.rules.toDateFormat(value, {
-         format: "YYYY-MM-DD",
-      }) : "";
+      return this.object.application.toDateFormat(value, {
+         format: "YYYY-MM-DD"
+      });
       // return this.convertToMoment(value).format("YYYY-MM-DD");
    }
 
@@ -410,6 +412,3 @@ module.exports = class ABFieldDateCore extends ABField {
    }
 };
 
-// Transition Code:
-// revert to static RegEx once babel-loader is working locally.
-module.exports.RegEx = "^[0-9]{4}-[0-9]{2}-[0-9]{2}$";

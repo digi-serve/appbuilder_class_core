@@ -5,73 +5,31 @@
  *
  */
 
-const ABField = require("../../platform/dataFields/ABField");
+var ABField = require("../../platform/dataFields/ABField");
+
+// import ABFieldComponent from "./ABFieldComponent"
 
 function L(key, altText) {
-   // TODO:
    return altText; // AD.lang.label.getLabel(key) || altText;
 }
 
-const ABFieldTextFormulaDefaults = {
-   key: "TextFormula",
-   // unique key to reference this specific DataField
-
-   description: "Text Formula",
-   // description: what gets displayed in the Editor description.
-   // NOTE: this will be displayed using a Label: L(description)
-
-   icon: "question",
-   // font-awesome icon reference.  (without the 'fa-').  so 'question'  to
-   // reference 'fa-question'
-
-   isFilterable: false,
-   // {bool} / {fn}
-   // determines if the current ABField can be used to filter (FilterComplex
-   // or Query) data.
-   // if a {fn} is provided, it will be called with the ABField as a parameter:
-   //  (field) => field.setting.something == true
+var ABFieldTextFormulaDefaults = {
+   key: "TextFormula", // unique key to reference this specific DataField
+   icon: "question", // font-awesome icon reference.  (without the 'fa-').  so 'user'  to reference 'fa-user'
 
    isSortable: false,
-   // {bool} / {fn}
-   // determines if the current ABField can be used to Sort data.
-   // if a {fn} is provided, it will be called with the ABField as a parameter:
-   //  (field) => true/false
+   isFilterable: false, // this field does not support filter on server side
 
-   menuName: "Text Formula",
    // menuName: what gets displayed in the Editor drop list
-   // NOTE: this will be displayed using a Label: L(menuName)
+   menuName: L("ab.dataField.TextFormula.menuName", "*Text Formula"),
 
-   supportRequire: false,
-   // {bool}
-   // does this ABField support the Required setting?
-
-   supportUnique: false,
-   // {bool}
-   // does this ABField support the Unique setting?
-
-   useAsLabel: true,
-   // {bool} / {fn}
-   // determines if this ABField can be used in the display of an ABObject's
-   // label.
-
-   compatibleOrmTypes: ["string"],
-   // {array}
-   // what types of Sails ORM attributes can be imported into this data type?
-   // http://sailsjs.org/documentation/concepts/models-and-orm/attributes#?attribute-options
-
-   compatibleMysqlTypes: ["text", "mediumtext", "longtext"],
-   // {array}
-   // what types of MySql column types can be imported into this data type?
-   // https://www.techonthenet.com/mysql/datatypes.php
+   // description: what gets displayed in the Editor description.
+   description: L("ab.dataField.TextFormula.description", "*Text Formula")
 };
 
 // defaultValues: the keys must match a .name of your elements to set it's default value.
-const defaultValues = {
-   textFormula: "",
-   // {string} "some text or text with formula ..."
-   // This tells us what the formula we need to do with text included text string.
-   // if we don't have this, the old value which we filled out won't be cleared when we do "Add field" this type again.
-
+var defaultValues = {
+   // 'useWidth':0,
    // 'imageWidth':'',
    // 'useHeight': 0,
    // 'imageHeight': ''
@@ -90,27 +48,23 @@ const defaultValues = {
 function setValueToFormula(object, formulaString, rowData) {
    if (!formulaString) return;
 
-   const fieldRegExp = /{[^{}]+}/gm;
-   const matches_field_array = formulaString.match(fieldRegExp);
+   var fieldRegExp = /{[^{}]+}/gm;
+   var matches_field_array = formulaString.match(fieldRegExp);
    matches_field_array.forEach((element) => {
-      const columnName = element.replace(/{|}|"/g, "");
+      var columnName = element.replace(/{|}|\"/g, "");
       object.fields().forEach((field) => {
          if (field.columnName == columnName) {
             if (field.key == "AutoIndex") {
                //Check AutoIndex Field
-               const autoIndexVal = field.format(rowData) || 0;
+               let autoIndexVal = field.format(rowData) || 0;
                formulaString = formulaString.replace(element, autoIndexVal);
             } else if (field.key == "calculate") {
                //Calculate Field
-               const calVal = `(${field.format(rowData) || 0})`;
-               formulaString = formulaString.replace(element, eval(calVal));
-            } else if (field.key == "date") {
-               formulaString = formulaString.replace(
-                  element,
-                  rowData[columnName]
-                     ? field.exportValue(rowData[columnName])
-                     : ""
+               let calVal = "(#calVal#)".replace(
+                  "#calVal#",
+                  field.format(rowData) || 0
                );
+               formulaString = formulaString.replace(element, eval(calVal));
             } else {
                formulaString = formulaString.replace(
                   element,
@@ -127,24 +81,24 @@ function setValueToFormula(object, formulaString, rowData) {
 /**
  * @method setBuildinValueToFormula
  *
- * @param {ABFactory} AB
+ * @param {ABApplicationCore} application
  * @param {string} formulaString
  */
 
-function setBuildinValueToFormula(AB, formulaString) {
-   const buildInRegExp = /\w+\(.*?\)/gm;
-   const matches_buildin_array = formulaString.match(buildInRegExp);
+function setBuildinValueToFormula(application, formulaString) {
+   var buildInRegExp = /\w+\(.*?\)/gm;
+   var matches_buildin_array = formulaString.match(buildInRegExp);
    if (matches_buildin_array) {
-      const buildinList = getBuildInFunction();
+      var buildinList = getBuildInFunction();
       matches_buildin_array.forEach((element) => {
-         const formula_array = element.split(/\(|\)/);
-         const isBracketInBracket =
+         var formula_array = element.split(/\(|\)/);
+         var isBracketInBracket =
             formula_array.length > 2 && formula_array[2] != "";
-         const functionName = formula_array[0];
-         const parameters_array = formula_array[1].split(",");
-         let isMatch = false;
-         for (let i = 0; i < buildinList.length; i++) {
-            let resultParameters = element;
+         var functionName = formula_array[0];
+         var parameters_array = formula_array[1].split(",");
+         var isMatch = false;
+         for (var i = 0; i < buildinList.length; i++) {
+            var resultParameters = element;
             if (functionName == buildinList[i].id) {
                if (parameters_array.length == buildinList[i].parameter_size) {
                   switch (functionName) {
@@ -221,7 +175,7 @@ function setBuildinValueToFormula(AB, formulaString) {
                            element = element + ")";
                         }
                         resultParameters = getDateDayOfWeekName(
-                           AB,
+                           application,
                            parameters_array[0]
                         );
                         break;
@@ -230,7 +184,7 @@ function setBuildinValueToFormula(AB, formulaString) {
                            element = element + ")";
                         }
                         resultParameters = getDateMonthOfYearName(
-                           AB,
+                           application,
                            parameters_array[0]
                         );
                         break;
@@ -264,110 +218,110 @@ function setBuildinValueToFormula(AB, formulaString) {
 }
 
 function getBuildInFunction() {
-   const functionList = [
+   var functionList = [
       {
          id: "left",
          value: "left({COLUMN_NAME}, 1)",
          type: "build-in",
-         parameter_size: 2,
+         parameter_size: 2
       },
       {
          id: "right",
          value: "right({COLUMN_NAME}, 1)",
          type: "build-in",
-         parameter_size: 2,
+         parameter_size: 2
       },
       {
          id: "mid",
          value: "mid({COLUMN_NAME}, 1, 1)",
          type: "build-in",
-         parameter_size: 3,
+         parameter_size: 3
       },
       {
          id: "trim",
          value: "trim({COLUMN_NAME})",
          type: "build-in",
-         parameter_size: 1,
+         parameter_size: 1
       },
       {
          id: "trimLeft",
          value: "trimLeft({COLUMN_NAME})",
          type: "build-in",
-         parameter_size: 1,
+         parameter_size: 1
       },
       {
          id: "trimRight",
          value: "trimRight({COLUMN_NAME})",
          type: "build-in",
-         parameter_size: 1,
+         parameter_size: 1
       },
       {
          id: "length",
          value: "length({COLUMN_NAME})",
          type: "build-in",
-         parameter_size: 1,
+         parameter_size: 1
       },
       {
          id: "regexReplace",
          value: "regexReplace({COLUMN_NAME}, [*], REPLACE_VALUE)",
          type: "build-in",
-         parameter_size: 3,
+         parameter_size: 3
       },
       {
          id: "extractRegex",
          value: "extractRegex({COLUMN_NAME}, [*])",
          type: "build-in",
-         parameter_size: 2,
+         parameter_size: 2
       },
       {
          id: "replace",
          value: "replace({COLUMN_NAME}, SEARCH_VALUE, REPLACE_VALUE)",
          type: "build-in",
-         parameter_size: 3,
+         parameter_size: 3
       },
       {
          id: "lower",
          value: "lower({COLUMN_NAME})",
          type: "build-in",
-         parameter_size: 1,
+         parameter_size: 1
       },
       {
          id: "upper",
          value: "upper({COLUMN_NAME})",
          type: "build-in",
-         parameter_size: 1,
+         parameter_size: 1
       },
       {
          id: "capitalize",
          value: "capitalize({COLUMN_NAME})",
          type: "build-in",
-         parameter_size: 1,
+         parameter_size: 1
       },
       { id: "random", value: "random(1)", type: "build-in", parameter_size: 1 },
       {
          id: "numberToWords",
          value: "numberToWords({NUMBER_COLUMN} or 012...)",
          type: "build-in",
-         parameter_size: 1,
+         parameter_size: 1
       },
       {
          id: "getDateDayOfWeekName",
          value: "getDateDayOfWeekName({DATE_COLUMN})",
          type: "build-in",
-         parameter_size: 1,
+         parameter_size: 1
       },
       {
          id: "getDateMonthOfYearName",
          value: "getDateMonthOfYearName({DATE_COLUMN})",
          type: "build-in",
-         parameter_size: 1,
+         parameter_size: 1
       },
       {
          id: "formatDate",
          value: "formatDate({DATE_COLUMN}, OUTPUT_FORMAT)",
          type: "build-in",
-         parameter_size: 2,
-      },
+         parameter_size: 1
+      }
    ];
    return functionList;
 }
@@ -377,12 +331,15 @@ function getLeft(string, endPosition) {
 }
 
 function getRight(string, endposition) {
-   const reverseStr = reverseString(string).substring(0, parseInt(endposition));
+   var reverseStr = reverseString(string).substring(0, parseInt(endposition));
    return reverseString(reverseStr);
 }
 
 function reverseString(string) {
-   return string.split(" ").reverse().join(" ");
+   return string
+      .split(" ")
+      .reverse()
+      .join(" ");
 }
 
 function getMid(string, startPosition, length) {
@@ -414,7 +371,7 @@ function getRegExpReplace(string, regexp, replaceString) {
 }
 
 function getExtractRegex(string, regexp) {
-   const extractResult = string.match(regexp);
+   var extractResult = string.match(regexp);
    if (Array.isArray(extractResult)) {
       return extractResult[0];
    }
@@ -446,9 +403,8 @@ function getRandom(max) {
 }
 
 function getNumberToWords(number) {
-   const string = number.trim(",").toString();
-
-   let units,
+   var string = number.trim(",").toString(),
+      units,
       tens,
       scales,
       start,
@@ -461,7 +417,7 @@ function getNumberToWords(number) {
       word,
       words;
 
-   const and = "";
+   var and = "";
 
    /* Is number zero? */
    if (parseInt(string) === 0) {
@@ -489,7 +445,7 @@ function getNumberToWords(number) {
       "sixteen",
       "seventeen",
       "eighteen",
-      "nineteen",
+      "nineteen"
    ];
 
    /* Array of tens as words */
@@ -503,7 +459,7 @@ function getNumberToWords(number) {
       "sixty",
       "seventy",
       "eighty",
-      "ninety",
+      "ninety"
    ];
 
    /* Array of scales as words */
@@ -530,7 +486,7 @@ function getNumberToWords(number) {
       "octodecillion",
       "novemdecillion",
       "vigintillion",
-      "centillion",
+      "centillion"
    ];
 
    /* Split user arguemnt into 3 digit chunks from right to left */
@@ -554,7 +510,10 @@ function getNumberToWords(number) {
 
       if (chunk) {
          /* Split chunk into array of individual integers */
-         ints = chunks[i].split("").reverse().map(parseFloat);
+         ints = chunks[i]
+            .split("")
+            .reverse()
+            .map(parseFloat);
 
          /* If tens integer is 1, i.e. 10, then add 10 to units integer */
          if (ints[1] === 1) {
@@ -594,30 +553,30 @@ function getNumberToWords(number) {
    return words.reverse().join(" ");
 }
 
-function getDateDayOfWeekName(AB, date) {
-   // const localizeDT = moment(date);
+function getDateDayOfWeekName(application, date) {
+   // var localizeDT = moment(date);
    // localizeDT.locale(AD.lang.currentLanguage);
    // return localizeDT.format("dddd");
 
-   return AB.rules.toDateFormat(date, {
+   return application.toDateFormat(date, {
       format: "dddd",
-      localeCode: AB.Account.language(),
+      localeCode: AD.lang.currentLanguage
    });
 }
 
-function getDateMonthOfYearName(AB, date) {
-   // const localizeDT = moment(date);
+function getDateMonthOfYearName(application, date) {
+   // var localizeDT = moment(date);
    // localizeDT.locale(AD.lang.currentLanguage);
    // return localizeDT.format("MMMM");
 
-   return AB.rules.toDateFormat(date, {
+   return application.toDateFormat(date, {
       format: "MMMM",
-      localeCode: AB.Account.language(),
+      localeCode: AD.lang.currentLanguage
    });
 }
 
 function getFormatDate(date, format) {
-   const dt = new Date(date);
+   var dt = new Date(date);
    return dt.toString(format);
 }
 
@@ -645,6 +604,19 @@ module.exports = class ABFieldTextFormulaCore extends ABField {
 
    static defaultValues() {
       return defaultValues;
+   }
+
+   /*
+    * @function propertiesComponent
+    *
+    * return a UI Component that contains the property definitions for this Field.
+    *
+    * @param {App} App the UI App instance passed around the Components.
+    * @param {stirng} idBase
+    * @return {Component}
+    */
+   static propertiesComponent(App, idBase) {
+      return ABFieldTextFormulaComponent.component(App, idBase);
    }
 
    static getBuildInFunction() {
@@ -678,7 +650,7 @@ module.exports = class ABFieldTextFormulaCore extends ABField {
     * @return {array}
     */
    isValidData(data, validator) {
-      validator = super.isValid();
+      var validator = super.isValid();
 
       // validator.addError(this.columnName, L('ab.validation.object.name.unique', 'Field columnName must be unique (#name# already used in this Application)').replace('#name#', this.name) );
 
@@ -699,13 +671,16 @@ module.exports = class ABFieldTextFormulaCore extends ABField {
       try {
          if (!this.settings.textFormula) return "";
 
-         let resultFormula = this.settings.textFormula;
+         var resultFormula = this.settings.textFormula;
 
          //Set Field value first
          resultFormula = setValueToFormula(this.object, resultFormula, rowData);
 
          //then Check Build-in Function
-         resultFormula = setBuildinValueToFormula(this.AB, resultFormula);
+         resultFormula = setBuildinValueToFormula(
+            this.object.application,
+            resultFormula
+         );
 
          return resultFormula;
       } catch (err) {
@@ -728,3 +703,4 @@ module.exports = class ABFieldTextFormulaCore extends ABField {
 // webix.DataStore.prototype.sorting.as.[sort_type] = function(a,b){
 //     return a > b ? 1 : -1;
 // }
+

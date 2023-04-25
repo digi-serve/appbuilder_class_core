@@ -3,59 +3,33 @@ const ABViewWidget = require("../../platform/views/ABViewWidget");
 const ABRecordRule = require("../../rules/ABViewRuleListFormRecordRules");
 
 const ABViewCSVImporterDefaults = {
-   key: "csvImporter",
-   // {string}
-   // unique key identifier for this ABViewForm
-
-   icon: "upload",
-   // {string}
-   // font-awesome icon reference: (without 'fa-' )
-
-   labelKey: "CSV Importer",
-   // {string}
-   // the multilingual label key for the class label
-   // NOTE: will be used as L(labelKey)
+   key: "csvImporter", // unique key identifier for this ABViewForm
+   icon: "upload", // icon reference: (without 'fa-' )
+   labelKey: "ab.components.csvImporter" // {string} the multilingual label key for the class label
 };
 
 const ABViewCSVImporterPropertyComponentDefaults = {
    dataviewID: null,
-   // {uuid}
-   // The ABDataCollection.uuid that we are using to store the data.
-   // NOTE: we actually use the DC to get the ABObject it is connected to.
-
-   availableFieldIds: [],
-   //{array}
-   // A list of ABField.ids that are allowed to be imported using this widget.
-
    buttonLabel: "Upload CSV",
-   // {string}
-   // The Label(key) to display on the initial button
-
    width: 0,
-   // {integer}
-   // Width of the Popup.
 
-   recordRules: [],
-   // {array}  [ {RecordRule}, ... ]
-   // A list of ABViewRuleListFormRecordRules that should be performed upon
-   // each row of data imported.
-   // The Array should look like:
-   // [{
-   //    action: {string},
-   //    when: [
-   //       {
-   //          fieldId: {UUID},
-   //          comparer: {string},
-   //          value: {string}
-   //       }
-   //    ],
-   //    values: [
-   //       {
-   //          fieldId: {UUID},
-   //          value: {object}
-   //       }
-   //    ]
-   // }]
+   //	[{
+   //		action: {string},
+   //		when: [
+   //			{
+   //				fieldId: {UUID},
+   //				comparer: {string},
+   //				value: {string}
+   //			}
+   //		],
+   //		values: [
+   //			{
+   //				fieldId: {UUID},
+   //				value: {object}
+   //			}
+   //		]
+   //	}]
+   recordRules: []
 };
 
 module.exports = class ABViewCSVImporterCore extends ABViewWidget {
@@ -68,21 +42,10 @@ module.exports = class ABViewCSVImporterCore extends ABViewWidget {
       );
    }
 
-   /**
-    * @method common()
-    * Provides the default settings for an instance of an ABViewCSVImporter
-    * @return {json}
-    */
    static common() {
       return ABViewCSVImporterDefaults;
    }
 
-   /**
-    * @method defaultValues()
-    * Provides the default settings for an instance of an ABViewCSVImporter
-    * Component that is displayed on the UI.
-    * @return {json}
-    */
    static defaultValues() {
       return ABViewCSVImporterPropertyComponentDefaults;
    }
@@ -107,8 +70,7 @@ module.exports = class ABViewCSVImporterCore extends ABViewWidget {
    }
 
    get RecordRule() {
-      let object = this.datacollection?.datasource;
-      if (!object) return;
+      let object = this.datacollection.datasource;
 
       if (this._recordRule == null) {
          this._recordRule = new ABRecordRule();
@@ -127,7 +89,7 @@ module.exports = class ABViewCSVImporterCore extends ABViewWidget {
       }
 
       rowDatas.forEach((row) => {
-         this.RecordRule?.processPre({ data: row.data || row, form: this });
+         this.RecordRule.processPre({ data: row.data || row, form: this });
       });
    }
 
@@ -135,8 +97,6 @@ module.exports = class ABViewCSVImporterCore extends ABViewWidget {
       if (rowDatas && !Array.isArray(rowDatas)) {
          rowDatas = [rowDatas];
       }
-
-      if (!this.RecordRule) return Promise.resolve();
 
       let tasks = [];
 
@@ -149,3 +109,4 @@ module.exports = class ABViewCSVImporterCore extends ABViewWidget {
       return Promise.all(tasks);
    }
 };
+

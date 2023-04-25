@@ -1,42 +1,19 @@
 const ABViewWidget = require("../../platform/views/ABViewWidget");
 
 const ABViewGanttPropertyComponentDefaults = {
-   dataviewID: "",
-   // {string}
-   // {ABDatacollection.id} of the datacollection that contains the data for
-   // the Gantt chart.
-
+   dataviewID: "", // uuid of ABDatacollection
    titleFieldID: "",
-   // {string}
-   // {ABFieldXXX.id} of the field that contains the value of the title
-   // ABFieldString, ABFieldLongText
-
    startDateFieldID: "",
-   // {string}
-   // {ABFieldDate.id} of the field that contains the start date
-
    endDateFieldID: "",
-   // {string}
-   // {ABFieldDate.id} of the field that contains the end date
-
    durationFieldID: "",
-   // {string}
-   // {ABFieldNumber.id} of the field that contains the duration
-
    progressFieldID: "",
-   // {string}
-   // {ABFieldNumber.id} of the field that marks the progress
-
-   notesFieldID: "",
-   // {string}
-   // {ABFieldXXX.id} of the field that contains the value of the title
-   // ABFieldString, ABFieldLongText
+   notesFieldID: ""
 };
 
 const ABViewDefaults = {
    key: "gantt", // {string} unique key for this view
    icon: "tasks", // {string} fa-[icon] reference for this view
-   labelKey: "Gantt", // {string} the multilingual label key for the class label
+   labelKey: "ab.components.gantt" // {string} the multilingual label key for the class label
 };
 
 module.exports = class ABViewGanttCore extends ABViewWidget {
@@ -66,10 +43,33 @@ module.exports = class ABViewGanttCore extends ABViewWidget {
    fromValues(values) {
       super.fromValues(values);
 
-      Object.keys(ABViewGanttPropertyComponentDefaults).forEach((k) => {
-         this.settings[k] =
-            this.settings[k] || ABViewGanttPropertyComponentDefaults[k];
-      });
+      this.settings.dataviewID =
+         this.settings.dataviewID ||
+         ABViewGanttPropertyComponentDefaults.dataviewID;
+
+      this.settings.titleFieldID =
+         this.settings.titleFieldID ||
+         ABViewGanttPropertyComponentDefaults.titleFieldID;
+
+      this.settings.startDateFieldID =
+         this.settings.startDateFieldID ||
+         ABViewGanttPropertyComponentDefaults.startDateFieldID;
+
+      this.settings.endDateFieldID =
+         this.settings.endDateFieldID ||
+         ABViewGanttPropertyComponentDefaults.endDateFieldID;
+
+      this.settings.durationFieldID =
+         this.settings.durationFieldID ||
+         ABViewGanttPropertyComponentDefaults.durationFieldID;
+
+      this.settings.progressFieldID =
+         this.settings.progressFieldID ||
+         ABViewGanttPropertyComponentDefaults.progressFieldID;
+
+      this.settings.notesFieldID =
+         this.settings.notesFieldID ||
+         ABViewGanttPropertyComponentDefaults.notesFieldID;
    }
 
    /**
@@ -80,3 +80,4 @@ module.exports = class ABViewGanttCore extends ABViewWidget {
       return [];
    }
 };
+

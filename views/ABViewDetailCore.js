@@ -3,7 +3,7 @@ const ABViewContainer = require("../../platform/views/ABViewContainer");
 const ABViewDetailDefaults = {
    key: "detail", // {string} unique key for this view
    icon: "file-text-o", // {string} fa-[icon] reference for this view
-   labelKey: "Detail", // {string} the multilingual label key for the class label
+   labelKey: "ab.components.detail" // {string} the multilingual label key for the class label
 };
 
 const ABViewDetailPropertyComponentDefaults = {
@@ -11,7 +11,7 @@ const ABViewDetailPropertyComponentDefaults = {
    showLabel: true,
    labelPosition: "left",
    labelWidth: 120,
-   height: 0,
+   height: 0
 };
 
 module.exports = class ABViewDetailCore extends ABViewContainer {
@@ -21,7 +21,7 @@ module.exports = class ABViewDetailCore extends ABViewContainer {
     * @param {ABView} parent the ABView this view is a child of. (can be null)
     */
    constructor(values, application, parent, defaultValues) {
-      super(values, application, parent, defaultValues ?? ABViewDetailDefaults);
+      super(values, application, parent, defaultValues || ABViewDetailDefaults);
    }
 
    static common() {
@@ -58,7 +58,7 @@ module.exports = class ABViewDetailCore extends ABViewContainer {
             ABViewDetailPropertyComponentDefaults.labelWidth
       );
       this.settings.height = parseInt(
-         this.settings.height ?? ABViewDetailPropertyComponentDefaults.height
+         this.settings.height || ABViewDetailPropertyComponentDefaults.height
       );
    }
 
@@ -67,38 +67,11 @@ module.exports = class ABViewDetailCore extends ABViewContainer {
     * return the list of components available on this view to display in the editor.
     */
    componentList() {
-      let viewsToAllow = ["label", "text"],
+      var viewsToAllow = ["label", "text"],
          allComponents = this.application.viewAll();
 
       return allComponents.filter((c) => {
          return viewsToAllow.indexOf(c.common().key) > -1;
       });
-   }
-
-   addFieldToDetail(field, yPosition) {
-      if (field == null) return;
-
-      let newView = field.detailComponent().newInstance(this.application, this);
-      if (newView == null) return;
-
-      // set settings to component
-      newView.settings = newView.settings ?? {};
-      newView.settings.fieldId = field.id;
-      newView.settings.labelWidth =
-         this.settings.labelWidth ||
-         ABViewDetailPropertyComponentDefaults.labelWidth;
-
-      // keep alias to support Query that contains alias name
-      // [alias].[columnName]
-      newView.settings.alias = field.alias;
-
-      // TODO : Default settings
-
-      newView.position.y = yPosition;
-
-      // add a new component
-      this._views.push(newView);
-
-      return newView;
    }
 };

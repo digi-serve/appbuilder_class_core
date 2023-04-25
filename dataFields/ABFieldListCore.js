@@ -5,40 +5,27 @@
  *
  */
 
-// const ABFieldSelectivity = require("../../platform/dataFields/ABFieldSelectivity");
-const ABField = require("../../platform/dataFields/ABField");
+// var ABFieldSelectivity = require("../../platform/dataFields/ABFieldSelectivity");
+var ABField = require("../../platform/dataFields/ABField");
 
 function L(key, altText) {
    // TODO:
    return altText; // AD.lang.label.getLabel(key) || altText;
 }
 
-const ABFieldListDefaults = {
-   key: "list",
-   // unique key to reference this specific DataField
+var ABFieldListDefaults = {
+   key: "list", // unique key to reference this specific DataField
 
-   description:
-      "Select list allows you to select predefined options below from a dropdown.",
+   icon: "th-list", // font-awesome icon reference.  (without the 'fa-').  so 'user'  to reference 'fa-user'
+
+   // menuName: what gets displayed in the Editor drop list
+   menuName: L("ab.dataField.list.menuName", "*Select list"),
+
    // description: what gets displayed in the Editor description.
-   // NOTE: this will be displayed using a Label: L(description)
-
-   icon: "th-list",
-   // font-awesome icon reference.  (without the 'fa-').  so 'th-list'  to
-   // reference 'fa-th-list'
-
-   isFilterable: (field) => {
-      if (field.settings.isMultiple) {
-         return false;
-      } else {
-         return true;
-      }
-   },
-   // {bool} / {fn}
-   // determines if the current ABField can be used to filter (FilterComplex
-   // or Query) data.
-   // if a {fn} is provided, it will be called with the ABField as a parameter:
-   //  (field) => field.setting.something == true
-
+   description: L(
+      "ab.dataField.list.description",
+      "*Select list allows you to select predefined options below from a dropdown."
+   ),
    isSortable: (field) => {
       if (field.settings.isMultiple) {
          return false;
@@ -46,42 +33,13 @@ const ABFieldListDefaults = {
          return true;
       }
    },
-   // {bool} / {fn}
-   // determines if the current ABField can be used to Sort data.
-   // if a {fn} is provided, it will be called with the ABField as a parameter:
-   //  (field) => true/false
-
-   menuName: "Select list",
-   // menuName: what gets displayed in the Editor drop list
-   // NOTE: this will be displayed using a Label: L(menuName)
-
-   supportRequire: true,
-   // {bool}
-   // does this ABField support the Required setting?
-
-   supportUnique: false,
-   // {bool}
-   // does this ABField support the Unique setting?
-
-   useAsLabel: true,
-   // {bool} / {fn}
-   // determines if this ABField can be used in the display of an ABObject's
-   // label.
-
-   compatibleOrmTypes: ["string"],
-   // {array}
-   // what types of Sails ORM attributes can be imported into this data type?
-   // http://sailsjs.org/documentation/concepts/models-and-orm/attributes#?attribute-options
-
-   compatibleMysqlTypes: [
-      "char",
-      "varchar",
-      "tinytext" /* "text", "mediumtext" */,
-   ],
-   // {array}
-   // what types of MySql column types can be imported into this data type?
-   // https://www.techonthenet.com/mysql/datatypes.php
-
+   isFilterable: (field) => {
+      if (field.settings.isMultiple) {
+         return false;
+      } else {
+         return true;
+      }
+   },
    hasColors: (field) => {
       if (field.settings.hasColors) {
          return true;
@@ -89,28 +47,20 @@ const ABFieldListDefaults = {
          return false;
       }
    },
+
+   supportRequire: true,
+
+   // what types of Sails ORM attributes can be imported into this data type?
+   // http://sailsjs.org/documentation/concepts/models-and-orm/attributes#?attribute-options
+   compatibleOrmTypes: []
 };
 
-const defaultValues = {
+var defaultValues = {
    isMultiple: 0,
-   // {bool}
-   // can multiple values be selected?
-
    hasColors: 0,
-   // {bool}
-   // are we to display our values in colors?
-
    options: [],
-   // {array}
-   // The options defined for this list:
-   // [ { id, text, hex, translations },...]
-   //    .id {string} a unique id for this value
-   //    .text {string} the displayed text of this value
-   //    .hex {string} a color hex definition for this value
-   //    .translations {obj} the multilingual definitions for this value.
-
    default: "none",
-   multipleDefault: [],
+   multipleDefault: []
 };
 
 module.exports = class ABFieldListCore extends ABField {
@@ -118,9 +68,6 @@ module.exports = class ABFieldListCore extends ABField {
       super(values, object, ABFieldListDefaults);
 
       this.pendingDeletions = [];
-      // {array}
-      // a list of pending option deletions that need to be processed
-      // when this is saved.
    }
 
    // return the default values for this DataField
@@ -148,7 +95,7 @@ module.exports = class ABFieldListCore extends ABField {
       // translate options list
       if (this.settings.options && this.settings.options.length > 0) {
          this.settings.options.forEach((opt) => {
-            this.translate(opt, opt, ["text"]);
+            this.object.translate(opt, opt, ["text"]);
          });
       }
 
@@ -168,11 +115,11 @@ module.exports = class ABFieldListCore extends ABField {
     * @return {json}
     */
    toObj() {
-      const obj = super.toObj();
+      var obj = super.toObj();
 
       // Un-translate options list
       obj.settings.options.forEach((opt) => {
-         this.unTranslate(opt, opt, ["text"]);
+         this.object.unTranslate(opt, opt, ["text"]);
       });
 
       return obj;
@@ -191,15 +138,7 @@ module.exports = class ABFieldListCore extends ABField {
    defaultValue(values) {
       // Multiple select list
       if (this.settings.isMultiple == true) {
-         let defaultVals = [];
-         this.settings.multipleDefault.forEach((def) => {
-            this.settings.options.forEach((opt) => {
-               if (opt.id == def.text) {
-                  defaultVals.push(opt);
-               }
-            });
-         });
-         values[this.columnName] = defaultVals || [];
+         values[this.columnName] = this.settings.multipleDefault || [];
       }
       // Single select list
       else if (this.settings.default && this.settings.default != "") {
@@ -226,37 +165,30 @@ module.exports = class ABFieldListCore extends ABField {
     */
    options() {
       return this.settings.options.map((opt) => {
-         return {
-            id: opt.id,
-            text: opt.text,
-            hex: opt.hex ? opt.hex : "",
-            translations: opt.translations ? opt.translations : "",
-         };
+         return { id: opt.id, text: opt.text };
       });
    }
 
    format(rowData, options = {}) {
-      let val = this.dataValue(rowData) || [];
+      var val = this.dataValue(rowData) || [];
 
       if (typeof val == "string") {
          try {
             val = JSON.parse(val);
-         } catch (e) {
-            // continue regardless of error
-         }
+         } catch (e) {}
       }
 
       // Convert to array
       if (!Array.isArray(val)) val = [val];
 
-      const displayOpts = this.settings.options
+      var displayOpts = this.settings.options
          .filter((opt) => val.filter((v) => (v.id || v) == opt.id).length > 0)
          .map((opt) => {
             let text = opt.text;
-            const languageCode = options.languageCode || "en";
+            let languageCode = options.languageCode || "en";
 
             // Pull text of option with specify language code
-            const optTran = (opt.translations || []).filter(
+            let optTran = (opt.translations || []).filter(
                (o) => o.language_code == languageCode
             )[0];
             if (optTran) text = optTran.text;
@@ -267,3 +199,4 @@ module.exports = class ABFieldListCore extends ABField {
       return displayOpts.join(", ");
    }
 };
+

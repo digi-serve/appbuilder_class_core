@@ -35,18 +35,18 @@ let AccountingJEArchiveDefaults = {
       "fieldBrFiscalMonth",
       "fieldBrAccount",
       "fieldBrRC",
-      "fieldsMatch",
-   ],
+      "fieldsMatch"
+   ]
    // settings: {array}
    // a list of internal setting values this Element tracks. These are the
    // values set by the platform .propertiesStash()
 };
 
 module.exports = class AccountingJEArchiveCore extends ABProcessElement {
-   constructor(attributes, process, AB) {
+   constructor(attributes, process, application) {
       attributes.type =
          attributes.type || "process.task.service.accounting.jeArchive";
-      super(attributes, process, AB, AccountingJEArchiveDefaults);
+      super(attributes, process, application, AccountingJEArchiveDefaults);
 
       // listen
    }
@@ -159,3 +159,5 @@ module.exports = class AccountingJEArchiveCore extends ABProcessElement {
     }
     */
 };
+
+

@@ -35,18 +35,23 @@ var AccountingBatchProcessingDefaults = {
       "fieldBRFinancialPeriod",
       "fieldBRAccount",
       "fieldBRRC",
-      "fieldBREntries",
-   ],
+      "fieldBREntries"
+   ]
    // settings: {array}
    // a list of internal setting values this Element tracks. These are the
    // values set by the platform .propertiesStash()
 };
 
 module.exports = class AccountingBatchProcessingCore extends ABProcessElement {
-   constructor(attributes, process, AB) {
+   constructor(attributes, process, application) {
       attributes.type =
          attributes.type || "process.task.service.accounting.batchProcessing";
-      super(attributes, process, AB, AccountingBatchProcessingDefaults);
+      super(
+         attributes,
+         process,
+         application,
+         AccountingBatchProcessingDefaults
+      );
 
       // listen
    }
@@ -159,3 +164,4 @@ module.exports = class AccountingBatchProcessingCore extends ABProcessElement {
     }
     */
 };
+

@@ -26,19 +26,14 @@ let SubProcessDefaults = {
       "parameterId",
       "connectionAttrs",
       "elementIDs",
-      "loopType",
-   ],
+      "loopType"
+   ]
 };
-
-const NOSPAM = {
-   /*message : bool */
-};
-// prevent sending the same message over and over.
 
 module.exports = class SubProcessCore extends ABProcessElement {
-   constructor(attributes, process, AB) {
+   constructor(attributes, process, application) {
       attributes.type = attributes.type || "process.task.service.subProcess";
-      super(attributes, process, AB, SubProcessDefaults);
+      super(attributes, process, application, SubProcessDefaults);
 
       // listen
    }
@@ -56,8 +51,8 @@ module.exports = class SubProcessCore extends ABProcessElement {
          className: "bpmn-icon-subprocess-expanded",
          target: {
             type: "bpmn:SubProcess",
-            isExpanded: true,
-         },
+            isExpanded: true
+         }
       };
    }
 
@@ -67,30 +62,11 @@ module.exports = class SubProcessCore extends ABProcessElement {
       // Convert string to boolean
       this.isEnable = this.isEnable == null ? true : JSON.parse(this.isEnable);
 
-      let currElements = this._elements || {};
-      this._unknownElementIDs = [];
       this._elements = {};
       (attributes.elementIDs || []).forEach((eID) => {
-         let ele = this.AB.processElementNew(eID, this);
+         let ele = this.application.processElementNew(eID, this);
          if (ele) {
             this._elements[eID] = ele;
-         } else {
-            // current eID isn't one of our definitions yet, so might be
-            // a temporary .diagramID from an unsaved task:
-            if (currElements[eID]) {
-               this._elements[eID] = currElements[eID];
-            } else {
-               this._unknownElementIDs.push(eID);
-            }
-         }
-      });
-
-      this._unknownElementIDs.forEach((eID) => {
-         let key = `Process[${this.processID}] Task[${this.label}] is referencing an unknown element id:[${eID}]`;
-         if (!NOSPAM[key]) {
-            let err = new Error(key);
-            this.AB.notify.builder(err, { processTask: this.id, eID });
-            NOSPAM[key] = true;
          }
       });
 
@@ -134,19 +110,9 @@ module.exports = class SubProcessCore extends ABProcessElement {
    processDataFields(currElement) {
       if (this.parameterId == null) return [];
 
-      // only call processDataFields once, filter it to get the different queries
-      let dataFieldsAll = this.process.processDataFields(this) || [];
-
-      // get the subtask data
-      let dataFieldOpt = dataFieldsAll.filter(
-         (opt) => opt.key === this.parameterId
+      let dataFieldOpt = (this.process.processDataFields(this) || []).filter(
+         (opt) => opt.key == this.parameterId
       )[0];
-
-      // get data from insert tasks
-      let dataFieldsAllInserted = dataFieldsAll.filter(
-         (opt) => opt.field === "InsertedRecord"
-      );
-
       if (dataFieldOpt == null) return [];
 
       let result = [];
@@ -161,7 +127,7 @@ module.exports = class SubProcessCore extends ABProcessElement {
          result.push({
             key: `${this.id}.uuid`,
             label: `${this.label}->Repeat Data.ID`,
-            object: dataFieldOpt.field.datasourceLink,
+            object: dataFieldOpt.field.datasourceLink
          });
 
          dataFieldOpt.field.datasourceLink.fields().forEach((f) => {
@@ -169,7 +135,7 @@ module.exports = class SubProcessCore extends ABProcessElement {
                key: `${this.id}.${f.id}`,
                label: `${this.label}->Repeat Data.${f.label}`,
                field: f,
-               object: f.object,
+               object: f.object
             });
          });
       }
@@ -181,24 +147,10 @@ module.exports = class SubProcessCore extends ABProcessElement {
                : `${this.id}.subProcess`,
             label: `${this.label}->Repeat Data`,
             field: dataFieldOpt.field,
-            object: dataFieldOpt.object,
+            object: dataFieldOpt.object
          });
       }
 
-      dataFieldsAllInserted.forEach((opt) => {
-         result.push({
-            key: `${opt.key || opt.id}`,
-            label: `Parent Process Data->${opt.label}`,
-            field: opt.field,
-            object: opt.object,
-         });
-      });
-
-      // Get any tasks that exist inside the subprocess
-      let previousFields = this.process.processDataFields.call(
-         this,
-         currElement
-      );
       let previousFields = this.process.processDataFields.call(
          this,
          currElement
@@ -223,8 +175,6 @@ module.exports = class SubProcessCore extends ABProcessElement {
       let key = params[1];
       let data;
 
-      if (instance && key?.startsWith?.(this.id)) {
-         let fieldId = key.split(".")[1];
       if (instance && key && key.startsWith && key.startsWith(this.id)) {
          let fieldId = key.split(".")[1];
          let myState = this.myState(instance);
@@ -236,7 +186,11 @@ module.exports = class SubProcessCore extends ABProcessElement {
                this.process.processDataFields(this) || []
             ).filter((opt) => opt.key == this.parameterId)[0];
 
-            if (dataFieldOpt?.field?.key == "connectObject") {
+            if (
+               dataFieldOpt &&
+               dataFieldOpt.field &&
+               dataFieldOpt.field.key == "connectObject"
+            ) {
                if (!Array.isArray(stateData)) stateData = [stateData];
 
                // Extract data
@@ -265,24 +219,6 @@ module.exports = class SubProcessCore extends ABProcessElement {
       if (data == null) data = this.process.processData(this, params);
 
       return data;
-   }
-
-   allPreviousTasks(...params) {
-      return this.process.allPreviousTasks.call(this, ...params);
-   }
-
-   allPreviousConnectionsForElement(...params) {
-      return this.process.allPreviousConnectionsForElement.call(
-         this,
-         ...params
-      );
-   }
-
-   allPreviousConnectionsForConnection(...params) {
-      return this.process.allPreviousConnectionsForConnection.call(
-         this,
-         ...params
-      );
    }
 
    //

@@ -5,10 +5,9 @@
  *
  */
 
-const ABField = require("../../platform/dataFields/ABField");
+var ABField = require("../../platform/dataFields/ABField");
 
 function L(key, altText) {
-   // TODO:
    return altText; // AD.lang.label.getLabel(key) || altText;
 }
 
@@ -16,21 +15,21 @@ function L(key, altText) {
 function AGE(dateString) {
    // validate
    if (!dateString) return 0;
-   const dataDate = new Date(dateString);
+   var dataDate = new Date(dateString);
    if (!dataDate) return 0;
 
-   const today = new Date();
-   const oneYear = 31536000000; // (24 * 60 * 60 * 1000) * 365;
-   const diffYears = (today - dataDate) / oneYear;
+   var today = new Date();
+   var oneYear = 31536000000; // (24 * 60 * 60 * 1000) * 365;
+   var diffYears = (today - dataDate) / oneYear;
 
    if (diffYears < 1) return Math.round(diffYears * 10) / 10;
    // float 2 digits
    else return Math.floor(diffYears); // no float digit
 
-   // const today = new Date();
-   // const age = today.getFullYear() - dataDate.getFullYear();
+   // var today = new Date();
+   // var age = today.getFullYear() - dataDate.getFullYear();
    // if (age < 1) {
-   // 	const m = today.getMonth() - dataDate.getMonth();
+   // 	var m = today.getMonth() - dataDate.getMonth();
 
    // 	age = parseFloat("0." + m);
 
@@ -44,7 +43,7 @@ function AGE(dateString) {
 function YEAR(dateString) {
    // validate
    if (!dateString) return 0;
-   const dataDate = new Date(dateString);
+   var dataDate = new Date(dateString);
    if (!dataDate) return 0;
 
    return dataDate.getFullYear();
@@ -53,7 +52,7 @@ function YEAR(dateString) {
 function MONTH(dateString) {
    // validate
    if (!dateString) return 0;
-   const dataDate = new Date(dateString);
+   var dataDate = new Date(dateString);
    if (!dataDate) return 0;
 
    // Start at 0
@@ -63,7 +62,7 @@ function MONTH(dateString) {
 function DAY(dateString) {
    // validate
    if (!dateString) return 0;
-   const dataDate = new Date(dateString);
+   var dataDate = new Date(dateString);
    if (!dataDate) return 0;
 
    return dataDate.getDate();
@@ -72,11 +71,11 @@ function DAY(dateString) {
 function DATE(dateString) {
    // validate
    if (!dateString) return 0;
-   const dataDate = new Date(dateString);
+   let dataDate = new Date(dateString);
    if (!dataDate) return 0;
 
    // number of miliseconds in one day
-   const oneDay = 86400000; // 1000 * 60 * 60 * 24
+   let oneDay = 86400000; // 1000 * 60 * 60 * 24
 
    // Convert back to days and return
    return Math.round(dataDate.getTime() / oneDay);
@@ -85,11 +84,11 @@ function DATE(dateString) {
 function HOUR(dateString) {
    // validate
    if (!dateString) return 0;
-   const dataDate = new Date(dateString);
+   let dataDate = new Date(dateString);
    if (!dataDate) return 0;
 
    // number of miliseconds in one hour
-   const oneHour = 3600000; // 1000 * 60 * 60
+   let oneHour = 3600000; // 1000 * 60 * 60
 
    // Convert back to days and return
    return Math.round(dataDate.getTime() / oneHour);
@@ -98,101 +97,52 @@ function HOUR(dateString) {
 function MINUTE(dateString) {
    // validate
    if (!dateString) return 0;
-   const dataDate = new Date(dateString);
+   let dataDate = new Date(dateString);
    if (!dataDate) return 0;
 
    // number of miliseconds in one hour
-   const oneMinute = 60000; // 1000 * 60
+   let oneMinute = 60000; // 1000 * 60
 
    // Convert back to days and return
    return Math.round(dataDate.getTime() / oneMinute);
 }
 
 function MINUTE_TO_HOUR(mins) {
-   const hours = mins / 60;
-   const rhours = Math.floor(hours);
-   const minutes = (hours - rhours) * 60;
-   const rminutes = Math.round(minutes);
+   var hours = mins / 60;
+   var rhours = Math.floor(hours);
+   var minutes = (hours - rhours) * 60;
+   var rminutes = Math.round(minutes);
 
    return parseFloat(`${rhours}.${rminutes}`);
 }
 
-const ABFieldCalculateDefaults = {
-   key: "calculate",
-   // unique key to reference this specific DataField
+var ABFieldCalculateDefaults = {
+   key: "calculate", // unique key to reference this specific DataField
 
-   description: "Perform a calculation based upon existing values",
+   icon: "calculator", // font-awesome icon reference.  (without the 'fa-').  so 'user'  to reference 'fa-user'
+
+   // menuName: what gets displayed in the Editor drop list
+   menuName: L("ab.dataField.calculate.menuName", "*Calculate"),
+
    // description: what gets displayed in the Editor description.
-   // NOTE: this will be displayed using a Label: L(description)
-
-   icon: "calculator",
-   // font-awesome icon reference.  (without the 'fa-').  so 'calculator'  to
-   // reference 'fa-calculator'
-
-   isFilterable: (field) => {
-      const unsupportedInFilter = ["MINUTE_TO_HOUR", "DATE", "HOUR", "MINUTE"];
-      const unsupported = unsupportedInFilter.filter((item) =>
-         field.settings.formula.includes(item)
-      );
-      return unsupported.length == 0;
-   },
-   // {bool} / {fn}
-   // determines if the current ABField can be used to filter (FilterComplex
-   // or Query) data.
-   // if a {fn} is provided, it will be called with the ABField as a parameter:
-   //  (field) => field.setting.something == true
+   description: L("ab.dataField.calculate.description", "*"),
 
    isSortable: false,
-   // {bool} / {fn}
-   // determines if the current ABField can be used to Sort data.
-   // if a {fn} is provided, it will be called with the ABField as a parameter:
-   //  (field) => true/false
+   isFilterable: false, // this field does not support filter on server side
 
-   menuName: "Calculate",
-   // menuName: what gets displayed in the Editor drop list
-   // NOTE: this will be displayed using a Label: L(menuName)
-
-   supportRequire: false,
-   // {bool}
-   // does this ABField support the Required setting?
-
-   supportUnique: false,
-   // {bool}
-   // does this ABField support the Unique setting?
-
-   useAsLabel: true,
-   // {bool} / {fn}
-   // determines if this ABField can be used in the display of an ABObject's
-   // label.
-
-   compatibleOrmTypes: ["number"],
-   // {array}
    // what types of Sails ORM attributes can be imported into this data type?
    // http://sailsjs.org/documentation/concepts/models-and-orm/attributes#?attribute-options
+   compatibleOrmTypes: [],
 
-   compatibleMysqlTypes: [
-      "tinyint",
-      "smallint",
-      "mediumint",
-      "int",
-      "integer",
-      "bigint",
-      "decimal",
-      "dec",
-      "numeric",
-      "fixed",
-      "float",
-      "real",
-   ],
-   // {array}
    // what types of MySql column types can be imported into this data type?
    // https://www.techonthenet.com/mysql/datatypes.php
+   compatibleMysqlTypes: []
 };
 
-const defaultValues = {
+var defaultValues = {
    formula: "",
    decimalSign: "none", // "none", "comma", "period", "space"
-   decimalPlaces: 0, // 0, 1, 2, 3, 4, 5, 6, 7, 8, 9, 10
+   decimalPlaces: "none" // "none", 1, 2, 3, 4, 5, 6, 7, 8, 9, 10
 };
 
 module.exports = class ABFieldCalculateCore extends ABField {
@@ -225,7 +175,7 @@ module.exports = class ABFieldCalculateCore extends ABField {
       formula = formula.replace(/\(CURRENT\)/g, "(new Date())");
 
       object.fields().forEach((f) => {
-         let colName = f.columnName;
+         var colName = f.columnName;
          if (colName.indexOf(".") > -1)
             // QUERY: get only column name
             colName = colName.split(".")[1];
@@ -233,13 +183,12 @@ module.exports = class ABFieldCalculateCore extends ABField {
          // if template does not contain, then should skip
          if (formula.indexOf("{" + colName + "}") < 0) return;
 
-         const data =
-            rowData[`${object.alias ?? alias}.${f.columnName}`] ??
-            rowData[f.columnName];
+         let data =
+            rowData[`${object.alias || alias}.${f.columnName}`] || rowData[f.columnName];
 
          // number fields
          if (f.key == "number") {
-            const numberVal = `(${data || 0})`; // (number) - NOTE : (-5) to support negative number
+            let numberVal = "(#numberVal#)".replace("#numberVal#", data || 0); // (number) - NOTE : (-5) to support negative number
             formula = formula.replace(
                new RegExp("{" + colName + "}", "g"),
                numberVal
@@ -253,7 +202,7 @@ module.exports = class ABFieldCalculateCore extends ABField {
             if (typeof calVal == "string")
                calVal = calVal.replace(/[^-0-9.]/g, "");
 
-            calVal = `(${calVal})`;
+            calVal = "(#calVal#)".replace("#calVal#", calVal);
 
             formula = formula.replace(
                new RegExp("{" + colName + "}", "g"),
@@ -262,7 +211,7 @@ module.exports = class ABFieldCalculateCore extends ABField {
          }
          // date fields
          else if (f.key == "date") {
-            const dateVal = `"${data || ""}"`; // "date"
+            let dateVal = '"#dataVal#"'.replace("#dataVal#", data ? data : ""); // "date"
             formula = formula.replace(
                new RegExp("{" + colName + "}", "g"),
                dateVal
@@ -270,7 +219,10 @@ module.exports = class ABFieldCalculateCore extends ABField {
          }
          // boolean fields
          else if (f.key == "boolean") {
-            const booleanVal = `(${data || 0})`; // show 1 or 0 for boolean
+            let booleanVal = "(#booleanVal#)".replace(
+               "#booleanVal#",
+               data || 0
+            ); // show 1 or 0 for boolean
             formula = formula.replace(
                new RegExp("{" + colName + "}", "g"),
                booleanVal

@@ -1,14 +1,14 @@
 const ABViewWidget = require("../../platform/views/ABViewWidget");
 
 module.exports = class ABViewDetailComponentCore extends ABViewWidget {
-   // constructor(values, application, parent, defaultValues) {
-   //    super(values, application, parent, defaultValues);
-   // }
+   constructor(values, application, parent, defaultValues) {
+      super(values, application, parent, defaultValues);
+   }
 
    detailComponent() {
-      let detailView = null;
+      var detailView = null;
 
-      let curr = this;
+      var curr = this;
       while (
          !curr.isRoot() &&
          curr.parent &&
@@ -35,7 +35,7 @@ module.exports = class ABViewDetailComponentCore extends ABViewWidget {
       let object = datacollection.datasource;
       if (object == null) return null;
 
-      let field = object.fields((v) => v.id == this.settings.fieldId)[0];
+      let field = object.fields((v) => v.id == this.settings.fieldId, true)[0];
 
       // set .alias to support queries that contains alias name
       // [aliasName].[columnName]
@@ -47,16 +47,16 @@ module.exports = class ABViewDetailComponentCore extends ABViewWidget {
    }
 
    getCurrentData() {
-      let detailCom = this.detailComponent();
+      var detailCom = this.detailComponent();
       if (!detailCom) return null;
 
-      let dv = detailCom.datacollection;
+      var dv = detailCom.datacollection;
       if (!dv) return null;
 
-      let field = this.field();
+      var field = this.field();
       if (!field) return null;
 
-      let currData = dv.getCursor();
+      var currData = dv.getCursor();
       if (currData) return currData[field.columnName];
       else return null;
    }

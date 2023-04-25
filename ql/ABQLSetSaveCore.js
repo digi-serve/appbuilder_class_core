@@ -9,16 +9,16 @@
 
 const ABQL = require("../../platform/ql/ABQL.js");
 
-const ParameterDefinitions = [
+var ParameterDefinitions = [
    {
       type: "taskParam",
-      name: "task_param",
-   },
+      name: "task_param"
+   }
 ];
 
 class ABQLSetSaveCore extends ABQL {
-   constructor(attributes, prevOP, task, AB) {
-      super(attributes, ParameterDefinitions, prevOP, task, AB);
+   constructor(attributes, prevOP, task, application) {
+      super(attributes, ParameterDefinitions, prevOP, task, application);
 
       // TODO: register with the task that we can provide data.
       if (this.taskParam) {
@@ -38,12 +38,11 @@ class ABQLSetSaveCore extends ABQL {
       this.constructor.NextQLOps = this.prevOP.constructor.NextQLOps;
 
       super.fromAttributes(attributes);
-
       this.taskParam = attributes.taskParam || this.params.task_param;
    }
 
    toObj() {
-      const obj = super.toObj();
+      var obj = super.toObj();
 
       obj.taskParam = this.taskParam || this.params.task_param;
 
@@ -58,28 +57,33 @@ class ABQLSetSaveCore extends ABQL {
       // field: ABField
       // set : {bool}
 
-      let field = null;
+      var field = null;
       // {ABField}
       // if the value being stored is NOT a connectObject, then it is
       // a particular field in the previous object.
 
       // if we are saving a specific field of an Object, pass that
       // ABField along:
-      if (this.prevOP?.field?.key !== "connectObject")
-         field = this?.prevOP?.field;
+      if (
+         this.prevOP &&
+         this.prevOP.field &&
+         this.prevOP.field.key != "connectObject"
+      ) {
+         field = this.prevOP.field;
+      }
 
       return {
          key: `${id}.${this.taskParam || this.params.task_param}`,
          label: `${label}->${this.taskParam || this.params.task_param}`,
          field: field,
          object: this.object,
-         set: true,
+         set: true
       };
    }
 }
 
 ABQLSetSaveCore.key = "set_save";
-ABQLSetSaveCore.label = "Save the value as";
+ABQLSetSaveCore.label = "save";
 ABQLSetSaveCore.NextQLOps = [];
 // NOTE: currently, this is an ending step. but it doesn't have to be...
 

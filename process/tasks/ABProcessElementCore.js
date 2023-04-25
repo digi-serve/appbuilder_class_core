@@ -1,22 +1,19 @@
+// import ABApplication from "./ABApplication"
+
 var ABMLClass = require("../../../platform/ABMLClass");
 
 module.exports = class ABProcessTaskCore extends ABMLClass {
-   constructor(attributes, process, AB, defaultValues) {
-      super(["label"], AB);
+   constructor(attributes, process, application, defaultValues) {
+      super(["label"]);
 
       this.defaults = defaultValues || { key: "core", icon: "core" };
-      // {obj} .defaults
-      // a value hash of default values for an ABProcessTask
-      // NOTE: needs to be set before .fromValues()
-
-      this.fromValues(attributes);
 
       this.process = process;
       if (!this.processID) {
          this.processID = process.id;
       }
-      // {ABProcess} .process
-      // The parent ABProcess this process element is a part of.
+      this.application = application;
+      this.fromValues(attributes);
 
       //// Runtime Values
       //// these are not stored in the Definition, but rather
@@ -26,6 +23,9 @@ module.exports = class ABProcessTaskCore extends ABMLClass {
 
    ///
    /// Static Methods
+   ///
+   /// Available to the Class level object.  These methods are not dependent
+   /// on the instance values of the Application.
    ///
 
    fromValues(attributes) {
@@ -49,9 +49,9 @@ module.exports = class ABProcessTaskCore extends ABMLClass {
       this.laneDiagramID = attributes.laneDiagramID || "?laneID?";
       // laneDiagramID : connects to the parent object that defines any
       //      default User information for the Task.  In our case, it
-      //      might be a {ABProcessParticipant} object, or a {ABProcessLane}
-      //      object.  by default, a diagram's Participant obj doesn't define
-      //      any lanes, and therefore can provide that info.  Once a lane
+      //      might be a Participant object, or a Lane object.  by
+      //      default, a diagram's Participant obj doesn't define any
+      //      lanes, and therefore can provide that info.  Once a lane
       //      is added, however, an object is assigned to it, and the
       //      Lane will provide that info.
 
@@ -98,7 +98,7 @@ module.exports = class ABProcessTaskCore extends ABMLClass {
          "processID",
          "diagramID",
          "laneDiagramID",
-         "key",
+         "key"
       ];
       fieldsToSave.forEach((f) => {
          data[f] = this[f];
@@ -119,39 +119,11 @@ module.exports = class ABProcessTaskCore extends ABMLClass {
    ////
 
    /**
-    * errorConfig()
-    * Respond with an error when expected configuration parameters do not
-    * pull data.
-    * @param {obj} instance
-    *        the instance data of this task
-    * @param {string} msg
-    *        the display message for this error.
-    * @param {array[string]} fields
-    *        an array of parameter keys that should be included in the error
-    *        for additional information.
-    * @return {Promise.reject(error)}
-    */
-   errorConfig(instance, msg, fields = []) {
-      this.log(instance, msg);
-      var error = new Error(`${this.type}: ${msg}`);
-      var info = { task: this };
-      if (!Array.isArray(fields)) fields = [fields];
-      fields.forEach((field) => {
-         info[field] = this[field];
-      });
-      this.AB.notify.builder(error, info);
-      return Promise.reject(error);
-   }
-
-   /**
     * initState()
     * setup this task's initial state variables
-    * @param {obj} context
-    *        the context data of the process instance
-    * @param {obj} defaults
-    *        any values to include from our child classes
-    * @param {obj} val
-    *        any values to override the default state
+    * @param {obj} context  the context data of the process instance
+    * @param {obj} defaults  any values to include from our child classes
+    * @param {obj} val  any values to override the default state
     */
    initState(context, defaults, val) {
       defaults = defaults || {};
@@ -173,7 +145,7 @@ module.exports = class ABProcessTaskCore extends ABMLClass {
       if (!context.taskState[this.diagramID]) {
          context.taskState[this.diagramID] = {
             initialized: true,
-            status: "initialized",
+            status: "initialized"
          };
          for (var d in defaults) {
             context.taskState[this.diagramID][d] = defaults[d];
@@ -182,15 +154,6 @@ module.exports = class ABProcessTaskCore extends ABMLClass {
             context.taskState[this.diagramID][v] = val[v];
          }
       }
-   }
-
-   /*
-    * @function isEndTask
-    * return true if the current type of task is an End task. False otherwise.
-    * @return {bool}
-    */
-   isEndTask() {
-      return false;
    }
 
    /**
@@ -239,7 +202,7 @@ module.exports = class ABProcessTaskCore extends ABMLClass {
       var myDiagramObj = instance.hashDiagramObjects[this.diagramID];
       if (!myDiagramObj) {
          var error = new Error(
-            `Configuration Error: Did not find my definition for dID[${this.diagramID}]`
+            `Did not find my definition for dID[${this.diagramID}]`
          );
          this.onError(instance, error);
          return null;
@@ -256,9 +219,8 @@ module.exports = class ABProcessTaskCore extends ABMLClass {
       var exitFlows = myDiagramObj["bpmn2:outgoing"];
       if (!exitFlows) {
          var error = new Error(
-            `Configuration Error: Did not find any outgoing flows for dID[${this.diagramID}]`
+            `Did not find any outgoing flows for dID[${this.diagramID}]`
          );
-         this.AB.notify.builder(error, { task: this });
          this.onError(instance, error);
          return null;
       }
@@ -289,9 +251,8 @@ module.exports = class ABProcessTaskCore extends ABMLClass {
                }
             } else {
                var error = new Error(
-                  `Configuration Error: No ProcessTask instance for diagramID[${tid}]`
+                  `No ProcessTask instance for diagramID[${tid}]`
                );
-               this.AB.notify.builder(error, { task: this });
                this.onError(instance, error);
                nextTasks = null;
             }
@@ -364,7 +325,7 @@ module.exports = class ABProcessTaskCore extends ABMLClass {
       listDataFields.forEach((f) => {
          currentProcessValues[f.key] = this.process.processData(this, [
             instance,
-            f.key,
+            f.key
          ]);
       });
       return currentProcessValues;
@@ -451,17 +412,10 @@ module.exports = class ABProcessTaskCore extends ABMLClass {
       }
    }
 
-   /**
-    * @method onProcessReady()
-    * Perform any setup actions after the parent process has indicated it is "ready"
-    */
-   onProcessReady() {}
-
    get startElements() {
       let startElems =
          this.process.elements(
-            (elem) =>
-               elem && elem.defaults && elem.defaults.category === "start"
+            (elem) => elem && elem.defaults && elem.defaults.category == "start"
          ) || [];
       return startElems;
    }
@@ -471,10 +425,13 @@ module.exports = class ABProcessTaskCore extends ABMLClass {
    }
 
    get objectOfStartElement() {
-      const startElem = this.startElements[0];
+      let startElem = this.startElements[0];
       if (!startElem) return null;
 
-      return this.AB.objectByID(startElem.objectID);
+      let startElemObj = this.application.objects(
+         (o) => o.id == startElem.objectID
+      )[0];
+      return startElemObj;
    }
 
    get objectOfPrevElement() {
@@ -492,6 +449,7 @@ module.exports = class ABProcessTaskCore extends ABMLClass {
             break;
       }
 
-      return this.AB.objectByID(objectID);
+      return this.application.objects((o) => o.id == objectID)[0];
    }
 };
+

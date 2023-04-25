@@ -26,16 +26,14 @@ let InsertRecordDefaults = {
       "fieldValues",
       "isRepeat",
       "repeatMode",
-      "repeatColumn",
-   ],
+      "repeatColumn"
+   ]
 };
 
 module.exports = class InsertRecordCore extends ABProcessElement {
-   constructor(attributes, process, AB) {
+   constructor(attributes, process, application) {
       attributes.type = attributes.type || "process.task.service.insertRecord";
-      super(attributes, process, AB, InsertRecordDefaults);
-
-      this.results = [];
+      super(attributes, process, application, InsertRecordDefaults);
 
       // listen
    }
@@ -55,53 +53,6 @@ module.exports = class InsertRecordCore extends ABProcessElement {
       this.isRepeat = JSON.parse(attributes.isRepeat || false);
    }
 
-   get startElement() {
-      let startElem = null;
-      let currProcess = this.process;
-
-      // Find the start (trigger) task
-      while (!startElem && currProcess) {
-         startElem = currProcess.elements(
-            (elem) => elem?.defaults?.category == "start"
-         )[0];
-
-         // If .currProcess is a sub task, then go to the parent process for get the start task
-         currProcess = currProcess.process;
-      }
-
-      return startElem;
-   }
-
-   get previousElement() {
-      return this.process.connectionPreviousTask(this)[0];
-   }
-
-   get objectOfStartElement() {
-      let startElem = this.startElement;
-      if (!startElem) return null;
-
-      let startElemObj = this.AB.objectByID(startElem.objectID);
-      return startElemObj;
-   }
-
-   get objectOfPrevElement() {
-      let prevElem = this.previousElement;
-      if (!prevElem) return null;
-
-      let objectID;
-      switch (prevElem.type) {
-         case "process.task.service.query":
-            objectID = prevElem.qlObj ? prevElem.qlObj.objectID : null;
-            break;
-         case "process.task.service.insertRecord":
-         default:
-            objectID = prevElem.objectID;
-            break;
-      }
-
-      return this.AB.objectByID(objectID);
-   }
-
    get fieldRepeat() {
       let obj = this.objectOfStartElement;
       if (!obj) return null;
@@ -109,30 +60,24 @@ module.exports = class InsertRecordCore extends ABProcessElement {
       return obj.fields((f) => f.id == this.repeatColumn)[0];
    }
 
-   /**
-    * processDataFields()
-    * return a single available data field from this element
-    * this will be the record inserted by this task
-    * Different Process Elements can make data available to other
-    * process Elements.
-    * @return {array} | null
-    */
-   processDataFields() {
-      return [
+   /*
+     fromValues(attributes) {
+         /*
          {
-            key: `${this.id}.[PK]`,
-            label: `${this.label}-> Inserted record [PK]`,
-            field: {
-               id: this.id,
-               object: { id: this.objectID },
-               key: "InsertedRecord",
-               columnName: "uuid",
-            },
-            object: this.objectID,
-            set: true,
-         },
-      ];
-   }
+             id: uuid(),
+             name: 'name',
+             type: 'xxxxx',
+             json: "{json}"
+         }
+         * /
+         super.fromValues(attributes);
+ 
+         AccountingBatchProcessingDefaults.settings.forEach((f) => {
+             this[f] = attributes[f];
+         });
+     }
+     */
+
    /**
     * @method toObj()
     *
@@ -159,4 +104,58 @@ module.exports = class InsertRecordCore extends ABProcessElement {
    ////
    //// Process Instance Methods
    ////
+
+   /**
+    * initState()
+    * setup this task's initial state variables
+    * @param {obj} context  the context data of the process instance
+    * @param {obj} val  any values to override the default state
+    */
+   /*
+     initState(context, val) {
+         var myDefaults = {
+             instanceVariable1: null,
+             instanceVariable2: null
+         };
+ 
+         super.initState(context, myDefaults, val);
+     }
+     */
+
+   /**
+    * processDataFields()
+    * return an array of avaiable data fields that this element
+    * can provide to other ProcessElements.
+    * Different Process Elements can make data available to other
+    * process Elements.
+    * @return {array} | null
+    */
+   /*
+     processDataFields() {
+         // in this Task, we can return the Response to the UserForm
+         return [
+             {
+                 key: `${this.id}.[someInstanceVariableHere]`,
+                 label: `${this.label}->Response`
+             }
+         ];
+     }
+     */
+
+   /**
+    * processData()
+    * return the current value requested for the given data key.
+    * @param {obj} instance
+    * @return {mixed} | null
+    */
+   /*
+     processData(instance, key) {
+         var parts = key.split(".");
+         if (parts[0] == this.id) {
+             var myState = this.myState(instance);
+             return myState[parts[1]];
+         }
+         return null;
+     }
+     */
 };

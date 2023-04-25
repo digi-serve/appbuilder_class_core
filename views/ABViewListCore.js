@@ -3,13 +3,13 @@ const ABViewWidget = require("../../platform/views/ABViewWidget");
 const ABViewListPropertyComponentDefaults = {
    dataviewID: null,
    field: null,
-   height: 0,
+   height: 0
 };
 
 const ABViewDefaults = {
    key: "list", // {string} unique key for this view
    icon: "list-ul", // {string} fa-[icon] reference for this view
-   labelKey: "List", // {string} the multilingual label key for the class label
+   labelKey: "ab.components.list" // {string} the multilingual label key for the class label
 };
 
 module.exports = class ABViewLabelCore extends ABViewWidget {
@@ -25,14 +25,6 @@ module.exports = class ABViewLabelCore extends ABViewWidget {
       return ABViewListPropertyComponentDefaults;
    }
 
-   /**
-    * @method componentList
-    * return the list of components available on this view to display in the editor.
-    */
-   componentList() {
-      return [];
-   }
-
    field() {
       var dv = this.datacollection;
       if (!dv) return null;
@@ -40,6 +32,6 @@ module.exports = class ABViewLabelCore extends ABViewWidget {
       var object = dv.datasource;
       if (!object) return null;
 
-      return object.fieldByID(this.settings.field);
+      return object.fields((f) => f.id == this.settings.field)[0];
    }
 };

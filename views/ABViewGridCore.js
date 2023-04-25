@@ -1,186 +1,53 @@
 const ABViewWidget = require("../../platform/views/ABViewWidget");
 
 const ABViewGridPropertyComponentDefaults = {
-   label: "",
-   // {string}
-   // label is required and you can add more if the component needs them
-
+   label: "", // label is required and you can add more if the component needs them
    // format:0  	// 0 - normal, 1 - title, 2 - description
-   dataviewID: "",
-   // {uuid}
-   // uuid of ABDataCollection that drives the data for our Grid
-
-   padding: 17,
-   // {int}
-   // the default padding surrounding the component
-
-   showToolbar: 1,
-   // {bool}
-   // do we show our toolbar?
-
+   dataviewID: "", // uuid of ABDatacollection
    isEditable: 0,
-   // {bool}
-   // do we allow editing in the grid?
-
    massUpdate: 0,
-   // {bool}
-   // do we allow the Mass Update capability? (row checkboxes and the
-   // MassUpdate popup)
-
    allowDelete: 0,
-   // {bool}
-   // do we allow deleting multiple rows at a time? Mass Delete.
-
    // isFilterable:0,
-
    isSortable: 1,
-   // {bool}
-   // do we allow the sort options.
-
    isExportable: 0,
-   // {bool}
-   // do we enable the webix export from grid capabilities?
-
    // linkedObject:'',
    // linkedField:'',
    // linkedPage:'',
    // linkedPageView:'',
    // linkedEditPage:'',
    // linkedEditPageForm:'',
-
    detailsPage: "",
-   // {ABViewPage.id}
-   // the ABViewPage that has the details component.
-
    detailsTab: "",
-   // {ABViewTab.id}
-   // the ABViewTab component, that has the details component.
-   // NOTE: if your details is embedded on a TAB, we need both the
-   // .detailsPage & .detailsTab to successfully show the item.
-
    editPage: "",
-   // {ABViewPage.id}
-   // the ABViewPage that has the edit component.
-
    editTab: "",
-   // {ABViewTab.id}
-   // the ABViewTab component, that has the edit component.
-   // NOTE: if your editor is embedded on a TAB, we need both the
-   // .editPage & .editTab to successfully show the form.
-
-   trackView: 0,
-   // {bool}
-   // Do we offer the ability to track changes to this object/row?
-
-   frozenColumnID: "",
-   // {ABField.id}
-   // id of column you want to stop freezing the left hand side at.
-
-   hiddenFields: [],
-   // {array}  [ ABField.id, ABField.id, ... ]
-   // array of [ids] to add hidden:true to
-
-   summaryColumns: [],
-   // {array}  [ ABField.id, ABField.id, ... ]
-   // array of [ids] to add the SUM footer to
-
-   countColumns: [],
-   // {array}  [ ABField.id, ABField.id, ... ]
-   // array of [ids] to add the Count footer to
-
-   // TODO: get rid of objectWorkspace!
    objectWorkspace: {
       // sortFields:[], // array of columns with their sort configurations
       // filterConditions:[], // array of filters to apply to the data table
       frozenColumnID: "", // id of column you want to stop freezing
       hiddenFields: [], // array of [ids] to add hidden:true to
       summaryColumns: [],
-      countColumns: [],
+      countColumns: []
    },
+   height: 0,
    gridFilter: {
       filterOption: 1,
       userFilterPosition: "toolbar",
-      isGlobalToolbar: 1,
+      isGlobalToolbar: 1
    },
-   // summaryFields: [], // array of [field ids] to add the summary column in footer
-   // countFields: [], // array of [field ids] to add the summary column in footer
-
+   summaryFields: [], // array of [field ids] to add the summary column in footer
+   countFields: [], // array of [field ids] to add the summary column in footer
    height: 0,
-   // {int}
-   // The Height of our Grid.
-   // See ../views/ABViewDataview.js
-
    hideHeader: 0,
    labelAsField: 0,
    hideButtons: 0,
-   groupBy: "", // id of field
-
-   // TODO: add to ABDesigner.interface design:
-   columnConfig: [],
-   // {array} [ {columnHeader}, {columnHeader} ... ]
-   // An array of column headers for the grid to display. These should
-   // be generated at Design time, and can allow the designer to ORDER the
-   // columns, assign column widths, fillspace, etc...
-   //    {columnHeader}
-   //    The minimum amount of information a Grid needs for it's customization
-   //    .id {string} ABField.columnName
-   //    .fieldId {string} ABField.id
-   //    .width {int}
-   //    .fillspace {bool}
-   //    .minwidth
-   //
-   //    When displaying column headers, we will ask the
-   //    CurrentObject.columnHeaders(), and then modify them with our settings
-   //    here.
-
-   saveLocal: 1,
-   // {bool}
-   // Allow saving of local changes to our grid display. This will enable
-   // a user to modify the Grid display locally.
+   groupBy: "" // id of field
 };
 
 const ABViewDefaults = {
    key: "grid", // {string} unique key for this view
    icon: "table", // {string} fa-[icon] reference for this view
-   labelKey: "Grid", // {string} the multilingual label key for the class label
+   labelKey: "ab.components.grid" // {string} the multilingual label key for the class label
 };
-
-/**
- * @function settingsDefault()
- * Verifies a given field is set and if not, defaults to what we havein our
- * ABViewGridPropertyComponentDefaults.
- * NOTE: use this fn() for values that are NOT TRUTHY ... so not for numeric
- * 1 or 0.
- * @param {hash} base
- *        The current settings value hash.
- * @param {string} field
- *        The parameter we are checking.
- */
-function settingsDefault(base, field) {
-   if (typeof base[field] == "undefined") {
-      base[field] = ABViewGridPropertyComponentDefaults[field];
-      return;
-   }
-   base[field] = base[field] || ABViewGridPropertyComponentDefaults[field];
-}
-
-/**
- * @function settingsDefaultJSON()
- * Verifies a given field is set and if not, defaults to what we havein our
- * ABViewGridPropertyComponentDefaults.
- * NOTE: use this fn() for values that ARE TRUTHY ... so for numeric 1 or 0
- * @param {hash} base
- *        The current settings value hash.
- * @param {string} field
- *        The parameter we are checking.
- */
-function settingsDefaultJSON(base, field) {
-   try {
-      base[field] = JSON.parse(base[field]);
-   } catch (e) {
-      base[field] = ABViewGridPropertyComponentDefaults[field];
-   }
-}
 
 module.exports = class ABViewGridCore extends ABViewWidget {
    /**
@@ -214,25 +81,69 @@ module.exports = class ABViewGridCore extends ABViewWidget {
       super.fromValues(values);
 
       // if this is being instantiated on a read from the Property UI,
-      settingsDefault(this.settings, "dataviewID");
+      this.settings.dataviewID =
+         this.settings.dataviewID ||
+         ABViewGridPropertyComponentDefaults.dataviewID;
 
       // Convert to boolean
-      // these values are sometimes 0 (number) at this point so the JSON.parse
-      // with the || (or) statement was always falling to the default so I am
-      // trying to parse the value...if it fails we use the default value
-      settingsDefaultJSON(this.settings, "padding");
-      settingsDefaultJSON(this.settings, "showToolbar");
-      settingsDefaultJSON(this.settings, "isEditable");
-      settingsDefaultJSON(this.settings, "massUpdate");
-      settingsDefaultJSON(this.settings, "allowDelete");
+      // these values are sometimes 0 (number) at this point so the JSON.parse with the || (or) statement was always falling to the default
+      // so I am trying to parse the value...if it fails we use the default value
+      try {
+         this.settings.isEditable = JSON.parse(this.settings.isEditable);
+      } catch (e) {
+         this.settings.isEditable =
+            ABViewGridPropertyComponentDefaults.isEditable;
+      }
+
+      try {
+         this.settings.massUpdate = JSON.parse(this.settings.massUpdate);
+      } catch (e) {
+         this.settings.massUpdate =
+            ABViewGridPropertyComponentDefaults.massUpdate;
+      }
+
+      try {
+         this.settings.allowDelete = JSON.parse(this.settings.allowDelete);
+      } catch (e) {
+         this.settings.allowDelete =
+            ABViewGridPropertyComponentDefaults.allowDelete;
+      }
       // this.settings.isFilterable = JSON.parse(this.settings.isFilterable || ABViewGridPropertyComponentDefaults.isFilterable);
-      settingsDefaultJSON(this.settings, "isSortable");
-      settingsDefaultJSON(this.settings, "isExportable");
-      settingsDefaultJSON(this.settings, "hideHeader");
-      settingsDefaultJSON(this.settings, "labelAsField");
-      settingsDefaultJSON(this.settings, "hideButtons");
-      settingsDefaultJSON(this.settings, "columnConfig");
-      settingsDefaultJSON(this.settings, "saveLocal");
+
+      try {
+         this.settings.isSortable = JSON.parse(this.settings.isSortable);
+      } catch (e) {
+         this.settings.isSortable =
+            ABViewGridPropertyComponentDefaults.isSortable;
+      }
+
+      try {
+         this.settings.isExportable = JSON.parse(this.settings.isExportable);
+      } catch (e) {
+         this.settings.isExportable =
+            ABViewGridPropertyComponentDefaults.isExportable;
+      }
+
+      try {
+         this.settings.hideHeader = JSON.parse(this.settings.hideHeader);
+      } catch (e) {
+         this.settings.hideHeader =
+            ABViewGridPropertyComponentDefaults.hideHeader;
+      }
+
+      try {
+         this.settings.labelAsField = JSON.parse(this.settings.labelAsField);
+      } catch (e) {
+         this.settings.labelAsField =
+            ABViewGridPropertyComponentDefaults.labelAsField;
+      }
+
+      try {
+         this.settings.hideButtons = JSON.parse(this.settings.hideButtons);
+      } catch (e) {
+         this.settings.hideButtons =
+            ABViewGridPropertyComponentDefaults.hideButtons;
+      }
 
       this.settings.gridFilter =
          this.settings.gridFilter ||
@@ -262,58 +173,44 @@ module.exports = class ABViewGridCore extends ABViewWidget {
       // this.settings.linkedPageView = this.settings.linkedPageView || ABViewGridPropertyComponentDefaults.linkedPageView;
       // this.settings.linkedEditPage = this.settings.linkedEditPage || ABViewGridPropertyComponentDefaults.linkedEditPage;
       // this.settings.linkedEditPageForm = this.settings.linkedEditPageForm || ABViewGridPropertyComponentDefaults.linkedEditPageForm;
+      this.settings.detailsPage =
+         this.settings.detailsPage ||
+         ABViewGridPropertyComponentDefaults.detailsPage;
+      this.settings.editPage =
+         this.settings.editPage || ABViewGridPropertyComponentDefaults.editPage;
+      this.settings.detailsTab =
+         this.settings.detailsTab ||
+         ABViewGridPropertyComponentDefaults.detailsTab;
+      this.settings.editTab =
+         this.settings.editTab || ABViewGridPropertyComponentDefaults.editTab;
 
-      settingsDefault(this.settings, "detailsPage");
-      settingsDefault(this.settings, "editPage");
-      settingsDefault(this.settings, "detailsTab");
-      settingsDefault(this.settings, "editTab");
-      settingsDefaultJSON(this.settings, "trackView");
+      this.settings.objectWorkspace =
+         this.settings.objectWorkspace ||
+         ABViewGridPropertyComponentDefaults.objectWorkspace;
 
-      // TODO: remove objectworkspace!
-      // this.settings.objectWorkspace =
-      //    this.settings.objectWorkspace ||
-      //    ABViewGridPropertyComponentDefaults.objectWorkspace;
-
-      // if (typeof this.settings.objectWorkspace != "undefined") {
-      //    if (typeof this.settings.objectWorkspace.sortFields == "undefined")
-      //       this.settings.objectWorkspace.sortFields = [];
-      //    if (
-      //       typeof this.settings.objectWorkspace.filterConditions == "undefined"
-      //    )
-      //       this.settings.objectWorkspace.filterConditions = [];
-      //    if (typeof this.settings.objectWorkspace.frozenColumnID == "undefined")
-      //       this.settings.objectWorkspace.frozenColumnID = "";
-      //    if (typeof this.settings.objectWorkspace.hiddenFields == "undefined")
-      //       this.settings.objectWorkspace.hiddenFields = [];
-      //    if (typeof this.settings.objectWorkspace.summaryColumns == "undefined")
-      //       this.settings.objectWorkspace.summaryColumns = [];
-      //    if (typeof this.settings.objectWorkspace.countColumns == "undefined")
-      //       this.settings.objectWorkspace.countColumns = [];
-      // }
-
-      var owFields = [
-         "sortFields",
-         "filterConditions",
-         "frozenColumnID",
-         "hiddenFields",
-         "summaryColumns",
-         "countColumns",
-      ];
-      // Transition: if we have an .objectWorkspace, copy those values in here:
-      if (this.settings.objectWorkspace) {
-         owFields.forEach((f) => {
-            if (!this.settings[f])
-               this.settings[f] = this.settings.objectWorkspace[f];
-         });
+      if (typeof this.settings.objectWorkspace != "undefined") {
+         if (typeof this.settings.objectWorkspace.sortFields == "undefined")
+            this.settings.objectWorkspace.sortFields = [];
+         if (
+            typeof this.settings.objectWorkspace.filterConditions == "undefined"
+         )
+            this.settings.objectWorkspace.filterConditions = [];
+         if (typeof this.settings.objectWorkspace.frozenColumnID == "undefined")
+            this.settings.objectWorkspace.frozenColumnID = "";
+         if (typeof this.settings.objectWorkspace.hiddenFields == "undefined")
+            this.settings.objectWorkspace.hiddenFields = [];
+         if (typeof this.settings.objectWorkspace.summaryColumns == "undefined")
+            this.settings.objectWorkspace.summaryColumns = [];
+         if (typeof this.settings.objectWorkspace.countColumns == "undefined")
+            this.settings.objectWorkspace.countColumns = [];
       }
-
-      // make sure they have actual default values now.
-      owFields.forEach((f) => {
-         settingsDefault(this.settings, f);
-      });
 
       // we are not allowed to have sub views:
       this._views = [];
+
+      // convert from "0" => 0
+      // this.settings.format = parseInt(this.settings.format);
+      this.settings.height = parseInt(this.settings.height || 0);
    }
 
    /**
@@ -327,46 +224,63 @@ module.exports = class ABViewGridCore extends ABViewWidget {
    removeField(field, cb) {
       let shouldSave = false;
 
-      // check to see if there is a frozenColumnID and if it matches the
-      // deleted field
-      if (this.settings?.frozenColumnID == field.columnName) {
+      // check to see if there is a frozenColumnID and if it matches the deleted field
+      if (
+         this.settings.objectWorkspace.frozenColumnID &&
+         this.settings.objectWorkspace.frozenColumnID == field.columnName
+      ) {
          // remove the column name from the frozen column id
-         this.settings.frozenColumnID = "";
+         this.settings.objectWorkspace.frozenColumnID = "";
          // flag the object to be saved later
          shouldSave = true;
       }
 
       // check to see if there are hidden fields
-      if (this.settings.hiddenFields?.length) {
+      if (
+         this.settings.objectWorkspace.hiddenFields &&
+         this.settings.objectWorkspace.hiddenFields.length
+      ) {
          // find if the deleted field is in the array
-         let index = this.settings.hiddenFields.indexOf(field.columnName);
+         let index = this.settings.objectWorkspace.hiddenFields.indexOf(
+            field.columnName
+         );
          // if so splice it out of the array
          if (index > -1) {
-            this.settings.hiddenFields.splice(index, 1);
-            // flag the object to be saved later
-            shouldSave = true;
-         }
-      }
-
-      // check to see if there are Summary fields
-      if (this.settings.summaryColumns?.length) {
-         // find if the deleted field is in the array
-         let index = this.settings.summaryColumns.indexOf(field.id);
-         // if so splice it out of the array
-         if (index > -1) {
-            this.settings.summaryColumns.splice(index, 1);
+            this.settings.objectWorkspace.hiddenFields.splice(index, 1);
             // flag the object to be saved later
             shouldSave = true;
          }
       }
 
       // check to see if there are hidden fields
-      if (this.settings.countColumns?.length) {
+      if (
+         this.settings.objectWorkspace.summaryColumns &&
+         this.settings.objectWorkspace.summaryColumns.length
+      ) {
          // find if the deleted field is in the array
-         let index = this.settings.countColumns.indexOf(field.id);
+         let index = this.settings.objectWorkspace.summaryColumns.indexOf(
+            field.id
+         );
          // if so splice it out of the array
          if (index > -1) {
-            this.settings.countColumns.splice(index, 1);
+            this.settings.objectWorkspace.summaryColumns.splice(index, 1);
+            // flag the object to be saved later
+            shouldSave = true;
+         }
+      }
+
+      // check to see if there are hidden fields
+      if (
+         this.settings.objectWorkspace.countColumns &&
+         this.settings.objectWorkspace.countColumns.length
+      ) {
+         // find if the deleted field is in the array
+         let index = this.settings.objectWorkspace.countColumns.indexOf(
+            field.id
+         );
+         // if so splice it out of the array
+         if (index > -1) {
+            this.settings.objectWorkspace.countColumns.splice(index, 1);
             // flag the object to be saved later
             shouldSave = true;
          }

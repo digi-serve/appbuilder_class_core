@@ -5,55 +5,36 @@
  *
  */
 
-const ABField = require("../../platform/dataFields/ABField");
+var ABField = require("../../platform/dataFields/ABField");
 
-const ABFieldNumberDefaults = {
-   key: "number",
-   // unique key to reference this specific DataField
+function L(key, altText) {
+   // TODO:
+   return altText; // AD.lang.label.getLabel(key) || altText;
+}
 
-   description: "A Float or Integer Value",
-   // description: what gets displayed in the Editor description.
-   // NOTE: this will be displayed using a Label: L(description)
+var ABFieldNumberDefaults = {
+   key: "number", // unique key to reference this specific DataField
 
-   icon: "hashtag",
-   // font-awesome icon reference.  (without the 'fa-').  so 'hashtag'  to
-   // reference 'fa-hashtag'
+   icon: "hashtag", // font-awesome icon reference.  (without the 'fa-').  so 'user'  to reference 'fa-user'
 
-   isFilterable: true,
-   // {bool} / {fn}
-   // determines if the current ABField can be used to filter (FilterComplex
-   // or Query) data.
-   // if a {fn} is provided, it will be called with the ABField as a parameter:
-   //  (field) => field.setting.something == true
-
-   isSortable: true,
-   // {bool} / {fn}
-   // determines if the current ABField can be used to Sort data.
-   // if a {fn} is provided, it will be called with the ABField as a parameter:
-   //  (field) => true/false
-
-   menuName: "Number",
    // menuName: what gets displayed in the Editor drop list
-   // NOTE: this will be displayed using a Label: L(menuName)
+   menuName: L("ab.dataField.number.menuName", "*Number"),
+
+   // description: what gets displayed in the Editor description.
+   description: L(
+      "ab.dataField.number.description",
+      "*A Float or Integer Value"
+   ),
 
    supportRequire: true,
-   // {bool}
-   // does this ABField support the Required setting?
-
    supportUnique: true,
-   // {bool}
-   // does this ABField support the Unique setting?
 
-   useAsLabel: true,
-   // {bool} / {fn}
-   // determines if this ABField can be used in the display of an ABObject's
-   // label.
-
-   compatibleOrmTypes: ["number"],
-   // {array}
    // what types of Sails ORM attributes can be imported into this data type?
    // http://sailsjs.org/documentation/concepts/models-and-orm/attributes#?attribute-options
+   compatibleOrmTypes: ["integer", "float"],
 
+   // what types of MySql column types can be imported into this data type?
+   // https://www.techonthenet.com/mysql/datatypes.php
    compatibleMysqlTypes: [
       "tinyint",
       "smallint",
@@ -66,27 +47,22 @@ const ABFieldNumberDefaults = {
       "numeric",
       "fixed",
       "float",
-      "real",
-   ],
-   // {array}
-   // what types of MySql column types can be imported into this data type?
-   // https://www.techonthenet.com/mysql/datatypes.php
+      "real"
+   ]
 };
 
-const defaultValues = {
+var defaultValues = {
    // 'allowRequired': 0,
    default: "",
    typeFormat: "none",
    typeDecimals: "none",
-   typeDecimalPlaces: 0,
+   typeDecimalPlaces: "none",
    typeRounding: "none",
    typeThousands: "none",
    validation: 0,
    validateMinimum: "",
-   validateMaximum: "",
+   validateMaximum: ""
 };
-
-let L = null; //AB.Label();
 
 module.exports = class ABFieldNumberCore extends ABField {
    constructor(values, object) {
@@ -108,9 +84,6 @@ module.exports = class ABFieldNumberCore extends ABField {
 			}
     	}
     	*/
-      if (!L) {
-         L = this.AB.Label();
-      }
    }
 
    // return the default values for this DataField
@@ -122,67 +95,66 @@ module.exports = class ABFieldNumberCore extends ABField {
       return defaultValues;
    }
 
-   static formatList(iL) {
-      if (iL && !L) L = iL;
+   static formatList() {
       return [
-         { id: "none", value: L("None") },
+         { id: "none", value: L("ab.dataField.number.none", "*None") },
          {
             id: "dollar",
-            value: L("$"),
+            value: L("ab.dataField.number.format.dollar", "$"),
             sign: "$",
-            position: "prefix",
+            position: "prefix"
          },
          {
             id: "yen",
-            value: L("¥"),
+            value: L("ab.dataField.number.format.yen", "¥"),
             sign: "¥",
-            position: "prefix",
+            position: "prefix"
          },
          {
             id: "pound",
-            value: L("£"),
+            value: L("ab.dataField.number.format.pound", "£"),
             sign: "£",
-            position: "prefix",
+            position: "prefix"
          },
          {
             id: "euroBefore",
-            value: L("€ (before)"),
+            value: L("ab.dataField.number.format.euroBefore", "€ (before)"),
             sign: "€",
-            position: "prefix",
+            position: "prefix"
          },
          {
             id: "euroAfter",
-            value: L("€ (after)"),
+            value: L("ab.dataField.number.format.euroAfter", "€ (after)"),
             sign: "€",
-            position: "postfix",
+            position: "postfix"
          },
          {
             id: "percent",
-            value: L("%"),
+            value: L("ab.dataField.number.format.percent", "%"),
             sign: "%",
-            position: "postfix",
-         },
+            position: "postfix"
+         }
       ];
    }
 
    static delimiterList() {
       return [
-         { id: "none", value: L("None") },
+         { id: "none", value: L("ab.dataField.number.none", "*None") },
          {
             id: "comma",
-            value: L("Comma"),
-            sign: ",",
+            value: L("ab.dataField.number.comma", "*Comma"),
+            sign: ","
          },
          {
             id: "period",
-            value: L("Period"),
-            sign: ".",
+            value: L("ab.dataField.number.period", "*Period"),
+            sign: "."
          },
          {
             id: "space",
-            value: L("Space"),
-            sign: " ",
-         },
+            value: L("ab.dataField.number.space", "*Space"),
+            sign: " "
+         }
       ];
    }
 
@@ -226,24 +198,22 @@ module.exports = class ABFieldNumberCore extends ABField {
    isValidData(data, validator) {
       super.isValidData(data, validator);
 
-      // const L = this.AB.Label();
-
       if (data[this.columnName] != null && data[this.columnName] != "") {
-         let value = data[this.columnName];
+         var value = data[this.columnName];
 
          // if this is an integer:
          if (this.settings.typeDecimals == "none") {
             value = parseInt(value);
          } else {
-            const places = parseInt(this.settings.typeDecimalPlaces) || 2;
+            var places = parseInt(this.settings.typeDecimalPlaces) || 2;
             value = parseFloat(parseFloat(value).toFixed(places));
          }
 
-         const isNumeric = (n) => {
+         var isNumeric = (n) => {
             return !Number.isNaN(parseFloat(n)) && Number.isFinite(n);
          };
          if (!isNumeric(value)) {
-            validator.addError(this.columnName, L("invalid number"));
+            validator.addError(this.columnName, "invalid number");
          }
 
          // validate Minimum
@@ -252,9 +222,10 @@ module.exports = class ABFieldNumberCore extends ABField {
             this.settings.validateMinimum != null &&
             this.settings.validateMinimum > value
          ) {
-            const errMessage = L("should be greater than {0}", [
-               this.settings.validateMinimum,
-            ]);
+            var errMessage = "should be greater than {min}".replace(
+               "{min}",
+               this.settings.validateMinimum
+            );
 
             validator.addError(this.columnName, errMessage);
          }
@@ -265,9 +236,10 @@ module.exports = class ABFieldNumberCore extends ABField {
             this.settings.validateMaximum != null &&
             this.settings.validateMaximum < value
          ) {
-            const errMessage = L("should be less than {0}", [
-               this.settings.validateMaximum,
-            ]);
+            var errMessage = "should be less than {max}".replace(
+               "{max}",
+               this.settings.validateMaximum
+            );
 
             validator.addError(this.columnName, errMessage);
          }
@@ -276,7 +248,7 @@ module.exports = class ABFieldNumberCore extends ABField {
 
    format(rowData) {
       if (
-	 rowData?.[this.columnName] == null ||
+         rowData[this.columnName] == null ||
          (rowData[this.columnName] != 0 && rowData[this.columnName] == "")
       )
          return "";
@@ -290,22 +262,22 @@ module.exports = class ABFieldNumberCore extends ABField {
       // Validate number
       if (isNaN(parseFloat(data))) data = 0;
 
-      const formatSign = this.constructor
-         .formatList()
-         .filter((item) => item.id == this.settings.typeFormat)[0];
-      const decimalPlaces =
-         this.settings.typeDecimalPlaces != "none"
-            ? parseInt(this.settings.typeDecimalPlaces)
-            : 0;
+      var formatSign = this.constructor
+            .formatList()
+            .filter((item) => item.id == this.settings.typeFormat)[0],
+         thousandsSign = this.constructor
+            .delimiterList()
+            .filter((item) => item.id == this.settings.typeThousands)[0],
+         decimalSign = this.constructor
+            .delimiterList()
+            .filter((item) => item.id == this.settings.typeDecimals)[0],
+         decimalPlaces =
+            this.settings.typeDecimalPlaces != "none"
+               ? parseInt(this.settings.typeDecimalPlaces)
+               : 0;
 
-      let thousandsSign = this.constructor
-         .delimiterList()
-         .filter((item) => item.id == this.settings.typeThousands)[0];
-      let decimalSign = this.constructor
-         .delimiterList()
-         .filter((item) => item.id == this.settings.typeDecimals)[0];
-      let prefix = "";
-      let postfix = "";
+      var prefix = "",
+         postfix = "";
 
       if (formatSign && formatSign.sign) {
          switch (formatSign.position) {
@@ -323,41 +295,45 @@ module.exports = class ABFieldNumberCore extends ABField {
 
       // round number
       if (this.settings.typeRounding == "roundDown") {
-         const digit = Math.pow(10, decimalPlaces);
+         var digit = Math.pow(10, decimalPlaces);
          data = Math.floor(data * digit) / digit;
       }
 
-      const number = this.formatNumber(data, {
-         groupDelimiter: thousandsSign,
-         groupSize: 3,
-         decimalDelimiter: decimalSign,
-         decimalSize: decimalPlaces,
-      });
-
-      return `${prefix} ${number} ${postfix}`;
+      return "{prefix} {number} {postfix}"
+         .replace("{prefix}", prefix)
+         .replace("{postfix}", postfix)
+         .replace(
+            "{number}",
+            this.formatNumber(data, {
+               groupDelimiter: thousandsSign,
+               groupSize: 3,
+               decimalDelimiter: decimalSign,
+               decimalSize: decimalPlaces
+            })
+         );
    }
 
    formatNumber(data, options = {}) {
       if (data === "" || data == null) return data;
 
       data = parseFloat(data);
-      const negativeSign = data < 0 ? "-" : "";
+      let negativeSign = data < 0 ? "-" : "";
       data = Math.abs(data);
 
-      const dataStr = data.toString();
-      const integerStr = dataStr.split(".")[0];
-      const decimalStr = dataStr.split(".")[1];
+      let dataStr = data.toString();
+      let integerStr = dataStr.split(".")[0];
+      let decimalStr = dataStr.split(".")[1];
 
       let integerValue = "";
 
       // Thousands digit sign
       if (options.groupDelimiter) {
-         const step = 3;
+         let step = 3;
          let i = integerStr.length;
 
          do {
             i -= step;
-            const chunk =
+            let chunk =
                i > 0
                   ? integerStr.substr(i, step)
                   : integerStr.substr(0, step + i);

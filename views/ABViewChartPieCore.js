@@ -1,21 +1,21 @@
-const ABViewChartContainer = require("../../platform/views/ABViewChartContainer");
+const ABViewChartComponent = require("../../platform/views/ABViewChartComponent");
 
 const ABViewChartPiePropertyComponentDefaults = {
    pieType: "pie",
-   isLegend: 1,
+   isLegend: true,
    // chartWidth: 600,
    height: 200,
    innerFontSize: 12,
-   labelFontSize: 12,
+   labelFontSize: 12
 };
 
 const ABViewDefaults = {
    key: "pie", // {string} unique key for this view
    icon: "pie-chart", // {string} fa-[icon] reference for this view
-   labelKey: "Pie", // {string} the multilingual label key for the class label
+   labelKey: "ab.components.chart.pie" // {string} the multilingual label key for the class label
 };
 
-module.exports = class ABViewChartPieCore extends ABViewChartContainer {
+module.exports = class ABViewChartPieCore extends ABViewChartComponent {
    constructor(values, application, parent, defaultValues) {
       super(values, application, parent, defaultValues || ABViewDefaults);
    }
@@ -41,30 +41,26 @@ module.exports = class ABViewChartPieCore extends ABViewChartContainer {
    fromValues(values) {
       super.fromValues(values);
 
-      this.settings.pieType =
-         this.settings.pieType ||
-         ABViewChartPiePropertyComponentDefaults.pieType;
-
-      this.settings.isLegend = parseInt(
-         this.settings.isLegend ??
+      this.settings.isLegend = JSON.parse(
+         this.settings.isLegend ||
             ABViewChartPiePropertyComponentDefaults.isLegend
       );
 
       // this.settings.chartWidth = parseInt(this.settings.chartWidth || ABViewChartPiePropertyComponentDefaults.chartWidth);
       this.settings.height = parseInt(
-         this.settings.height ?? ABViewChartPiePropertyComponentDefaults.height
+         this.settings.height || ABViewChartPiePropertyComponentDefaults.height
       );
 
       this.settings.innerFontSize = parseInt(
-         this.settings.innerFontSize ??
+         this.settings.innerFontSize ||
             ABViewChartPiePropertyComponentDefaults.innerFontSize
       );
       this.settings.labelFontSize = parseInt(
-         this.settings.labelFontSize ??
+         this.settings.labelFontSize ||
             ABViewChartPiePropertyComponentDefaults.labelFontSize
       );
 
-      this.translate(this, this, ["pieLabel"]);
+      this.application.translate(this, this, ["pieLabel"]);
    }
 
    /**

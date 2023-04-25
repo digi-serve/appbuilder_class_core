@@ -1,14 +1,14 @@
-const ABViewDetailItem = require("../../platform/views/ABViewDetailItem");
+const ABViewDetailComponent = require("../../platform/views/ABViewDetailComponent");
 
 const ABViewDetailPropertyComponentDefaults = {};
 
 const ABViewDetailTreeDefaults = {
    key: "detailtree", // {string} unique key for this view
    icon: "sitemap", // {string} fa-[icon] reference for this view
-   labelKey: "ab.components.detail.tree", // {string} the multilingual label key for the class label
+   labelKey: "ab.components.detail.tree" // {string} the multilingual label key for the class label
 };
 
-module.exports = class ABViewDetailTextCore extends ABViewDetailItem {
+module.exports = class ABViewDetailTextCore extends ABViewDetailComponent {
    /**
     * @param {obj} values  key=>value hash of ABView values
     * @param {ABApplication} application the application object this view is under
@@ -19,7 +19,7 @@ module.exports = class ABViewDetailTextCore extends ABViewDetailItem {
          values,
          application,
          parent,
-         defaultValues ?? ABViewDetailTreeDefaults
+         defaultValues || ABViewDetailTreeDefaults
       );
    }
 
@@ -29,5 +29,13 @@ module.exports = class ABViewDetailTextCore extends ABViewDetailItem {
 
    static defaultValues() {
       return ABViewDetailPropertyComponentDefaults;
+   }
+
+   /**
+    * @method componentList
+    * return the list of components available on this view to display in the editor.
+    */
+   componentList() {
+      return [];
    }
 };

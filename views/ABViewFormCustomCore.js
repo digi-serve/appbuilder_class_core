@@ -1,17 +1,14 @@
-const ABViewFormItem = require("../../platform/views/ABViewFormItem");
+const ABViewFormComponent = require("../../platform/views/ABViewFormComponent");
 
 const ABViewFormCustomPropertyComponentDefaults = {};
 
 const ABViewFormCustomDefaults = {
-   key: "fieldcustom",
-   // {string} unique key for this view
-   icon: "object-group",
-   // {string} fa-[icon] reference for this view
-   labelKey: "ab.components.custom",
-   // {string} the multilingual label key for the class label
+   key: "fieldcustom", // {string} unique key for this view
+   icon: "object-group", // {string} fa-[icon] reference for this view
+   labelKey: "ab.components.custom" // {string} the multilingual label key for the class label
 };
 
-module.exports = class ABViewFormCustom extends ABViewFormItem {
+module.exports = class ABViewFormCustom extends ABViewFormComponent {
    constructor(values, application, parent, defaultValues) {
       super(
          values,
@@ -37,4 +34,3 @@ module.exports = class ABViewFormCustom extends ABViewFormItem {
       return [];
    }
 };
-

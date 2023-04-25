@@ -7,16 +7,13 @@
  *
  *
  */
-var ABEmitter = require("../../platform/ABEmitter");
-class ABQLCore extends ABEmitter {
-   constructor(attributes, parameterDefinitions, prevOP, task, AB) {
-      super();
 
+class ABQLCore {
+   constructor(attributes, parameterDefinitions, prevOP, task, application) {
       // manage the incoming Parameter Definitions
       if (!Array.isArray(parameterDefinitions)) {
          parameterDefinitions = [parameterDefinitions];
       }
-
       this.parameterDefinitions = parameterDefinitions;
 
       this.object = prevOP ? prevOP.object : null;
@@ -26,7 +23,9 @@ class ABQLCore extends ABEmitter {
 
       // if the previous Operation defined an .objectOut then our .object is THAT
       // one.
-      if (prevOP && prevOP.objectOut) this.object = prevOP.objectOut;
+      if (prevOP && prevOP.objectOut) {
+         this.object = prevOP.objectOut;
+      }
 
       this.prevOP = prevOP;
       this.task = task;
@@ -35,7 +34,7 @@ class ABQLCore extends ABEmitter {
       // searching for data from the Process, we must go through this.task
       // to do so.
 
-      this.AB = AB;
+      this.application = application;
       this.next = null;
 
       this.fromAttributes(attributes);
@@ -44,6 +43,7 @@ class ABQLCore extends ABEmitter {
    ///
    /// Instance Methods
    ///
+
    initObject(attributes) {}
 
    fromAttributes(attributes) {
@@ -57,44 +57,36 @@ class ABQLCore extends ABEmitter {
         */
 
       // super.fromValues(attributes);
-      this.key = this.constructor.key ?? null;
 
       // this.entryComplete = attributes.entryComplete || false;
-      this.params = attributes.params ?? {};
+      this.params = attributes.params || {};
       // {hash}
       // The configuration values entered by the AppBuilder UI for this
       // operation.
 
       this.objectID = attributes.objectID || null;
-
       // be sure to do a hard lookup if an objectID was saved:
-      if (this.objectID) this.object = this.objectLookup(this.objectID);
+      if (this.objectID) {
+         this.object = this.objectLookup(this.objectID);
+      }
 
       this.initObject(attributes);
 
-      // at least dump a warning here:
-      if (this.objectID && !this.object)
-         this.AB.notify.developer(
-            new Error(
-               `ABQLCore.fromAttributes(): unable to initialize ABObject [${this.objectID}]`
-            ),
-            {
-               attributes,
-               objectID: this.objectID,
-            }
-         );
-
       if (attributes.next) {
-         let nextOP = null;
-
-         (this.NextQLOps ?? this.constructor.NextQLOps).forEach((OP) => {
-            if (OP.key === attributes.next.key) nextOP = OP;
+         var nextOP = null;
+         (this.NextQLOps || this.constructor.NextQLOps).forEach((OP) => {
+            if (OP.key == attributes.next.key) {
+               nextOP = OP;
+            }
          });
-
          if (nextOP) {
             // exact match, so add next:
-            const qlOP = new nextOP(attributes.next, this, this.task, this.AB);
-
+            var qlOP = new nextOP(
+               attributes.next,
+               this,
+               this.task,
+               this.application
+            );
             this.next = qlOP;
          }
       }
@@ -109,12 +101,11 @@ class ABQLCore extends ABEmitter {
     * @param {string} objID
     */
    objectLookup(objID) {
-      return this.AB.objects((o) => {
-         const quotedLabel = `"${o.label}"`;
-
+      return this.application.objects((o) => {
+         var quotedLabel = `"${o.label}"`;
          return (
-            // o.id === this.objectID ||
-            o.id === objID || quotedLabel.indexOf(objID) === 0
+            // o.id == this.objectID ||
+            o.id == objID || quotedLabel.indexOf(objID) == 0
          );
       })[0];
    }
@@ -126,10 +117,10 @@ class ABQLCore extends ABEmitter {
     * @return {obj}
     */
    availableProcessDataFieldsHash() {
-      const availableProcessDataFields =
-         this.task.process.processDataFields(this.task) ?? [];
-      const hashFieldIDs = {};
-
+      var availableProcessDataFields = this.task.process.processDataFields(
+         this.task
+      ) || [];
+      var hashFieldIDs = {};
       availableProcessDataFields.forEach((f) => {
          if (f.field) {
             hashFieldIDs[f.field.id] = f;
@@ -137,7 +128,6 @@ class ABQLCore extends ABEmitter {
             hashFieldIDs[f.key] = f;
          }
       });
-
       return hashFieldIDs;
    }
 
@@ -153,18 +143,23 @@ class ABQLCore extends ABEmitter {
 
    /**
     * @method toObj()
-    * properly compile the current state of this ABQL instance
+    *
+    * properly compile the current state of this ABApplication instance
     * into the values needed for saving to the DB.
+    *
+    * Most of the instance data is stored in .json field, so be sure to
+    * update that from all the current values of our child fields.
+    *
     * @return {json}
     */
    toObj() {
-      const obj = {
+      var obj = {
          key: this.constructor.key,
          // entryComplete: this.entryComplete,
          params: this.params,
          // currQuery: this.currQuery,
          // queryValid: this.queryValid,
-         objectID: this.object?.id ?? null,
+         objectID: this.object ? this.object.id : null
       };
 
       if (this.next) {

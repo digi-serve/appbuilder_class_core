@@ -5,7 +5,7 @@ const ABViewFormReadonlyPropertyComponentDefaults = {};
 const ABViewFormReadonlyDefaults = {
    key: "fieldreadonly", // {string} unique key for this view
    icon: "calculator", // {string} fa-[icon] reference for this view
-   labelKey: "ab.components.readonly", // {string} the multilingual label key for the class label
+   labelKey: "ab.components.readonly" // {string} the multilingual label key for the class label
 };
 
 module.exports = class ABViewFormReadonly extends ABViewFormCustom {

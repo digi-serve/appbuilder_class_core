@@ -1,15 +1,15 @@
 const ABViewWidget = require("../../platform/views/ABViewWidget");
 
 const ABViewLabelPropertyComponentDefaults = {
-   text: "",
+   label: "",
    format: 0, // 0 - normal, 1 - title, 2 - description
-   alignment: "left",
+   alignment: "left"
 };
 
 const ABViewDefaults = {
    key: "label", // {string} unique key for this view
    icon: "font", // {string} fa-[icon] reference for this view
-   labelKey: "Label", // {string} the multilingual label key for the class label
+   labelKey: "ab.components.label" // {string} the multilingual label key for the class label
 };
 
 module.exports = class ABViewLabelCore extends ABViewWidget {
@@ -75,7 +75,7 @@ module.exports = class ABViewLabelCore extends ABViewWidget {
       // convert from "0" => 0
       this.settings.format = parseInt(this.settings.format);
 
-      this.translate(this, this, ["label", "text"]);
+      this.translate(this, this, ["text"]);
    }
 
    /**

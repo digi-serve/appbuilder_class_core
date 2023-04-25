@@ -3,12 +3,12 @@ const ABView = require("../../platform/views/ABView");
 const ABViewDefaults = {
    key: "viewwidget", // {string} unique key for this view
    icon: "circle-o-notch ", // {string} fa-[icon] reference for this view
-   labelKey: "ab.components.widget", // {string} the multilingual label key for the class label
+   labelKey: "ab.components.widget" // {string} the multilingual label key for the class label
 };
 
 const ABPropertyComponentDefaults = {
    columnSpan: 1,
-   rowSpan: 1,
+   rowSpan: 1
 };
 
 module.exports = class ABViewWidgetCore extends ABView {

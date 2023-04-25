@@ -6,14 +6,14 @@ const ABViewCommentPropertyComponentDefaults = {
    columnComment: null,
    columnDate: null,
    height: 300,
-   label: "", // label is required and you can add more if the component needs them
+   label: "" // label is required and you can add more if the component needs them
    // format:0  	// 0 - normal, 1 - title, 2 - description
 };
 
 const ABViewDefaults = {
    key: "comment", // {string} unique key for this view
    icon: "comments", // {string} fa-[icon] reference for this view
-   labelKey: "Comment", // {string} the multilingual label key for the class label
+   labelKey: "ab.components.comment" // {string} the multilingual label key for the class label
 };
 
 module.exports = class ABViewCommentCore extends ABViewWidget {
@@ -56,26 +56,6 @@ module.exports = class ABViewCommentCore extends ABViewWidget {
       return [];
    }
 
-   getCurrentUserId() {
-      const userObject = this.getUsers();
-      const currentUser = this.AB.Account.username();
-      //Anonymous User = 0
-
-      if (!userObject) return;
-
-      return userObject.findIndex((e) => e.value === currentUser) + 1;
-   }
-
-   getUsers() {
-      return this.AB.Account.userList().map((e) => {
-         return {
-            id: e.username,
-            value: e.username,
-            image: e.image_id,
-         };
-      });
-   }
-
    getUserField() {
       var dv = this.datacollection;
       if (!dv) return null;
@@ -83,7 +63,7 @@ module.exports = class ABViewCommentCore extends ABViewWidget {
       var obj = dv.datasource;
       if (!obj) return null;
 
-      return obj.fieldByID(this.settings.columnUser);
+      return obj.fields((f) => f.id == this.settings.columnUser)[0];
    }
 
    getCommentField() {
@@ -93,7 +73,7 @@ module.exports = class ABViewCommentCore extends ABViewWidget {
       var obj = dv.datasource;
       if (!obj) return null;
 
-      return obj.fieldByID(this.settings.columnComment);
+      return obj.fields((f) => f.id == this.settings.columnComment)[0];
    }
 
    getDateField() {
@@ -103,14 +83,10 @@ module.exports = class ABViewCommentCore extends ABViewWidget {
       var obj = dv.datasource;
       if (!obj) return null;
 
-      return obj.fieldByID(this.settings.columnDate);
+      return obj.fields((f) => f.id == this.settings.columnDate)[0];
    }
 
    getUserData() {
-      let UserImageField = this.AB.objectUser().fieldByID(
-         "6383ce19-b344-44ee-87e6-decced7361f8"
-      );
-
       var userObject = this.getUsers();
       var userList = [];
 
@@ -119,7 +95,7 @@ module.exports = class ABViewCommentCore extends ABViewWidget {
       userObject.forEach((item, index) => {
          var imageURL = "";
          if (item.image) {
-            imageURL = UserImageField.urlImage(item.image);
+            imageURL = "/opsportal/image/UserProfile/" + item.image;
          }
          var user = { id: index + 1, value: item.value, image: imageURL };
          userList.push(user);
@@ -131,10 +107,61 @@ module.exports = class ABViewCommentCore extends ABViewWidget {
       let dv = this.datacollection;
       if (!dv) return null; // TODO: refactor in v2
 
+      // get ABObject
+      let obj = dv.datasource;
+      if (obj == null) return null; // TODO: refactor in v2
+
       // get ABModel
-      let model = dv.model; // already notified
-      if (!model) return null;
+      let model = dv.model;
+      if (model == null) return null;
 
       return model;
    }
+
+   saveData(commentText, dateTime) {
+      if (commentText == null || commentText == "") return Promise.resolve();
+
+      let dv = this.datacollection;
+      if (!dv) return null;
+
+      let model = this.model();
+      if (model == null) return Promise.resolve();
+
+      let comment = {};
+
+      let userField = this.getUserField();
+      if (userField) comment[userField.columnName] = OP.User.username();
+
+      let commentField = this.getCommentField();
+      if (commentField) comment[commentField.columnName] = commentText;
+
+      let dateField = this.getDateField();
+      if (dateField) comment[dateField.columnName] = dateTime;
+
+      // add parent cursor to default
+      let dvLink = dv.datacollectionLink;
+      if (dvLink && dvLink.getCursor()) {
+         let objectLink = dvLink.datasource;
+         let fieldLink = dv.fieldLink;
+
+         if (objectLink && fieldLink) {
+            comment[fieldLink.columnName] = {};
+            comment[fieldLink.columnName][
+               objectLink.PK()
+            ] = dvLink.getCursor().id;
+         }
+      }
+
+      return new Promise((resolve, reject) => {
+         model
+            .create(comment)
+            .catch((err) => {
+               reject(err);
+            })
+            .then(() => {
+               resolve();
+            });
+      });
+   }
 };
+

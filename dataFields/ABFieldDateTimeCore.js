@@ -13,62 +13,34 @@ function L(key, altText) {
 }
 
 const ABFieldDateDefaults = {
-   key: "datetime",
-   // unique key to reference this specific DataField
+   key: "datetime", // unique key to reference this specific DataField
 
-   description: "Pick one from date & time.",
-   // description: what gets displayed in the Editor description.
-   // NOTE: this will be displayed using a Label: L(description)
+   icon: "clock-o", // font-awesome icon reference.  (without the 'fa-').  so 'user'  to reference 'fa-user'
 
-   icon: "clock-o",
-   // font-awesome icon reference.  (without the 'fa-').  so 'clock-o'  to
-   // reference 'clock-o'
-
-   isFilterable: true,
-   // {bool} / {fn}
-   // determines if the current ABField can be used to filter (FilterComplex
-   // or Query) data.
-   // if a {fn} is provided, it will be called with the ABField as a parameter:
-   //  (field) => field.setting.something == true
-
-   isSortable: false,
-   // {bool} / {fn}
-   // determines if the current ABField can be used to Sort data.
-   // if a {fn} is provided, it will be called with the ABField as a parameter:
-   //  (field) => true/false
-
-   menuName: "Date & Time",
    // menuName: what gets displayed in the Editor drop list
-   // NOTE: this will be displayed using a Label: L(menuName)
+   menuName: L("ab.dataField.datetime.menuName", "*Date & Time"),
+
+   // description: what gets displayed in the Editor description.
+   description: L(
+      "ab.dataField.datetime.description",
+      "*Pick one from date & time."
+   ),
 
    supportRequire: true,
-   // {bool}
-   // does this ABField support the Required setting?
 
-   supportUnique: false,
-   // {bool}
-   // does this ABField support the Unique setting?
-
-   useAsLabel: true,
-   // {bool} / {fn}
-   // determines if this ABField can be used in the display of an ABObject's
-   // label.
-
-   compatibleOrmTypes: ["datetime"],
-   // {array}
    // what types of Sails ORM attributes can be imported into this data type?
    // http://sailsjs.org/documentation/concepts/models-and-orm/attributes#?attribute-options
+   compatibleOrmTypes: ["datetime"],
 
-   compatibleMysqlTypes: ["datetime"],
-   // {array}
    // what types of MySql column types can be imported into this data type?
    // https://www.techonthenet.com/mysql/datatypes.php
+   compatibleMysqlTypes: ["datetime"]
 };
 
 const defaultValues = {
    timeFormat: 2, // 1 (Ignore time), 2, 3
    defaultTime: 1, // 1 (None), 2 (Current Time), 3 (Specific Time)
-   defaultTimeValue: null, // {Date}
+   defaultTimeValue: null // {Date}
 };
 
 module.exports = class ABFieldDateTimeCore extends ABFieldDateCore {
@@ -82,13 +54,9 @@ module.exports = class ABFieldDateTimeCore extends ABFieldDateCore {
    }
 
    static defaultValues() {
-      const baseDefault = super.defaultValues();
+      let baseDefault = super.defaultValues();
       return Object.assign(baseDefault, defaultValues);
    }
-
-   // TODO: current webpack install fails here without babel-loader,
-   // so swtich this to old JS method of Static Values (see bottom)
-   // static RegEx = "^[0-9]{4}-[0-9]{2}-[0-9]{2} [0-9]{2}:[0-9]{2}:[0-9]{2}$";
 
    ///
    /// Instance Methods
@@ -127,8 +95,8 @@ module.exports = class ABFieldDateTimeCore extends ABFieldDateCore {
 
       // From default value of ABFieldDateCore
       if (values[this.columnName]) {
-         dateResult = this.AB.rules.toDate(values[this.columnName]);
-         // const momentVal = this.convertToMoment(values[this.columnName]);
+         dateResult = this.object.application.toDate(values[this.columnName]);
+         // let momentVal = this.convertToMoment(values[this.columnName]);
          // if (momentVal.isValid()) {
          //    dateResult = new Date(momentVal);
          // }
@@ -136,7 +104,7 @@ module.exports = class ABFieldDateTimeCore extends ABFieldDateCore {
 
       // Set current time as default
       if (this.settings.defaultTime == 2) {
-         const currDate = new Date();
+         let currDate = new Date();
 
          if (dateResult == null) dateResult = new Date();
 
@@ -150,7 +118,7 @@ module.exports = class ABFieldDateTimeCore extends ABFieldDateCore {
          this.settings.defaultTime == 3 &&
          this.settings.defaultTimeValue
       ) {
-         const defaultTime = new Date(this.settings.defaultTimeValue);
+         let defaultTime = new Date(this.settings.defaultTimeValue);
 
          if (dateResult == null) dateResult = new Date();
 
@@ -166,29 +134,29 @@ module.exports = class ABFieldDateTimeCore extends ABFieldDateCore {
    }
 
    getFormat() {
-      const timeFormat = this.getTimeFormat();
+      let dateFormatString = super.getFormat();
 
-      this.settings = this.settings || {};
+      let timeFormat = this.getTimeFormat();
+      if (timeFormat) dateFormatString += ` ${timeFormat}`;
 
-      if (this.settings.dateFormat == 1) {
-         return timeFormat;
-      }
-
-      const dateFormat = super.getFormat();
-
-      return `${dateFormat} ${timeFormat}`;
+      return dateFormatString;
    }
 
    format(rowData) {
-      const datetimeFormat = this.getFormat();
-      const d = this.dataValue(rowData);
-      const dateObj = this.AB.rules.toDate(d);
+      this.settings = this.settings || {};
+      if (this.settings.dateFormat == 1) {
+         var d = this.dataValue(rowData);
+         if (d == "" || d == null) {
+            return "";
+         }
 
-      if (d == "" || d == null) {
-         return "";
+         // pull format from settings.
+         let dateObj = this.object.application.toDate(d);
+         let timeFormat = this.getTimeFormat();
+         return webix.Date.dateToStr(timeFormat)(dateObj);
+      } else {
+         return super.format(rowData);
       }
-
-      return webix.Date.dateToStr(datetimeFormat)(dateObj);
    }
 
    getTimeFormat() {
@@ -209,11 +177,7 @@ module.exports = class ABFieldDateTimeCore extends ABFieldDateCore {
     * @return {string}
     */
    exportValue(date) {
-      return date?.toISOString?.() ?? "";
+      return date.toISOString();
    }
 };
 
-// Transition Code:
-// revert to static RegEx once babel-loader is working locally.
-module.exports.RegEx =
-   "^[0-9]{4}-[0-9]{2}-[0-9]{2} [0-9]{2}:[0-9]{2}:[0-9]{2}$";

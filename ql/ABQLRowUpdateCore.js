@@ -9,16 +9,16 @@
 const ABQL = require("../../platform/ql/ABQL.js");
 // const ABQLRow = require("./ABQLRow.js");
 
-const ParameterDefinitions = [
+var ParameterDefinitions = [
    {
       type: "objectValues",
-      name: "values",
-   },
+      name: "values"
+   }
 ];
 
 class ABQLRowUpdateCore extends ABQL {
-   constructor(attributes, prevOP, task, AB) {
-      super(attributes, ParameterDefinitions, prevOP, task, AB);
+   constructor(attributes, prevOP, task, application) {
+      super(attributes, ParameterDefinitions, prevOP, task, application);
 
       // #Hack! : when an Operation provides the same .NextQlOps that it
       // was defined in, we can't require it again ==> circular dependency.
@@ -32,7 +32,7 @@ class ABQLRowUpdateCore extends ABQL {
 }
 
 ABQLRowUpdateCore.key = "update";
-ABQLRowUpdateCore.label = "Update this record";
+ABQLRowUpdateCore.label = "update record";
 ABQLRowUpdateCore.NextQLOps = [];
 // NOTE: .NextQLOps => see the #Hack in the constructor
 

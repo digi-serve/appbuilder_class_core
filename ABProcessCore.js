@@ -4,15 +4,12 @@ var ABMLClass = require("../platform/ABMLClass");
 const _concat = require("lodash/concat");
 
 module.exports = class ABProcessCore extends ABMLClass {
-   constructor(attributes, AB) {
-      super(["label"], AB);
+   constructor(attributes, application) {
+      super(/* ["label"] */);
+
+      this.application = application;
 
       this.fromValues(attributes);
-
-      // indicate we are ready.
-      this.elements().forEach((e) => {
-         e.onProcessReady();
-      });
    }
 
    ///
@@ -37,24 +34,11 @@ module.exports = class ABProcessCore extends ABMLClass {
       this.xmlDefinition = attributes.xmlDefinition || null;
 
       // this.json = attributes.json || null;
-      let currElements = this._elements || {};
       this._elements = {};
       (attributes.elementIDs || []).forEach((eID) => {
-         var ele = this.AB.processElementNew(eID, this);
+         var ele = this.application.processElementNew(eID, this);
          if (ele) {
             this._elements[eID] = ele;
-         } else {
-            // current eID isn't one of our definitions yet, so might be
-            // a temporary .diagramID from an unsaved task:
-            if (currElements[eID]) {
-               this._elements[eID] = currElements[eID];
-            } else {
-               this.emit(
-                  "warning",
-                  `P[${this.name}] is referencing an unknown process element id[${eID}]`,
-                  { process: this.id, eID }
-               );
-            }
          }
       });
 
@@ -70,8 +54,13 @@ module.exports = class ABProcessCore extends ABMLClass {
 
    /**
     * @method toObj()
-    * properly compile the current state of this ABProcess instance
+    *
+    * properly compile the current state of this ABApplication instance
     * into the values needed for saving to the DB.
+    *
+    * Most of the instance data is stored in .json field, so be sure to
+    * update that from all the current values of our child fields.
+    *
     * @return {json}
     */
    toObj() {
@@ -90,11 +79,7 @@ module.exports = class ABProcessCore extends ABMLClass {
 
       data.elementIDs = [];
       for (var e in this._elements) {
-         // NOTE: when a task is initially created, it doesn't have an .id
-         // so we need to reference it by it's .diagramID
-         data.elementIDs.push(
-            this._elements[e].id ?? this._elements[e].diagramID
-         );
+         data.elementIDs.push(this._elements[e].id);
       }
 
       data.connections = this._connections;
@@ -165,16 +150,14 @@ module.exports = class ABProcessCore extends ABMLClass {
     *                should be returned.
     * @return [{SimpleConnectionObj}]
     */
-   connections(fn = () => true) {
+   connections(fn) {
+      if (!fn)
+         fn = () => {
+            return true;
+         };
       var allConnections = Object.keys(this._connections).map((e) => {
          return this._connections[e];
       });
-
-      // If parent, merge connections
-      if (this.process && this.key === "SubProcess") {
-         allConnections = allConnections.concat(this.process.connections());
-      }
-
       return allConnections.filter(fn);
    }
 
@@ -252,7 +235,7 @@ module.exports = class ABProcessCore extends ABMLClass {
          id: element.id,
          type: element.type,
          from: from,
-         to: to,
+         to: to
       };
       return connection;
    }
@@ -265,7 +248,7 @@ module.exports = class ABProcessCore extends ABMLClass {
     */
    connectionUpsert(element) {
       var simpleConn = this.connectionSimplyElement(element);
-      if (simpleConn.from && simpleConn.to && element.parent) {
+      if (simpleConn.from && simpleConn.to) {
          this._connections[simpleConn.id] = simpleConn;
       } else {
          // this connection is no longer connecting anything thing.
@@ -297,16 +280,6 @@ module.exports = class ABProcessCore extends ABMLClass {
     */
    elementAdd(element) {
       this._elements[element.id || element.diagramID] = element;
-   }
-
-   /**
-    * elementByID()
-    * return the {ABProcessElement} that has the given .id
-    * @param {string} id
-    * @return {ABProcess[OBJ]}
-    */
-   elementByID(id) {
-      return this._elements[id] ?? null;
    }
 
    /**
@@ -344,29 +317,6 @@ module.exports = class ABProcessCore extends ABMLClass {
    }
 
    /**
-    * connectionNextTask()
-    * return the ABProcessElement(s) that are after the given Element
-    * (eg connects to) this element.
-    * @param {ABProcessElement} currElement
-    * @return {array}
-    */
-   connectionNextTask(currElement) {
-      var elements = [];
-      var nextConnections = this.connections((c) => {
-         return c.from == currElement.diagramID;
-      });
-      nextConnections.forEach((c) => {
-         var element = this.elements((e) => {
-            return e.diagramID == c.to;
-         })[0];
-         if (element) {
-            elements.push(element);
-         }
-      });
-      return elements;
-   }
-
-   /**
     * connectionPreviousTask()
     * return the ABProcessElement(s) that was a previous Element
     * (eg connects to) this element.
@@ -398,15 +348,7 @@ module.exports = class ABProcessCore extends ABMLClass {
     * @return {array} | null
     */
    processData(currElement, params) {
-      // var tasksToAsk = this.connectionPreviousTask(currElement);
-      // var values = queryPreviousTasks(tasksToAsk, "processData", params, this);
-      // return values.length > 0
-      //    ? values.length > 1
-      //       ? values
-      //       : values[0]
-      //    : null;
-
-      var tasksToAsk = this.allPreviousTasks(currElement);
+      var tasksToAsk = this.connectionPreviousTask(currElement);
       var values = queryPreviousTasks(tasksToAsk, "processData", params, this);
       return values.length > 0
          ? values.length > 1
@@ -426,8 +368,7 @@ module.exports = class ABProcessCore extends ABMLClass {
     * @return {array} | null
     */
    processDataFields(currElement) {
-      var tasksToAsk = this.allPreviousTasks(currElement);
-      // var tasksToAsk = this.connectionPreviousTask(currElement);
+      var tasksToAsk = this.connectionPreviousTask(currElement);
       var fields = queryPreviousTasks(
          tasksToAsk,
          "processDataFields",
@@ -435,69 +376,6 @@ module.exports = class ABProcessCore extends ABMLClass {
          this
       );
       return fields.length > 0 ? fields : null;
-   }
-
-   /**
-    * allPreviousConnections()
-    * walk through the current graph and return all the previous connections
-    * leading up to the given {ProcessElement}
-    * @param {Connection} conn
-    * @param {hash} hashConn
-    *        { connection.id : connection }
-    * @return {array}
-    */
-   allPreviousConnectionsForConnection(conn, hashConn) {
-      var prevConnections = this.connections((c) => {
-         return c.to == conn.from;
-      });
-
-      prevConnections.forEach((c) => {
-         if (!hashConn[c.id]) {
-            hashConn[c.id] = c;
-            this.allPreviousConnectionsForConnection(c, hashConn);
-         }
-      });
-   }
-   allPreviousConnectionsForElement(currElement) {
-      var prevConnections = this.connections((c) => {
-         return c.to == currElement.diagramID;
-      });
-      var hashConn = {
-         /* connection.id : connection */
-      };
-      // hashConn will contains the final collection of connections.
-
-      prevConnections.forEach((c) => {
-         hashConn[c.id] = c;
-         this.allPreviousConnectionsForConnection(c, hashConn);
-      });
-
-      // TODO: detect circle backs and remove connections that
-      // resolve back to currElement
-
-      // convert our hash into an array
-      return Object.keys(hashConn).map((k) => hashConn[k]);
-   }
-
-   allPreviousTasks(currElement) {
-      var prevTasks = {}; /* task.id : task */
-      var allPreviousConnections =
-         this.allPreviousConnectionsForElement(currElement);
-      var task;
-      allPreviousConnections.forEach((conn) => {
-         // each conn has a .to and a .from => grab both tasks
-         task = this.elementForDiagramID(conn.to);
-         if (task) prevTasks[task.id] = task;
-
-         task = this.elementForDiagramID(conn.from);
-         if (task) prevTasks[task.id] = task;
-      });
-
-      var tasksToAsk = Object.keys(prevTasks)
-         .map((k) => prevTasks[k])
-         .filter((t) => t.id != currElement.id);
-
-      return tasksToAsk;
    }
 
    /**

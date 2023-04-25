@@ -11,7 +11,7 @@ const ABMLClass = require("../../platform/ABMLClass");
 
 module.exports = class ABFieldCore extends ABMLClass {
    constructor(values, object, fieldDefaults) {
-      super(["label"], object.AB);
+      super(["label"]);
 
       // NOTE: setup this first so later we can use .fieldType(), .fieldIcon()
       this.defaults = fieldDefaults || {};
@@ -54,7 +54,7 @@ module.exports = class ABFieldCore extends ABMLClass {
          "updated_at",
          "properties",
          "createdAt",
-         "updatedAt",
+         "updatedAt"
       ];
    }
 
@@ -186,7 +186,7 @@ module.exports = class ABFieldCore extends ABMLClass {
     * @return {json}
     */
    toObj() {
-      const obj = super.toObj();
+      var obj = super.toObj();
 
       return {
          id: this.id,
@@ -196,12 +196,12 @@ module.exports = class ABFieldCore extends ABMLClass {
          isImported: this.isImported,
          columnName: this.columnName,
          settings: this.settings,
-         translations: obj.translations,
+         translations: obj.translations
       };
    }
 
    defaultCheck(val, defaultVal) {
-      let returnVal = defaultVal;
+      var returnVal = defaultVal;
       if (typeof val != "undefined") {
          returnVal = val;
       }
@@ -220,8 +220,6 @@ module.exports = class ABFieldCore extends ABMLClass {
       this.key = values.key || this.fieldKey();
       this.icon = values.icon || this.fieldIcon();
 
-      values.settings = values.settings || {};
-
       // if this is being instantiated on a read from the Property UI,
       // .label is coming in under .settings.label
       this.label = values.label || values.settings.label || "?label?";
@@ -230,6 +228,7 @@ module.exports = class ABFieldCore extends ABMLClass {
 
       this.isImported = values.isImported || 0;
 
+      values.settings = values.settings || {};
       this.settings = values.settings;
       this.settings.showIcon = this.defaultCheck(values.settings.showIcon, "1");
       this.settings.required = this.defaultCheck(values.settings.required, "0");
@@ -243,15 +242,15 @@ module.exports = class ABFieldCore extends ABMLClass {
       this.settings.width = parseInt(this.settings.width);
 
       // we're responsible for setting up our specific settings:
-      const defaultValues = this.constructor.defaultValues() || {};
-      for (const dv in defaultValues) {
+      let defaultValues = this.constructor.defaultValues() || {};
+      for (let dv in defaultValues) {
          this.settings[dv] = this.defaultCheck(
             values.settings[dv],
             defaultValues[dv]
          );
       }
 
-      // const the MLClass now process the Translations
+      // let the MLClass now process the Translations
       super.fromValues(values);
 
       // final validity check: columnName really should have a value:
@@ -309,12 +308,14 @@ module.exports = class ABFieldCore extends ABMLClass {
    }
 
    dataValue(rowData) {
-      const propName = `${this.alias || this.object.name}.${this.columnName}`;
+      let propName = "{objectName}.{columnName}"
+         .replace("{objectName}", this.alias || this.object.name)
+         .replace("{columnName}", this.columnName);
 
       let result = "";
-      if (rowData?.[this.columnName] != null) {
+      if (rowData[this.columnName] != null) {
          result = rowData[this.columnName];
-      } else if (rowData?.[propName] != null) {
+      } else if (rowData[propName] != null) {
          result = rowData[propName];
       }
 
@@ -341,7 +342,7 @@ module.exports = class ABFieldCore extends ABMLClass {
     * @return {ABDefinition}
     */
    toDefinition() {
-      const myDef = super.toDefinition();
+      var myDef = super.toDefinition();
 
       // attempt to provide a more descriptive name:
       // [obj]->[fieldName]
@@ -355,3 +356,4 @@ module.exports = class ABFieldCore extends ABMLClass {
       return myDef;
    }
 };
+

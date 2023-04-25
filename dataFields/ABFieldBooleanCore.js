@@ -5,68 +5,40 @@
  *
  */
 
-const ABField = require("../../platform/dataFields/ABField");
+var ABField = require("../../platform/dataFields/ABField");
 
 function L(key, altText) {
    // TODO:
    return altText; // AD.lang.label.getLabel(key) || altText;
 }
 
-const ABFieldBooleanDefaults = {
-   key: "boolean",
-   // unique key to reference this specific DataField
+var ABFieldBooleanDefaults = {
+   key: "boolean", // unique key to reference this specific DataField
 
-   description: "A single checkbox that can be checked or unchecked.",
-   // description: what gets displayed in the Editor description.
-   // NOTE: this will be displayed using a Label: L(description)
+   icon: "check-square-o", // font-awesome icon reference.  (without the 'fa-').  so 'user'  to reference 'fa-user'
 
-   icon: "check-square-o",
-   // font-awesome icon reference.  (without the 'fa-').  so 'check-square-o'  to
-   // reference 'fa-check-square-o'
-
-   isFilterable: true,
-   // {bool} / {fn}
-   // determines if the current ABField can be used to filter (FilterComplex
-   // or Query) data.
-   // if a {fn} is provided, it will be called with the ABField as a parameter:
-   //  (field) => field.setting.something == true
-
-   isSortable: false,
-   // {bool} / {fn}
-   // determines if the current ABField can be used to Sort data.
-   // if a {fn} is provided, it will be called with the ABField as a parameter:
-   //  (field) => true/false
-
-   menuName: "Checkbox",
    // menuName: what gets displayed in the Editor drop list
-   // NOTE: this will be displayed using a Label: L(menuName)
+   menuName: L("ab.dataField.boolean.menuName", "*Checkbox"),
+
+   // description: what gets displayed in the Editor description.
+   description: L(
+      "ab.dataField.boolean.description",
+      "*A single checkbox that can be checked or unchecked."
+   ),
 
    supportRequire: true,
-   // {bool}
-   // does this ABField support the Required setting?
 
-   supportUnique: false,
-   // {bool}
-   // does this ABField support the Unique setting?
-
-   useAsLabel: true,
-   // {bool} / {fn}
-   // determines if this ABField can be used in the display of an ABObject's
-   // label.
-
-   compatibleOrmTypes: ["boolean"],
-   // {array}
    // what types of Sails ORM attributes can be imported into this data type?
    // http://sailsjs.org/documentation/concepts/models-and-orm/attributes#?attribute-options
+   compatibleOrmTypes: ["boolean"],
 
-   compatibleMysqlTypes: ["bool", "boolean"],
-   // {array}
    // what types of MySql column types can be imported into this data type?
    // https://www.techonthenet.com/mysql/datatypes.php
+   compatibleMysqlTypes: ["bool", "boolean"]
 };
 
-const defaultValues = {
-   default: 0,
+var defaultValues = {
+   default: 0
 };
 
 module.exports = class ABFieldBooleanCore extends ABField {

@@ -5,69 +5,39 @@
  *
  */
 
-const ABFieldSelectivity = require("../../platform/dataFields/ABFieldSelectivity");
+var ABFieldSelectivity = require("../../platform/dataFields/ABFieldSelectivity");
 
 function L(key, altText) {
    // TODO:
    return altText; // AD.lang.label.getLabel(key) || altText;
 }
 
-const ABFieldTreeDefaults = {
-   key: "tree",
-   // unique key to reference this specific DataField
+var ABFieldTreeDefaults = {
+   key: "tree", // unique key to reference this specific DataField
 
-   description:
-      "Data tree allows you to build a hierarchical set of selectable data. (ex: Categories and sub-categories)",
-   // description: what gets displayed in the Editor description.
-   // NOTE: this will be displayed using a Label: L(description)
+   icon: "sitemap", // font-awesome icon reference.  (without the 'fa-').  so 'user'  to reference 'fa-user'
 
-   icon: "sitemap",
-   // font-awesome icon reference.  (without the 'fa-').  so 'sitemap'  to
-   // reference 'fa-sitemap'
-
-   isFilterable: false,
-   // {bool} / {fn}
-   // determines if the current ABField can be used to filter (FilterComplex
-   // or Query) data.
-   // if a {fn} is provided, it will be called with the ABField as a parameter:
-   //  (field) => field.setting.something == true
-
-   isSortable: false,
-   // {bool} / {fn}
-   // determines if the current ABField can be used to Sort data.
-   // if a {fn} is provided, it will be called with the ABField as a parameter:
-   //  (field) => true/false
-
-   menuName: "Data Tree",
    // menuName: what gets displayed in the Editor drop list
-   // NOTE: this will be displayed using a Label: L(menuName)
+   menuName: L("ab.dataField.tree.menuName", "*Data Tree"),
+
+   // description: what gets displayed in the Editor description.
+   description: L(
+      "ab.dataField.tree.description",
+      "*Data tree allows you to build a hierarchical set of selectable data. (ex: Categories and sub-categories)"
+   ),
+   isSortable: false,
+   isFilterable: false,
+   useAsLabel: false,
 
    supportRequire: false,
-   // {bool}
-   // does this ABField support the Required setting?
 
-   supportUnique: false,
-   // {bool}
-   // does this ABField support the Unique setting?
-
-   useAsLabel: false,
-   // {bool} / {fn}
-   // determines if this ABField can be used in the display of an ABObject's
-   // label.
-
-   compatibleOrmTypes: ["string"],
-   // {array}
    // what types of Sails ORM attributes can be imported into this data type?
    // http://sailsjs.org/documentation/concepts/models-and-orm/attributes#?attribute-options
-
-   compatibleMysqlTypes: ["text", "mediumtext", "longtext"],
-   // {array}
-   // what types of MySql column types can be imported into this data type?
-   // https://www.techonthenet.com/mysql/datatypes.php
+   compatibleOrmTypes: []
 };
 
-const defaultValues = {
-   options: [],
+var defaultValues = {
+   options: []
 };
 
 module.exports = class ABFieldTreeCore extends ABFieldSelectivity {
@@ -100,7 +70,7 @@ module.exports = class ABFieldTreeCore extends ABFieldSelectivity {
       // translate options list
       if (this.settings.options && this.settings.options.length > 0) {
          this.settings.options.forEach((opt) => {
-            this.translate(opt, opt, ["text"]);
+            this.object.translate(opt, opt, ["text"]);
          });
       }
    }
@@ -117,12 +87,12 @@ module.exports = class ABFieldTreeCore extends ABFieldSelectivity {
     * @return {json}
     */
    toObj() {
-      const obj = super.toObj();
+      var obj = super.toObj();
 
       // Un-translate options list
       if (obj.settings.options && obj.settings.options.length > 0) {
          obj.settings.options.forEach((opt) => {
-            this.unTranslate(opt, opt, ["text"]);
+            this.object.unTranslate(opt, opt, ["text"]);
          });
       }
 

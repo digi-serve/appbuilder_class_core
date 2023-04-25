@@ -23,16 +23,16 @@ var ABProcessTaskApprovalDefaults = {
    // key: {string}
    // unique key to reference this specific Task
 
-   settings: ["who", "toUsers", "formBuilder"],
+   settings: ["who", "toUsers", "formBuilder"]
    // settings: {array}
    // a list of internal setting values this Element tracks. These are the
    // values set by the platform .propertiesStash()
 };
 
 module.exports = class ABProcessTaskUserApprovalCore extends ABProcessElement {
-   constructor(attributes, process, AB) {
+   constructor(attributes, process, application) {
       attributes.type = attributes.type || "process.task.user.approval";
-      super(attributes, process, AB, ABProcessTaskApprovalDefaults);
+      super(attributes, process, application, ABProcessTaskApprovalDefaults);
 
       // listen
    }
@@ -75,8 +75,13 @@ module.exports = class ABProcessTaskUserApprovalCore extends ABProcessElement {
 
    /**
     * @method toObj()
-    * properly compile the current state of this object instance
+    *
+    * properly compile the current state of this ABApplication instance
     * into the values needed for saving to the DB.
+    *
+    * Most of the instance data is stored in .json field, so be sure to
+    * update that from all the current values of our child fields.
+    *
     * @return {json}
     */
    /*     
@@ -123,15 +128,19 @@ module.exports = class ABProcessTaskUserApprovalCore extends ABProcessElement {
          this.formBuilder.components.forEach((c) => {
             if (c.abFieldID) {
                fields.filter((entry) => {
-                  if (entry.field?.id == c.abFieldID) {
+                  if (entry.field && entry.field.id == c.abFieldID) {
                      c.label = entry.field.label;
                      c.key = entry.key;
-                     if (c.data?.values && entry.field.settings.options) {
+                     if (
+                        c.data &&
+                        c.data.values &&
+                        entry.field.settings.options
+                     ) {
                         var vals = [];
                         entry.field.settings.options.forEach((opt) => {
                            vals.push({
                               label: opt.text,
-                              value: opt.id,
+                              value: opt.id
                            });
                         });
                         c.data.values = vals;
@@ -149,15 +158,19 @@ module.exports = class ABProcessTaskUserApprovalCore extends ABProcessElement {
                      })[0];
                      if (!pluck) return;
                      pluck.object.fields().filter((entry) => {
-                        if (entry?.id == o.abFieldID) {
+                        if (entry && entry.id == o.abFieldID) {
                            o.label = entry.label;
                            o.key = entry.columnName;
-                           if (o.data?.values && entry.settings.options) {
+                           if (
+                              o.data &&
+                              o.data.values &&
+                              entry.settings.options
+                           ) {
                               var vals = [];
                               entry.settings.options.forEach((opt) => {
                                  vals.push({
                                     label: opt.text,
-                                    value: opt.id,
+                                    value: opt.id
                                  });
                               });
                               o.data.values = vals;
@@ -187,7 +200,7 @@ module.exports = class ABProcessTaskUserApprovalCore extends ABProcessElement {
          if (comp.type == "button" && comp.action == "event" && comp.event) {
             options.push({
                id: comp.event,
-               text: comp.label,
+               text: comp.label
             });
          }
       });
@@ -200,15 +213,15 @@ module.exports = class ABProcessTaskUserApprovalCore extends ABProcessElement {
       // create an ABFieldList object:
       // make sure the options follow what is currently defined for our
       // responses:
-      var myObj = this.AB.objectNew({});
+      var myObj = this.application.objectNew({});
       var listField = new ABFieldList(
          {
             id: `${myID}.userFormResponse`,
             label: `${this.label}->Response`,
             columnName: `${myID}.userFormResponse`,
             settings: {
-               options: options,
-            },
+               options: options
+            }
          },
          myObj
       );
@@ -218,8 +231,8 @@ module.exports = class ABProcessTaskUserApprovalCore extends ABProcessElement {
             key: `${myID}.userFormResponse`,
             label: `${this.label}->Response`,
             field: listField,
-            object: null,
-         },
+            object: null
+         }
       ];
    }
 

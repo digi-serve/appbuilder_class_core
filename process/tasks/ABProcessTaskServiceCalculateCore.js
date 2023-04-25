@@ -21,13 +21,13 @@ let CalculateDefaults = {
    // key: {string}
    // unique key to reference this specific Task
 
-   settings: ["formulaText"],
+   settings: ["formulaText"]
 };
 
 module.exports = class CalculateTaskCore extends ABProcessElement {
-   constructor(attributes, process, AB) {
+   constructor(attributes, process, application) {
       attributes.type = attributes.type || "process.task.service.calculate";
-      super(attributes, process, AB, CalculateDefaults);
+      super(attributes, process, application, CalculateDefaults);
 
       // listen
    }
@@ -50,21 +50,9 @@ module.exports = class CalculateTaskCore extends ABProcessElement {
     * @return {array} | null
     */
    processDataFields() {
-      const label = `${this.label}->Value`;
-      // this is a calculate task, so let's include a fake ABFieldNumber
-      // for the .field value, so other tasks that limit their operations
-      // to fields can use this as a number
-      if (!this._fakeNum) {
-         this._fakeObj = this.AB.objectNew({});
-         this._fakeNum = this.AB.fieldNew(
-            { key: "number", name: label, label },
-            this._fakeObj
-         );
-      }
       return {
          key: `${this.id}.value`,
-         label,
-         field: this._fakeNum,
+         label: `${this.label}->Value`
       };
    }
 };
