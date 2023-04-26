@@ -56,7 +56,7 @@ module.exports = class ABViewPivotCore extends ABViewWidget {
             ABViewPivotPropertyComponentDefaults.separateLabel
       );
       this.settings.min = JSON.parse(
-         this.settings.allowDelete || ABViewPivotPropertyComponentDefaults.min
+         this.settings.min || ABViewPivotPropertyComponentDefaults.min
       );
       this.settings.max = JSON.parse(
          this.settings.max || ABViewPivotPropertyComponentDefaults.max

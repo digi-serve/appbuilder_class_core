@@ -42,6 +42,10 @@ module.exports = class ABViewCore extends ABMLClass {
       // {bool}
       // Should we suppress our configuration warnings?
 
+      this.__missingViews = [];
+      // {array}
+      // Any ABView.id we have stored that we can't find.
+
       this.fromValues(values);
    }
 
@@ -55,19 +59,19 @@ module.exports = class ABViewCore extends ABMLClass {
 
    /**
     * @method newInstance()
-    * return a new instance of this ABView.
+    * return a new instance of this ABView.  Most likely called from interfaces
+    * that create new UI elements like the ABDesigner.
     * @param {ABApplication} application  	: the root ABApplication this view is under
     * @param {ABView/ABApplication} parent	: the parent object of this ABView.
     * @return {ABView}
     */
    static newInstance(application, parent) {
-      console.error("!!! where is this being called???");
       // return a new instance from ABViewManager:
       return application.viewNew(
          { key: this.common().key },
          application,
          parent
-      ); // ABViewManager.newView({ key: this.common().key }, application, parent);
+      );
    }
 
    viewKey() {
@@ -115,6 +119,7 @@ module.exports = class ABViewCore extends ABMLClass {
 
       // encode our child view references
       result.viewIDs = (this._views || []).map((v) => v.id).filter((id) => id);
+      result.viewIDs = result.viewIDs.concat(this.__missingViews);
 
       if (this.position) result.position = this.position;
 
@@ -205,20 +210,13 @@ module.exports = class ABViewCore extends ABMLClass {
       }
 
       var views = [];
+      this.__missingViews = this.__missingViews || [];
       (values.viewIDs || []).forEach((id) => {
          var def = this.AB.definitionByID(id);
          if (def) {
             views.push(this.application.viewNew(def, this.application, this));
          } else {
-            this.AB.notify.builder(
-               new Error(
-                  `Application[${this.application.name}][${this.application.id}].View[${this.name}][${this.id}] references unknown View[${id}]`
-               ),
-               {
-                  context:"ABViewCore:fromValues():values.viewIDs for each",
-                  id
-               }
-            );
+            this.__missingViews.push(id);
          }
       });
       this._views = views;
@@ -239,9 +237,7 @@ module.exports = class ABViewCore extends ABMLClass {
 
    /**
     * @method allParents()
-    *
-    * return an flatten array of all the ABViews parents
-    *
+    * return a flattened array of all the ABViews parents
     * @return {array}      array of ABViews
     */
    allParents() {
@@ -468,7 +464,11 @@ module.exports = class ABViewCore extends ABMLClass {
             });
          } else {
             // These views shouldn't matter if they don't have a datacollection.
-            if (["page", "viewcontainer"].indexOf(this.key) == -1) {
+            if (
+               ["button", "label", "page", "tab", "viewcontainer"].indexOf(
+                  this.key
+               ) == -1
+            ) {
                console.warn(
                   `TODO: figure out which ABView* require a .dataviewID: ${this.key}?`
                );
@@ -921,9 +921,10 @@ module.exports = class ABViewCore extends ABMLClass {
                         .then((copiedSubPage) => {
                            copiedSubPage.parent = result;
                            // remove the temp {id:} entry above:
-                           this.application._pages = this.application._pages.filter(
-                              (p2) => p2.id != lookUpIds[p.id]
-                           );
+                           this.application._pages =
+                              this.application._pages.filter(
+                                 (p2) => p2.id != lookUpIds[p.id]
+                              );
 
                            // now add the full copiedSubPage:
                            result._pages.push(copiedSubPage);

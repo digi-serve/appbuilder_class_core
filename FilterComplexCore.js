@@ -83,8 +83,17 @@ module.exports = class FilterComplexCore extends ABComponent {
          },
 
          removeHtmlTags: function (text) {
-            let doc = new DOMParser().parseFromString(text, "text/html");
-            return doc.body.textContent || doc.body.innerText || "";
+            let result = "";
+            try {
+               let div = document.createElement("div");
+               div.innerHTML = text;
+
+               result = div.textContent || div.innerText || "";
+            } catch (err) {
+               result = (text || "").replace(/(<([^>]+)>)/gi, "");
+            }
+
+            return result;
          },
       });
 
@@ -821,6 +830,8 @@ module.exports = class FilterComplexCore extends ABComponent {
             conditions = conditions.concat(this.fieldsAddFiltersContext(f));
          }
 
+         conditions = conditions.concat(this.fieldsAddFiltersCustom(f));
+
          // let type = f.id; // the default unique identifier for our filter types
          // if (f.id == "this_object") {
          //    // if this happens to be our special "this_object" field, then our
@@ -835,7 +846,7 @@ module.exports = class FilterComplexCore extends ABComponent {
          //            we will make a unique type for each field. and then
          //            add value selectors for that specific .type
          return {
-            id: f.columnName || f.id,
+            id: f.id,
             value: label,
             type: type,
             conditions: conditions,
@@ -1206,6 +1217,12 @@ module.exports = class FilterComplexCore extends ABComponent {
       }
 
       return result;
+   }
+
+   fieldsAddFiltersCustom(field) {
+      const customOptions = this._customOptions ?? {};
+      const options = customOptions[field.id || field] ?? {};
+      return options.conditions ?? [];
    }
 
    queriesLoad(queries = []) {

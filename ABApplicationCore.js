@@ -66,6 +66,24 @@ module.exports = class ABApplicationCore extends ABMLClass {
       // {obj} .json
       // the full settings of this ABApplication
 
+      this.json["versionData"] = attributes.json?.versionData || {
+         versionNumber: "1.0.0",
+         changeLog: {
+            "1.0.0": {
+               author: "N/A",
+               version: "1.0.0",
+               keepVersion: 0,
+               commitMessage: "Initial Version",
+               timestamp: new Date().toISOString(),
+            },
+         },
+      };
+
+      if (typeof this.json.versionData == "string")
+         this.json.versionData = JSON.parse(this.json.versionData);
+      // {obj} .json
+      // the full version log data of this ABApplication
+
       this.name = attributes.name || this.json.name || "";
       // {string} .name
       // the hard coded name of this ABDefinition Object, not to be confused
@@ -288,9 +306,13 @@ module.exports = class ABApplicationCore extends ABMLClass {
     */
    toObj() {
       // MLClass translation
+      let versionData = this.json.versionData;
+
       this.json = super.toObj();
 
       this.json.name = this.name;
+
+      this.json.versionData = versionData;
 
       this.json.objectIDs = this.objectIDs;
 

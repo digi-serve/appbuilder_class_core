@@ -56,12 +56,4 @@ module.exports = class ABViewDetailImageCore extends ABViewDetailItem {
          this.settings.width ?? ABViewDetailImagePropertyComponentDefaults.width
       );
    }
-
-   /**
-    * @method componentList
-    * return the list of components available on this view to display in the editor.
-    */
-   componentList() {
-      return [];
-   }
 };

@@ -70,23 +70,10 @@ module.exports = class ABViewDocxBuilderCore extends ABViewWidget {
    uploadUrl() {
       // TODO: Convert this to use ABFactory.urlFileUpload() or a ABFieldFile
       // to get the URL:
-      console.warn(
-         new Error(
-            "TODO: convert ABViewDocxBuilderCore.uploadUrl() to use common url code."
-         )
-      );
-      // let actionKey =
-      //    "opstool.AB_" + this.application.name.replace("_", "") + ".view";
-
-      // return (
-      //    "/" +
-      //    ["opsportal", "file", this.application.name, actionKey, "1"].join("/")
-      // );
 
       const object = this.datacollection.datasource;
 
-      // NOTE: file-upload API needs to have the id of a field.
-      // TODO
+      // NOTE: file-upload API needs to have the id of ANY field.
       const field = object ? object.fields()[0] : null;
 
       return `/file/upload/${object?.id}/${field?.id}/1`;

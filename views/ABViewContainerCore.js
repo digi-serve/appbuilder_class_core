@@ -22,6 +22,8 @@ const ABViewDefaults = {
 const ABPropertyComponentDefaults = {
    columns: 1,
    gravity: 1,
+   movable: true,
+   removable: true,
 };
 
 module.exports = class ABViewContainerCore extends ABView {
@@ -66,13 +68,13 @@ module.exports = class ABViewContainerCore extends ABView {
       if (this.settings.removable != null) {
          this.settings.removable = JSON.parse(this.settings.removable); // convert to boolean
       } else {
-         this.settings.removable = true;
+         this.settings.removable = ABPropertyComponentDefaults.removable;
       }
 
       if (this.settings.movable != null) {
          this.settings.movable = JSON.parse(this.settings.movable); // convert to boolean
       } else {
-         this.settings.movable = true;
+         this.settings.movable = ABPropertyComponentDefaults.movable;
       }
    }
 

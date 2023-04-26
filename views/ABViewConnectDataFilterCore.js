@@ -29,21 +29,10 @@ module.exports = class ABViewConnectDataFilterCore extends ABViewWidget {
    ///
 
    /**
-    * @method fromValues()
-    *
-    * initialze this object with the given set of values.
-    * @param {obj} values
-    */
-   fromValues(values) {
-      super.fromValues(values);
-   }
-
-   /**
     * @method componentList
     * return the list of components available on this view to display in the editor.
     */
    componentList() {
       return [];
    }
-
 };

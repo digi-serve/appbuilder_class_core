@@ -165,14 +165,16 @@ module.exports = class ABProcessCore extends ABMLClass {
     *                should be returned.
     * @return [{SimpleConnectionObj}]
     */
-   connections(fn) {
-      if (!fn)
-         fn = () => {
-            return true;
-         };
+   connections(fn = () => true) {
       var allConnections = Object.keys(this._connections).map((e) => {
          return this._connections[e];
       });
+
+      // If parent, merge connections
+      if (this.process && this.key === "SubProcess") {
+         allConnections = allConnections.concat(this.process.connections());
+      }
+
       return allConnections.filter(fn);
    }
 

@@ -14,6 +14,22 @@ module.exports = class ABViewFormComponentCore extends ABView {
       return ABViewFormFieldPropertyComponentDefaults;
    }
 
+   /**
+    * @property datacollection
+    * return data source
+    * NOTE: this view doesn't track a DataCollection.
+    * @return {ABDataCollection}
+    */
+   get datacollection() {
+      let form = this.parentFormComponent();
+      if (form == null) return null;
+
+      let datacollection = form.datacollection;
+      if (datacollection == null) return null;
+
+      return datacollection;
+   }
+
    field() {
       if (this.settings.objectId) {
          let object = this.AB.objectByID(this.settings.objectId);
@@ -41,4 +57,3 @@ module.exports = class ABViewFormComponentCore extends ABView {
       }
    }
 };
-

@@ -35,6 +35,8 @@ module.exports = class InsertRecordCore extends ABProcessElement {
       attributes.type = attributes.type || "process.task.service.insertRecord";
       super(attributes, process, AB, InsertRecordDefaults);
 
+      this.results = [];
+
       // listen
    }
 
@@ -54,9 +56,19 @@ module.exports = class InsertRecordCore extends ABProcessElement {
    }
 
    get startElement() {
-      let startElem = this.process.elements(
-         (elem) => elem && elem.defaults && elem.defaults.category == "start"
-      )[0];
+      let startElem = null;
+      let currProcess = this.process;
+
+      // Find the start (trigger) task
+      while (!startElem && currProcess) {
+         startElem = currProcess.elements(
+            (elem) => elem?.defaults?.category == "start"
+         )[0];
+
+         // If .currProcess is a sub task, then go to the parent process for get the start task
+         currProcess = currProcess.process;
+      }
+
       return startElem;
    }
 
@@ -97,6 +109,30 @@ module.exports = class InsertRecordCore extends ABProcessElement {
       return obj.fields((f) => f.id == this.repeatColumn)[0];
    }
 
+   /**
+    * processDataFields()
+    * return a single available data field from this element
+    * this will be the record inserted by this task
+    * Different Process Elements can make data available to other
+    * process Elements.
+    * @return {array} | null
+    */
+   processDataFields() {
+      return [
+         {
+            key: `${this.id}.[PK]`,
+            label: `${this.label}-> Inserted record [PK]`,
+            field: {
+               id: this.id,
+               object: { id: this.objectID },
+               key: "InsertedRecord",
+               columnName: "uuid",
+            },
+            object: this.objectID,
+            set: true,
+         },
+      ];
+   }
    /**
     * @method toObj()
     *
