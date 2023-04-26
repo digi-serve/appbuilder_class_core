@@ -1587,27 +1587,41 @@ module.exports = class ABDataCollectionCore extends ABMLClass {
       var sorts = this.settings.objectWorkspace.sortFields || [];
 
       // pull filter conditions
-      var wheres = this.settings.objectWorkspace.filterConditions || null;
+      let wheres = this.AB.cloneDeep(
+         this.settings.objectWorkspace.filterConditions ?? null
+      );
       // if we pass new wheres with a reload use them instead
       if (this.__reloadWheres) {
          wheres = this.__reloadWheres;
       }
 
+      const __additionalWheres = {
+         glue: "and",
+         rules: [],
+      };
+
       if (this.__filterCond) {
-         if (wheres.rules.length) {
-            // combine them together:
-            wheres = {
-               glue: "and",
-               rules: [wheres, this.__filterCond],
-            };
-         } else {
-            // simplify to just use filterCond
-            wheres = this.__filterCond;
-         }
+         __additionalWheres.rules.push(this.__filterCond);
       }
 
+      // Filter by a selected cursor of a link DC
+      const dataCollectionLink = this.datacollectionLink;
+      const fieldLink = this.fieldLink;
+      if (!this.settings.loadAll && dataCollectionLink && fieldLink) {
+         const linkCursorId = dataCollectionLink?.getCursor()?.id;
+         if (linkCursorId) {
+            __additionalWheres.rules.push({
+               alias: fieldLink.alias, // ABObjectQuery
+               key: fieldLink.id,
+               rule: fieldLink.alias ? "contains" : "equals", // NOTE: If object is query, then use "contains" because ABOBjectQuery return JSON
+               value: fieldLink.getRelationValue(
+                  dataCollectionLink.__dataCollection.getItem(linkCursorId)
+               ),
+            });
+         }
+      }
       // pull data rows following the follow data collection
-      if (this.datacollectionFollow) {
+      else if (this.datacollectionFollow) {
          const followCursor = this.datacollectionFollow.getCursor();
          if (followCursor) {
             start = 0;
@@ -1637,6 +1651,15 @@ module.exports = class ABDataCollectionCore extends ABMLClass {
             };
          }
       }
+
+      // Combine setting & program filters
+      if (__additionalWheres.rules.length) {
+         __additionalWheres.rules.unshift(wheres);
+         wheres = __additionalWheres;
+      }
+
+      // remove any null in the .rules
+      wheres.rules = wheres.rules.filter((r) => r);
 
       // set query condition
       var cond = {
