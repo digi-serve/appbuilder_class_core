@@ -113,25 +113,27 @@ module.exports = class FilterComplexCore extends ABComponent {
     * validate the row data is valid filter condition
     *
     * @param rowData {Object} - data row
+    * @param condition {Object} - [Optional] {
+    *                                           glue: "and" | "or",
+    *                                           rules: []
+    *                                        }
     */
-   isValid(rowData) {
-      const condition = this.condition;
-      const _logic = this._logic;
-
+   isValid(rowData, condition = this.condition) {
       // If no conditions, then return true
-      if (
-         condition == null ||
-         condition.rules == null ||
-         condition.rules.length == 0
-      )
-         return true;
-
-      if (rowData == null) return false;
+      if (!condition?.rules?.length || rowData == null) return true;
 
       let result = condition.glue === "and" ? true : false;
 
       condition.rules.forEach((filter) => {
-         if (!filter.key || !filter.rule) return;
+         // Nested filters
+         if (filter?.rules?.length) {
+            if (condition.glue === "or")
+               result = result || this.isValid(rowData, filter);
+            else result = result && this.isValid(rowData, filter);
+            return;
+         }
+         // Skip incomplete filter condition
+         else if (!filter.key || !filter.rule) return;
 
          const fieldInfo = (this._Fields || []).filter(
             (f) => f.id == filter.key
@@ -194,7 +196,7 @@ module.exports = class FilterComplexCore extends ABComponent {
                );
                break;
             case "this_object":
-               condResult = _logic.thisObjectValid(
+               condResult = this.thisObjectValid(
                   rowData,
                   filter.rule,
                   filter.value
