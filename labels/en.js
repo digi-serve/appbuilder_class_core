@@ -47,7 +47,7 @@ module.exports = {
    "Icon": "Icon",
    "Select one or more system objects": "Select one or more system objects",
    "Please select a user.": "Please select a user.",
-   'You are viewing this site as "{0}"*': 'You are viewing this site as "{0}"*',
+   "You are viewing this site as \"{0}\"*": "You are viewing this site as \"{0}\"*",
    "Switch": "Switch",
    "View site as:": "View site as:",
    "Must select item from '{0}' first.": "Must select item from '{0}' first.",
@@ -110,8 +110,8 @@ module.exports = {
    "No template file": "No template file",
    "is not empty": "is not empty",
    "is empty": "is empty",
-   'Name must be unique ("{0}" already in use)':
-      'Name must be unique ("{0}" already in use)',
+   "Name must be unique (\"{0}\" already in use)":
+      "Name must be unique (\"{0}\" already in use)",
    "Column {0}": "Column {0}",
    "Import {0} Records": "Import {0} Records",
    "Search records...": "Search records...",
@@ -124,8 +124,8 @@ module.exports = {
    "Separated by": "Separated by",
    "Choose a CSV file": "Choose a CSV file",
    "CSV Importer": "CSV Importer",
-   'Object name must be unique ("{0}" already in use)':
-      'Object name must be unique ("{0}" already in use)',
+   "Object name must be unique (\"{0}\" already in use)":
+      "Object name must be unique (\"{0}\" already in use)",
    "Field columnName must be unique ({0} already used in this Application)":
       "Field columnName must be unique ({0} already used in this Application)",
    "should be greater than {0}": "should be greater than {0}",
