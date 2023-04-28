@@ -119,6 +119,11 @@ jobs:
         with:
           repository: digi-serve/kitchensink_app
           path: AppBuilder/test/e2e/cypress/e2e/kitchensink_app
+      # These next steps are to save our ablogs to file
+      - run: npm install pm2@latest -g
+      - name: Save Logs
+        run: pm2 start ./logs.js -- --toFile logs/ABServices.log
+        working-directory: ./AppBuilder
       - name: Wait for AB
         uses: ifaxity/wait-on-action@v1
         with:
@@ -133,6 +138,11 @@ jobs:
         with:
           name: cypress-screenshots
           path: ./AppBuilder/test/e2e/cypress/screenshots
+      - uses: actions/upload-artifact@v2
+        if: failure()
+        with:
+          name: ABServices.log
+          path: ./AppBuilder/logs/ABServices.log
   update-platform-service:
     name: Update appbuilder_platform_service
     runs-on: ubuntu-latest
