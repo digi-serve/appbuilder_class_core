@@ -681,6 +681,9 @@ module.exports = class ABModelCore {
 
    normalizeData(data) {
       // convert to array
+      if (data.data && !(data.data instanceof Array)) {
+         data = data.data;
+      }
       if (!(data instanceof Array)) data = [data];
 
       // find all connected fields
@@ -832,5 +835,6 @@ module.exports = class ABModelCore {
             d[calField.columnName] = calField.format(d);
          });
       });
+      return data
    }
 };
