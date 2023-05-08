@@ -119,6 +119,9 @@ module.exports = class FilterComplexCore extends ABComponent {
     *                                        }
     */
    isValid(rowData, condition = this.condition) {
+      // If conditions but no data return false
+      if (condition?.rules?.length && rowData == null) return false;
+
       // If no conditions, then return true
       if (!condition?.rules?.length || rowData == null) return true;
 
