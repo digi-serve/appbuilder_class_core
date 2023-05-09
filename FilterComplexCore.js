@@ -139,7 +139,7 @@ module.exports = class FilterComplexCore extends ABComponent {
          else if (!filter.key || !filter.rule) return;
 
          const fieldInfo = (this._Fields || []).filter(
-            (f) => f.id == filter.key
+            (f) => f.id == filter.key || f.columnName == filter.key
          )[0];
 
          if (!fieldInfo) return;
@@ -178,6 +178,8 @@ module.exports = class FilterComplexCore extends ABComponent {
                condResult = this.dateValid(value, filter.rule, filter.value);
                break;
             case "number":
+            case "calculate":
+            case "formula":
                condResult = this.numberValid(value, filter.rule, filter.value);
                break;
             case "list":
@@ -309,6 +311,7 @@ module.exports = class FilterComplexCore extends ABComponent {
       compareValue = Number(compareValue);
 
       switch (rule) {
+         case "equal":
          case "equals":
             result = value == compareValue;
             break;
