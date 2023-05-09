@@ -1659,7 +1659,7 @@ module.exports = class ABDataCollectionCore extends ABMLClass {
       }
 
       // remove any null in the .rules
-      wheres.rules = wheres.rules.filter((r) => r);
+      if (wheres?.rules?.filter) wheres.rules = wheres.rules.filter((r) => r);
 
       // set query condition
       var cond = {
