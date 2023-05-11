@@ -6,7 +6,7 @@
  *
  */
 
-const ABQL = require("../../platform/ql/ABQL.js");
+const ABQL = require("../../platform/qlOld/ABQL.js");
 const NextQLOps = require("./ABQLSet.js");
 
 var ParameterDefinitions = [

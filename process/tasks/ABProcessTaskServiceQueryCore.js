@@ -1,6 +1,6 @@
 const ABProcessElement = require("../../../platform/process/tasks/ABProcessElement.js");
 
-const ABQLManager = require("../../../platform/ql/ABQLManager.js");
+const ABQLManager = require("../../../platform/qlOld/ABQLManager.js");
 
 var ABProcessTaskServiceQueryDefaults = {
    category: null,
