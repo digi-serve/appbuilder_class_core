@@ -1450,13 +1450,19 @@ module.exports = class ABDataCollectionCore extends ABMLClass {
          wheres = this.__reloadWheres;
       }
 
+      // populate can be an array of field names, or a boolean
+      if (typeof this.settings.populate == undefined) {
+         // should be inverse of preventPopulate
+         this.settings.populate = !this.settings.preventPopulate;
+      }
+
       // set query condition
       var cond = {
          where: wheres,
          // limit: limit || 20,
          skip: start || 0,
          sort: sorts,
-         populate: this.settings.preventPopulate ? false : true
+         populate: this.settings.populate,
       };
 
       //// NOTE: we no longer set a default limit on loadData() but
