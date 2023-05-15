@@ -1451,7 +1451,10 @@ module.exports = class ABDataCollectionCore extends ABMLClass {
       }
 
       // populate can be an array of field names, or a boolean
-      if (typeof this.settings.populate == undefined) {
+      if (
+         !Array.isArray(this.settings.populate) || 
+         typeof this.settings.populate != 'boolean'
+         ) {
          // should be inverse of preventPopulate
          this.settings.populate = !this.settings.preventPopulate;
       }
