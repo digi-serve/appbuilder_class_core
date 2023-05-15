@@ -744,7 +744,7 @@ module.exports = class RowFilterCore extends ABComponent {
     *        the "this object" conditions.
     */
    fieldsLoad(fields = [], object = null) {
-      this._Fields = fields.filter((f) => f && f.fieldIsFilterable());
+      this._Fields = fields.filter((f) => f?.fieldIsFilterable?.());
       // NOTE: User fields are now Connections, but we want to treat them
       // differently.
       this._QueryFields = this._Fields
