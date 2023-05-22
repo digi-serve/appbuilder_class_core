@@ -754,34 +754,63 @@ module.exports = class ABModelCore {
 
             // set .id to relation columns
             let objectLink = c.datasourceLink;
-            if (
-               objectLink &&
-               objectLink.PK() != "id" &&
-               d[relationName] &&
-               !d[relationName].id
-            ) {
-               // is array
-               if (d[relationName].forEach) {
-                  d[relationName].forEach((subData) => {
-                     if (subData[objectLink.PK()])
-                        subData.id = subData[objectLink.PK()];
-                  });
-               } else if (d[relationName][objectLink.PK()]) {
-                  d[relationName].id = d[relationName][objectLink.PK()];
+            let olPK = objectLink.PK();
+            var relatedMlFields = objectLink.multilingualFields();
+
+            if (Array.isArray(d[relationName])) {
+               d[relationName].forEach((subData) => {
+                  // update .id values
+                  if (olPK != "id" && subData[olPK]) subData.id = subData[olPK];
+
+                  // perform Translation
+                  if (relatedMlFields.length) {
+                     objectLink.translate(subData, subData, relatedMlFields);
+                  }
+               });
+            } else {
+               // update .id value
+               if (d[relationName][olPK]) {
+                  d[relationName].id = d[relationName][olPK];
+               }
+
+               // perform Translation
+               if (relatedMlFields.length) {
+                  objectLink.translate(
+                     d[relationName],
+                     d[relationName],
+                     relatedMlFields
+                  );
                }
             }
 
-            var relatedMlFields = objectLink.multilingualFields();
-            if (relatedMlFields.length) {
-               objectLink.translate(
-                  d[relationName],
-                  d[relationName],
-                  relatedMlFields
-               );
-            }
+            // if (
+            //    objectLink &&
+            //    olPK != "id" &&
+            //    d[relationName] &&
+            //    !d[relationName].id
+            // ) {
+            //    // is array
+            //    if (d[relationName].forEach) {
+            //       d[relationName].forEach((subData) => {
+            //          if (subData[olPK]) subData.id = subData[olPK];
+            //       });
+            //    } else if (d[relationName][olPK]) {
+            //       d[relationName].id = d[relationName][olPK];
+            //    }
+            // }
+
+            // if (relatedMlFields.length) {
+            //    d[relationName];
+            //    objectLink.translate(
+            //       d[relationName],
+            //       d[relationName],
+            //       relatedMlFields
+            //    );
+            // }
 
             // Change property name of connected field
-            if (!d[c.columnName]) d[c.columnName] = d[relationName];
+            if (!d[c.columnName])
+               d[c.columnName] = d[relationName].map((i) => i[olPK]);
          });
 
          if (mlFields.length) {

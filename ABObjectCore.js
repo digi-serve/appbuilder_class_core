@@ -903,6 +903,39 @@ module.exports = class ABObjectCore extends ABMLClass {
       return cloneOne;
    }
 
+   /**
+    * @method minRelationData()
+    * return an array of ABField.columnNames that make up
+    * the minimum fields required to display this objects __RELATION
+    * data in our UI widgets.
+    */
+   minRelationData() {
+      var fields = [this.PK()];
+
+      if (this.multilingualFields().length > 0) {
+         fields.push("translations");
+      }
+
+      var labelData = this.labelFormat || "";
+
+      // get column ids in {colId} template
+      // ['{colId1}', ..., '{colIdN}']
+      var colIds = labelData.match(/\{[^}]+\}/g);
+
+      if (colIds && colIds.forEach) {
+         colIds.forEach((colId) => {
+            var colIdNoBracket = colId.replace("{", "").replace("}", "");
+
+            var field = this.fieldByID(colIdNoBracket);
+            if (field == null) return;
+
+            fields.push(field.columnName);
+         });
+      }
+
+      return fields;
+   }
+
    // Display data with label format of object
    displayData(rowData) {
       if (rowData == null) return "";
