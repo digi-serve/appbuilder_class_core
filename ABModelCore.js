@@ -809,8 +809,23 @@ module.exports = class ABModelCore {
             // }
 
             // Change property name of connected field
-            if (!d[c.columnName])
-               d[c.columnName] = d[relationName].map((i) => i[olPK]);
+            if (!d[c.columnName]) {
+               if (c.linkType == "one") {
+                  if (d[relationName]) {
+                     d[c.columnName] = d[relationName][olPK];
+                  } else {
+                     d[c.columnName] = null;
+                  }
+               } else {
+                  if (d[relationName]) {
+                     d[c.columnName] = (d[relationName] || []).map(
+                        (i) => i[olPK]
+                     );
+                  } else {
+                     d[c.columnName] = [];
+                  }
+               }
+            }
          });
 
          if (mlFields.length) {
