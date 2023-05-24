@@ -810,7 +810,7 @@ module.exports = class ABModelCore {
 
             // Change property name of connected field
             if (!d[c.columnName]) {
-               if (c.linkType == "one") {
+               if (c.linkType() == "one") {
                   if (d[relationName]) {
                      d[c.columnName] = d[relationName][olPK];
                   } else {
@@ -818,9 +818,34 @@ module.exports = class ABModelCore {
                   }
                } else {
                   if (d[relationName]) {
-                     d[c.columnName] = (d[relationName] || []).map(
-                        (i) => i[olPK]
-                     );
+                     if (Array.isArray(d[relationName])) {
+                        try {
+                           d[c.columnName] = (d[relationName] || []).map(
+                              (i) => i[olPK]
+                           );
+                        } catch (e) {
+                           console.log("+++++++++++++++");
+                           console.log(`ID:[${c.id}]`);
+                           console.log(`ColumnName:[${c.label}]`);
+                           console.log(`relationName:[${relationName}]`);
+                           console.log(`linkType:[${c.linkType()}]`);
+                           console.log("data:");
+                           console.log(JSON.stringify(d[relationName]));
+                           console.log("+++++++++++++++");
+                        }
+                     } else {
+                        // this is strange: supposed to be "many" but coming in
+                        // as "one"
+                        console.log("+++++++++++++++");
+                        console.log(`ID:[${c.id}]`);
+                        console.log(`ColumnName:[${c.label}]`);
+                        console.log(`relationName:[${relationName}]`);
+                        console.log(`linkType:[${c.linkType()}]`);
+                        console.log("data:");
+                        console.log(JSON.stringify(d[relationName]));
+                        console.log("+++++++++++++++");
+                        d[c.columnName] = [d[relationName][olPK]];
+                     }
                   } else {
                      d[c.columnName] = [];
                   }
