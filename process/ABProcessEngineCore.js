@@ -163,7 +163,8 @@ module.exports = class ABProcessEngineCore {
          { xmlRef: "bpmn2:serviceTask", type: "serviceTask" },
          { xmlRef: "bpmn2:userTask", type: "userTask" },
          { xmlRef: "bpmn2:endEvent", type: "end" },
-         { xmlRef: "bpmn2:parallelGateway", type: "parallelGateway" }
+         { xmlRef: "bpmn2:parallelGateway", type: "parallelGateway" },
+         { xmlRef: "bpmn2:subProcess", type: "subProcess" },
       ];
 
       typeLookup.forEach((lookup) => {
@@ -180,3 +181,4 @@ module.exports = class ABProcessEngineCore {
       });
    }
 };
+
