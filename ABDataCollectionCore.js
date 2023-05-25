@@ -796,7 +796,10 @@ module.exports = class ABDataCollectionCore extends ABMLClass {
                if (needAdd) {
                   // normalize data before add to data collection
                   var model = obj.model();
-                  model.normalizeData(updatedVals);
+
+                  // UPDATE: this should already have happened in NetworkRestSocket
+                  // when the initial data is received.
+                  //model.normalizeData(updatedVals);
 
                   (updatedVals || []).forEach((updatedV) => {
                      // filter condition before add
@@ -964,7 +967,10 @@ module.exports = class ABDataCollectionCore extends ABMLClass {
                         if (Object.keys(updateItemData).length > 0) {
                            // normalize data before add to data collection
                            var model = obj.model();
-                           model.normalizeData(updateItemData);
+
+                           // UPDATE: this should already have happened in NetworkRestSocket
+                           // when the initial data is received.
+                           // model.normalizeData(updateItemData);
 
                            this.__dataCollection.updateItem(
                               d.id,
@@ -1252,8 +1258,11 @@ module.exports = class ABDataCollectionCore extends ABMLClass {
                   // If this item needs to update
                   if (Object.keys(updateItemData).length > 0) {
                      // normalize data before add to data collection
-                     var model = obj.model();
-                     model.normalizeData(updateItemData);
+
+                     // UPDATE: this should already have happened in NetworkRestSocket
+                     // when the initial data is received.
+                     //var model = obj.model();
+                     // model.normalizeData(updateItemData);
                      if (
                         this.__treeCollection &&
                         this.__treeCollection.exists(d.id)
@@ -1324,8 +1333,12 @@ module.exports = class ABDataCollectionCore extends ABMLClass {
                      let obj = this.datasource;
                      if (!obj) return;
                      // normalize data before add to data collection
-                     var model = obj.model();
-                     model.normalizeData(res.data[0]);
+
+                     // UPDATE: this should already have happened in NetworkRestSocket
+                     // when the initial data is received.
+                     //var model = obj.model();
+                     // model.normalizeData(res.data[0]);
+
                      // tell the webix data collection to update using their API with the row id (values.id) and content (res.data[0])
                      if (this.__dataCollection.exists(values[PK])) {
                         this.__dataCollection.updateItem(
@@ -1449,13 +1462,16 @@ module.exports = class ABDataCollectionCore extends ABMLClass {
                   if (relateVal == null) return;
 
                   if (
-                     Array.isArray(relateVal) &&
-                     relateVal.filter(
-                        (v) =>
-                           v == deleteId ||
-                           v.id == deleteId ||
-                           v[PK] == deleteId
-                     ).length > 0
+                     Array.isArray(relateVal)
+                     // JOHNNY: for speed improvements, don't make this check:
+                     // just do it and that will reduce 1x through the array.
+                     // &&
+                     // relateVal.filter(
+                     //    (v) =>
+                     //       v == deleteId ||
+                     //       v.id == deleteId ||
+                     //       v[PK] == deleteId
+                     // ).length > 0
                   ) {
                      updateRelateVals[f.relationName()] = relateVal.filter(
                         (v) => (v.id || v[PK] || v) != deleteId
@@ -1476,8 +1492,9 @@ module.exports = class ABDataCollectionCore extends ABMLClass {
                // If this item needs to update
                if (Object.keys(updateRelateVals).length > 0) {
                   // normalize data before add to data collection
-                  var model = obj.model();
-                  model.normalizeData(updateRelateVals);
+
+                  // var model = obj.model();
+                  // model.normalizeData(updateRelateVals);
 
                   this.__dataCollection.updateItem(d.id, updateRelateVals);
 
