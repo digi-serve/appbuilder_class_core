@@ -440,7 +440,11 @@ module.exports = class ABFieldConnectCore extends ABField {
          colName = datasourceLink.PK();
       }
 
-      let result = rowData[colName] || rowData.id || rowData;
+      let result =
+         rowData[colName] ||
+         rowData[this.object?.PK()] ||
+         rowData.id ||
+         rowData;
 
       if (colName == "id") {
          result = parseInt(result);

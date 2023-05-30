@@ -154,8 +154,8 @@ module.exports = class ABProcessTriggerLifecycle extends ABProcessTrigger {
                      field.key == "user"
                   ) {
                      return (
-                        myState["data"][field.columnName] ||
-                        myState["data"][field.relationName()]
+                        myState["data"][field.relationName()] ||
+                        myState["data"][field.columnName]
                      );
                   } else {
                      return myState["data"][field.columnName];
