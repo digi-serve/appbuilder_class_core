@@ -249,10 +249,14 @@ module.exports = class SubProcessCore extends ABProcessElement {
          }
       }
 
-      if (data == null)
+      // Filter none data items
+      if (Array.isArray(data)) data = data.filter((d) => d != null);
+
+      if (data == null || !data.length)
          data = this.process.processData.call(this, currElement, params);
 
-      if (data == null) data = this.process.processData(this, params);
+      if (data == null || !data.length)
+         data = this.process.processData(this, params);
 
       return data;
    }
