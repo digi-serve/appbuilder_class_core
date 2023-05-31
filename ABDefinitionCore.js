@@ -1,6 +1,6 @@
 // import ABApplication from "./ABApplication"
 
-module.exports = class ABDefinitionCore {
+export default class ABDefinitionCore {
    constructor(attributes, AB) {
       this.AB = AB;
       this.fromValues(attributes);
@@ -87,4 +87,4 @@ module.exports = class ABDefinitionCore {
          return this.AB.definitionCreate(this.toObj());
       }
    }
-};
+}

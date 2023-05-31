@@ -5,7 +5,7 @@
  *
  */
 
-const ABField = require("../../platform/dataFields/ABField");
+import ABField from "../../platform/dataFields/ABField";
 
 const ABFieldImageDefaults = {
    key: "image",
@@ -70,7 +70,7 @@ const defaultValues = {
    defaultImageUrl: "",
 };
 
-module.exports = class ABFieldImageCore extends ABField {
+export default class ABFieldImageCore extends ABField {
    constructor(values, object) {
       super(values, object, ABFieldImageDefaults);
 
@@ -135,4 +135,4 @@ module.exports = class ABFieldImageCore extends ABField {
    isValidData(data, validator) {
       super.isValidData(data, validator);
    }
-};
+}

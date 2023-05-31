@@ -1,6 +1,6 @@
-const ABMLClass = require("../platform/ABMLClass");
+import ABMLClass from "../platform/ABMLClass";
 
-module.exports = class ABIndexCore extends ABMLClass {
+export default class ABIndexCore extends ABMLClass {
    constructor(attributes, object) {
       super(["label"], object.AB);
       this.object = object;
@@ -114,4 +114,4 @@ module.exports = class ABIndexCore extends ABMLClass {
 
       return `${indexName}_unique`;
    }
-};
+}

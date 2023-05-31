@@ -5,7 +5,7 @@
  *
  */
 
-const ABField = require("../../platform/dataFields/ABField");
+import ABField from "../../platform/dataFields/ABField";
 
 const MAX_CHAR_LENGTH = 255;
 
@@ -71,7 +71,7 @@ const defaultValues = {
    supportMultilingual: 0,
 };
 
-module.exports = class ABFieldStringCore extends ABField {
+export default class ABFieldStringCore extends ABField {
    constructor(values, object) {
       super(values, object, ABFieldStringDefaults);
 
@@ -201,4 +201,4 @@ module.exports = class ABFieldStringCore extends ABField {
    get isMultilingual() {
       return this.settings.supportMultilingual == 1;
    }
-};
+}

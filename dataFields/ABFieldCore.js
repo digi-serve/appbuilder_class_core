@@ -7,9 +7,9 @@
  *
  */
 // const ABEmitter = require("../../platform/ABEmitter");
-const ABMLClass = require("../../platform/ABMLClass");
+import ABMLClass from "../../platform/ABMLClass";
 
-module.exports = class ABFieldCore extends ABMLClass {
+export default class ABFieldCore extends ABMLClass {
    constructor(values, object, fieldDefaults) {
       super(["label"], object.AB);
 
@@ -354,4 +354,4 @@ module.exports = class ABFieldCore extends ABMLClass {
       }
       return myDef;
    }
-};
+}

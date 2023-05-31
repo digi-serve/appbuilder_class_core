@@ -5,12 +5,7 @@
  *
  */
 
-const ABField = require("../../platform/dataFields/ABField");
-
-function L(key, altText) {
-   // TODO:
-   return altText; // AD.lang.label.getLabel(key) || altText;
-}
+import ABField from "../../platform/dataFields/ABField";
 
 /** Private methods */
 function AGE(dateString) {
@@ -195,7 +190,7 @@ const defaultValues = {
    decimalPlaces: 0, // 0, 1, 2, 3, 4, 5, 6, 7, 8, 9, 10
 };
 
-module.exports = class ABFieldCalculateCore extends ABField {
+export default class ABFieldCalculateCore extends ABField {
    constructor(values, object) {
       super(values, object, ABFieldCalculateDefaults);
    }
@@ -328,5 +323,4 @@ module.exports = class ABFieldCalculateCore extends ABField {
          return "";
       }
    }
-};
-
+}

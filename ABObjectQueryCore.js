@@ -13,10 +13,10 @@
 // A where statement is also part of the definition.
 //
 
-var ABObject = require("../platform/ABObject");
-var ABModelQuery = require("../platform/ABModelQuery");
+import ABObject from "../platform/ABObject";
+import ABModelQuery from "../platform/ABModelQuery";
 
-module.exports = class ABObjectQueryCore extends ABObject {
+export default class ABObjectQueryCore extends ABObject {
    constructor(attributes, AB) {
       super(attributes, AB);
       /*
@@ -681,4 +681,4 @@ module.exports = class ABObjectQueryCore extends ABObject {
 
       return filterConditions;
    }
-};
+}

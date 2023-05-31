@@ -1,6 +1,6 @@
 // import ABApplication from "./ABApplication"
 // const ABApplication = require("./ABApplication"); // NOTE: change to require()
-const ABProcessElement = require("../../../platform/process/tasks/ABProcessElement.js");
+import ABProcessElement from "../../../platform/process/tasks/ABProcessElement.js";
 
 const ABProcessTaskUserExternalDefaults = {
    category: null,
@@ -35,7 +35,7 @@ const settings = {
    url: "",
 };
 
-module.exports = class ABProcessTaskUserExternalCore extends ABProcessElement {
+export default class ABProcessTaskUserExternalCore extends ABProcessElement {
    constructor(attributes, process, AB) {
       for (const key in settings)
          attributes[key] = attributes[key] ?? settings[key];
@@ -79,4 +79,4 @@ module.exports = class ABProcessTaskUserExternalCore extends ABProcessElement {
          },
       ];
    }
-};
+}

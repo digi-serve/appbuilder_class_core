@@ -5,12 +5,7 @@
  *
  */
 
-const ABField = require("../../platform/dataFields/ABField");
-
-// function L(key, altText) {
-//    // TODO:
-//    return altText; // AD.lang.label.getLabel(key) || altText;
-// }
+import ABField from "../../platform/dataFields/ABField";
 
 const ABFieldCombinedDefaults = {
    key: "combined",
@@ -75,7 +70,7 @@ const defaultValues = {
    delimiter: "plus", // plus, space, dash, period
 };
 
-module.exports = class ABFieldCombineCore extends ABField {
+export default class ABFieldCombineCore extends ABField {
    constructor(values, object) {
       super(values, object, ABFieldCombinedDefaults);
    }
@@ -106,4 +101,4 @@ module.exports = class ABFieldCombineCore extends ABField {
       // Remove every values, then we will use AUTO_INCREMENT of MySQL
       delete values[this.columnName];
    }
-};
+}

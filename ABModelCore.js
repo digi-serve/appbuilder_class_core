@@ -12,7 +12,7 @@
 //    })
 //
 
-module.exports = class ABModelCore {
+export default class ABModelCore {
    constructor(object) {
       // link me to my ABObject
       this.object = object;
@@ -888,4 +888,4 @@ module.exports = class ABModelCore {
          });
       });
    }
-};
+}

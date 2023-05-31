@@ -1,4 +1,4 @@
-const ABProcessElement = require("../../../platform/process/tasks/ABProcessElement.js");
+import ABProcessElement from "../../../platform/process/tasks/ABProcessElement.js";
 
 let InsertRecordDefaults = {
    category: null,
@@ -30,7 +30,7 @@ let InsertRecordDefaults = {
    ],
 };
 
-module.exports = class InsertRecordCore extends ABProcessElement {
+export default class InsertRecordCore extends ABProcessElement {
    constructor(attributes, process, AB) {
       attributes.type = attributes.type || "process.task.service.insertRecord";
       super(attributes, process, AB, InsertRecordDefaults);
@@ -159,4 +159,4 @@ module.exports = class InsertRecordCore extends ABProcessElement {
    ////
    //// Process Instance Methods
    ////
-};
+}

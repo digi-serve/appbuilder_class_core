@@ -1,6 +1,6 @@
-const ABViewWidget = require("../../platform/views/ABViewWidget");
+import ABViewWidget from "../../platform/views/ABViewWidget";
 
-module.exports = class ABViewDetailItemCore extends ABViewWidget {
+export default class ABViewDetailItemCore extends ABViewWidget {
    // constructor(values, application, parent, defaultValues) {
    //    super(values, application, parent, defaultValues);
    // }
@@ -78,4 +78,4 @@ module.exports = class ABViewDetailItemCore extends ABViewWidget {
    get datacollection() {
       return null;
    }
-};
+}

@@ -12,33 +12,34 @@
 var Fields = {};
 
 var AllFieldClasses = [
-   require("../platform/dataFields/ABFieldString"),
-   require("../platform/dataFields/ABFieldLongText"),
-   require("../platform/dataFields/ABFieldNumber"),
-   require("../platform/dataFields/ABFieldDate"),
-   require("../platform/dataFields/ABFieldDateTime"),
-   require("../platform/dataFields/ABFieldBoolean"),
-   require("../platform/dataFields/ABFieldList"),
-   require("../platform/dataFields/ABFieldTree"),
-   require("../platform/dataFields/ABFieldEmail"),
-   require("../platform/dataFields/ABFieldFile"),
-   require("../platform/dataFields/ABFieldImage"),
-   require("../platform/dataFields/ABFieldUser"),
-   require("../platform/dataFields/ABFieldConnect"),
-   require("../platform/dataFields/ABFieldCalculate"),
-   require("../platform/dataFields/ABFieldTextFormula"),
-   require("../platform/dataFields/ABFieldFormula"),
-   require("../platform/dataFields/ABFieldAutoIndex"),
-   require("../platform/dataFields/ABFieldJson"),
-   require("../platform/dataFields/ABFieldCombine"),
-   require("../platform/dataFields/ABFieldSelectivity"),
+   await import("../platform/dataFields/ABFieldString"),
+   await import("../platform/dataFields/ABFieldLongText"),
+   await import("../platform/dataFields/ABFieldNumber"),
+   await import("../platform/dataFields/ABFieldDate"),
+   await import("../platform/dataFields/ABFieldDateTime"),
+   await import("../platform/dataFields/ABFieldBoolean"),
+   await import("../platform/dataFields/ABFieldList"),
+   await import("../platform/dataFields/ABFieldTree"),
+   await import("../platform/dataFields/ABFieldEmail"),
+   await import("../platform/dataFields/ABFieldFile"),
+   await import("../platform/dataFields/ABFieldImage"),
+   await import("../platform/dataFields/ABFieldUser"),
+   await import("../platform/dataFields/ABFieldConnect"),
+   await import("../platform/dataFields/ABFieldCalculate"),
+   await import("../platform/dataFields/ABFieldTextFormula"),
+   await import("../platform/dataFields/ABFieldFormula"),
+   await import("../platform/dataFields/ABFieldAutoIndex"),
+   await import("../platform/dataFields/ABFieldJson"),
+   await import("../platform/dataFields/ABFieldCombine"),
+   await import("../platform/dataFields/ABFieldSelectivity"),
 ];
 
 AllFieldClasses.forEach((FIELD) => {
+   FIELD = FIELD.default;
    Fields[FIELD.defaults().key] = FIELD;
 });
 
-module.exports = class ABFieldManager {
+export default class ABFieldManager {
    /*
     * @function allFields
     * return all the currently defined ABFields in an array.
@@ -91,4 +92,4 @@ module.exports = class ABFieldManager {
          //// TODO: what to do here?
       }
    }
-};
+}

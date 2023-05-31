@@ -23,48 +23,47 @@ var Tasks = {};
 var DEFINITIONTYPES = {};
 
 var AllProcessElements = [
-   require("../../platform/process/tasks/ABProcessEnd"),
-   require("../../platform/process/tasks/ABProcessGatewayExclusive"),
-   require("../../platform/process/tasks/ABProcessTaskEmail"),
-   require("../../platform/process/tasks/ABProcessTaskService"),
-   require("../../platform/process/tasks/ABProcessTaskServiceAccountingBatchProcessing"),
-   require("../../platform/process/tasks/ABProcessTaskServiceAccountingFPClose"),
-   require("../../platform/process/tasks/ABProcessTaskServiceAccountingFPYearClose"),
-   require("../../platform/process/tasks/ABProcessTaskServiceAccountingJEArchive"),
-   require("../../platform/process/tasks/ABProcessTaskServiceCalculate"),
-   require("../../platform/process/tasks/ABProcessTaskServiceInsertRecord"),
-   require("../../platform/process/tasks/ABProcessTaskServiceQuery"),
-   require("../../platform/process/tasks/ABProcessTaskServiceGetResetPasswordUrl"),
-   require("../../platform/process/tasks/ABProcessTaskSubProcess"),
-   require("../../platform/process/tasks/ABProcessTaskUser"),
-   require("../../platform/process/tasks/ABProcessTaskUserApproval"),
-   require("../../platform/process/tasks/ABProcessTaskUserExternal"),
-   require("../../platform/process/tasks/ABProcessTrigger"),
-   require("../../platform/process/tasks/ABProcessTriggerLifecycle"),
-   require("../../platform/process/tasks/ABProcessTriggerTimer"),
+   await import("../../platform/process/tasks/ABProcessEnd"),
+   await import("../../platform/process/tasks/ABProcessGatewayExclusive"),
+   await import("../../platform/process/tasks/ABProcessTaskEmail"),
+   await import("../../platform/process/tasks/ABProcessTaskService"),
+   await import("../../platform/process/tasks/ABProcessTaskServiceAccountingBatchProcessing"),
+   await import("../../platform/process/tasks/ABProcessTaskServiceAccountingFPClose"),
+   await import("../../platform/process/tasks/ABProcessTaskServiceAccountingFPYearClose"),
+   await import("../../platform/process/tasks/ABProcessTaskServiceAccountingJEArchive"),
+   await import("../../platform/process/tasks/ABProcessTaskServiceCalculate"),
+   await import("../../platform/process/tasks/ABProcessTaskServiceInsertRecord"),
+   await import("../../platform/process/tasks/ABProcessTaskServiceQuery"),
+   await import("../../platform/process/tasks/ABProcessTaskServiceGetResetPasswordUrl"),
+   await import("../../platform/process/tasks/ABProcessTaskSubProcess"),
+   await import("../../platform/process/tasks/ABProcessTaskUser"),
+   await import("../../platform/process/tasks/ABProcessTaskUserApproval"),
+   await import("../../platform/process/tasks/ABProcessTaskUserExternal"),
+   await import("../../platform/process/tasks/ABProcessTrigger"),
+   await import("../../platform/process/tasks/ABProcessTriggerLifecycle"),
+   await import("../../platform/process/tasks/ABProcessTriggerTimer"),
 ];
 
 AllProcessElements.forEach((ELEMENT) => {
+   ELEMENT = ELEMENT.default;
    Tasks[ELEMENT.defaults().key] = ELEMENT;
 
    switch (ELEMENT.defaults().category) {
       case "start":
       case "end":
-         DEFINITIONTYPES[
-            ELEMENT.DiagramReplace().target.eventDefinitionType
-         ] = ELEMENT.defaults();
+         DEFINITIONTYPES[ELEMENT.DiagramReplace().target.eventDefinitionType] =
+            ELEMENT.defaults();
          break;
 
       case "gateway":
       case "task":
-         DEFINITIONTYPES[
-            ELEMENT.DiagramReplace().target.type
-         ] = ELEMENT.defaults();
+         DEFINITIONTYPES[ELEMENT.DiagramReplace().target.type] =
+            ELEMENT.defaults();
          break;
    }
 });
 
-module.exports = {
+export default {
    /*
     * @function allTasks
     * return all the currently defined ABProcessTasks in an array.
@@ -135,4 +134,3 @@ module.exports = {
       return DEFINITIONTYPES[key];
    },
 };
-

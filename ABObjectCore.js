@@ -5,12 +5,10 @@
  * that can instantiate themselves and provide field and model resources.
  */
 
-var ABModel = require("../platform/ABModel");
-var ABMLClass = require("../platform/ABMLClass");
+import ABModel from "../platform/ABModel";
+import ABMLClass from "../platform/ABMLClass";
 
-const L = (...params) => AB.Multilingual.label(...params);
-
-module.exports = class ABObjectCore extends ABMLClass {
+export default class ABObjectCore extends ABMLClass {
    constructor(attributes, AB) {
       super(["label"], AB);
 
@@ -938,6 +936,7 @@ module.exports = class ABObjectCore extends ABMLClass {
 
    // Display data with label format of object
    displayData(rowData) {
+      let L = this.AB.Label();
       if (rowData == null) return "";
 
       // translate multilingual
@@ -997,4 +996,4 @@ module.exports = class ABObjectCore extends ABMLClass {
 
       return labelData;
    }
-};
+}

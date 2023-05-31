@@ -6,68 +6,73 @@
  */
 
 var AllViews = [
-   require("../platform/views/ABView"),
-   require("../platform/views/ABViewCarousel"),
-   require("../platform/views/ABViewChart"),
-   require("../platform/views/ABViewChartArea"),
-   require("../platform/views/ABViewChartBar"),
-   require("../platform/views/ABViewChartLine"),
-   require("../platform/views/ABViewChartPie"),
-   require("../platform/views/ABViewComment"),
-   require("../platform/views/ABViewConditionalContainer"),
-   require("../platform/views/ABViewConnectDataFilter"),
-   require("../platform/views/ABViewContainer"),
-   require("../platform/views/ABViewCSVExporter"),
-   require("../platform/views/ABViewCSVImporter"),
-   require("../platform/views/ABViewDataFilter"),
-   require("../platform/views/ABViewDataview"),
-   require("../platform/views/ABViewDocxBuilder"),
-   require("../platform/views/ABViewGrid"),
-   require("../platform/views/ABViewImage"),
-   require("../platform/views/ABViewLabel"),
-   require("../platform/views/ABViewLayout"),
-   require("../platform/views/ABViewList"),
-   require("../platform/views/ABViewMenu"),
-   require("../platform/views/ABViewPage"),
-   require("../platform/views/ABViewPivot"),
-   require("../platform/views/ABViewTab"),
-   require("../platform/views/ABViewText"),
+   // require("../platform/views/ABView"),
+   /////
+   ///// LEFT OFF HERRE:
+   ///// 
+   /// TODO: test this out:
+   await import  ("../platform/views/ABView"),
+   // require("../platform/views/ABViewCarousel"),
+   // require("../platform/views/ABViewChart"),
+   // require("../platform/views/ABViewChartArea"),
+   // require("../platform/views/ABViewChartBar"),
+   // require("../platform/views/ABViewChartLine"),
+   // require("../platform/views/ABViewChartPie"),
+   // require("../platform/views/ABViewComment"),
+   // require("../platform/views/ABViewConditionalContainer"),
+   // require("../platform/views/ABViewConnectDataFilter"),
+   // require("../platform/views/ABViewContainer"),
+   // require("../platform/views/ABViewCSVExporter"),
+   // require("../platform/views/ABViewCSVImporter"),
+   // require("../platform/views/ABViewDataFilter"),
+   // require("../platform/views/ABViewDataview"),
+   // require("../platform/views/ABViewDocxBuilder"),
+   // require("../platform/views/ABViewGrid"),
+   // require("../platform/views/ABViewImage"),
+   // require("../platform/views/ABViewLabel"),
+   // require("../platform/views/ABViewLayout"),
+   // require("../platform/views/ABViewList"),
+   // require("../platform/views/ABViewMenu"),
+   // require("../platform/views/ABViewPage"),
+   // require("../platform/views/ABViewPivot"),
+   // require("../platform/views/ABViewTab"),
+   // require("../platform/views/ABViewText"),
 
-   //
-   // Special Editors
-   //
-   require("../platform/views/ABViewGantt"),
-   require("../platform/views/ABViewKanban"),
-   require("../platform/views/ABViewReportsManager"),
+   // //
+   // // Special Editors
+   // //
+   // require("../platform/views/ABViewGantt"),
+   // require("../platform/views/ABViewKanban"),
+   // require("../platform/views/ABViewReportsManager"),
 
-   //
-   // Detail Components
-   //
-   require("../platform/views/ABViewDetail"),
-   require("../platform/views/ABViewDetailCheckbox"),
-   require("../platform/views/ABViewDetailConnect"),
-   require("../platform/views/ABViewDetailCustom"),
-   require("../platform/views/ABViewDetailImage"),
-   // require("../platform/views/ABViewDetailSelectivity"),
-   require("../platform/views/ABViewDetailText"),
-   require("../platform/views/ABViewDetailTree"),
+   // //
+   // // Detail Components
+   // //
+   // require("../platform/views/ABViewDetail"),
+   // require("../platform/views/ABViewDetailCheckbox"),
+   // require("../platform/views/ABViewDetailConnect"),
+   // require("../platform/views/ABViewDetailCustom"),
+   // require("../platform/views/ABViewDetailImage"),
+   // // require("../platform/views/ABViewDetailSelectivity"),
+   // require("../platform/views/ABViewDetailText"),
+   // require("../platform/views/ABViewDetailTree"),
 
-   //
-   // Form Components
-   //
-   require("../platform/views/ABViewForm"),
-   require("../platform/views/ABViewFormButton"),
-   require("../platform/views/ABViewFormCheckbox"),
-   require("../platform/views/ABViewFormConnect"),
-   require("../platform/views/ABViewFormCustom"),
-   require("../platform/views/ABViewFormDatepicker"),
-   require("../platform/views/ABViewFormJson"),
-   require("../platform/views/ABViewFormNumber"),
-   require("../platform/views/ABViewFormReadonly"),
-   require("../platform/views/ABViewFormSelectMultiple"),
-   require("../platform/views/ABViewFormSelectSingle"),
-   require("../platform/views/ABViewFormTextbox"),
-   require("../platform/views/ABViewFormTree"),
+   // //
+   // // Form Components
+   // //
+   // require("../platform/views/ABViewForm"),
+   // require("../platform/views/ABViewFormButton"),
+   // require("../platform/views/ABViewFormCheckbox"),
+   // require("../platform/views/ABViewFormConnect"),
+   // require("../platform/views/ABViewFormCustom"),
+   // require("../platform/views/ABViewFormDatepicker"),
+   // require("../platform/views/ABViewFormJson"),
+   // require("../platform/views/ABViewFormNumber"),
+   // require("../platform/views/ABViewFormReadonly"),
+   // require("../platform/views/ABViewFormSelectMultiple"),
+   // require("../platform/views/ABViewFormSelectSingle"),
+   // require("../platform/views/ABViewFormTextbox"),
+   // require("../platform/views/ABViewFormTree"),
 ];
 
 /*
@@ -82,7 +87,7 @@ AllViews.forEach((v) => {
    Views[v.common().key] = v;
 });
 
-module.exports = class ABViewManagerCore {
+export default class ABViewManagerCore {
    /**
     * @function allViews
     * return all the currently defined ABViews in an array.
@@ -142,4 +147,4 @@ module.exports = class ABViewManagerCore {
       console.error(`Unknown View Key[${key}]`);
       return;
    }
-};
+}

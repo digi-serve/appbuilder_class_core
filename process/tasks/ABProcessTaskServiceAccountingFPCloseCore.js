@@ -1,4 +1,4 @@
-const ABProcessElement = require("../../../platform/process/tasks/ABProcessElement.js");
+import ABProcessElement from "../../../platform/process/tasks/ABProcessElement.js";
 
 var AccountingFPCloseDefaults = {
    category: null,
@@ -48,7 +48,7 @@ var AccountingFPCloseDefaults = {
    // values set by the platform .propertiesStash()
 };
 
-module.exports = class AccountingFPCloseCore extends ABProcessElement {
+export default class AccountingFPCloseCore extends ABProcessElement {
    constructor(attributes, process, AB) {
       attributes.type =
          attributes.type || "process.task.service.accounting.fpClose";
@@ -164,4 +164,4 @@ module.exports = class AccountingFPCloseCore extends ABProcessElement {
         return null;
     }
     */
-};
+}

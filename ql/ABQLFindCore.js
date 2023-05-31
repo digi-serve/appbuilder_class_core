@@ -6,8 +6,8 @@
  *
  */
 
-const ABQL = require("../../platform/ql/ABQL.js");
-const NextQLOps = require("./ABQLSet.js");
+import ABQL from "../../platform/ql/ABQL.js";
+import NextQLOps from "./ABQLSet.js";
 // {array} of {ABQLxxx} options
 // this is an array of what possible next Operations can come after an
 // ABQLFind task is complete.  In this case the {ABQLSet} operations come
@@ -34,4 +34,4 @@ ABQLFindCore.key = "find";
 ABQLFindCore.label = "find";
 ABQLFindCore.NextQLOps = NextQLOps;
 
-module.exports = ABQLFindCore;
+export default ABQLFindCore;

@@ -6,12 +6,7 @@
  */
 
 // const ABFieldSelectivity = require("../../platform/dataFields/ABFieldSelectivity");
-const ABField = require("../../platform/dataFields/ABField");
-
-function L(key, altText) {
-   // TODO:
-   return altText; // AD.lang.label.getLabel(key) || altText;
-}
+import ABField from "../../platform/dataFields/ABField";
 
 const ABFieldListDefaults = {
    key: "list",
@@ -113,7 +108,7 @@ const defaultValues = {
    multipleDefault: [],
 };
 
-module.exports = class ABFieldListCore extends ABField {
+export default class ABFieldListCore extends ABField {
    constructor(values, object) {
       super(values, object, ABFieldListDefaults);
 
@@ -266,4 +261,4 @@ module.exports = class ABFieldListCore extends ABField {
 
       return displayOpts.join(", ");
    }
-};
+}

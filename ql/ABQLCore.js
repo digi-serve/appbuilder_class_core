@@ -7,7 +7,7 @@
  *
  *
  */
-var ABEmitter = require("../../platform/ABEmitter");
+import ABEmitter from "../../platform/ABEmitter";
 class ABQLCore extends ABEmitter {
    constructor(attributes, parameterDefinitions, prevOP, task, AB) {
       super();
@@ -175,4 +175,4 @@ class ABQLCore extends ABEmitter {
    }
 }
 
-module.exports = ABQLCore;
+export default ABQLCore;

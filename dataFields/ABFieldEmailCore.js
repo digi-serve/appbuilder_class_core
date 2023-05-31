@@ -5,12 +5,7 @@
  *
  */
 
-const ABField = require("../../platform/dataFields/ABField");
-
-function L(key, altText) {
-   // TODO:
-   return altText; // AD.lang.label.getLabel(key) || altText;
-}
+import ABField from "../../platform/dataFields/ABField";
 
 const ABFieldEmailDefaults = {
    key: "email",
@@ -70,7 +65,7 @@ const defaultValues = {
    defaultCheckbox: 0,
 };
 
-module.exports = class ABFieldEmailCore extends ABField {
+export default class ABFieldEmailCore extends ABField {
    constructor(values, object) {
       super(values, object, ABFieldEmailDefaults);
    }
@@ -124,7 +119,8 @@ module.exports = class ABFieldEmailCore extends ABField {
     */
    isValidData(data, validator) {
       if (data[this.columnName]) {
-         const Reg = /^(([^<>()[\]\\.,;:\s@"]+(\.[^<>()[\]\\.,;:\s@"]+)*)|(".+"))@((\[[0-9]{1,3}\.[0-9]{1,3}\.[0-9]{1,3}\.[0-9]{1,3}\])|(([a-zA-Z\-0-9]+\.)+[a-zA-Z]{2,}))$/;
+         const Reg =
+            /^(([^<>()[\]\\.,;:\s@"]+(\.[^<>()[\]\\.,;:\s@"]+)*)|(".+"))@((\[[0-9]{1,3}\.[0-9]{1,3}\.[0-9]{1,3}\.[0-9]{1,3}\])|(([a-zA-Z\-0-9]+\.)+[a-zA-Z]{2,}))$/;
 
          let value = data[this.columnName];
          value = String(value).toLowerCase();
@@ -133,4 +129,4 @@ module.exports = class ABFieldEmailCore extends ABField {
          }
       }
    }
-};
+}

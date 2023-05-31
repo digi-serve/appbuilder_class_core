@@ -8,7 +8,7 @@
  *
  */
 // const ABEmitter = require("../platform/ABEmitter");
-const ABMLClass = require("../platform/ABMLClass");
+import ABMLClass from "../platform/ABMLClass";
 
 // const ABObject = require("../platform/ABObject");
 // const ABObjectQuery = require("../platform/ABObjectQuery");
@@ -71,7 +71,7 @@ function queueOperation(fn, timeout = 20) {
    }
 }
 
-module.exports = class ABDataCollectionCore extends ABMLClass {
+export default class ABDataCollectionCore extends ABMLClass {
    constructor(attributes, AB) {
       super(["label"], AB);
 
@@ -2562,4 +2562,4 @@ module.exports = class ABDataCollectionCore extends ABMLClass {
          this.settings.followDatacollectionID
       );
    }
-};
+}

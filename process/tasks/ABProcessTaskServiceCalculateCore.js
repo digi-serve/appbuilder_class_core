@@ -1,4 +1,4 @@
-const ABProcessElement = require("../../../platform/process/tasks/ABProcessElement.js");
+import ABProcessElement from "../../../platform/process/tasks/ABProcessElement.js";
 
 let CalculateDefaults = {
    category: null,
@@ -24,7 +24,7 @@ let CalculateDefaults = {
    settings: ["formulaText"],
 };
 
-module.exports = class CalculateTaskCore extends ABProcessElement {
+export default class CalculateTaskCore extends ABProcessElement {
    constructor(attributes, process, AB) {
       attributes.type = attributes.type || "process.task.service.calculate";
       super(attributes, process, AB, CalculateDefaults);
@@ -67,4 +67,4 @@ module.exports = class CalculateTaskCore extends ABProcessElement {
          field: this._fakeNum,
       };
    }
-};
+}

@@ -1,11 +1,11 @@
-const ABView = require("../../platform/views/ABView");
+import ABView from "../../platform/views/ABView";
 
 const ABViewFormFieldPropertyComponentDefaults = {
    required: 0,
    disable: 0,
 };
 
-module.exports = class ABViewFormComponentCore extends ABView {
+export default class ABViewFormComponentCore extends ABView {
    // constructor(values, application, parent, defaultValues) {
    //    super(values, application, parent, defaultValues);
    // }
@@ -56,4 +56,4 @@ module.exports = class ABViewFormComponentCore extends ABView {
          return field;
       }
    }
-};
+}

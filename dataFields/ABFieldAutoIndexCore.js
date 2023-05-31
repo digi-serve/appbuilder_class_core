@@ -5,12 +5,7 @@
  *
  */
 
-const ABField = require("../../platform/dataFields/ABField");
-
-function L(key, altText) {
-   // TODO:
-   return altText; // AD.lang.label.getLabel(key) || altText;
-}
+import ABField from "../../platform/dataFields/ABField";
 
 const ABFieldAutoIndexDefaults = {
    key: "AutoIndex",
@@ -73,7 +68,7 @@ const defaultValues = {
    previewText: "0000",
 };
 
-module.exports = class ABFieldAutoIndexCore extends ABField {
+export default class ABFieldAutoIndexCore extends ABField {
    constructor(values, object) {
       super(values, object, ABFieldAutoIndexDefaults);
    }
@@ -96,6 +91,7 @@ module.exports = class ABFieldAutoIndexCore extends ABField {
    }
 
    static delimiterList() {
+      let L = this.AB.Label();
       return [
          { id: "none", value: L("None"), sign: "" },
          { id: "comma", value: L("Comma"), sign: ", " },
@@ -149,5 +145,4 @@ module.exports = class ABFieldAutoIndexCore extends ABField {
          return "";
       }
    }
-};
-
+}

@@ -5,7 +5,7 @@
  *
  */
 
-const ABField = require("../../platform/dataFields/ABField");
+import ABField from "../../platform/dataFields/ABField";
 
 const ABFieldJsonDefaults = {
    key: "json",
@@ -62,7 +62,7 @@ const ABFieldJsonDefaults = {
 
 const defaultValues = {};
 
-module.exports = class ABFieldJsonCore extends ABField {
+export default class ABFieldJsonCore extends ABField {
    constructor(values, object) {
       super(values, object, ABFieldJsonDefaults);
    }
@@ -87,4 +87,4 @@ module.exports = class ABFieldJsonCore extends ABField {
       //
       // values[this.columnName] = "";
    }
-};
+}

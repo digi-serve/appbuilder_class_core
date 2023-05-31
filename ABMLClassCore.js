@@ -8,8 +8,8 @@
  * This core ABMLClass will internally track the multilingual fields
  * (this.mlFields) and auto
  */
-var ABEmitter = require("../platform/ABEmitter");
-module.exports = class ABMLClassCore extends ABEmitter {
+import ABEmitter from "../platform/ABEmitter";
+export default class ABMLClassCore extends ABEmitter {
    constructor(fieldList, AB) {
       super();
       this.mlFields = fieldList || ["label"];
@@ -241,4 +241,4 @@ module.exports = class ABMLClassCore extends ABEmitter {
          }
       }
    }
-};
+}

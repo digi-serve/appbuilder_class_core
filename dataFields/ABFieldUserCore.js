@@ -5,12 +5,7 @@
  *
  */
 
-const ABFieldConnect = require("../../platform/dataFields/ABFieldConnect");
-
-function L(key, altText) {
-   // TODO:
-   return altText; // AD.lang.label.getLabel(key) || altText;
-}
+import ABFieldConnect from "../../platform/dataFields/ABFieldConnect";
 
 const ABFieldUserDefaults = {
    key: "user",
@@ -84,7 +79,7 @@ const defaultValues = {
    isShowUsername: 1,
 };
 
-module.exports = class ABFieldUserCore extends ABFieldConnect {
+export default class ABFieldUserCore extends ABFieldConnect {
    constructor(values, object) {
       super(values, object, ABFieldUserDefaults);
    }
@@ -126,4 +121,4 @@ module.exports = class ABFieldUserCore extends ABFieldConnect {
 
       return val.map((v) => v.username || v).join(", ");
    }
-};
+}

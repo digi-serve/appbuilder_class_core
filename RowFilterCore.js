@@ -1,4 +1,4 @@
-const ABComponent = require("../platform/ABComponent");
+import ABComponent from "../platform/ABComponent";
 
 /**
  *  support get data from objects and queries
@@ -42,7 +42,7 @@ function getFieldVal(rowData, field, returnSingular = true) {
    return value;
 }
 
-module.exports = class RowFilterCore extends ABComponent {
+export default class RowFilterCore extends ABComponent {
    constructor(App, idBase, AB) {
       idBase = idBase || "ab_row_filter";
 
@@ -803,4 +803,4 @@ module.exports = class RowFilterCore extends ABComponent {
       this.config_settings = settings || {};
       this.config_settings.rules = this.config_settings.rules || [];
    }
-};
+}

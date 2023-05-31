@@ -7,13 +7,12 @@
  *
  *
  */
-
-const ABQL = require("../../platform/ql/ABQL.js");
+import ABQL from "../../platform/ql/ABQL.js";
 
 // Define the Operations that can be performed off of a RootObject.
 // Each Root Object might have a different set of Operations, so we
 // define them here.
-const QLFind = require("../../platform/ql/ABQLFind.js");
+import QLFind from "../../platform/ql/ABQLFind.js";
 const NextQLOps = [QLFind];
 
 const ParameterDefinitions = [
@@ -72,4 +71,4 @@ ABQLObjectCore.key = "object";
 ABQLObjectCore.label = "object";
 ABQLObjectCore.NextQLOps = NextQLOps;
 
-module.exports = ABQLObjectCore;
+export default ABQLObjectCore;

@@ -1,7 +1,7 @@
 // // Import our Custom Components here:
 // import CustomComponentManager from '../webix_custom_components/customComponentManager'
 
-var EventEmitter = require("events").EventEmitter;
+import EventEmitter from "../platform/ABEmitter";
 
 // just keep a running counter for ABComponents
 var _countUID = 0;
@@ -9,7 +9,7 @@ function uid() {
    return _countUID++;
 }
 
-module.exports = class ABComponentCore extends EventEmitter {
+export default class ABComponentCore extends EventEmitter {
    /**
     * @param {object} App
     *      ?what is this?
@@ -91,4 +91,4 @@ module.exports = class ABComponentCore extends EventEmitter {
    unique(key) {
       return this.App.unique(this.idBase + "_" + key);
    }
-};
+}

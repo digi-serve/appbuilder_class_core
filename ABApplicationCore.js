@@ -22,8 +22,11 @@
 
 // webpack can handle 'require()' statements, but node can't handle import
 // so let's use require():
-const ABViewManager = require("../platform/ABViewManager");
-var ABMLClass = require("../platform/ABMLClass");
+// const ABViewManager = require("../platform/ABViewManager");
+import ABViewManager from "../platform/ABViewManager";
+
+// var ABMLClass = require("../platform/ABMLClass");
+import ABMLClass from "../platform/ABMLClass";
 
 function toBool(val) {
    if (typeof val == "undefined") {
@@ -41,7 +44,7 @@ function toBool(val) {
    return val;
 }
 
-module.exports = class ABApplicationCore extends ABMLClass {
+export default class ABApplicationCore extends ABMLClass {
    constructor(attributes, AB) {
       super(["label", "description"], AB);
 
@@ -970,4 +973,4 @@ module.exports = class ABApplicationCore extends ABMLClass {
 
       // return JSON.parse(JSON.stringify(object));
    }
-};
+}

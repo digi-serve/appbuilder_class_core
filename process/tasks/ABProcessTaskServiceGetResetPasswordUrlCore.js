@@ -1,6 +1,6 @@
 // import ABApplication from "./ABApplication"
 // const ABApplication = require("./ABApplication"); // NOTE: change to require()
-const ABProcessElement = require("../../../platform/process/tasks/ABProcessElement.js");
+import ABProcessElement from "../../../platform/process/tasks/ABProcessElement.js";
 
 const ABProcessTaskGetResetPasswordUrlDefaults = {
    category: null,
@@ -29,9 +29,7 @@ const ABProcessTaskGetResetPasswordUrlDefaults = {
    // values set by the platform .propertiesStash()
 };
 
-module.exports = class ABProcessTaskGetResetPasswordUrlCore extends (
-   ABProcessElement
-) {
+export default class ABProcessTaskGetResetPasswordUrlCore extends ABProcessElement {
    constructor(attributes, process, AB) {
       attributes.type =
          attributes.type || "process.task.service.getResetPasswordUrl";
@@ -63,4 +61,4 @@ module.exports = class ABProcessTaskGetResetPasswordUrlCore extends (
          label: `${this.label}->URL`,
       };
    }
-};
+}

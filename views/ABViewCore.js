@@ -7,7 +7,7 @@
  *
  */
 
-var ABMLClass = require("../../platform/ABMLClass");
+import ABMLClass from "../../platform/ABMLClass";
 
 const ABViewDefaults = {
    key: "view", // {string} unique key for this view
@@ -20,7 +20,7 @@ const ABViewPropertyComponentDefaults = {
    label: "",
 };
 
-module.exports = class ABViewCore extends ABMLClass {
+export default class ABViewCore extends ABMLClass {
    /**
     * @param {obj} values  key=>value hash of ABView values
     * @param {ABApplication} application the application object this view is under
@@ -969,4 +969,4 @@ module.exports = class ABViewCore extends ABMLClass {
             return result;
          });
    }
-};
+}

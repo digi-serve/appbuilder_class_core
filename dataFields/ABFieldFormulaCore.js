@@ -6,11 +6,7 @@
  *
  */
 
-const ABField = require("../../platform/dataFields/ABField");
-
-function L(key, altText) {
-   return altText; // AD.lang.label.getLabel(key) || altText;
-}
+import ABField from "../../platform/dataFields/ABField";
 
 const ABFieldFormulaDefaults = {
    key: "formula",
@@ -95,7 +91,7 @@ const defaultValues = {
    where: "",
 };
 
-module.exports = class ABFieldFormulaCore extends ABField {
+export default class ABFieldFormulaCore extends ABField {
    constructor(values, object) {
       super(values, object, ABFieldFormulaDefaults);
    }
@@ -287,4 +283,4 @@ module.exports = class ABFieldFormulaCore extends ABField {
 
       return this._rowFilter;
    }
-};
+}

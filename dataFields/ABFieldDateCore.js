@@ -5,12 +5,7 @@
  *
  */
 
-const ABField = require("../../platform/dataFields/ABField");
-
-function L(key, altText) {
-   // TODO:
-   return altText; // AD.lang.label.getLabel(key) || altText;
-}
+import ABField from "../../platform/dataFields/ABField";
 
 const ABFieldDateDefaults = {
    key: "date",
@@ -77,7 +72,7 @@ const defaultValues = {
    validateEndDate: null,
 };
 
-module.exports = class ABFieldDateCore extends ABField {
+export default class ABFieldDateCore extends ABField {
    constructor(values, object, defaultValues = ABFieldDateDefaults) {
       super(values, object, defaultValues);
    }
@@ -158,6 +153,7 @@ module.exports = class ABFieldDateCore extends ABField {
     */
    isValidData(data, validator) {
       super.isValidData(data, validator);
+      let L = this.AB.Label();
 
       if (data[this.columnName]) {
          let value = data[this.columnName];
@@ -398,9 +394,11 @@ module.exports = class ABFieldDateCore extends ABField {
    // }
 
    exportValue(value) {
-      return value ? this.AB.rules.toDateFormat(value, {
-         format: "YYYY-MM-DD",
-      }) : "";
+      return value
+         ? this.AB.rules.toDateFormat(value, {
+              format: "YYYY-MM-DD",
+           })
+         : "";
       // return this.convertToMoment(value).format("YYYY-MM-DD");
    }
 
@@ -408,8 +406,10 @@ module.exports = class ABFieldDateCore extends ABField {
       if (dateData && dateData.toString) return dateData.toString();
       else return "";
    }
-};
+}
 
 // Transition Code:
 // revert to static RegEx once babel-loader is working locally.
-module.exports.RegEx = "^[0-9]{4}-[0-9]{2}-[0-9]{2}$";
+const RegEx = "^[0-9]{4}-[0-9]{2}-[0-9]{2}$";
+
+export { RegEx };

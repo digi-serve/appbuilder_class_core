@@ -1,4 +1,4 @@
-const ABProcessElement = require("../../../platform/process/tasks/ABProcessElement.js");
+import ABProcessElement from "../../../platform/process/tasks/ABProcessElement.js";
 
 let SubProcessDefaults = {
    category: "task",
@@ -35,7 +35,7 @@ const NOSPAM = {
 };
 // prevent sending the same message over and over.
 
-module.exports = class SubProcessCore extends ABProcessElement {
+export default class SubProcessCore extends ABProcessElement {
    constructor(attributes, process, AB) {
       attributes.type = attributes.type || "process.task.service.subProcess";
       super(attributes, process, AB, SubProcessDefaults);
@@ -434,4 +434,4 @@ module.exports = class SubProcessCore extends ABProcessElement {
 
       this.process.elementRemove.call(this, def);
    }
-};
+}

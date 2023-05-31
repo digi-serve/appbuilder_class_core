@@ -7,7 +7,7 @@
  *
  */
 
-const ABQLSetSave = require("../../platform/ql/ABQLSetSave.js");
+import ABQLSetSave from "../../platform/ql/ABQLSetSave.js";
 
 class ABQLRowSaveCore extends ABQLSetSave {}
 
@@ -16,4 +16,4 @@ ABQLRowSaveCore.label = "Save the value as";
 ABQLRowSaveCore.NextQLOps = [];
 // NOTE: currently, this is an ending step. but it doesn't have to be...
 
-module.exports = ABQLRowSaveCore;
+export default ABQLRowSaveCore;

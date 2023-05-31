@@ -5,12 +5,7 @@
  *
  */
 
-const ABFieldDateCore = require("./ABFieldDateCore");
-
-function L(key, altText) {
-   // TODO:
-   return altText; // AD.lang.label.getLabel(key) || altText;
-}
+import ABFieldDateCore from "./ABFieldDateCore";
 
 const ABFieldDateDefaults = {
    key: "datetime",
@@ -71,7 +66,7 @@ const defaultValues = {
    defaultTimeValue: null, // {Date}
 };
 
-module.exports = class ABFieldDateTimeCore extends ABFieldDateCore {
+export default class ABFieldDateTimeCore extends ABFieldDateCore {
    constructor(values, object) {
       super(values, object, ABFieldDateDefaults);
    }
@@ -211,9 +206,10 @@ module.exports = class ABFieldDateTimeCore extends ABFieldDateCore {
    exportValue(date) {
       return date?.toISOString?.() ?? "";
    }
-};
+}
 
 // Transition Code:
 // revert to static RegEx once babel-loader is working locally.
-module.exports.RegEx =
-   "^[0-9]{4}-[0-9]{2}-[0-9]{2} [0-9]{2}:[0-9]{2}:[0-9]{2}$";
+const RegEx = "^[0-9]{4}-[0-9]{2}-[0-9]{2} [0-9]{2}:[0-9]{2}:[0-9]{2}$";
+
+export { RegEx };

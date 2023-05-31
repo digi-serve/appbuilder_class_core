@@ -6,7 +6,7 @@
  *
  */
 
-const QLObject = require("../../platform/ql/ABQLRootObject.js");
+import QLObject from "../../platform/ql/ABQLRootObject.js";
 const QLOps = [QLObject];
 
 const ABQLManagerCore = {
@@ -46,4 +46,4 @@ const ABQLManagerCore = {
     */
    QLOps: QLOps,
 };
-module.exports = ABQLManagerCore;
+export default ABQLManagerCore;

@@ -9,9 +9,9 @@
 
 // const ABQLValue = require("./ABQLValue.js");
 // const ABQLSet = require("./ABQLSet.js");
-const ABQLSetPluck = require("../../platform/ql/ABQLSetPluck.js");
-const ABQLRowUpdate = require("../../platform/ql/ABQLRowUpdate.js");
-const ABQLRowSave = require("../../platform/ql/ABQLRowSave.js");
+import ABQLSetPluck from "../../platform/ql/ABQLSetPluck.js";
+import ABQLRowUpdate from "../../platform/ql/ABQLRowUpdate.js";
+import ABQLRowSave from "../../platform/ql/ABQLRowSave.js";
 
 class ABQLRowPluckCore extends ABQLSetPluck {
    // Dynamic NextQLOps
@@ -82,4 +82,4 @@ ABQLRowPluckCore.key = "row_pluck";
 ABQLRowPluckCore.label = "Read the value from the field";
 ABQLRowPluckCore.NextQLOps = []; // Static NextQLOps
 
-module.exports = ABQLRowPluckCore;
+export default ABQLRowPluckCore;

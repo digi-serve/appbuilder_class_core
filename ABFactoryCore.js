@@ -8,42 +8,72 @@
 // const _ = require("lodash");
 // const uuidv4 = require("uuid");
 
-const ABApplication = require("../platform/ABApplication");
-const ABDefinition = require("../platform/ABDefinition");
+// const ABApplication = require("../platform/ABApplication");
+import ABApplication from "../platform/ABApplication";
 
-const ABComponent = require("../platform/ABComponent");
+// const ABDefinition = require("../platform/ABDefinition");
+import ABDefinition from "../platform/ABDefinition";
 
-const ABFieldManager = require("./ABFieldManager");
+// const ABComponent = require("../platform/ABComponent");
+import ABComponent from "../platform/ABComponent";
 
-const ABIndex = require("../platform/ABIndex");
-const ABObject = require("../platform/ABObject");
-const ABObjectExternal = require("../platform/ABObjectExternal");
-const ABObjectImport = require("../platform/ABObjectImport");
-const ABDataCollection = require("../platform/ABDataCollection");
-const ABObjectQuery = require("../platform/ABObjectQuery");
+// const ABFieldManager = require("./ABFieldManager");
+import ABFieldManager from "./ABFieldManager";
 
-const ABHint = require("../platform/ABHint");
-const ABProcess = require("../platform/ABProcess");
+// const ABIndex = require("../platform/ABIndex");
+import ABIndex from "../platform/ABIndex";
 
-const ABProcessParticipant = require("../platform/process/ABProcessParticipant");
-const ABProcessLane = require("../platform/process/ABProcessLane");
-const ABProcessTaskManager = require("./process/ABProcessTaskManager");
+// const ABObject = require("../platform/ABObject");
+import ABObject from "../platform/ABObject";
 
-const ABStep = require("../platform/ABStep");
+// const ABObjectExternal = require("../platform/ABObjectExternal");
+import ABObjectExternal from "../platform/ABObjectExternal";
+// const ABObjectImport = require("../platform/ABObjectImport");
+import ABObjectImport from "../platform/ABObjectImport";
+// const ABDataCollection = require("../platform/ABDataCollection");
+import ABDataCollection from "../platform/ABDataCollection";
+// const ABObjectQuery = require("../platform/ABObjectQuery");
+import ABObjectQuery from "../platform/ABObjectQuery";
 
-const ABViewDetailItem = require("../platform/views/ABViewDetailItem");
-const ABViewFormItem = require("../platform/views/ABViewFormItem");
+// const ABHint = require("../platform/ABHint");
+import ABHint from "../platform/ABHint";
+
+// const ABProcess = require("../platform/ABProcess");
+import ABProcess from "../platform/ABProcess";
+
+// const ABProcessParticipant = require("../platform/process/ABProcessParticipant");
+import ABProcessParticipant from "../platform/process/ABProcessParticipant";
+
+// const ABProcessLane = require("../platform/process/ABProcessLane");
+import ABProcessLane from "../platform/process/ABProcessLane";
+
+// const ABProcessTaskManager = require("./process/ABProcessTaskManager");
+import ABProcessTaskManager from "./process/ABProcessTaskManager";
+
+// const ABStep = require("../platform/ABStep");
+import ABStep from "../platform/ABStep";
+
+// const ABViewDetailItem = require("../platform/views/ABViewDetailItem");
+import ABViewDetailItem from "../platform/views/ABViewDetailItem";
+
+// const ABViewFormItem = require("../platform/views/ABViewFormItem");
+import ABViewFormItem from "../platform/views/ABViewFormItem";
 
 // const ABObjectWorkspaceViewGrid = require("../platform/workspaceViews/ABObjectWorkspaceViewGrid");
 // const ABObjectWorkspaceViewKanban = require("../platform/workspaceViews/ABObjectWorkspaceViewKanban");
 // const ABObjectWorkspaceViewGantt = require("../platform/workspaceViews/ABObjectWorkspaceViewGantt");
 
-const RowFilter = require("../platform/RowFilter");
-const FilterComplex = require("../platform/FilterComplex");
+// const RowFilter = require("../platform/RowFilter");
+import RowFilter from "../platform/RowFilter";
 
-const ABMLClass = require("../platform/ABMLClass");
+// const FilterComplex = require("../platform/FilterComplex");
+import FilterComplex from "../platform/FilterComplex";
 
-const EventEmitter = require("../platform/ABEmitter");
+// const ABMLClass = require("../platform/ABMLClass");
+import ABMLClass from "../platform/ABMLClass";
+
+// const EventEmitter = require("../platform/ABEmitter");
+import EventEmitter from "../platform/ABEmitter";
 
 class ABFactory extends EventEmitter {
    constructor(definitions) {
@@ -794,7 +824,6 @@ class ABFactory extends EventEmitter {
          var newStep = new ABStep(params, this);
          return newStep;
       }
-      return null;
    }
 
    //
@@ -1087,4 +1116,4 @@ class ABFactory extends EventEmitter {
    }
 }
 
-module.exports = ABFactory;
+export default ABFactory;

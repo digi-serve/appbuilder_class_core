@@ -1,4 +1,4 @@
-const ABProcessElement = require("../../../platform/process/tasks/ABProcessElement.js");
+import ABProcessElement from "../../../platform/process/tasks/ABProcessElement.js";
 
 let AccountingJEArchiveDefaults = {
    category: null,
@@ -42,7 +42,7 @@ let AccountingJEArchiveDefaults = {
    // values set by the platform .propertiesStash()
 };
 
-module.exports = class AccountingJEArchiveCore extends ABProcessElement {
+export default class AccountingJEArchiveCore extends ABProcessElement {
    constructor(attributes, process, AB) {
       attributes.type =
          attributes.type || "process.task.service.accounting.jeArchive";
@@ -158,4 +158,4 @@ module.exports = class AccountingJEArchiveCore extends ABProcessElement {
         return null;
     }
     */
-};
+}

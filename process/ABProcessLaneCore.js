@@ -4,7 +4,7 @@
  *
  * Lanes manage users in the system, and provide a way to lookup a SiteUser.
  */
-const ABProcessParticipant = require("../../platform/process/ABProcessParticipant");
+import ABProcessParticipant from "../../platform/process/ABProcessParticipant";
 
 const ABProcessLaneDefaults = {
    type: "process.lane",
@@ -16,7 +16,7 @@ const ABProcessLaneDefaults = {
    // font-awesome icon reference.  (without the 'fa-').  so 'user'  to reference 'fa-user'
 };
 
-module.exports = class ABProcessLaneCore extends ABProcessParticipant {
+export default class ABProcessLaneCore extends ABProcessParticipant {
    constructor(attributes, process, AB) {
       super(attributes, process, AB);
 
@@ -72,4 +72,4 @@ module.exports = class ABProcessLaneCore extends ABProcessParticipant {
 
    //     return data;
    // }
-};
+}

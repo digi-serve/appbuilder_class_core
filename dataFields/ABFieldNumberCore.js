@@ -5,7 +5,7 @@
  *
  */
 
-const ABField = require("../../platform/dataFields/ABField");
+import ABField from "../../platform/dataFields/ABField";
 
 const ABFieldNumberDefaults = {
    key: "number",
@@ -88,7 +88,7 @@ const defaultValues = {
 
 let L = null; //AB.Label();
 
-module.exports = class ABFieldNumberCore extends ABField {
+export default class ABFieldNumberCore extends ABField {
    constructor(values, object) {
       super(values, object, ABFieldNumberDefaults);
 
@@ -276,7 +276,7 @@ module.exports = class ABFieldNumberCore extends ABField {
 
    format(rowData) {
       if (
-	 rowData?.[this.columnName] == null ||
+         rowData?.[this.columnName] == null ||
          (rowData[this.columnName] != 0 && rowData[this.columnName] == "")
       )
          return "";
@@ -395,4 +395,4 @@ module.exports = class ABFieldNumberCore extends ABField {
          return 0;
       }
    }
-};
+}

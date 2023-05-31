@@ -5,12 +5,7 @@
  *
  */
 
-const ABFieldSelectivity = require("../../platform/dataFields/ABFieldSelectivity");
-
-function L(key, altText) {
-   // TODO:
-   return altText; // AD.lang.label.getLabel(key) || altText;
-}
+import ABFieldSelectivity from "../../platform/dataFields/ABFieldSelectivity";
 
 const ABFieldTreeDefaults = {
    key: "tree",
@@ -70,7 +65,7 @@ const defaultValues = {
    options: [],
 };
 
-module.exports = class ABFieldTreeCore extends ABFieldSelectivity {
+export default class ABFieldTreeCore extends ABFieldSelectivity {
    constructor(values, object) {
       super(values, object, ABFieldTreeDefaults);
    }
@@ -152,4 +147,4 @@ module.exports = class ABFieldTreeCore extends ABFieldSelectivity {
    isValidData(data, validator) {
       super.isValidData(data, validator);
    }
-};
+}

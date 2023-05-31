@@ -1,4 +1,4 @@
-const ABProcessTrigger = require("../../../platform/process/tasks/ABProcessTrigger.js");
+import ABProcessTrigger from "../../../platform/process/tasks/ABProcessTrigger.js";
 
 var ABProcessTaskTriggerLifecycleDefaults = {
    category: "start",
@@ -36,7 +36,7 @@ var ABProcessTaskTriggerLifecycleDefaults = {
    isEnabled: true,
 };
 
-module.exports = class ABProcessTriggerTimer extends ABProcessTrigger {
+export default class ABProcessTriggerTimer extends ABProcessTrigger {
    constructor(attributes, process, application) {
       attributes.type = attributes.type || "trigger";
       super(
@@ -164,4 +164,4 @@ module.exports = class ABProcessTriggerTimer extends ABProcessTrigger {
 
       return `${second} ${minute} ${hour} ${day} ${month} ${dayWeek} ${year}`;
    }
-};
+}

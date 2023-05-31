@@ -1,11 +1,13 @@
 // import ABApplication from "./ABApplication"
 
-var ABMLClass = require("../platform/ABMLClass");
-const _concat = require("lodash/concat");
+import ABMLClass from "../platform/ABMLClass";
+import { concat } from "lodash";
+// const _concat = require("lodash/concat");
+const _concat = concat;
 
-const ABProcessTaskSubProcess = require("../platform/process/tasks/ABProcessTaskSubProcess");
+import ABProcessTaskSubProcess from "../platform/process/tasks/ABProcessTaskSubProcess";
 
-module.exports = class ABProcessCore extends ABMLClass {
+export default class ABProcessCore extends ABMLClass {
    constructor(attributes, AB) {
       super(["label"], AB);
 
@@ -572,7 +574,7 @@ module.exports = class ABProcessCore extends ABMLClass {
    //         return p.diagramID == dID;
    //     });
    // }
-};
+}
 
 var queryPreviousTasks = (
    list,

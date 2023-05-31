@@ -1,4 +1,4 @@
-const ABProcessElement = require("../../../platform/process/tasks/ABProcessElement.js");
+import ABProcessElement from "../../../platform/process/tasks/ABProcessElement.js";
 
 var ABProcessGatewayExclusiveDefaults = {
    category: "gateway",
@@ -28,7 +28,7 @@ var ABProcessGatewayExclusiveDefaults = {
    // values set by the platform .propertiesStash()
 };
 
-module.exports = class ABProcessGatewayExclusiveCore extends ABProcessElement {
+export default class ABProcessGatewayExclusiveCore extends ABProcessElement {
    constructor(attributes, process, AB) {
       attributes.type = attributes.type || "process.gateway.exclusive";
       super(attributes, process, AB, ABProcessGatewayExclusiveDefaults);
@@ -93,7 +93,6 @@ module.exports = class ABProcessGatewayExclusiveCore extends ABProcessElement {
    //// Process Instance Methods
    ////
 
-
    /**
     * initState()
     * setup this task's initial state variables
@@ -147,4 +146,4 @@ module.exports = class ABProcessGatewayExclusiveCore extends ABProcessElement {
         return null;
     }
     */
-};
+}

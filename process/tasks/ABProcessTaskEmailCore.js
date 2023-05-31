@@ -1,6 +1,6 @@
 // import ABApplication from "./ABApplication"
 // const ABApplication = require("./ABApplication"); // NOTE: change to require()
-const ABProcessElement = require("../../../platform/process/tasks/ABProcessElement.js");
+import ABProcessElement from "../../../platform/process/tasks/ABProcessElement.js";
 
 var ABProcessTaskEmailDefaults = {
    category: "task",
@@ -35,7 +35,7 @@ var ABProcessTaskEmailDefaults = {
    // unique key to reference this specific Task
 };
 
-module.exports = class ABProcessTaskEmailCore extends ABProcessElement {
+export default class ABProcessTaskEmailCore extends ABProcessElement {
    constructor(attributes, process, AB) {
       attributes.type = attributes.type || "process.task.email";
       super(attributes, process, AB, ABProcessTaskEmailDefaults);
@@ -139,4 +139,4 @@ module.exports = class ABProcessTaskEmailCore extends ABProcessElement {
 
       super.initState(context, myDefaults, val);
    }
-};
+}

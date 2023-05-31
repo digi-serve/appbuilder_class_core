@@ -1,4 +1,4 @@
-const ABView = require("../../platform/views/ABView");
+import ABView from "../../platform/views/ABView";
 
 const ABViewDefaults = {
    key: "viewwidget", // {string} unique key for this view
@@ -11,7 +11,7 @@ const ABPropertyComponentDefaults = {
    rowSpan: 1,
 };
 
-module.exports = class ABViewWidgetCore extends ABView {
+export default class ABViewWidgetCore extends ABView {
    /**
     * @param {obj} values  key=>value hash of ABView values
     * @param {ABApplication} application the application object this view is under
@@ -47,4 +47,4 @@ module.exports = class ABViewWidgetCore extends ABView {
          this.settings.rowSpan || ABPropertyComponentDefaults.rowSpan
       );
    }
-};
+}

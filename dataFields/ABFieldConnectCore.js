@@ -5,12 +5,7 @@
  *
  */
 
-var ABField = require("../../platform/dataFields/ABField");
-
-// function L(key, altText) {
-//    // TODO:
-//    return altText; // AD.lang.label.getLabel(key) || altText;
-// }
+import ABField from "../../platform/dataFields/ABField";
 
 const ABFieldConnectDefaults = {
    key: "connectObject",
@@ -114,7 +109,7 @@ const defaultValues = {
    //       custom Key for the data we are storing.
 };
 
-module.exports = class ABFieldConnectCore extends ABField {
+export default class ABFieldConnectCore extends ABField {
    constructor(values, object, fieldDefaults = ABFieldConnectDefaults) {
       super(values, object, fieldDefaults);
 
@@ -452,4 +447,4 @@ module.exports = class ABFieldConnectCore extends ABField {
 
       return result;
    }
-};
+}

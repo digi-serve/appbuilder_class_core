@@ -10,7 +10,7 @@
  *
  */
 
-const ABViewContainer = require("../../platform/views/ABViewContainer");
+import ABViewContainer from "../../platform/views/ABViewContainer";
 // var ABViewManager = require("../ABViewManager");
 
 // function L(key, altText) {
@@ -31,7 +31,7 @@ const ABPropertyComponentDefaults = {
    pageBackground: "ab-background-default",
 };
 
-module.exports = class ABViewPageCore extends ABViewContainer {
+export default class ABViewPageCore extends ABViewContainer {
    constructor(values, application, parent, defaultValues) {
       super(values, application, parent, defaultValues || ABViewDefaults);
 
@@ -454,4 +454,4 @@ module.exports = class ABViewPageCore extends ABViewContainer {
       // now continue with the default .copy()
       return super.copy(lookUpIds, parent, options);
    }
-};
+}

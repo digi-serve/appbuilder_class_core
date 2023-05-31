@@ -7,8 +7,8 @@
  *
  */
 
-const ABQL = require("../../platform/ql/ABQL.js");
-const ABQLRow = require("./ABQLRow.js");
+import ABQL from "../../platform/ql/ABQL.js";
+import ABQLRow from "./ABQLRow.js";
 // {array} of {ABQLxxx} options
 // this is an array of what possible next Operations can come after an
 // ABQLSetFirst task is complete.  In this case the {ABQLRow} operations come
@@ -28,4 +28,4 @@ ABQLSetFirstCore.key = "first";
 ABQLSetFirstCore.label = "Select the first record";
 ABQLSetFirstCore.NextQLOps = ABQLRow;
 
-module.exports = ABQLSetFirstCore;
+export default ABQLSetFirstCore;

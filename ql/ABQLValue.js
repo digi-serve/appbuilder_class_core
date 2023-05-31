@@ -6,4 +6,4 @@
  *
  */
 
-module.exports = [require("../../platform/ql/ABQLValueSave.js")];
+export default [await import("../../platform/ql/ABQLValueSave.js")];

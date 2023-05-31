@@ -5,12 +5,7 @@
  *
  */
 
-const ABField = require("../../platform/dataFields/ABField");
-
-function L(key, altText) {
-   // TODO:
-   return altText; // AD.lang.label.getLabel(key) || altText;
-}
+import ABField from "../../platform/dataFields/ABField";
 
 const ABFieldTextFormulaDefaults = {
    key: "TextFormula",
@@ -621,7 +616,7 @@ function getFormatDate(date, format) {
    return dt.toString(format);
 }
 
-module.exports = class ABFieldTextFormulaCore extends ABField {
+export default class ABFieldTextFormulaCore extends ABField {
    constructor(values, object) {
       super(values, object, ABFieldTextFormulaDefaults);
 
@@ -712,7 +707,7 @@ module.exports = class ABFieldTextFormulaCore extends ABField {
          return "";
       }
    }
-};
+}
 
 //// NOTE: if you need a unique [edit_type] by your returned config.editor above:
 // webix.editors = {

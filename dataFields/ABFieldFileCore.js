@@ -5,12 +5,7 @@
  *
  */
 
-const ABField = require("../../platform/dataFields/ABField");
-
-function L(key, altText) {
-   // TODO:
-   return altText; // AD.lang.label.getLabel(key) || altText;
-}
+import ABField from "../../platform/dataFields/ABField";
 
 const ABFieldFileDefaults = {
    key: "file",
@@ -71,7 +66,7 @@ const defaultValues = {
    fileType: "",
 };
 
-module.exports = class ABFieldFileCore extends ABField {
+export default class ABFieldFileCore extends ABField {
    constructor(values, object) {
       super(values, object, ABFieldFileDefaults);
    }
@@ -179,4 +174,4 @@ module.exports = class ABFieldFileCore extends ABField {
 
       return myParameter;
    }
-};
+}

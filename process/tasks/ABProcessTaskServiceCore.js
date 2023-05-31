@@ -9,7 +9,7 @@
  *  - performing a query, looking up data, etc...
  *
  */
-const ABProcessElement = require("../../../platform/process/tasks/ABProcessElement.js");
+import ABProcessElement from "../../../platform/process/tasks/ABProcessElement.js";
 
 var ABProcessTaskServiceDefaults = {
    category: "task",
@@ -38,7 +38,7 @@ var ABProcessTaskServiceDefaults = {
    // values set by the platform .propertiesStash()
 };
 
-module.exports = class ABProcessTaskServiceCore extends ABProcessElement {
+export default class ABProcessTaskServiceCore extends ABProcessElement {
    constructor(attributes, process, AB) {
       attributes.type = attributes.type || "process.task.service";
       super(attributes, process, AB, ABProcessTaskServiceDefaults);
@@ -160,4 +160,4 @@ module.exports = class ABProcessTaskServiceCore extends ABProcessElement {
         return null;
     }
     */
-};
+}

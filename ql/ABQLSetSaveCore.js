@@ -7,7 +7,7 @@
  *
  */
 
-const ABQL = require("../../platform/ql/ABQL.js");
+import ABQL from "../../platform/ql/ABQL.js";
 
 const ParameterDefinitions = [
    {
@@ -83,4 +83,4 @@ ABQLSetSaveCore.label = "Save the value as";
 ABQLSetSaveCore.NextQLOps = [];
 // NOTE: currently, this is an ending step. but it doesn't have to be...
 
-module.exports = ABQLSetSaveCore;
+export default ABQLSetSaveCore;

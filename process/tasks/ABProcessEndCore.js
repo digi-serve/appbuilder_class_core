@@ -1,4 +1,4 @@
-const ABProcessElement = require("../../../platform/process/tasks/ABProcessElement.js");
+import ABProcessElement from "../../../platform/process/tasks/ABProcessElement.js";
 
 var ABProcessTaskEndDefaults = {
    category: "end",
@@ -23,7 +23,7 @@ var ABProcessTaskEndDefaults = {
    // unique key to reference this specific Task
 };
 
-module.exports = class ABProcessTaskEndCore extends ABProcessElement {
+export default class ABProcessTaskEndCore extends ABProcessElement {
    constructor(attributes, process, AB) {
       attributes.type = attributes.type || "process.task.end";
       super(attributes, process, AB, ABProcessTaskEndDefaults);
@@ -102,4 +102,4 @@ module.exports = class ABProcessTaskEndCore extends ABProcessElement {
       // I'm an End Event.  There are no nextTasks()
       return [];
    }
-};
+}

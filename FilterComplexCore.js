@@ -1,4 +1,4 @@
-const ABComponent = require("../platform/ABComponent");
+import ABComponent from "../platform/ABComponent";
 // const ABObjectQuery = require("../platform/ABObjectQuery");
 
 /**
@@ -58,7 +58,7 @@ function getConnectFieldValue(rowData, field) {
    return connectedVal;
 }
 
-module.exports = class FilterComplexCore extends ABComponent {
+export default class FilterComplexCore extends ABComponent {
    constructor(idBase, AB) {
       idBase = idBase || "ab_filter_complex";
 
@@ -1317,4 +1317,4 @@ module.exports = class FilterComplexCore extends ABComponent {
 
       return result;
    }
-};
+}

@@ -1,9 +1,9 @@
 // import ABApplication from "./ABApplication"
 
-var ABMLClass = require("../platform/ABMLClass");
-const _concat = require("lodash/concat");
+import ABMLClass from "../platform/ABMLClass";
+// const _concat = require("lodash/concat");
 
-module.exports = class ABHintCore extends ABMLClass {
+export default class ABHintCore extends ABMLClass {
    constructor(attributes, AB) {
       super(["name", "description"], AB);
 
@@ -35,9 +35,7 @@ module.exports = class ABHintCore extends ABMLClass {
       }
     }
     */
-      let active = attributes?.settings.hasOwnProperty("active")
-         ? attributes?.settings?.active
-         : "1";
+      let active = attributes?.settings?.active ?? "1";
 
       this.id = attributes?.id || "";
       this.name = attributes?.name || "New Tutorial";
@@ -141,4 +139,4 @@ module.exports = class ABHintCore extends ABMLClass {
       // remove from _steps definitions
       delete this._steps[id];
    }
-};
+}
