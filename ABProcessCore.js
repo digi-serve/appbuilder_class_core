@@ -3,6 +3,8 @@
 var ABMLClass = require("../platform/ABMLClass");
 const _concat = require("lodash/concat");
 
+const ABProcessTaskSubProcess = require("../platform/process/tasks/ABProcessTaskSubProcess");
+
 module.exports = class ABProcessCore extends ABMLClass {
    constructor(attributes, AB) {
       super(["label"], AB);
@@ -599,8 +601,15 @@ var queryPreviousTasks = (
          // mark this task as having been processed
          processedIDs.push(task.diagramID);
 
+         let value = null;
+
          // get any field's it provides
-         var value = task[method].apply(task, param);
+         if (task instanceof ABProcessTaskSubProcess)
+            value = task[method].apply(task, [task, param]);
+         else value = task[method].apply(task, param);
+
+         // value = task[method].apply(task, param);
+
          if (value === null) value = [];
          responses = _concat(responses, value);
 
