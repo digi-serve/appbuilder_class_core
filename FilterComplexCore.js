@@ -18,7 +18,7 @@ function getFieldVal(rowData, field) {
       value = rowData[columnName];
    }
 
-   if (typeof value != "undefined") {
+   if (value != null && !isNaN(value)) {
       return value;
    }
 
@@ -30,6 +30,10 @@ function getFieldVal(rowData, field) {
          value = rowData[k];
       }
    }
+
+   if ((value == null || isNaN(value)) && field.format)
+      value = field.format(rowData);
+
    return value;
 }
 
