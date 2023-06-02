@@ -1761,6 +1761,9 @@ export default class ABDataCollectionCore extends ABMLClass {
       //// this will need to be updated to reflect that management:
       //// (and also explains why we refactored things into .processIncomingData())
       return model.findAll(cond).then((data) => {
+         console.error("TODO: parse returned data and figure out paging");
+         console.error(data);
+         // parse out the total and figure out if we need to track loading more:
          return this.processIncomingData(data);
       });
    }
