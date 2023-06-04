@@ -155,6 +155,10 @@ module.exports = class ABDataCollectionCore extends ABMLClass {
       // option to not populate the data this Datacollection requests from the
       // server.  Usually to speed up the process.
 
+      this.settings.populate = values.settings.populate || !this.settings.preventPopulate || true;
+      // {bool or array} populate
+      // option to only populate the data cols in the array.  Usually to speed up the process.
+
       // Convert to number
       this.settings.syncType = parseInt(
          values.settings.syncType || DefaultValues.settings.syncType
