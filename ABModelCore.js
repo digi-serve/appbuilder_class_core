@@ -760,7 +760,9 @@ module.exports = class ABModelCore {
             if (Array.isArray(d[relationName])) {
                d[relationName].forEach((subData) => {
                   // update .id values
-                  if (olPK != "id" && subData[olPK]) subData.id = subData[olPK];
+                  // if (olPK != "id" && subData[olPK]) subData.id = subData[olPK];
+                  const relationValue = c.getRelationValue(subData);
+                  if (olPK != "id") subData.id = relationValue;
 
                   // perform Translation
                   if (relatedMlFields.length) {
@@ -769,8 +771,12 @@ module.exports = class ABModelCore {
                });
             } else {
                // update .id value
-               if (d[relationName][olPK]) {
-                  d[relationName].id = d[relationName][olPK];
+               // if (d[relationName][olPK]) {
+               //    d[relationName].id = d[relationName][olPK];
+               // }
+               const relationValue = c.getRelationValue(d[relationName]);
+               if (relationValue) {
+                  d[relationName].id = relationValue;
                }
 
                // perform Translation
@@ -812,7 +818,8 @@ module.exports = class ABModelCore {
             if (!d[c.columnName]) {
                if (c.linkType() == "one") {
                   if (d[relationName]) {
-                     d[c.columnName] = d[relationName][olPK];
+                     // d[c.columnName] = d[relationName][olPK];
+                     d[c.columnName] = c.getRelationValue(d[relationName]);
                   } else {
                      d[c.columnName] = null;
                   }
@@ -821,7 +828,8 @@ module.exports = class ABModelCore {
                      if (Array.isArray(d[relationName])) {
                         try {
                            d[c.columnName] = (d[relationName] || []).map(
-                              (i) => i[olPK]
+                              // (i) => i[olPK]
+                              (i) => c.getRelationValue(i)
                            );
                         } catch (e) {
                            console.log("+++++++++++++++");
@@ -844,7 +852,8 @@ module.exports = class ABModelCore {
                         console.log("data:");
                         console.log(JSON.stringify(d[relationName]));
                         console.log("+++++++++++++++");
-                        d[c.columnName] = [d[relationName][olPK]];
+                        // d[c.columnName] = [d[relationName][olPK]];
+                        d[c.columnName] = [c.getRelationValue(d[relationName])];
                      }
                   } else {
                      d[c.columnName] = [];
