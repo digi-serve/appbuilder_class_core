@@ -537,6 +537,15 @@ module.exports = class FilterComplexCore extends ABComponent {
          }
       }
 
+      // If value will be the connected object, then pull value (string)
+      if (typeof connectedVal == "object") {
+         connectedVal =
+            connectedVal[field.indexField.columnName] ??
+            connectedVal[field.indexField2.columnName] ??
+            connectedVal[field.columnName] ??
+            connectedVal;
+      }
+
       let compareValueLowercase = (compareValue || "").toLowerCase();
 
       switch (rule) {
