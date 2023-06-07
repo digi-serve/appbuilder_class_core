@@ -31,7 +31,10 @@ function getFieldVal(rowData, field) {
       }
    }
 
-   if ((value == null || isNaN(value)) && field.format)
+   if (
+      (value == null || (typeof value == "number" && isNaN(value))) &&
+      field.format
+   )
       value = field.format(rowData);
 
    return value;
