@@ -38,6 +38,7 @@ var DefaultValues = {
       },
       loadAll: false,
       preventPopulate: false,
+      populate: true,
       isQuery: false, // if true it is a query, otherwise it is a object.
 
       fixSelect: "", // _CurrentUser, _FirstRecord, _FirstRecordDefault or row id
