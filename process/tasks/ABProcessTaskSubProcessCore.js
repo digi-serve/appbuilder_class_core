@@ -144,7 +144,7 @@ module.exports = class SubProcessCore extends ABProcessElement {
 
       // get data from insert tasks
       let dataFieldsAllInserted = dataFieldsAll.filter(
-         (opt) => opt.field === "InsertedRecord"
+         (opt) => (opt?.field?.key ?? opt?.field) === "InsertedRecord"
       );
 
       if (dataFieldOpt == null) return [];
@@ -255,8 +255,8 @@ module.exports = class SubProcessCore extends ABProcessElement {
       if (data == null || !data.length)
          data = this.process.processData.call(this, currElement, params);
 
-      // if (data == null || !data.length)
-      //    data = this.process.processData(this, params);
+      if (data == null || !data.length)
+         data = this.process.processData(this, params);
 
       return data;
    }
