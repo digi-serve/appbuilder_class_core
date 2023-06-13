@@ -1166,7 +1166,9 @@ module.exports = class ABDataCollectionCore extends ABMLClass {
 
             if (this.__dataCollection.count() > 0) {
                this.__dataCollection.find({}).forEach((d) => {
-                  let updateItemData = {};
+                  let updateItemData = {
+                     id: d.id,
+                  };
 
                   connectedFields.forEach((f) => {
                      if (!f) return;
@@ -1252,19 +1254,26 @@ module.exports = class ABDataCollectionCore extends ABMLClass {
                   // If this item needs to update
                   if (Object.keys(updateItemData).length > 0) {
                      // normalize data before add to data collection
-                     var model = obj.model();
-                     model.normalizeData(updateItemData);
-                     if (
-                        this.__treeCollection &&
-                        this.__treeCollection.exists(d.id)
-                     )
-                        this.__treeCollection.updateItem(d.id, updateItemData);
+                     // var model = obj.model();
+                     // model.normalizeData(updateItemData);
 
-                     if (
-                        this.__dataCollection &&
-                        this.__dataCollection.exists(d.id)
-                     ) {
-                        this.__dataCollection.updateItem(d.id, updateItemData);
+                     // NOTE: We could not normalize relational data because they are not full data
+                     // Merge update data to exists data instead
+
+                     if (this.__treeCollection?.exists(d.id)) {
+                        const treeItem = Object.assign(
+                           this.__treeCollection.getItem(d.id),
+                           updateItemData
+                        );
+                        this.__treeCollection.updateItem(d.id, treeItem);
+                     }
+
+                     if (this.__dataCollection?.exists(d.id)) {
+                        const dcItem = Object.assign(
+                           this.__dataCollection.getItem(d.id),
+                           updateItemData
+                        );
+                        this.__dataCollection.updateItem(d.id, dcItem);
                         this.emit(
                            "update",
                            this.__dataCollection.getItem(d.id)
