@@ -1820,41 +1820,72 @@ module.exports = class ABDataCollectionCore extends ABMLClass {
          // this does nothing???
          this.parseTreeCollection(data);
 
-         queueOperation(() => {
-            // if we are linked, then refresh our cursor
-            var linkDv = this.datacollectionLink;
-            if (linkDv) {
-               // filter data by match link data collection
-               this.refreshLinkCursor();
-               this.setStaticCursor();
-            } else {
-               // set static cursor
-               this.setStaticCursor();
-            }
-         }, 5);
-         queueOperation(() => {
-            // mark initialized data
-            if (this._dataStatus != this.dataStatusFlag.initialized) {
-               this._dataStatus = this.dataStatusFlag.initialized;
-               this.emit("initializedData", {});
-            }
-         }, 20);
-         queueOperation(() => {
-            // If dc set load all, then it will not trigger .loadData in dc at
-            // .onAfterLoad event
-            if (this.settings.loadAll) {
-               this.emit("loadData", {});
-            }
-         }, 10);
-         queueOperation(() => {
-            // now we close out our .loadData() promise.resolve() :
-            if (this._pendingLoadDataResolve) {
-               this._pendingLoadDataResolve.resolve();
+         // if we are linked, then refresh our cursor
+         var linkDv = this.datacollectionLink;
+         if (linkDv) {
+            // filter data by match link data collection
+            this.refreshLinkCursor();
+            this.setStaticCursor();
+         } else {
+            // set static cursor
+            this.setStaticCursor();
+         }
 
-               // after we call .resolve() stop tracking this:
-               this._pendingLoadDataResolve = null;
-            }
-         }, 5);
+         // now we close out our .loadData() promise.resolve() :
+         if (this._pendingLoadDataResolve) {
+            this._pendingLoadDataResolve.resolve();
+
+            // after we call .resolve() stop tracking this:
+            this._pendingLoadDataResolve = null;
+         }
+
+         // If dc set load all, then it will not trigger .loadData in dc at
+         // .onAfterLoad event
+         if (this.settings.loadAll) {
+            this.emit("loadData", {});
+         }
+
+         // mark initialized data
+         if (this._dataStatus != this.dataStatusFlag.initialized) {
+            this._dataStatus = this.dataStatusFlag.initialized;
+            this.emit("initializedData", {});
+         }
+
+         // queueOperation(() => {
+         //    // if we are linked, then refresh our cursor
+         //    var linkDv = this.datacollectionLink;
+         //    if (linkDv) {
+         //       // filter data by match link data collection
+         //       this.refreshLinkCursor();
+         //       this.setStaticCursor();
+         //    } else {
+         //       // set static cursor
+         //       this.setStaticCursor();
+         //    }
+         // }, 5);
+         // queueOperation(() => {
+         //    // mark initialized data
+         //    if (this._dataStatus != this.dataStatusFlag.initialized) {
+         //       this._dataStatus = this.dataStatusFlag.initialized;
+         //       this.emit("initializedData", {});
+         //    }
+         // }, 20);
+         // queueOperation(() => {
+         //    // If dc set load all, then it will not trigger .loadData in dc at
+         //    // .onAfterLoad event
+         //    if (this.settings.loadAll) {
+         //       this.emit("loadData", {});
+         //    }
+         // }, 10);
+         // queueOperation(() => {
+         //    // now we close out our .loadData() promise.resolve() :
+         //    if (this._pendingLoadDataResolve) {
+         //       this._pendingLoadDataResolve.resolve();
+
+         //       // after we call .resolve() stop tracking this:
+         //       this._pendingLoadDataResolve = null;
+         //    }
+         // }, 5);
       });
    }
 
