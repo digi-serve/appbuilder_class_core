@@ -1797,8 +1797,9 @@ module.exports = class ABDataCollectionCore extends ABMLClass {
             this.__dataCollection.parse(data);
          }
 
-         // In order to get the total_count updated I had to use .load()
-         queueOperation(() => {
+         if (this.__throttleIncoming) clearTimeout(this.__throttleIncoming);
+         this.__throttleIncoming = setTimeout(() => {
+            // In order to get the total_count updated I had to use .load()
             this.__dataCollection.load(() => {
                // If this dc loads all, then it has to filter data by the parent dc
                if (this.settings.loadAll) {
@@ -1809,47 +1810,47 @@ module.exports = class ABDataCollectionCore extends ABMLClass {
 
                return data;
             });
-         }, 1);
+
+            // this does nothing???
+            this.parseTreeCollection(data);
+
+            // if we are linked, then refresh our cursor
+            var linkDv = this.datacollectionLink;
+            if (linkDv) {
+               // filter data by match link data collection
+               this.refreshLinkCursor();
+               this.setStaticCursor();
+            } else {
+               // set static cursor
+               this.setStaticCursor();
+            }
+
+            // now we close out our .loadData() promise.resolve() :
+            if (this._pendingLoadDataResolve) {
+               this._pendingLoadDataResolve.resolve();
+
+               // after we call .resolve() stop tracking this:
+               this._pendingLoadDataResolve = null;
+            }
+
+            // If dc set load all, then it will not trigger .loadData in dc at
+            // .onAfterLoad event
+            if (this.settings.loadAll) {
+               this.emit("loadData", {});
+            }
+
+            // mark initialized data
+            if (this._dataStatus != this.dataStatusFlag.initialized) {
+               this._dataStatus = this.dataStatusFlag.initialized;
+               this.emit("initializedData", {});
+            }
+         }, 100);
 
          // In order to keep detail and graphs loading properly I had to keep .parse()
          // queueOperation(() => {
          //    this.__dataCollection.clearAll();
          //    this.__dataCollection.parse(data);
          // }, 50);
-
-         // this does nothing???
-         this.parseTreeCollection(data);
-
-         // if we are linked, then refresh our cursor
-         var linkDv = this.datacollectionLink;
-         if (linkDv) {
-            // filter data by match link data collection
-            this.refreshLinkCursor();
-            this.setStaticCursor();
-         } else {
-            // set static cursor
-            this.setStaticCursor();
-         }
-
-         // now we close out our .loadData() promise.resolve() :
-         if (this._pendingLoadDataResolve) {
-            this._pendingLoadDataResolve.resolve();
-
-            // after we call .resolve() stop tracking this:
-            this._pendingLoadDataResolve = null;
-         }
-
-         // If dc set load all, then it will not trigger .loadData in dc at
-         // .onAfterLoad event
-         if (this.settings.loadAll) {
-            this.emit("loadData", {});
-         }
-
-         // mark initialized data
-         if (this._dataStatus != this.dataStatusFlag.initialized) {
-            this._dataStatus = this.dataStatusFlag.initialized;
-            this.emit("initializedData", {});
-         }
 
          // queueOperation(() => {
          //    // if we are linked, then refresh our cursor
@@ -2045,10 +2046,13 @@ module.exports = class ABDataCollectionCore extends ABMLClass {
 
    isParentFilterValid(rowData) {
       // data is empty
-      if (rowData == null) return null;
+      if (rowData == null) return false;
 
       var linkDv = this.datacollectionLink;
       if (linkDv == null) return true;
+
+      const linkObj = linkDv.datasource;
+      if (linkObj == null) return true;
 
       var fieldLink = this.fieldLink;
       if (fieldLink == null) return true;
@@ -2075,11 +2079,17 @@ module.exports = class ABDataCollectionCore extends ABMLClass {
       // array - 1:M , M:N
       if (linkVal.filter) {
          return (
-            linkVal.filter((val) => (val.id || val[PK] || val) == linkCursor.id)
-               .length > 0
+            linkVal.filter(
+               (val) =>
+                  (val[PK] || val.id || val) ==
+                  (linkCursor[linkObj.PK()] || linkCursor.id || linkCursor)
+            ).length > 0
          );
       } else {
-         return (linkVal.id || linkVal[PK] || linkVal) == linkCursor.id;
+         return (
+            (linkVal[PK] || linkVal.id || linkVal) ==
+            (linkCursor[linkObj.PK()] || linkCursor.id || linkCursor)
+         );
       }
    }
 
