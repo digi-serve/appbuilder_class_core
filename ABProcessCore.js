@@ -408,7 +408,7 @@ module.exports = class ABProcessCore extends ABMLClass {
       //       : values[0]
       //    : null;
 
-      var tasksToAsk = this.allPreviousTasks(currElement);
+      var tasksToAsk = this.allPreviousTasks(currElement)
       var values = queryPreviousTasks(tasksToAsk, "processData", params, this);
       return values.length > 0
          ? values.length > 1
@@ -594,7 +594,7 @@ var queryPreviousTasks = (
       return responses;
    } else {
       // get next task
-      var task = list.shift();
+      const task = list.shift();
 
       // if we haven't already done task:
       if (processedIDs.indexOf(task.diagramID) == -1) {
@@ -604,9 +604,8 @@ var queryPreviousTasks = (
          let value = null;
 
          // get any field's it provides
-         if (task instanceof ABProcessTaskSubProcess)
-            value = task[method].apply(task, [task, param]);
-         else value = task[method].apply(task, param);
+         if (!(task instanceof ABProcessTaskSubProcess))
+            value = task[method].apply(task, param);
 
          // value = task[method].apply(task, param);
 
