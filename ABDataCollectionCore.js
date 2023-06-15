@@ -1166,7 +1166,9 @@ export default class ABDataCollectionCore extends ABMLClass {
 
             if (this.__dataCollection.count() > 0) {
                this.__dataCollection.find({}).forEach((d) => {
-                  let updateItemData = {};
+                  let updateItemData = {
+                     id: d.id,
+                  };
 
                   connectedFields.forEach((f) => {
                      if (!f) return;
@@ -1252,19 +1254,26 @@ export default class ABDataCollectionCore extends ABMLClass {
                   // If this item needs to update
                   if (Object.keys(updateItemData).length > 0) {
                      // normalize data before add to data collection
-                     var model = obj.model();
-                     model.normalizeData(updateItemData);
-                     if (
-                        this.__treeCollection &&
-                        this.__treeCollection.exists(d.id)
-                     )
-                        this.__treeCollection.updateItem(d.id, updateItemData);
+                     // var model = obj.model();
+                     // model.normalizeData(updateItemData);
 
-                     if (
-                        this.__dataCollection &&
-                        this.__dataCollection.exists(d.id)
-                     ) {
-                        this.__dataCollection.updateItem(d.id, updateItemData);
+                     // NOTE: We could not normalize relational data because they are not full data
+                     // Merge update data to exists data instead
+
+                     if (this.__treeCollection?.exists(d.id)) {
+                        const treeItem = Object.assign(
+                           this.__treeCollection.getItem(d.id),
+                           updateItemData
+                        );
+                        this.__treeCollection.updateItem(d.id, treeItem);
+                     }
+
+                     if (this.__dataCollection?.exists(d.id)) {
+                        const dcItem = Object.assign(
+                           this.__dataCollection.getItem(d.id),
+                           updateItemData
+                        );
+                        this.__dataCollection.updateItem(d.id, dcItem);
                         this.emit(
                            "update",
                            this.__dataCollection.getItem(d.id)
@@ -1791,8 +1800,9 @@ export default class ABDataCollectionCore extends ABMLClass {
             this.__dataCollection.parse(data);
          }
 
-         // In order to get the total_count updated I had to use .load()
-         queueOperation(() => {
+         if (this.__throttleIncoming) clearTimeout(this.__throttleIncoming);
+         this.__throttleIncoming = setTimeout(() => {
+            // In order to get the total_count updated I had to use .load()
             this.__dataCollection.load(() => {
                // If this dc loads all, then it has to filter data by the parent dc
                if (this.settings.loadAll) {
@@ -1803,18 +1813,10 @@ export default class ABDataCollectionCore extends ABMLClass {
 
                return data;
             });
-         }, 1);
 
-         // In order to keep detail and graphs loading properly I had to keep .parse()
-         // queueOperation(() => {
-         //    this.__dataCollection.clearAll();
-         //    this.__dataCollection.parse(data);
-         // }, 50);
+            // this does nothing???
+            this.parseTreeCollection(data);
 
-         // this does nothing???
-         this.parseTreeCollection(data);
-
-         queueOperation(() => {
             // if we are linked, then refresh our cursor
             var linkDv = this.datacollectionLink;
             if (linkDv) {
@@ -1825,22 +1827,7 @@ export default class ABDataCollectionCore extends ABMLClass {
                // set static cursor
                this.setStaticCursor();
             }
-         }, 5);
-         queueOperation(() => {
-            // mark initialized data
-            if (this._dataStatus != this.dataStatusFlag.initialized) {
-               this._dataStatus = this.dataStatusFlag.initialized;
-               this.emit("initializedData", {});
-            }
-         }, 20);
-         queueOperation(() => {
-            // If dc set load all, then it will not trigger .loadData in dc at
-            // .onAfterLoad event
-            if (this.settings.loadAll) {
-               this.emit("loadData", {});
-            }
-         }, 10);
-         queueOperation(() => {
+
             // now we close out our .loadData() promise.resolve() :
             if (this._pendingLoadDataResolve) {
                this._pendingLoadDataResolve.resolve();
@@ -1848,7 +1835,61 @@ export default class ABDataCollectionCore extends ABMLClass {
                // after we call .resolve() stop tracking this:
                this._pendingLoadDataResolve = null;
             }
-         }, 5);
+
+            // If dc set load all, then it will not trigger .loadData in dc at
+            // .onAfterLoad event
+            if (this.settings.loadAll) {
+               this.emit("loadData", {});
+            }
+
+            // mark initialized data
+            if (this._dataStatus != this.dataStatusFlag.initialized) {
+               this._dataStatus = this.dataStatusFlag.initialized;
+               this.emit("initializedData", {});
+            }
+         }, 100);
+
+         // In order to keep detail and graphs loading properly I had to keep .parse()
+         // queueOperation(() => {
+         //    this.__dataCollection.clearAll();
+         //    this.__dataCollection.parse(data);
+         // }, 50);
+
+         // queueOperation(() => {
+         //    // if we are linked, then refresh our cursor
+         //    var linkDv = this.datacollectionLink;
+         //    if (linkDv) {
+         //       // filter data by match link data collection
+         //       this.refreshLinkCursor();
+         //       this.setStaticCursor();
+         //    } else {
+         //       // set static cursor
+         //       this.setStaticCursor();
+         //    }
+         // }, 5);
+         // queueOperation(() => {
+         //    // mark initialized data
+         //    if (this._dataStatus != this.dataStatusFlag.initialized) {
+         //       this._dataStatus = this.dataStatusFlag.initialized;
+         //       this.emit("initializedData", {});
+         //    }
+         // }, 20);
+         // queueOperation(() => {
+         //    // If dc set load all, then it will not trigger .loadData in dc at
+         //    // .onAfterLoad event
+         //    if (this.settings.loadAll) {
+         //       this.emit("loadData", {});
+         //    }
+         // }, 10);
+         // queueOperation(() => {
+         //    // now we close out our .loadData() promise.resolve() :
+         //    if (this._pendingLoadDataResolve) {
+         //       this._pendingLoadDataResolve.resolve();
+
+         //       // after we call .resolve() stop tracking this:
+         //       this._pendingLoadDataResolve = null;
+         //    }
+         // }, 5);
       });
    }
 
@@ -2008,10 +2049,13 @@ export default class ABDataCollectionCore extends ABMLClass {
 
    isParentFilterValid(rowData) {
       // data is empty
-      if (rowData == null) return null;
+      if (rowData == null) return false;
 
       var linkDv = this.datacollectionLink;
       if (linkDv == null) return true;
+
+      const linkObj = linkDv.datasource;
+      if (linkObj == null) return true;
 
       var fieldLink = this.fieldLink;
       if (fieldLink == null) return true;
@@ -2038,11 +2082,17 @@ export default class ABDataCollectionCore extends ABMLClass {
       // array - 1:M , M:N
       if (linkVal.filter) {
          return (
-            linkVal.filter((val) => (val.id || val[PK] || val) == linkCursor.id)
-               .length > 0
+            linkVal.filter(
+               (val) =>
+                  (val[PK] || val.id || val) ==
+                  (linkCursor[linkObj.PK()] || linkCursor.id || linkCursor)
+            ).length > 0
          );
       } else {
-         return (linkVal.id || linkVal[PK] || linkVal) == linkCursor.id;
+         return (
+            (linkVal[PK] || linkVal.id || linkVal) ==
+            (linkCursor[linkObj.PK()] || linkCursor.id || linkCursor)
+         );
       }
    }
 
