@@ -1794,16 +1794,16 @@ export default class ABDataCollectionCore extends ABMLClass {
          // store total count
          this.__totalCount = data.total_count;
 
-         // Need to .parse at the first time
-         if (!this.__dataCollection.find({}).length) {
-            this.__dataCollection.clearAll();
-            this.__dataCollection.parse(data);
+         // Need to .parse it the first time
+         if (!this.__dataCollection?.find({}).length) {
+            this.__dataCollection?.clearAll();
+            this.__dataCollection?.parse(data);
          }
 
          if (this.__throttleIncoming) clearTimeout(this.__throttleIncoming);
          this.__throttleIncoming = setTimeout(() => {
             // In order to get the total_count updated I had to use .load()
-            this.__dataCollection.load(() => {
+            this.__dataCollection?.load(() => {
                // If this dc loads all, then it has to filter data by the parent dc
                if (this.settings.loadAll) {
                   setTimeout(() => {
