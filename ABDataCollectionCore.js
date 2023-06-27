@@ -1830,7 +1830,7 @@ export default class ABDataCollectionCore extends ABMLClass {
 
             // now we close out our .loadData() promise.resolve() :
             if (this._pendingLoadDataResolve) {
-               this._pendingLoadDataResolve.resolve();
+               this._pendingLoadDataResolve.resolve(data);
 
                // after we call .resolve() stop tracking this:
                this._pendingLoadDataResolve = null;
