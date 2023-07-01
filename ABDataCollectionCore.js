@@ -463,6 +463,10 @@ export default class ABDataCollectionCore extends ABMLClass {
       return this._dataStatus;
    }
 
+   get dataInitialized() {
+      return this.dataStatus == this.dataStatusFlag.initialized;
+   }
+
    ///
    /// Cursor
    ///
@@ -995,7 +999,7 @@ export default class ABDataCollectionCore extends ABMLClass {
       this.on("ab.datacollection.update", (data) => {
          // {json} data
          // incoming socket payload:
-         // data.objectId {string} uuid of the ABObject's row that was updated
+         // data.objectId {string} uuid of the ABObject that was updated
          // data.data {json} the new updated value of that row entry.
 
          // debugger;
