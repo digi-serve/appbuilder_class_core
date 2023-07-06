@@ -1775,6 +1775,35 @@ module.exports = class ABDataCollectionCore extends ABMLClass {
    }
 
    /**
+    * @method queuedParse()
+    * This is an attempt at loading very large datasets into a Webix DC without locking up
+    * the display.
+    * @param {array} data
+    *        The data to load into the __dataCollection
+    * @param {callback} cb
+    *        A callback to call when the data has been fully loaded.
+    */
+   queuedParse(data, cb) {
+      if (data.length == 0) {
+         cb();
+         return;
+      }
+
+      let remain = [];
+      let pos = this.__dataCollection.count();
+      if (data.length > 250) {
+         remain = data.splice(250);
+      }
+      this.__dataCollection.parse({
+         data,
+         pos,
+      });
+      setTimeout(() => {
+         this.queuedParse(remain, cb);
+      }, 15);
+   }
+
+   /**
     * processIncomingData()
     * is called from loadData() once the data is returned.  This method
     * allows the platform to make adjustments to the data based upon any
@@ -1794,99 +1823,54 @@ module.exports = class ABDataCollectionCore extends ABMLClass {
          // Need to .parse at the first time
          if (!this.__dataCollection.find({}).length) {
             this.__dataCollection.clearAll();
-            this.__dataCollection.parse(data);
+            // this.__dataCollection.parse(data);
          }
 
          if (this.__throttleIncoming) clearTimeout(this.__throttleIncoming);
          this.__throttleIncoming = setTimeout(() => {
-            // In order to get the total_count updated I had to use .load()
-            this.__dataCollection.load(() => {
-               // If this dc loads all, then it has to filter data by the parent dc
+            // using queuedParse() to responsively handle large datasets.
+            this.queuedParse(data.data || data, () => {
                if (this.settings.loadAll) {
                   setTimeout(() => {
                      this.refreshLinkCursor();
                   }, 250);
                }
 
-               return data;
+               // this does nothing???
+               this.parseTreeCollection(data);
+
+               // if we are linked, then refresh our cursor
+               var linkDv = this.datacollectionLink;
+               if (linkDv) {
+                  // filter data by match link data collection
+                  this.refreshLinkCursor();
+                  this.setStaticCursor();
+               } else {
+                  // set static cursor
+                  this.setStaticCursor();
+               }
+
+               // now we close out our .loadData() promise.resolve() :
+               if (this._pendingLoadDataResolve) {
+                  this._pendingLoadDataResolve.resolve();
+
+                  // after we call .resolve() stop tracking this:
+                  this._pendingLoadDataResolve = null;
+               }
+
+               // If dc set load all, then it will not trigger .loadData in dc at
+               // .onAfterLoad event
+               if (this.settings.loadAll) {
+                  this.emit("loadData", {});
+               }
+
+               // mark initialized data
+               if (this._dataStatus != this.dataStatusFlag.initialized) {
+                  this._dataStatus = this.dataStatusFlag.initialized;
+                  this.emit("initializedData", {});
+               }
             });
-
-            // this does nothing???
-            this.parseTreeCollection(data);
-
-            // if we are linked, then refresh our cursor
-            var linkDv = this.datacollectionLink;
-            if (linkDv) {
-               // filter data by match link data collection
-               this.refreshLinkCursor();
-               this.setStaticCursor();
-            } else {
-               // set static cursor
-               this.setStaticCursor();
-            }
-
-            // now we close out our .loadData() promise.resolve() :
-            if (this._pendingLoadDataResolve) {
-               this._pendingLoadDataResolve.resolve();
-
-               // after we call .resolve() stop tracking this:
-               this._pendingLoadDataResolve = null;
-            }
-
-            // If dc set load all, then it will not trigger .loadData in dc at
-            // .onAfterLoad event
-            if (this.settings.loadAll) {
-               this.emit("loadData", {});
-            }
-
-            // mark initialized data
-            if (this._dataStatus != this.dataStatusFlag.initialized) {
-               this._dataStatus = this.dataStatusFlag.initialized;
-               this.emit("initializedData", {});
-            }
          }, 100);
-
-         // In order to keep detail and graphs loading properly I had to keep .parse()
-         // queueOperation(() => {
-         //    this.__dataCollection.clearAll();
-         //    this.__dataCollection.parse(data);
-         // }, 50);
-
-         // queueOperation(() => {
-         //    // if we are linked, then refresh our cursor
-         //    var linkDv = this.datacollectionLink;
-         //    if (linkDv) {
-         //       // filter data by match link data collection
-         //       this.refreshLinkCursor();
-         //       this.setStaticCursor();
-         //    } else {
-         //       // set static cursor
-         //       this.setStaticCursor();
-         //    }
-         // }, 5);
-         // queueOperation(() => {
-         //    // mark initialized data
-         //    if (this._dataStatus != this.dataStatusFlag.initialized) {
-         //       this._dataStatus = this.dataStatusFlag.initialized;
-         //       this.emit("initializedData", {});
-         //    }
-         // }, 20);
-         // queueOperation(() => {
-         //    // If dc set load all, then it will not trigger .loadData in dc at
-         //    // .onAfterLoad event
-         //    if (this.settings.loadAll) {
-         //       this.emit("loadData", {});
-         //    }
-         // }, 10);
-         // queueOperation(() => {
-         //    // now we close out our .loadData() promise.resolve() :
-         //    if (this._pendingLoadDataResolve) {
-         //       this._pendingLoadDataResolve.resolve();
-
-         //       // after we call .resolve() stop tracking this:
-         //       this._pendingLoadDataResolve = null;
-         //    }
-         // }, 5);
       });
    }
 
