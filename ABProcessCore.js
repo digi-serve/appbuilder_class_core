@@ -3,6 +3,8 @@
 var ABMLClass = require("../platform/ABMLClass");
 const _concat = require("lodash/concat");
 
+const ABProcessTaskSubProcess = require("../platform/process/tasks/ABProcessTaskSubProcess");
+
 module.exports = class ABProcessCore extends ABMLClass {
    constructor(attributes, AB) {
       super(["label"], AB);
@@ -406,7 +408,7 @@ module.exports = class ABProcessCore extends ABMLClass {
       //       : values[0]
       //    : null;
 
-      var tasksToAsk = this.allPreviousTasks(currElement);
+      var tasksToAsk = this.allPreviousTasks(currElement)
       var values = queryPreviousTasks(tasksToAsk, "processData", params, this);
       return values.length > 0
          ? values.length > 1
@@ -592,15 +594,21 @@ var queryPreviousTasks = (
       return responses;
    } else {
       // get next task
-      var task = list.shift();
+      const task = list.shift();
 
       // if we haven't already done task:
       if (processedIDs.indexOf(task.diagramID) == -1) {
          // mark this task as having been processed
          processedIDs.push(task.diagramID);
 
+         let value = null;
+
          // get any field's it provides
-         var value = task[method].apply(task, param);
+         if (!(task instanceof ABProcessTaskSubProcess))
+            value = task[method].apply(task, param);
+
+         // value = task[method].apply(task, param);
+
          if (value === null) value = [];
          responses = _concat(responses, value);
 

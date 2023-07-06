@@ -314,6 +314,9 @@ module.exports = class ABFieldCalculateCore extends ABField {
             this.alias
          );
 
+         if (typeof result == "string")
+            result = result.replace(/[^-0-9.]/g, "");
+
          switch (this.settings.decimalSign) {
             case "comma":
                result = result.replace(".", ",");
@@ -329,4 +332,3 @@ module.exports = class ABFieldCalculateCore extends ABField {
       }
    }
 };
-

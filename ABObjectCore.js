@@ -933,6 +933,12 @@ module.exports = class ABObjectCore extends ABMLClass {
          });
       }
 
+      // System requires to include number field values
+      // because they are used on Formula/Calculate fields on client side
+      fields = fields.concat(
+         this.fields((f) => f.key == "number").map((f) => f.columnName)
+      );
+
       return fields;
    }
 

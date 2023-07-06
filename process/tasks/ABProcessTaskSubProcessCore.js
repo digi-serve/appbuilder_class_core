@@ -144,7 +144,7 @@ module.exports = class SubProcessCore extends ABProcessElement {
 
       // get data from insert tasks
       let dataFieldsAllInserted = dataFieldsAll.filter(
-         (opt) => opt.field === "InsertedRecord"
+         (opt) => (opt?.field?.key ?? opt?.field) === "InsertedRecord"
       );
 
       if (dataFieldOpt == null) return [];
@@ -236,7 +236,7 @@ module.exports = class SubProcessCore extends ABProcessElement {
                // Extract data
                data = stateData.map((item) => {
                   if (fieldId == "uuid" || fieldId == "id") {
-                     return item.uuid || item.id;
+                     return item.uuid || item.id || item;
                   } else if (dataFieldOpt.field.datasourceLink) {
                      let returnField = dataFieldOpt.field.datasourceLink.fields(
                         (f) => f.id == fieldId
@@ -249,10 +249,14 @@ module.exports = class SubProcessCore extends ABProcessElement {
          }
       }
 
-      if (data == null)
+      // Filter none data items
+      if (Array.isArray(data)) data = data.filter((d) => d != null);
+
+      if (data == null || !data.length)
          data = this.process.processData.call(this, currElement, params);
 
-      if (data == null) data = this.process.processData(this, params);
+      if (data == null || !data.length)
+         data = this.process.processData(this, params);
 
       return data;
    }

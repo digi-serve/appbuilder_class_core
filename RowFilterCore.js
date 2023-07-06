@@ -626,7 +626,7 @@ module.exports = class RowFilterCore extends ABComponent {
       var result = config_settings.glue === "and" ? true : false;
 
       config_settings.rules.forEach((filter) => {
-         if (!filter.key || !filter.rule) return;
+         if (!filter?.key || !filter?.rule) return;
 
          var fieldInfo = this._Fields.filter((f) => f.id == filter.key)[0];
          if (!fieldInfo) return;
