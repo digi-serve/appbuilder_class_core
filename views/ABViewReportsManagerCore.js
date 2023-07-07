@@ -3,6 +3,7 @@ const ABViewWidget = require("../../platform/views/ABViewWidget");
 const ABViewReportManagerPropertyComponentDefaults = {
    moduleList: [],
    queryList: [],
+   datacollectionIDs: "",
 };
 
 const ABViewDefaults = {
@@ -44,6 +45,10 @@ module.exports = class ABViewReportsManagerCore extends ABViewWidget {
       this.settings.queryList =
          this.settings.queryList ||
          ABViewReportManagerPropertyComponentDefaults.queryList;
+
+      this.settings.datacollectionIDs =
+         this.settings.datacollectionIDs ||
+         ABViewReportManagerPropertyComponentDefaults.datacollectionIDs;
    }
 
    /**
