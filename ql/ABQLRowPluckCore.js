@@ -60,7 +60,8 @@ class ABQLRowPluckCore extends ABQLSetPluck {
             nextQLOps = this.prevOP.constructor.NextQLOps.filter(
                (NextQLOp) =>
                   NextQLOp.key === this.constructor.key ||
-                  NextQLOp.key === ABQLRowUpdate.key
+                  NextQLOp.key === ABQLRowUpdate.key ||
+                  NextQLOp.key === ABQLRowSave.key
             );
 
             break;
