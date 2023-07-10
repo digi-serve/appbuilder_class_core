@@ -1,9 +1,15 @@
 const ABViewWidget = require("../../platform/views/ABViewWidget");
 
 const ABViewReportManagerPropertyComponentDefaults = {
-   moduleList: [],
-   queryList: [],
+   dataviewID: "",
+   dataviewFields: {
+      name: "", // id of a String field
+      text: "", // id of a LongText field
+      queries: "", // id of a json field
+   },
    datacollectionIDs: "",
+   editMode: 0,
+   readonly: 0,
 };
 
 const ABViewDefaults = {
@@ -38,17 +44,34 @@ module.exports = class ABViewReportsManagerCore extends ABViewWidget {
    fromValues(values) {
       super.fromValues(values);
 
-      this.settings.moduleList =
-         this.settings.moduleList ||
-         ABViewReportManagerPropertyComponentDefaults.moduleList;
+      const parsedSettings = {};
 
-      this.settings.queryList =
-         this.settings.queryList ||
-         ABViewReportManagerPropertyComponentDefaults.queryList;
+      Object.keys(ABViewReportManagerPropertyComponentDefaults).forEach(
+         (key1) => {
+            if (
+               typeof ABViewReportManagerPropertyComponentDefaults[key1] ===
+               "object"
+            ) {
+               parsedSettings[key1] = {};
 
-      this.settings.datacollectionIDs =
-         this.settings.datacollectionIDs ||
-         ABViewReportManagerPropertyComponentDefaults.datacollectionIDs;
+               Object.keys(
+                  ABViewReportManagerPropertyComponentDefaults[key1]
+               ).forEach((key2) => {
+                  parsedSettings[key1][key2] =
+                     this.settings[key1]?.[key2] ??
+                     ABViewReportManagerPropertyComponentDefaults[key1][key2];
+               });
+
+               return;
+            }
+
+            parsedSettings[key1] =
+               this.settings[key1] ??
+               ABViewReportManagerPropertyComponentDefaults[key1];
+         }
+      );
+
+      this.settings = parsedSettings;
    }
 
    /**
@@ -73,15 +96,5 @@ module.exports = class ABViewReportsManagerCore extends ABViewWidget {
     */
    componentList() {
       return [];
-   }
-
-   /**
-    * @property datacollection
-    * return data source
-    * NOTE: this view doesn't track a DataCollection.
-    * @return {ABDataCollection}
-    */
-   get datacollection() {
-      return null;
    }
 };
