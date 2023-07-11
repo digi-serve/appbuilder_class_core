@@ -1797,24 +1797,29 @@ module.exports = class ABDataCollectionCore extends ABMLClass {
     * @param {callback} cb
     *        A callback to call when the data has been fully loaded.
     */
-   queuedParse(data, cb) {
-      if (data.length == 0) {
-         cb();
-         return;
+   async queuedParse(incomingData, cb) {
+      const data = incomingData?.data || incomingData;
+      if (!data?.length) {
+         cb?.();
+         return Promise.resolve();
       }
 
-      let remain = [];
-      let pos = this.__dataCollection.count();
+      let nextData;
       if (data.length > 250) {
-         remain = data.splice(250);
+         let pos = this.__dataCollection.count();
+         let remain = data.splice(250);
+         nextData = Object.assign(incomingData, { data: remain, pos });
       }
-      this.__dataCollection.parse({
-         data,
-         pos,
+      const parsedData = Object.assign(incomingData, { data: data });
+      this.__dataCollection.parse(parsedData);
+
+      return new Promise((resolve) => {
+         setTimeout(async () => {
+            await this.queuedParse(nextData);
+            cb?.();
+            resolve();
+         }, 15);
       });
-      setTimeout(() => {
-         this.queuedParse(remain, cb);
-      }, 15);
    }
 
    /**
@@ -1842,8 +1847,10 @@ module.exports = class ABDataCollectionCore extends ABMLClass {
 
          if (this.__throttleIncoming) clearTimeout(this.__throttleIncoming);
          this.__throttleIncoming = setTimeout(() => {
-            // using queuedParse() to responsively handle large datasets.
-            this.queuedParse(data.data || data, () => {
+            this.__dataCollection.load(async () => {
+               // using queuedParse() to responsively handle large datasets.
+               await this.queuedParse(data);
+
                if (this.settings.loadAll) {
                   setTimeout(() => {
                      this.refreshLinkCursor();
