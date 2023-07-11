@@ -800,7 +800,10 @@ export default class ABDataCollectionCore extends ABMLClass {
                if (needAdd) {
                   // normalize data before add to data collection
                   var model = obj.model();
-                  model.normalizeData(updatedVals);
+
+                  // UPDATE: this should already have happened in NetworkRestSocket
+                  // when the initial data is received.
+                  //model.normalizeData(updatedVals);
 
                   (updatedVals || []).forEach((updatedV) => {
                      // filter condition before add
@@ -968,7 +971,10 @@ export default class ABDataCollectionCore extends ABMLClass {
                         if (Object.keys(updateItemData).length > 0) {
                            // normalize data before add to data collection
                            var model = obj.model();
-                           model.normalizeData(updateItemData);
+
+                           // UPDATE: this should already have happened in NetworkRestSocket
+                           // when the initial data is received.
+                           // model.normalizeData(updateItemData);
 
                            this.__dataCollection.updateItem(
                               d.id,
@@ -1258,8 +1264,8 @@ export default class ABDataCollectionCore extends ABMLClass {
                   // If this item needs to update
                   if (Object.keys(updateItemData).length > 0) {
                      // normalize data before add to data collection
-                     // var model = obj.model();
-                     // model.normalizeData(updateItemData);
+                     // UPDATE: this should already have happened in NetworkRestSocket
+                     // when the initial data is received.
 
                      // NOTE: We could not normalize relational data because they are not full data
                      // Merge update data to exists data instead
@@ -1337,8 +1343,12 @@ export default class ABDataCollectionCore extends ABMLClass {
                      let obj = this.datasource;
                      if (!obj) return;
                      // normalize data before add to data collection
-                     var model = obj.model();
-                     model.normalizeData(res.data[0]);
+
+                     // UPDATE: this should already have happened in NetworkRestSocket
+                     // when the initial data is received.
+                     //var model = obj.model();
+                     // model.normalizeData(res.data[0]);
+
                      // tell the webix data collection to update using their API with the row id (values.id) and content (res.data[0])
                      if (this.__dataCollection.exists(values[PK])) {
                         this.__dataCollection.updateItem(
@@ -1462,13 +1472,16 @@ export default class ABDataCollectionCore extends ABMLClass {
                   if (relateVal == null) return;
 
                   if (
-                     Array.isArray(relateVal) &&
-                     relateVal.filter(
-                        (v) =>
-                           v == deleteId ||
-                           v.id == deleteId ||
-                           v[PK] == deleteId
-                     ).length > 0
+                     Array.isArray(relateVal)
+                     // JOHNNY: for speed improvements, don't make this check:
+                     // just do it and that will reduce 1x through the array.
+                     // &&
+                     // relateVal.filter(
+                     //    (v) =>
+                     //       v == deleteId ||
+                     //       v.id == deleteId ||
+                     //       v[PK] == deleteId
+                     // ).length > 0
                   ) {
                      updateRelateVals[f.relationName()] = relateVal.filter(
                         (v) => (v.id || v[PK] || v) != deleteId
@@ -1489,8 +1502,9 @@ export default class ABDataCollectionCore extends ABMLClass {
                // If this item needs to update
                if (Object.keys(updateRelateVals).length > 0) {
                   // normalize data before add to data collection
-                  var model = obj.model();
-                  model.normalizeData(updateRelateVals);
+
+                  // var model = obj.model();
+                  // model.normalizeData(updateRelateVals);
 
                   this.__dataCollection.updateItem(d.id, updateRelateVals);
 
@@ -1782,6 +1796,40 @@ export default class ABDataCollectionCore extends ABMLClass {
    }
 
    /**
+    * @method queuedParse()
+    * This is an attempt at loading very large datasets into a Webix DC without locking up
+    * the display.
+    * @param {array} data
+    *        The data to load into the __dataCollection
+    * @param {callback} cb
+    *        A callback to call when the data has been fully loaded.
+    */
+   async queuedParse(incomingData, cb) {
+      const data = incomingData?.data || incomingData;
+      if (!data?.length) {
+         cb?.();
+         return Promise.resolve();
+      }
+
+      let nextData;
+      if (data.length > 250) {
+         let pos = this.__dataCollection.count();
+         let remain = data.splice(250);
+         nextData = Object.assign(incomingData, { data: remain, pos });
+      }
+      const parsedData = Object.assign(incomingData, { data: data });
+      this.__dataCollection.parse(parsedData);
+
+      return new Promise((resolve) => {
+         setTimeout(async () => {
+            await this.queuedParse(nextData);
+            cb?.();
+            resolve();
+         }, 15);
+      });
+   }
+
+   /**
     * processIncomingData()
     * is called from loadData() once the data is returned.  This method
     * allows the platform to make adjustments to the data based upon any
@@ -1801,99 +1849,56 @@ export default class ABDataCollectionCore extends ABMLClass {
          // Need to .parse it the first time
          if (!this.__dataCollection?.find({}).length) {
             this.__dataCollection?.clearAll();
-            this.__dataCollection?.parse(data);
+            // this.__dataCollection?.parse(data);
          }
 
          if (this.__throttleIncoming) clearTimeout(this.__throttleIncoming);
          this.__throttleIncoming = setTimeout(() => {
-            // In order to get the total_count updated I had to use .load()
-            this.__dataCollection?.load(() => {
-               // If this dc loads all, then it has to filter data by the parent dc
+            this.__dataCollection.load(async () => {
+               // using queuedParse() to responsively handle large datasets.
+               await this.queuedParse(data);
+
                if (this.settings.loadAll) {
                   setTimeout(() => {
                      this.refreshLinkCursor();
                   }, 250);
                }
 
-               return data;
+               // this does nothing???
+               this.parseTreeCollection(data);
+
+               // if we are linked, then refresh our cursor
+               var linkDv = this.datacollectionLink;
+               if (linkDv) {
+                  // filter data by match link data collection
+                  this.refreshLinkCursor();
+                  this.setStaticCursor();
+               } else {
+                  // set static cursor
+                  this.setStaticCursor();
+               }
+
+               // now we close out our .loadData() promise.resolve() :
+               if (this._pendingLoadDataResolve) {
+                  this._pendingLoadDataResolve.resolve();
+
+                  // after we call .resolve() stop tracking this:
+                  this._pendingLoadDataResolve = null;
+               }
+
+               // If dc set load all, then it will not trigger .loadData in dc at
+               // .onAfterLoad event
+               if (this.settings.loadAll) {
+                  this.emit("loadData", {});
+               }
+
+               // mark initialized data
+               if (this._dataStatus != this.dataStatusFlag.initialized) {
+                  this._dataStatus = this.dataStatusFlag.initialized;
+                  this.emit("initializedData", {});
+               }
             });
-
-            // this does nothing???
-            this.parseTreeCollection(data);
-
-            // if we are linked, then refresh our cursor
-            var linkDv = this.datacollectionLink;
-            if (linkDv) {
-               // filter data by match link data collection
-               this.refreshLinkCursor();
-               this.setStaticCursor();
-            } else {
-               // set static cursor
-               this.setStaticCursor();
-            }
-
-            // now we close out our .loadData() promise.resolve() :
-            if (this._pendingLoadDataResolve) {
-               this._pendingLoadDataResolve.resolve(data);
-
-               // after we call .resolve() stop tracking this:
-               this._pendingLoadDataResolve = null;
-            }
-
-            // If dc set load all, then it will not trigger .loadData in dc at
-            // .onAfterLoad event
-            if (this.settings.loadAll) {
-               this.emit("loadData", {});
-            }
-
-            // mark initialized data
-            if (this._dataStatus != this.dataStatusFlag.initialized) {
-               this._dataStatus = this.dataStatusFlag.initialized;
-               this.emit("initializedData", {});
-            }
          }, 100);
-
-         // In order to keep detail and graphs loading properly I had to keep .parse()
-         // queueOperation(() => {
-         //    this.__dataCollection.clearAll();
-         //    this.__dataCollection.parse(data);
-         // }, 50);
-
-         // queueOperation(() => {
-         //    // if we are linked, then refresh our cursor
-         //    var linkDv = this.datacollectionLink;
-         //    if (linkDv) {
-         //       // filter data by match link data collection
-         //       this.refreshLinkCursor();
-         //       this.setStaticCursor();
-         //    } else {
-         //       // set static cursor
-         //       this.setStaticCursor();
-         //    }
-         // }, 5);
-         // queueOperation(() => {
-         //    // mark initialized data
-         //    if (this._dataStatus != this.dataStatusFlag.initialized) {
-         //       this._dataStatus = this.dataStatusFlag.initialized;
-         //       this.emit("initializedData", {});
-         //    }
-         // }, 20);
-         // queueOperation(() => {
-         //    // If dc set load all, then it will not trigger .loadData in dc at
-         //    // .onAfterLoad event
-         //    if (this.settings.loadAll) {
-         //       this.emit("loadData", {});
-         //    }
-         // }, 10);
-         // queueOperation(() => {
-         //    // now we close out our .loadData() promise.resolve() :
-         //    if (this._pendingLoadDataResolve) {
-         //       this._pendingLoadDataResolve.resolve();
-
-         //       // after we call .resolve() stop tracking this:
-         //       this._pendingLoadDataResolve = null;
-         //    }
-         // }, 5);
       });
    }
 

@@ -9,9 +9,9 @@ var AllViews = [
    // require("../platform/views/ABView"),
    /////
    ///// LEFT OFF HERRE:
-   ///// 
+   /////
    /// TODO: test this out:
-   await import  ("../platform/views/ABView"),
+   await import("../platform/views/ABView"),
    // require("../platform/views/ABViewCarousel"),
    // require("../platform/views/ABViewChart"),
    // require("../platform/views/ABViewChartArea"),
@@ -44,6 +44,7 @@ var AllViews = [
    // require("../platform/views/ABViewGantt"),
    // require("../platform/views/ABViewKanban"),
    // require("../platform/views/ABViewReportsManager"),
+   // require("../platform/views/ABViewScheduler"),
 
    // //
    // // Detail Components
