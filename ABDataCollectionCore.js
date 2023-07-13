@@ -1804,13 +1804,24 @@ module.exports = class ABDataCollectionCore extends ABMLClass {
          return Promise.resolve();
       }
 
+      const total_count = incomingData.total_count;
+
       let nextData;
       if (data.length > 250) {
          let pos = this.__dataCollection.count();
          let remain = data.splice(250);
-         nextData = Object.assign(incomingData, { data: remain, pos });
+         nextData = {
+            data: remain,
+            pos: pos + data.length,
+            total_count,
+         };
       }
-      const parsedData = Object.assign(incomingData, { data: data });
+
+      const parsedData = {
+         data,
+         pos: incomingData.pos,
+         total_count,
+      };
       this.__dataCollection.parse(parsedData);
 
       return new Promise((resolve) => {
