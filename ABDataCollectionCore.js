@@ -1811,13 +1811,24 @@ export default class ABDataCollectionCore extends ABMLClass {
          return Promise.resolve();
       }
 
+      const total_count = incomingData.total_count;
+
       let nextData;
       if (data.length > 250) {
          let pos = this.__dataCollection.count();
          let remain = data.splice(250);
-         nextData = Object.assign(incomingData, { data: remain, pos });
+         nextData = {
+            data: remain,
+            pos: pos + data.length,
+            total_count,
+         };
       }
-      const parsedData = Object.assign(incomingData, { data: data });
+
+      const parsedData = {
+         data,
+         pos: incomingData.pos,
+         total_count,
+      };
       this.__dataCollection.parse(parsedData);
 
       return new Promise((resolve) => {
@@ -1853,51 +1864,54 @@ export default class ABDataCollectionCore extends ABMLClass {
          }
 
          if (this.__throttleIncoming) clearTimeout(this.__throttleIncoming);
-         this.__throttleIncoming = setTimeout(() => {
-            this.__dataCollection.load(async () => {
-               // using queuedParse() to responsively handle large datasets.
-               await this.queuedParse(data);
+         this.__throttleIncoming = setTimeout(async () => {
+            // using queuedParse() to responsively handle large datasets.
+            await this.queuedParse(data);
 
+            // In order to get the total_count updated I had to use .load()
+            this.__dataCollection.load(async () => {
                if (this.settings.loadAll) {
                   setTimeout(() => {
                      this.refreshLinkCursor();
                   }, 250);
                }
 
-               // this does nothing???
-               this.parseTreeCollection(data);
-
-               // if we are linked, then refresh our cursor
-               var linkDv = this.datacollectionLink;
-               if (linkDv) {
-                  // filter data by match link data collection
-                  this.refreshLinkCursor();
-                  this.setStaticCursor();
-               } else {
-                  // set static cursor
-                  this.setStaticCursor();
-               }
-
-               // now we close out our .loadData() promise.resolve() :
-               if (this._pendingLoadDataResolve) {
-                  this._pendingLoadDataResolve.resolve();
-
-                  // after we call .resolve() stop tracking this:
-                  this._pendingLoadDataResolve = null;
-               }
-
-               // If dc set load all, then it will not trigger .loadData in dc at
-               // .onAfterLoad event
-               if (this.settings.loadAll) {
-                  this.emit("loadData", {});
-               }
-
-               // mark initialized data
-               if (this._dataStatus != this.dataStatusFlag.initialized) {
-                  this._dataStatus = this.dataStatusFlag.initialized;
-                  this.emit("initializedData", {});
-               }
+               return data;
             });
+
+            // this does nothing???
+            this.parseTreeCollection(data);
+
+            // if we are linked, then refresh our cursor
+            var linkDv = this.datacollectionLink;
+            if (linkDv) {
+               // filter data by match link data collection
+               this.refreshLinkCursor();
+               this.setStaticCursor();
+            } else {
+               // set static cursor
+               this.setStaticCursor();
+            }
+
+            // now we close out our .loadData() promise.resolve() :
+            if (this._pendingLoadDataResolve) {
+               this._pendingLoadDataResolve.resolve();
+
+               // after we call .resolve() stop tracking this:
+               this._pendingLoadDataResolve = null;
+            }
+
+            // If dc set load all, then it will not trigger .loadData in dc at
+            // .onAfterLoad event
+            if (this.settings.loadAll) {
+               this.emit("loadData", {});
+            }
+
+            // mark initialized data
+            if (this._dataStatus != this.dataStatusFlag.initialized) {
+               this._dataStatus = this.dataStatusFlag.initialized;
+               this.emit("initializedData", {});
+            }
          }, 100);
       });
    }
