@@ -950,6 +950,14 @@ export default class ABApplicationCore extends ABMLClass {
       return this.pages((f) => f.id == id)[0];
    }
 
+   get urlCurrentVersion() {
+      return `/mobile/version/${this.id}`;
+   }
+
+   get version() {
+      return this.json.versionData?.versionNumber || "0.0.0";
+   }
+
    /**
     * @method viewNew()
     *
