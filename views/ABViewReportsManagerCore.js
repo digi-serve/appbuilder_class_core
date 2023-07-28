@@ -7,9 +7,11 @@ const ABViewReportManagerPropertyComponentDefaults = {
       text: "", // id of a LongText field
       queries: "", // id of a json field
    },
-   datacollectionIDs: "",
+   datacollectionIDs: [],
    editMode: 0,
-   readonly: 0,
+   hideCommonTab: 0,
+   hideDataTab: 0,
+   hideViewTab: 0,
 };
 
 const ABViewDefaults = {
@@ -50,7 +52,10 @@ module.exports = class ABViewReportsManagerCore extends ABViewWidget {
          (key1) => {
             if (
                typeof ABViewReportManagerPropertyComponentDefaults[key1] ===
-               "object"
+                  "object" &&
+               !Array.isArray(
+                  ABViewReportManagerPropertyComponentDefaults[key1]
+               )
             ) {
                parsedSettings[key1] = {};
 

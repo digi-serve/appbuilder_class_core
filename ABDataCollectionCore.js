@@ -1876,7 +1876,12 @@ export default class ABDataCollectionCore extends ABMLClass {
                   }, 250);
                }
 
-               return data;
+               return {
+                  // NOTE: return a empty array to prevent render items in DataTable twice. (Items are rendered in .queuedParse function)
+                  data: [],
+                  pos: data.pos,
+                  total_count: data.total_count,
+               };
             });
 
             // this does nothing???
