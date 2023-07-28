@@ -1866,7 +1866,7 @@ export default class ABDataCollectionCore extends ABMLClass {
          if (this.__throttleIncoming) clearTimeout(this.__throttleIncoming);
          this.__throttleIncoming = setTimeout(async () => {
             // using queuedParse() to responsively handle large datasets.
-            // await this.queuedParse(data);
+            await this.queuedParse(data);
 
             // In order to get the total_count updated I had to use .load()
             this.__dataCollection.load(async () => {

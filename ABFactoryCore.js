@@ -11,7 +11,7 @@
 // const ABApplication = require("../platform/ABApplication");
 import ABApplication from "../platform/ABApplication";
 
-const ABApplicationMobile = require("../platform/ABApplicationMobile");
+import ABApplicationMobile from "../platform/ABApplicationMobile";
 
 // const ABDefinition = require("../platform/ABDefinition");
 import ABDefinition from "../platform/ABDefinition";
