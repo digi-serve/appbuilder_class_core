@@ -61,6 +61,10 @@ module.exports = class ABApplicationCore extends ABMLClass {
       // {string} .type
       // the ABDefinition.type of this object.
 
+      this.appType = attributes.appType || "web";
+      // {string} .appType
+      // the kind of Application this is. ["web", "mobile"]
+
       this.json = attributes.json;
       if (typeof this.json == "string") this.json = JSON.parse(this.json);
       // {obj} .json
@@ -246,6 +250,10 @@ module.exports = class ABApplicationCore extends ABMLClass {
    /// Instance Methods
    ///
 
+   get ViewManager() {
+      return ABViewManager;
+   }
+
    /// ABApplication data methods
    /**
     * @method isAccessibleForRoles()
@@ -293,6 +301,10 @@ module.exports = class ABApplicationCore extends ABMLClass {
       return foundRole;
    }
 
+   get isMobile() {
+      return this.appType == "mobile";
+   }
+
    /**
     * @method toObj()
     *
@@ -338,6 +350,7 @@ module.exports = class ABApplicationCore extends ABMLClass {
       return {
          id: this.id,
          type: this.type || "application",
+         appType: this.appType || "web",
          name: this.name,
          icon: this.icon,
          isSystemObject: this.isSystemObject,
@@ -357,25 +370,8 @@ module.exports = class ABApplicationCore extends ABMLClass {
    /// Mobile Apps
    ///
 
-   /**
-    * @method mobileApps()
-    *
-    * return an array of all the ABObjectQueries for this ABApplication.
-    *
-    * @param {fn} filter   a filter fn to return a set of ABObjectQueries that
-    *                this fn returns true for.
-    * @return {array}   array of ABObjectQueries
-    */
-   mobileApps(filter = () => true) {
-      return (this._mobileApps || []).filter(filter);
-   }
-
    ///
    /// Datacollections
-   ///
-
-   ///
-   /// Data collections
    ///
 
    // datacollectionNew(values) {
@@ -707,7 +703,7 @@ module.exports = class ABApplicationCore extends ABMLClass {
     * @return {array} of ABView objects
     */
    viewAll(fn = () => true) {
-      return ABViewManager.allViews(fn);
+      return this.ViewManager.allViews(fn);
    }
 
    ///
@@ -933,7 +929,7 @@ module.exports = class ABApplicationCore extends ABMLClass {
       // values.key = ABViewPageCore.common().key;
       values.key = "page";
 
-      return ABViewManager.newView(values, this, null);
+      return this.ViewManager.newView(values, this, null);
    }
 
    /**
@@ -955,7 +951,7 @@ module.exports = class ABApplicationCore extends ABMLClass {
     * @return {ABView}
     */
    viewNew(values, application, parent) {
-      return ABViewManager.newView(values, application, parent);
+      return this.ViewManager.newView(values, application, parent);
    }
 
    ///

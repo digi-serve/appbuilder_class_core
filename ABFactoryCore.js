@@ -9,6 +9,7 @@
 // const uuidv4 = require("uuid");
 
 const ABApplication = require("../platform/ABApplication");
+const ABApplicationMobile = require("../platform/ABApplicationMobile");
 const ABDefinition = require("../platform/ABDefinition");
 
 const ABComponent = require("../platform/ABComponent");
@@ -510,7 +511,24 @@ class ABFactory extends EventEmitter {
     * @return {ABApplication}
     */
    applicationNew(values) {
+      // just in case we got here by mistake:
+      if (values.appType == "mobile") {
+         return this.applicationMobileNew(values);
+      }
+
       return new ABApplication(values, this);
+   }
+
+   /**
+    * @method applicationMobileNew()
+    * Return a new instance of an ABApplicationMobile object.
+    * @param {json} values
+    *        the ABDefinition.json of the ABApplicationMobile object we are
+    *        creating.
+    * @return {ABApplicationMobile}
+    */
+   applicationMobileNew(values) {
+      return new ABApplicationMobile(values, this);
    }
 
    /**
