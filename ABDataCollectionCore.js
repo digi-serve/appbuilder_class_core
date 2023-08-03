@@ -463,8 +463,12 @@ export default class ABDataCollectionCore extends ABMLClass {
       return this._dataStatus;
    }
 
-   get dataInitialized() {
+   get isDataInitialized() {
       return this.dataStatus == this.dataStatusFlag.initialized;
+   }
+
+   dataInitialized() {
+      this.dataStatus = this.dataStatusFlag.initialized;
    }
 
    ///
