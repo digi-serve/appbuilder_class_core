@@ -301,6 +301,10 @@ module.exports = class ABApplicationCore extends ABMLClass {
       return foundRole;
    }
 
+   get isWebApp() {
+      return this.appType == "web";
+   }
+
    get isMobile() {
       return this.appType == "mobile";
    }
