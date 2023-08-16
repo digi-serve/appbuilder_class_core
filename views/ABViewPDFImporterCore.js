@@ -1,8 +1,23 @@
 const ABViewWidget = require("../../platform/views/ABViewWidget");
 
+const ABSubmitRule = require("../../rules/ABViewRuleListFormSubmitRules");
+
 const ABViewPDFImporterPropertyComponentDefaults = {
    dataviewID: null,
    fieldID: null,
+
+   //	[{
+   //		action: {string},
+   //		when: [
+   //			{
+   //				fieldId: {UUID},
+   //				comparer: {string},
+   //				value: {string}
+   //			}
+   //		],
+   //		value: {string}
+   //	}]
+   submitRules: [],
 };
 
 const ABViewDefaults = {
@@ -44,18 +59,6 @@ module.exports = class ABViewPDFImporterCore extends ABViewWidget {
       this.settings.fieldID =
          this.settings.fieldID ??
          ABViewPDFImporterPropertyComponentDefaults.fieldID;
-
-      // Convert to boolean
-      //   this.settings.removeMissed = JSON.parse(
-      //      this.settings.removeMissed ||
-      //         ABViewPDFImporterPropertyComponentDefaults.removeMissed
-      //   );
-
-      // "0" -> 0
-      //   this.settings.height = parseInt(
-      //      this.settings.height ||
-      //         ABViewPDFImporterPropertyComponentDefaults.height
-      //   );
    }
 
    /**
@@ -80,5 +83,20 @@ module.exports = class ABViewPDFImporterCore extends ABViewWidget {
     */
    componentList() {
       return [];
+   }
+
+   doSubmitRules(rowDatas) {
+      const object = this.datacollection.datasource;
+
+      const SubmitRules = new ABSubmitRule();
+      SubmitRules.formLoad(this);
+      SubmitRules.fromSettings(this.settings.submitRules);
+      SubmitRules.objectLoad(object);
+
+      if (rowDatas && !Array.isArray(rowDatas)) rowDatas = [rowDatas];
+
+      rowDatas?.forEach((rowData) => {
+         SubmitRules.process({ data: rowData, form: this });
+      });
    }
 };
