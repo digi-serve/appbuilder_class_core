@@ -450,7 +450,6 @@ module.exports = class RowFilterCore extends ABComponent {
 
          connectFieldValid: function (rowData, field, rule, compareValue) {
             let relationName = field.relationName();
-            let columnName = field.columnName;
 
             let connectedVal = "";
 
@@ -472,6 +471,12 @@ module.exports = class RowFilterCore extends ABComponent {
                   let fieldVal = getFieldVal(rowData, field);
                   if (fieldVal != null) {
                      connectedVal = fieldVal;
+
+                     // an Object to a String
+                     if (typeof connectedVal == "object") {
+                        connectedVal =
+                           field.datasourceLink.displayData(connectedVal);
+                     }
                   }
                }
             }
