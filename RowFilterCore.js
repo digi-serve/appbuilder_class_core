@@ -669,6 +669,7 @@ module.exports = class RowFilterCore extends ABComponent {
                );
                break;
             case "number":
+            case "formula":
                condResult = _logic.numberValid(
                   rowData,
                   fieldInfo,
