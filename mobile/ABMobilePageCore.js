@@ -10,7 +10,7 @@
  *
  */
 
-const ABMobileView = require("../../platform/mobile/ABMobileView");
+import ABMobileView from "../../platform/mobile/ABMobileView";
 // var ABViewManager = require("../ABViewManager");
 
 // function L(key, altText) {
@@ -28,7 +28,7 @@ const ABPropertyComponentDefaults = {
    // What type of "Page" this is: ['page', 'popup', 'reportPage']
 };
 
-module.exports = class ABMobilePageCore extends ABMobileView {
+export default class ABMobilePageCore extends ABMobileView {
    constructor(values, application, parent, defaultValues) {
       super(values, application, parent, defaultValues || ABMobilePageDefaults);
 
@@ -75,6 +75,7 @@ module.exports = class ABMobilePageCore extends ABMobileView {
       var obj = super.toObj();
 
       obj.name = this.name;
+      obj.route = this.route;
 
       obj.myAppID = this.myAppID;
 
@@ -100,6 +101,8 @@ module.exports = class ABMobilePageCore extends ABMobileView {
     */
    fromValues(values) {
       super.fromValues(values);
+
+      this.route = values.route || this.name.replaceAll(" ", "_");
 
       // icon of popup page
       if (values.settings.type == "popup") this.icon = "clone";
@@ -398,4 +401,4 @@ module.exports = class ABMobilePageCore extends ABMobileView {
       // now continue with the default .copy()
       return super.copy(lookUpIds, parent, options);
    }
-};
+}
