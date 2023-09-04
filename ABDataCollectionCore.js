@@ -1654,6 +1654,14 @@ export default class ABDataCollectionCore extends ABMLClass {
       // pull data rows following the follow data collection
       else if (this.datacollectionFollow) {
          const followCursor = this.datacollectionFollow.getCursor();
+         // store the PK as a variable
+         let PK = this.datasource.PK();
+         // if the datacollection we are following is a query
+         // add "BASE_OBJECT." to the PK so we can select the
+         // right value to report the cursor change to
+         if (this.datacollectionFollow.settings.isQuery) {
+            PK = "BASE_OBJECT." + PK;
+         }
          if (followCursor) {
             start = 0;
             limit = null;
@@ -1663,7 +1671,7 @@ export default class ABDataCollectionCore extends ABMLClass {
                   {
                      key: this.datasource.PK(),
                      rule: "equals",
-                     value: followCursor[this.datasource.PK()],
+                     value: followCursor[PK],
                   },
                ],
             };

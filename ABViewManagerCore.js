@@ -34,6 +34,7 @@ var AllViews = [
    // require("../platform/views/ABViewList"),
    // require("../platform/views/ABViewMenu"),
    // require("../platform/views/ABViewPage"),
+   // require("../platform/views/ABViewPDFImporter"),
    // require("../platform/views/ABViewPivot"),
    // require("../platform/views/ABViewTab"),
    // require("../platform/views/ABViewText"),
