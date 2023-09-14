@@ -8,14 +8,14 @@ on:
         required: true
 
 jobs:
-  dispatch-update-services:
-    name: Dispatch Update Services
+  dispatch-update-platforms:
+    name: Dispatch Update Platforms
     runs-on: ubuntu-latest
     strategy:
       matrix:
-        dependant:
-          # - ab_platform_web
-          - ab_platform_service
+        platform:
+          - ab_platform_web
+          - appbuilder_platform_service
       steps:
         - name: Repository Dispatch
           uses: peter-evans/repository-dispatch@v2
@@ -23,6 +23,6 @@ jobs:
             VERS: ${{ inputs.version }}
           with:
             token: ${{ secrets.PAT }}
-            repository: digi-serve/${{ matrix.dependant }}
+            repository: digi-serve/${{ matrix.platform }}
             event-type: core_new_version
             client-payload: '{"type": "patch", "version": "${{ env.VERS }}"}'

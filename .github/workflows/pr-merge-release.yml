@@ -33,7 +33,7 @@ jobs:
   call-dispatch-updates:
     name: Dispatch
     needs: [call-bump-version]
-    uses: ./.github/workflows/dispatch-update-services.yml
+    uses: ./.github/workflows/dispatch-update-platforms.yml
     with:
       version: ${{ needs.call-bump-version.outputs.new_version }}
   
