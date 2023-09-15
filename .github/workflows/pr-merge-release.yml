@@ -20,7 +20,7 @@ jobs:
     name: Version
     # Only run if tests pass 
     needs: [ call-get-label, call-e2e-tests ]
-    uses: digi-serve/.github/.github/workflows/bump-version.yml@master
+    uses: ./.github/workflows/bump-version.yml
     with:
       ref: ${{ github.ref }}
       type: ${{ needs.call-get-label.outputs.label }}
