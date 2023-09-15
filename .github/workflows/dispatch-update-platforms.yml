@@ -19,13 +19,13 @@ jobs:
         platform:
           - ab_platform_web
           - appbuilder_platform_service
-      steps:
-        - name: Repository Dispatch
-          uses: peter-evans/repository-dispatch@v2
-          env: 
-            VERS: ${{ inputs.version }}
-          with:
-            token: ${{ secrets.TOKEN }}
-            repository: digi-serve/${{ matrix.platform }}
-            event-type: core_new_version
-            client-payload: '{"type": "patch", "version": "${{ env.VERS }}"}'
+    steps:
+      - name: Repository Dispatch
+        uses: peter-evans/repository-dispatch@v2
+        env: 
+          VERS: ${{ inputs.version }}
+        with:
+          token: ${{ secrets.TOKEN }}
+          repository: digi-serve/${{ matrix.platform }}
+          event-type: core_new_version
+          client-payload: '{"type": "patch", "version": "${{ env.VERS }}"}'
