@@ -1,34 +1,8 @@
-name: Test and Update
+name: Test
 on:
-  # Run on any commit to the #master branch
-  push:
-    branches: [v2]
-  # Run on pull requests into the #master branch
   pull_request:
     branches: [v2]
 jobs:
   call-e2e-tests:
     name: Test
     uses: ./.github/workflows/e2e-tests.yml
-  update-platform-web:
-    name: Update ab_platform_web
-    runs-on: ubuntu-latest
-    needs: test
-    if: ${{ github.event_name == 'push' }} 
-    steps:
-      - name: Checkout ab_platform_web
-        uses: actions/checkout@v3
-        with:
-          repository: digi-serve/ab_platform_web
-          path: ab_platform_web
-          ref: master
-          fetch-depth: 0 
-          token: ${{ secrets.DS_REPO_PAT }}
-          submodules: recursive
-      - name: Checkout core@v2
-        run: git checkout v2
-        working-directory: ab_platform_web/AppBuilder/core
-      - uses: EndBug/add-and-commit@v9
-        with:
-          message: 'Update core sub-repo (from GitHub Actions)'
-          cwd: ab_platform_web
