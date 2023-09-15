@@ -32,10 +32,11 @@ jobs:
       tag: v${{ needs.call-bump-version.outputs.new_version }}
   call-dispatch-updates:
     name: Dispatch
-    needs: [call-bump-version]
+    needs: [ call-bump-version, call-get-label ]
     uses: ./.github/workflows/dispatch-update-platforms.yml
     with:
       version: ${{ needs.call-bump-version.outputs.new_version }}
+      type: ${{ needs.call-get-label.outputs.label }}
     secrets:
       TOKEN: ${{ secrets.PAT }}
   

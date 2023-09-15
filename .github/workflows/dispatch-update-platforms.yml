@@ -6,6 +6,9 @@ on:
         description: The updated version of core
         type: string
         required: true
+      type:
+        type: string
+        required: true
     secrets:
       TOKEN:
         required: true
@@ -22,10 +25,8 @@ jobs:
     steps:
       - name: Repository Dispatch
         uses: peter-evans/repository-dispatch@v2
-        env: 
-          VERS: ${{ inputs.version }}
         with:
           token: ${{ secrets.TOKEN }}
           repository: digi-serve/${{ matrix.platform }}
           event-type: core_new_version
-          client-payload: '{"type": "patch", "version": "${{ env.VERS }}"}'
+          client-payload: '{"type": "${{ inputs.type }}", "version": "${{ inputs.version }}"}'
