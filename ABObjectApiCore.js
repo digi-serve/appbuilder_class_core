@@ -6,6 +6,8 @@ module.exports = class ABObjectApiCore extends ABObject {
       super(attributes, AB);
 
       this.isAPI = true;
+
+      this.fromValues(attributes);
    }
 
    ///
@@ -17,13 +19,13 @@ module.exports = class ABObjectApiCore extends ABObject {
    fromValues(attributes) {
       super.fromValues(attributes);
 
-      this.url = attributes.url ?? "";
-
+      this.readonly = parseInt(attributes.readonly) || 0;
+      this.apiType = attributes.apiType || "Read";
       this.request = attributes.request ?? {};
       this.request.headers = attributes.request?.headers ?? [];
-
       this.response = attributes.response ?? {};
       this.response.fields = attributes.response?.fields ?? [];
+      this.isFetched = attributes.isFetched ?? false;
    }
 
    /**
@@ -35,16 +37,16 @@ module.exports = class ABObjectApiCore extends ABObject {
     * @return {json}
     */
    toObj() {
-      var result = super.toObj();
+      const result = super.toObj();
 
-      result.isAPI = true;
-      result.url = this.url;
-
+      result.isAPI = this.isAPI;
+      result.readonly = this.readonly;
+      result.apiType = this.apiType;
       result.request = this.request ?? {};
       result.request.headers = this.request?.headers ?? [];
-
       result.response = this.response ?? {};
       result.response.fields = this.response?.fields ?? [];
+      result.isFetched = this.isFetched;
 
       return result;
    }

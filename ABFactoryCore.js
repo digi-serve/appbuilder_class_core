@@ -107,6 +107,7 @@ class ABFactory extends EventEmitter {
          ABObject,
          ABObjectExternal,
          ABObjectImport,
+         ABObjectApi,
          ABObjectQuery,
          ABProcessParticipant,
          // ABRole      // Do we need this anymore?
