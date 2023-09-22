@@ -19,7 +19,7 @@ const ABMobileView = require("../../platform/mobile/ABMobileView");
 
 const ABMobilePageDefaults = {
    key: "mobile-page", // unique key identifier for this ABView
-   icon: "file", // icon reference: (without 'fa-' )
+   icon: "file", // icon reference: (without 'fa-'  )
 };
 
 const ABPropertyComponentDefaults = {
@@ -196,6 +196,20 @@ module.exports = class ABMobilePageCore extends ABMobileView {
          .then(() => {
             return this;
          });
+   }
+
+   /**
+    * @method refreshInstance()
+    * This returns a NEW instance of a ABMobilePage based upon the latest
+    * version of it's Definition.  It also resolves any current listeners
+    * this copy currently has and prepare this to discard itself.
+    */
+   refreshInstance() {
+      console.warn(
+         "This version of ABMobilePage hasn't updated it's refreshInstance()",
+         this
+      );
+      return this;
    }
 
    ///
