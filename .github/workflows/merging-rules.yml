@@ -1,0 +1,8 @@
+name: Test
+on:
+  pull_request:
+    branches: [v2]
+jobs:
+  call-e2e-tests:
+    name: Test
+    uses: ./.github/workflows/e2e-tests.yml

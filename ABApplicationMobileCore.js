@@ -7,7 +7,7 @@
 
 // webpack can handle 'require()' statements, but node can't handle import
 // so let's use require():
-const ABViewManagerMobile = require("../platform/ABViewManager");
+import ABViewManagerMobile from "../platform/ABViewManagerMobile";
 import ABApplication from "../platform/ABApplication";
 
 export default class ABApplicationMobileCore extends ABApplication {

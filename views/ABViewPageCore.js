@@ -228,6 +228,20 @@ export default class ABViewPageCore extends ABViewContainer {
          });
    }
 
+   /**
+    * @method refreshInstance()
+    * This returns a NEW instance of a ABViewPage based upon the latest
+    * version of it's Definition.  It also resolves any current listeners
+    * this copy currently has and prepare this to discard itself.
+    */
+   refreshInstance() {
+      console.warn(
+         "This version of ABViewPage hasn't updated it's refreshInstance()",
+         this
+      );
+      return this;
+   }
+
    ///
    /// Pages
    ///

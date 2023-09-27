@@ -535,14 +535,30 @@ export default class ABApplicationCore extends ABMLClass {
       if (filter && deep) {
          result = this._pages.filter(filter);
 
-         if (result.length < 1) {
-            this._pages.forEach((p) => {
-               var subPages = p.pages(filter, deep);
-               if (subPages && subPages.length > 0) {
-                  result = subPages;
+         // if (result.length < 1) {
+         //    this._pages.forEach((p) => {
+         //       var subPages = p.pages(filter, deep);
+         //       if (subPages && subPages.length > 0) {
+         //          result = subPages;
+         //       }
+         //    });
+         // }
+         function searchDeep(results, curr) {
+            if (results.length > 0) {
+               return results;
+            }
+
+            for (let p of curr._pages) {
+               results = p._pages.filter(filter);
+               results = searchDeep(results, p);
+               if (results.length > 0) {
+                  break;
                }
-            });
+            }
+            // if we get here, end
+            return results;
          }
+         result = searchDeep(result, this);
       }
       // find root pages
       else {

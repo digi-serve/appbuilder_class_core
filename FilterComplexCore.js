@@ -411,10 +411,10 @@ export default class FilterComplexCore extends ABComponent {
                   .length < 1;
             break;
          case "equals":
-            result = value.indexOf(compareValue) > -1;
+            result = (value ?? []).indexOf(compareValue) > -1;
             break;
          case "not_equal":
-            result = value.indexOf(compareValue) < 0;
+            result = (value ?? []).indexOf(compareValue) < 0;
             break;
          default:
             result = this.queryFieldValid(value, rule, compareValue);
