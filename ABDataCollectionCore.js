@@ -599,8 +599,11 @@ module.exports = class ABDataCollectionCore extends ABMLClass {
       }
 
       let filterData = (rowData) => {
-         // if link dc cursor is null, then show all data
-         if (linkCursor == null) return true;
+         // if link dc cursor is null:
+         // ... if there's no parent show all data
+         // ... if we have a parent hide all data - address cases where user see
+         //     unexpected data (ns_app#318) - should this be a DC setting?
+         if (linkCursor == null) return dvLink ? false : true;
          else return this.isParentFilterValid(rowData);
       };
 
