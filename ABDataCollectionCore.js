@@ -603,7 +603,7 @@ module.exports = class ABDataCollectionCore extends ABMLClass {
          // ... if there's no parent show all data
          // ... if we have a parent hide all data - address cases where user see
          //     unexpected data (ns_app#318) - should this be a DC setting?
-         if (linkCursor == null) return dvLink ? false : true;
+         if (!linkCursor) return dvLink ? false : true;
          else return this.isParentFilterValid(rowData);
       };
 
@@ -1874,11 +1874,11 @@ module.exports = class ABDataCollectionCore extends ABMLClass {
 
             // In order to get the total_count updated I had to use .load()
             this.__dataCollection.load(async () => {
-               if (this.settings.loadAll) {
+               // if (this.settings.loadAll) {
                   setTimeout(() => {
                      this.refreshLinkCursor();
                   }, 250);
-               }
+               // }
 
                return {
                   // NOTE: return a empty array to prevent render items in DataTable twice. (Items are rendered in .queuedParse function)
