@@ -802,7 +802,7 @@ module.exports = class ABObjectCore extends ABMLClass {
     * @return {boolean}
     */
    get isReadOnly() {
-      return this.isImported || this.isExternal;
+      return this.isImported || this.isExternal || this.readonly;
    }
 
    /**
@@ -1004,3 +1004,4 @@ module.exports = class ABObjectCore extends ABMLClass {
       return labelData;
    }
 };
+
