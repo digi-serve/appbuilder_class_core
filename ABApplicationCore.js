@@ -957,10 +957,12 @@ module.exports = class ABApplicationCore extends ABMLClass {
     * return pages from the given {id}
     * @param {string} id
     *        the uuid of the page to return.
+    * @param {bool} deep
+    *        should this search deep (through all our children's children)
     * @return {ABViewPage}
     */
-   pageByID(id) {
-      return this.pages((f) => f.id == id)[0];
+   pageByID(id, deep = false) {
+      return this.pages((f) => f.id == id, deep)[0];
    }
 
    /**
