@@ -12,6 +12,7 @@
 var Views = {};
 [
    require("../platform/mobile/ABMobileView"),
+   require("../platform/mobile/ABMobileViewLabel"),
    require("../platform/mobile/ABMobilePage"),
 ].forEach((v) => {
    if (v.default?.common) {

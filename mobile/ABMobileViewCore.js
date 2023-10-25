@@ -521,6 +521,20 @@ module.exports = class ABMobileViewCore extends ABMLClass {
    }
 
    /**
+    * @method viewByID()
+    *
+    * return the specific View referenced by the given ID.
+    *
+    * @param {uuid} ID
+    *        the {ABMobileView}.id of the child view we are requesting
+    *
+    * @return {ABMobileView || undefined}
+    */
+   viewByID(ID) {
+      return this.views((v) => v.id == ID)[0];
+   }
+
+   /**
     * @method viewNew()
     * @return {ABView}
     */
