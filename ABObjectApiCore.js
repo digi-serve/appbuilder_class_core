@@ -65,4 +65,64 @@ module.exports = class ABObjectApiCore extends ABObject {
 
       return model;
    }
+
+   /**
+    * @function getPagingValues()
+    *
+    * @return {Object} - {
+    *                       start: "Property name of the API for start index",
+    *                       limit: "Property name of the API for limit return the item number"
+    *                     }
+    */
+   getPagingValues({ skip, limit }) {
+      const result = {};
+      const pagingSettings = this.request?.paging ?? {};
+
+      if (pagingSettings.start && skip != null) {
+         result[pagingSettings.start] = skip;
+      }
+      if (pagingSettings.limit && limit != null) {
+         result[pagingSettings.limit] = limit;
+      }
+
+      return result;
+   }
+
+   dataFromKey(data) {
+      let result = [];
+
+      if (!Array.isArray(data)) data = [data];
+
+      data.forEach((item) => {
+         // Clone item
+         let itemResult = { ...item };
+
+         // Pull data from `Data key` of the API object
+         // FORMAT: "Property.Name.Value"
+         (this.response.dataKey ?? "").split(".").forEach((key) => {
+            if (key == "" || key == null) return;
+            itemResult = itemResult?.[key];
+         });
+
+         if (Array.isArray(itemResult)) {
+            result = result.concat(itemResult);
+         } else if (itemResult) {
+            result.push(itemResult);
+         }
+      });
+
+      return result;
+   }
+
+   get headers() {
+      const headers = {};
+
+      (this.request.headers ?? []).forEach((header) => {
+         if (header?.value == null) return;
+
+         headers[header.key] = header.value;
+      });
+
+      return headers;
+   }
 };
