@@ -89,11 +89,24 @@ module.exports = class ABObjectApiCore extends ABObject {
    }
 
    dataFromKey(data) {
-      let result = data;
+      let result = [];
 
-      (this.response.dataKey ?? "").split(".").forEach((key) => {
-         if (key == "" || key == null) return;
-         result = result?.[key];
+      if (!Array.isArray(data)) data = [data];
+
+      data.forEach((item) => {
+         // Clone item
+         let itemResult = { ...item };
+
+         (this.response.dataKey ?? "").split(".").forEach((key) => {
+            if (key == "" || key == null) return;
+            itemResult = itemResult?.[key];
+         });
+
+         if (Array.isArray(itemResult)) {
+            result = result.concat(itemResult);
+         } else if (itemResult) {
+            result.push(itemResult);
+         }
       });
 
       return result;
