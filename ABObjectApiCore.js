@@ -97,6 +97,8 @@ module.exports = class ABObjectApiCore extends ABObject {
          // Clone item
          let itemResult = { ...item };
 
+         // Pull data from `Data key` of the API object
+         // FORMAT: "Property.Name.Value"
          (this.response.dataKey ?? "").split(".").forEach((key) => {
             if (key == "" || key == null) return;
             itemResult = itemResult?.[key];
