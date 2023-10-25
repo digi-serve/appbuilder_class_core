@@ -124,8 +124,14 @@ module.exports = class ABMobilePageCore extends ABMobileView {
          if (def) {
             pages.push(this.pageNew(def));
          } else {
-            this.AB.error(
-               `App[${this.application.name}][${this.application.id}]->Page[${this.name}][${this.id}] referenced an unknown Page[${id}]`
+            this.emit(
+               "warning",
+               `App[${this.application.name}][${this.application.id}]->Page[${this.name}][${this.id}] referenced an unknown Page[${id}]`,
+               {
+                  appID: this.application.id,
+                  pageID: this.id,
+                  missingPageID: id,
+               }
             );
          }
       });
