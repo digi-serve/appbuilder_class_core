@@ -12,6 +12,7 @@
 var Views = {};
 [
    require("../platform/mobile/ABMobileView"),
+   require("../platform/mobile/ABMobileViewLabel"),
    require("../platform/mobile/ABMobilePage"),
 ].forEach((v) => {
    if (v.default?.common) {
@@ -57,7 +58,7 @@ module.exports = class ABViewManagerCore {
                   values.key +
                   "] not yet defined.  Have an ABView instead:"
             );
-            return new Views["view"](values, application, parent);
+            return new Views["mobile-view"](values, application, parent);
          }
 
          return new Views[values.key](values, application, parent);

@@ -800,7 +800,7 @@ export default class ABObjectCore extends ABMLClass {
     * @return {boolean}
     */
    get isReadOnly() {
-      return this.isImported || this.isExternal;
+      return this.isImported || this.isExternal || this.readonly;
    }
 
    /**

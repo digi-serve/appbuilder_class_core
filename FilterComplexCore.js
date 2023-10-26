@@ -745,17 +745,23 @@ export default class FilterComplexCore extends ABComponent {
 
                   // Add filter options to Custom index
                   if (
-                     f.settings.isCustomFK &&
                      // 1:M
-                     ((f.settings.linkType == "one" &&
+                     (f.settings.linkType == "one" &&
                         f.settings.linkViaType == "many") ||
-                        // 1:1 isSource = true
-                        (f.settings.linkType == "one" &&
-                           f.settings.linkViaType == "one" &&
-                           f.settings.isSource))
+                     // 1:1 isSource = true
+                     (f.settings.linkType == "one" &&
+                        f.settings.linkViaType == "one" &&
+                        f.settings.isSource)
                   ) {
-                     const stringResults = this.fieldsAddFiltersString(f);
-
+                     const stringResults = this.fieldsAddFiltersString(
+                        f
+                     ).filter(
+                        (opt) =>
+                           f.settings.isCustomFK ||
+                           // If this connect field does not use custom FK, then allow just `is empty` and `is not empty` filter options
+                           opt.id == "is_empty" ||
+                           opt.id == "is_not_empty"
+                     );
                      conditions = stringResults.concat(conditions);
                   }
 
