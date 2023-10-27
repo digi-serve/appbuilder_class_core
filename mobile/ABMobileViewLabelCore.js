@@ -1,4 +1,4 @@
-const ABMobileView = require("../../platform/mobile/ABMobileView");
+import ABMobileView from "../../platform/mobile/ABMobileView";
 
 const ABViewLabelPropertyComponentDefaults = {
    text: "",
@@ -12,7 +12,7 @@ const ABViewDefaults = {
    labelKey: "Label", // {string} the multilingual label key for the class label
 };
 
-module.exports = class ABMobileViewLabelCore extends ABMobileView {
+export default class ABMobileViewLabelCore extends ABMobileView {
    /**
     * @param {obj} values  key=>value hash of ABView values
     * @param {ABApplication} application the application object this view is under
@@ -111,4 +111,4 @@ module.exports = class ABMobileViewLabelCore extends ABMobileView {
    formatDescription() {
       this.settings.format = 2;
    }
-};
+}
