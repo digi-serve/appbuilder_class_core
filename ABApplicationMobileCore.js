@@ -15,6 +15,10 @@ export default class ABApplicationMobileCore extends ABApplication {
       super(attributes, AB);
       this.appType = "mobile"; // Just making sure.
       this.networkType = attributes.networkType;
+
+      this.pageDefault = attributes.pageDefault;
+      // {uuid}
+      // the {ABMobilePage}.uuid of the page that is our default Page.
    }
 
    ///
@@ -52,6 +56,8 @@ export default class ABApplicationMobileCore extends ABApplication {
       var json = super.toObj();
       json.appType = "mobile";
       json.networkType = this.networkType;
+
+      json.pageDefault = this.pageDefault;
 
       return json;
    }
