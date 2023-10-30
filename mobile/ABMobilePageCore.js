@@ -75,10 +75,13 @@ module.exports = class ABMobilePageCore extends ABMobileView {
       var obj = super.toObj();
 
       obj.name = this.name;
+      obj.route = this.route;
 
       obj.myAppID = this.myAppID;
 
       obj.menuType = this.menuType;
+
+      obj.defaultPage = this.defaultPage;
 
       // icon of popup page
       if (this.settings.type == "popup") obj.icon = "clone";
@@ -101,6 +104,8 @@ module.exports = class ABMobilePageCore extends ABMobileView {
    fromValues(values) {
       super.fromValues(values);
 
+      this.route = values.route || this.name.replaceAll(" ", "_");
+
       // icon of popup page
       if (values.settings.type == "popup") this.icon = "clone";
 
@@ -116,6 +121,12 @@ module.exports = class ABMobilePageCore extends ABMobileView {
       this.menuType = values.menuType || "menu";
       // {string}  ["menu", "tab"]
       // indicates if this Page was added as a Mobile App's "menu" or "Tab"
+
+      this.defaultPage = values.defaultPage || 0;
+      // {bool}  1|0
+      // indicates if this is the default page that is loaded when the mobile app
+      // is started.
+      // NOTE: only 1 Page in a Mobile App can have this setting = 1.
 
       // now properly handle our sub pages.
       var pages = [];
@@ -198,6 +209,12 @@ module.exports = class ABMobilePageCore extends ABMobileView {
             var parent = this.parent || this.application;
 
             return parent.pageInsert(this);
+         })
+         .then(() => {
+            // make sure .defaultPage is properly set
+            if (this.defaultPage) {
+               return this.application.setPageDefault(this);
+            }
          })
          .then(() => {
             return this;
