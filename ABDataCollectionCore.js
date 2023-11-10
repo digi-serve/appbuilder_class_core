@@ -690,6 +690,12 @@ module.exports = class ABDataCollectionCore extends ABMLClass {
          const rowId = this.__dataCollection.getFirstId();
          this.setCursor(rowId || null);
          this.setCursorTree(rowId || null);
+
+         // If no data but the parent DC set cursor, then this should be reload data.
+         const dcFollow = this.datacollectionFollow;
+         if (!rowId && dcFollow.getCursor()) {
+            this.loadData();
+         }
       }
    }
 
@@ -1554,6 +1560,8 @@ module.exports = class ABDataCollectionCore extends ABMLClass {
     * @returns {Promise}
     */
    waitForDataCollectionToInitialize(DC, msg) {
+      DC.init();
+
       return new Promise((resolve, reject) => {
          switch (DC.dataStatus) {
             // if that DC hasn't started initializing yet, start it!
@@ -1725,10 +1733,11 @@ module.exports = class ABDataCollectionCore extends ABMLClass {
             //
             .then(() => {
                // If we are linked to another datacollection then wait for it
-               let linkDc = this.datacollectionLink;
-               if (!linkDc) return Promise.resolve(); // TODO: refactor in v2
+               const parentDc =
+                  this.datacollectionLink ?? this.datacollectionFollow;
+               if (!parentDc) return Promise.resolve(); // TODO: refactor in v2
 
-               return this.waitForDataCollectionToInitialize(linkDc);
+               return this.waitForDataCollectionToInitialize(parentDc);
             })
             //
             // Step 2: if we have any filter rules that depend on other DataCollections,
