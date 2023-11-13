@@ -1559,7 +1559,7 @@ module.exports = class ABDataCollectionCore extends ABMLClass {
     *      the DC this datacollection depends on.
     * @returns {Promise}
     */
-   waitForDataCollectionToInitialize(DC, msg) {
+   async waitForDataCollectionToInitialize(DC, msg) {
       DC.init();
 
       return new Promise((resolve, reject) => {
@@ -1575,6 +1575,7 @@ module.exports = class ABDataCollectionCore extends ABMLClass {
                /* eslint-enable no-fallthrough*/
                // listen for "initializedData" event from the DC
                // then we can continue.
+               this.eventRemove("initializedData");
                this.eventAdd({
                   emitter: DC,
                   eventName: "initializedData",
@@ -1598,7 +1599,7 @@ module.exports = class ABDataCollectionCore extends ABMLClass {
       });
    }
 
-   loadData(start, limit) {
+   async loadData(start, limit) {
       // mark data status is initializing
       if (this._dataStatus == this.dataStatusFlag.notInitial) {
          this._dataStatus = this.dataStatusFlag.initializing;
@@ -1725,76 +1726,55 @@ module.exports = class ABDataCollectionCore extends ABMLClass {
          delete cond.limit;
       }
 
-      return (
-         Promise.resolve()
-            //
-            // Step 1: make sure any DataCollections we are linked to are
-            // initialized first.  Then proceed with our initialization.
-            //
-            .then(() => {
-               // If we are linked to another datacollection then wait for it
-               const parentDc =
-                  this.datacollectionLink ?? this.datacollectionFollow;
-               if (!parentDc) return Promise.resolve(); // TODO: refactor in v2
+      //
+      // Step 1: make sure any DataCollections we are linked to are
+      // initialized first.  Then proceed with our initialization.
+      //
+      const parentDc = this.datacollectionLink ?? this.datacollectionFollow;
+      // If we are linked to another datacollection then wait for it
+      if (parentDc) {
+         await this.waitForDataCollectionToInitialize(parentDc);
+      }
 
-               return this.waitForDataCollectionToInitialize(parentDc);
-            })
-            //
-            // Step 2: if we have any filter rules that depend on other DataCollections,
-            // then wait for them to be initialized first.
-            // eg: "(not_)in_data_collection" rule filters
-            .then(() => {
-               return new Promise((resolve, reject) => {
-                  if (
-                     wheres == null ||
-                     wheres.rules == null ||
-                     !wheres.rules.length
-                  )
-                     return resolve();
+      //
+      // Step 2: if we have any filter rules that depend on other DataCollections,
+      // then wait for them to be initialized first.
+      // eg: "(not_)in_data_collection" rule filters
+      if (wheres?.rules?.length) {
+         const dcFilters = [];
 
-                  var dcFilters = [];
+         wheres.rules.forEach((rule) => {
+            // if this collection is filtered by data collections we need to load them in case we need to validate from them later
+            if (
+               rule.rule == "in_data_collection" ||
+               rule.rule == "not_in_data_collection"
+            ) {
+               const dv = this.AB.datacollectionByID(rule.value);
+               if (dv) {
+                  dcFilters.push(this.waitForDataCollectionToInitialize(dv));
+               }
+            }
+         });
 
-                  wheres.rules.forEach((rule) => {
-                     // if this collection is filtered by data collections we need to load them in case we need to validate from them later
-                     if (
-                        rule.rule == "in_data_collection" ||
-                        rule.rule == "not_in_data_collection"
-                     ) {
-                        var dv = this.AB.datacollectionByID(rule.value);
-                        if (dv) {
-                           dcFilters.push(
-                              this.waitForDataCollectionToInitialize(dv)
-                           );
-                        }
-                     }
-                  });
+         await Promise.all(dcFilters);
+      }
 
-                  Promise.all(dcFilters)
-                     .then(() => {
-                        resolve();
-                     })
-                     .catch(reject);
-               });
-            })
+      //
+      // Step 3: pull data to data collection
+      // we will keep track of the resolve, reject for this
+      // operation.
+      // the actual resolve() should happen in the
+      // .processIncomingData() after the  data is processed.
+      return new Promise((resolve, reject) => {
+         this._pendingLoadDataResolve = {
+            resolve: resolve,
+            reject: reject,
+         };
 
-            // pull data to data collection
-            .then(() => {
-               return new Promise((resolve, reject) => {
-                  // we will keep track of the resolve, reject for this
-                  // operation.
-                  // the actual resolve() should happen in the
-                  // .processIncomingData() after the  data is processed.
-                  this._pendingLoadDataResolve = {
-                     resolve: resolve,
-                     reject: reject,
-                  };
-
-                  this.platformFind(model, cond).catch((err) => {
-                     reject(err);
-                  });
-               });
-            })
-      );
+         this.platformFind(model, cond).catch((err) => {
+            reject(err);
+         });
+      });
    }
 
    platformFind(model, cond) {
@@ -2635,6 +2615,22 @@ module.exports = class ABDataCollectionCore extends ABMLClass {
          this.__events.forEach((e) => {
             e.emitter.removeListener(e.eventName, e.listener);
          });
+      }
+   }
+
+   /**
+    * @method eventRemove()
+    * unsubscribe a event.
+    *
+    */
+   eventRemove(eventName) {
+      if (this.__events?.length > 0 && eventName) {
+         this.__events.forEach((e) => {
+            if (eventName == e.eventName)
+               e.emitter.removeListener(e.eventName, e.listener);
+         });
+
+         this.__events = this.__events.filter((e) => e.eventName != eventName);
       }
    }
 
