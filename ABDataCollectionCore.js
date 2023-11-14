@@ -1523,10 +1523,11 @@ module.exports = class ABDataCollectionCore extends ABMLClass {
       });
 
       // add listeners when cursor of link data collection is changed
-      let linkDv = this.datacollectionLink;
-      if (linkDv && this.settings.loadAll) {
+      const linkDC = this.datacollectionLink;
+      // if (linkDC && this.settings.loadAll) {
+      if (linkDC) {
          this.eventAdd({
-            emitter: linkDv,
+            emitter: linkDC,
             eventName: "changeCursor",
             listener: () => {
                this.refreshLinkCursor();
