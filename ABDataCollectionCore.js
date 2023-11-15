@@ -1864,11 +1864,11 @@ module.exports = class ABDataCollectionCore extends ABMLClass {
 
             // In order to get the total_count updated I had to use .load()
             this.__dataCollection.load(async () => {
-               // if (this.settings.loadAll) {
+               if (this.settings.loadAll) {
                   setTimeout(() => {
                      this.refreshLinkCursor();
                   }, 250);
-               // }
+               }
 
                return {
                   // NOTE: return a empty array to prevent render items in DataTable twice. (Items are rendered in .queuedParse function)
