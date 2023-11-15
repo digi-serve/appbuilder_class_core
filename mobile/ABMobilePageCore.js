@@ -104,7 +104,8 @@ export default class ABMobilePageCore extends ABMobileView {
    fromValues(values) {
       super.fromValues(values);
 
-      this.route = values.route || this.name.replaceAll(" ", "_");
+      this.route =
+         values.route || (this.name || this.label).replaceAll(" ", "_");
 
       // icon of popup page
       if (values.settings.type == "popup") this.icon = "clone";

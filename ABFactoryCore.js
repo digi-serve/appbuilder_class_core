@@ -757,6 +757,14 @@ class ABFactory extends EventEmitter {
       return this.objectByID("228e3d91-5e42-49ec-b37c-59323ae433a1");
    }
 
+   objectKey() {
+      return this.objectByID("d734fe8c-b615-446c-8a5f-793ddece19f9");
+   }
+
+   objectSecret() {
+      return this.objectByID("db5b3b26-5300-4c92-bc73-8ce4f4696992");
+   }
+
    //
    // Hints
    //
