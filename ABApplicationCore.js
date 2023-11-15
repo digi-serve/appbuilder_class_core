@@ -530,32 +530,21 @@ module.exports = class ABApplicationCore extends ABMLClass {
 
       // find into sub-pages recursively
       if (filter && deep) {
-         result = this._pages.filter(filter);
+         // function searchDeep(curr) {
+         //    let resultsCurr = curr._pages.filter(filter);
 
-         // if (result.length < 1) {
-         //    this._pages.forEach((p) => {
-         //       var subPages = p.pages(filter, deep);
-         //       if (subPages && subPages.length > 0) {
-         //          result = subPages;
+         //    for (let p of curr._pages) {
+         //       let resultsP = searchDeep(p);
+         //       if (resultsP.length) {
+         //          resultsCurr = resultsCurr.concat(resultsP);
          //       }
-         //    });
+         //    }
+         //    // if we get here, end
+         //    return resultsCurr;
          // }
-         function searchDeep(results, curr) {
-            if (results.length > 0) {
-               return results;
-            }
 
-            for (let p of curr._pages) {
-               results = p._pages.filter(filter);
-               results = searchDeep(results, p);
-               if (results.length > 0) {
-                  break;
-               }
-            }
-            // if we get here, end
-            return results;
-         }
-         result = searchDeep(result, this);
+         // result = searchDeep(this);
+         result = this._searchDeep(this, "_pages", filter);
       }
       // find root pages
       else {
@@ -563,6 +552,33 @@ module.exports = class ABApplicationCore extends ABMLClass {
       }
 
       return result;
+   }
+
+   /**
+    * @method _searchDeep()
+    * search each node of a tree and return all matches that pass the provided
+    * filter.
+    * @param {AB*} curr
+    *        An object that contains a tree structure.
+    * @param {string} key
+    *        The curr[key] reference of the array of items to search
+    * @param {function} filter
+    *        The curr[key].filter(filter) that returns true/false if a node is
+    *        to be included in the result.
+    * @return {array}
+    */
+   _searchDeep(curr, key, filter) {
+      let items = curr[key] ?? [];
+      let resultsCurr = items.filter?.(filter) ?? [];
+
+      for (let p of items) {
+         let resultsP = this._searchDeep(p, key, filter);
+         if (resultsP.length) {
+            resultsCurr = resultsCurr.concat(resultsP);
+         }
+      }
+
+      return resultsCurr;
    }
 
    ///
