@@ -386,7 +386,7 @@ module.exports = class ABMobileViewCore extends ABMLClass {
       var parentPage = this.parent;
       while (
          parentPage &&
-         (parentPage.key != "page" || !filterFn(parentPage))
+         (parentPage.key != "mobile-page" || !filterFn(parentPage))
       ) {
          parentPage = parentPage.parent;
       }
@@ -433,9 +433,13 @@ module.exports = class ABMobileViewCore extends ABMLClass {
          } else {
             // These views shouldn't matter if they don't have a datacollection.
             if (
-               ["button", "label", "page", "tab", "viewcontainer"].indexOf(
-                  this.key
-               ) == -1
+               [
+                  "button",
+                  "label",
+                  "mobile-page",
+                  "tab",
+                  "viewcontainer",
+               ].indexOf(this.key) == -1
             ) {
                console.warn(
                   `TODO: figure out which ABView* require a .dataviewID: ${this.key}?`
@@ -505,14 +509,15 @@ module.exports = class ABMobileViewCore extends ABMLClass {
 
       // find into recursively
       if (filter && deep) {
-         result = result.concat(this._views.filter(filter));
+         // result = result.concat(this._views.filter(filter));
 
-         this._views.forEach((v) => {
-            var subViews = v.views(filter, deep);
-            if (subViews && subViews.length > 0) {
-               result = result.concat(subViews);
-            }
-         });
+         // this._views.forEach((v) => {
+         //    var subViews = v.views(filter, deep);
+         //    if (subViews && subViews.length > 0) {
+         //       result = result.concat(subViews);
+         //    }
+         // });
+         result = this.application._searchDeep(this, "_views", filter);
       } else {
          result = this._views.filter(filter);
       }
@@ -531,7 +536,7 @@ module.exports = class ABMobileViewCore extends ABMLClass {
     * @return {ABMobileView || undefined}
     */
    viewByID(ID) {
-      return this.views((v) => v.id == ID)[0];
+      return this.views((v) => v.id == ID, true)[0];
    }
 
    /**
@@ -690,6 +695,18 @@ module.exports = class ABMobileViewCore extends ABMLClass {
          .then(() => {
             return this;
          });
+   }
+
+   /**
+    * @method wantsAdd()
+    * Some widgets can indicate to their containing ABMobilePage that
+    * it wants to provide an [Add] feature.
+    * @return {bool}
+    */
+   get wantsAdd() {
+      // the default widget doesn't.
+      // only those that actually do, should override this.
+      return false;
    }
 
    ///
@@ -874,7 +891,7 @@ module.exports = class ABMobileViewCore extends ABMLClass {
       }
 
       // page's name should not be duplicate
-      if (this.key == "page") {
+      if (this.key == "mobile-page") {
          result.name =
             options?.newName ||
             `${result.name}_copied_${this.AB.uuid().slice(0, 3)}`;

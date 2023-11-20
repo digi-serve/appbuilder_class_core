@@ -256,18 +256,19 @@ module.exports = class ABMobilePageCore extends ABMobileView {
 
       // find into sub-pages recursively
       if (filter && deep) {
-         if (this._pages && this._pages.length > 0) {
-            result = this._pages.filter(filter);
+         // if (this._pages && this._pages.length > 0) {
+         //    result = this._pages.filter(filter);
 
-            if (result.length < 1) {
-               this._pages.forEach((p) => {
-                  var subPages = p.pages(filter, deep);
-                  if (subPages && subPages.length > 0) {
-                     result = subPages;
-                  }
-               });
-            }
-         }
+         //    if (result.length < 1) {
+         //       this._pages.forEach((p) => {
+         //          var subPages = p.pages(filter, deep);
+         //          if (subPages && subPages.length > 0) {
+         //             result = subPages;
+         //          }
+         //       });
+         //    }
+         // }
+         result = this.application._searchDeep(this, "_pages", filter);
       }
       // find root pages
       else {
