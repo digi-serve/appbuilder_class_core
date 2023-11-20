@@ -1,4 +1,4 @@
-const ABMobileView = require("../../platform/mobile/ABMobileView");
+import ABMobileView from "../../platform/mobile/ABMobileView";
 
 const ABViewListPropertyComponentDefaults = {
    dataviewID: null,
@@ -12,7 +12,7 @@ const ABViewDefaults = {
    labelKey: "List", // {string} the multilingual label key for the class label
 };
 
-module.exports = class ABViewLabelCore extends ABMobileView {
+export default class ABViewListCore extends ABMobileView {
    constructor(values, application, parent, defaultValues) {
       super(values, application, parent, defaultValues || ABViewDefaults);
    }
@@ -42,4 +42,4 @@ module.exports = class ABViewLabelCore extends ABMobileView {
 
       return object.fieldByID(this.settings.field);
    }
-};
+}
