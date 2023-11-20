@@ -42,4 +42,15 @@ export default class ABViewListCore extends ABMobileView {
 
       return object.fieldByID(this.settings.field);
    }
+
+   /**
+    * @method wantsAdd()
+    * Some widgets can indicate to their containing ABMobilePage that
+    * it wants to provide an [Add] feature.
+    * @return {bool}
+    */
+   get wantsAdd() {
+      // we do if we have a setting for linkPageAdd
+      return this.settings.linkPageAdd != "";
+   }
 }
