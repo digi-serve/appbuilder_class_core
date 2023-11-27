@@ -1,7 +1,7 @@
 const ABObject = require("../platform/ABObject");
-const ABModelApi = require("../platform/ABModelApi");
+// const ABModelApi = require("../platform/ABModelApi");
 
-module.exports = class ABObjectApiCore extends ABObject {
+module.exports = class {
    constructor(attributes, AB) {
       super(attributes, AB);
 

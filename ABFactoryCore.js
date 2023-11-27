@@ -19,7 +19,7 @@ const ABIndex = require("../platform/ABIndex");
 const ABObject = require("../platform/ABObject");
 const ABObjectExternal = require("../platform/ABObjectExternal");
 const ABObjectImport = require("../platform/ABObjectImport");
-const ABObjectApi = require("../platform/ABObjectApi");
+// const ABObjectApi // = require("../platform/ABObjectApi");
 const ABDataCollection = require("../platform/ABDataCollection");
 const ABObjectQuery = require("../platform/ABObjectQuery");
 
@@ -107,7 +107,7 @@ class ABFactory extends EventEmitter {
          ABObject,
          ABObjectExternal,
          ABObjectImport,
-         ABObjectApi,
+         // ABObjectApi,
          ABObjectQuery,
          ABProcessParticipant,
          // ABRole      // Do we need this anymore?
@@ -661,7 +661,7 @@ class ABFactory extends EventEmitter {
          newObj = new ABObjectExternal(values, this);
       else if (values.isImported == true)
          newObj = new ABObjectImport(values, this);
-      else if (values.isAPI == true) newObj = new ABObjectApi(values, this);
+      // else if (values.isAPI == true) newObj = new ABObjectApi(values, this);
       else newObj = new ABObject(values, this);
 
       /*
