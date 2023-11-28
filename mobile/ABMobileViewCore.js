@@ -344,11 +344,11 @@ module.exports = class ABMobileViewCore extends ABMLClass {
       var form = null;
 
       var curr = this;
-      while (curr.key != "form" && !curr.isRoot() && curr.parent) {
+      while (curr.key != "mobile-form" && !curr.isRoot() && curr.parent) {
          curr = curr.parent;
       }
 
-      if (curr.key == "form") {
+      if (curr.key == "mobile-form") {
          form = curr;
       }
 
@@ -364,11 +364,11 @@ module.exports = class ABMobileViewCore extends ABMLClass {
       var detail = null;
 
       var curr = this;
-      while (curr.key != "detail" && !curr.isRoot() && curr.parent) {
+      while (curr.key != "mobile-detail" && !curr.isRoot() && curr.parent) {
          curr = curr.parent;
       }
 
-      if (curr.key == "detail") {
+      if (curr.key == "mobile-detail") {
          detail = curr;
       }
 
@@ -414,12 +414,18 @@ module.exports = class ABMobileViewCore extends ABMLClass {
       let dataviewID = (this.settings || {}).dataviewID;
       if (!dataviewID) {
          if (
-            ["form", "grid", "line", "area", "bar", "gantt", "kanban"].indexOf(
-               this.key
-            ) > -1
+            [
+               "mobile-form",
+               "grid",
+               "line",
+               "area",
+               "bar",
+               "gantt",
+               "kanban",
+            ].indexOf(this.key) > -1
          ) {
             // NOTE: ignore kanban side forms where this is the case:
-            if (this.key == "form" && this._currentObject) return null;
+            if (this.key == "mobile-form" && this._currentObject) return null;
 
             if (this.warningsSilent) return null;
 

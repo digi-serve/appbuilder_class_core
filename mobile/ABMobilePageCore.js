@@ -26,6 +26,23 @@ const ABPropertyComponentDefaults = {
    type: "page",
    // {string}
    // What type of "Page" this is: ['page', 'popup', 'reportPage']
+
+   defaultPage: 0,
+   // {bool} 1|0
+   // is this the default page for the Mobile App? If so, this is the initial
+   // Page that is displayed when the App is loaded.
+   // NOTE: there can be only 1 page defined in the app as .defaultPage
+
+   hideTitle: 0,
+   // {bool} 1|0
+   // By default we will display this.label as our Title. Set this to 1 to not
+   // show the tile on the page.
+
+   hideTabs: 0,
+   // {bool} 1|0
+   // By default, pages will show any Tab options on their display.  Set this
+   // to 1 to not show the tab options for this Page. (good for pages that
+   // are linkedPages with forms )
 };
 
 module.exports = class ABMobilePageCore extends ABMobileView {
@@ -104,6 +121,8 @@ module.exports = class ABMobilePageCore extends ABMobileView {
    fromValues(values) {
       super.fromValues(values);
 
+      const DV = ABPropertyComponentDefaults;
+
       this.route =
          values.route || (this.name || this.label).replaceAll(" ", "_");
 
@@ -128,6 +147,21 @@ module.exports = class ABMobilePageCore extends ABMobileView {
       // indicates if this is the default page that is loaded when the mobile app
       // is started.
       // NOTE: only 1 Page in a Mobile App can have this setting = 1.
+
+      this.settings.hideTitle = parseInt(
+         values.settings.hideTitle ?? DV.hideTitle
+      );
+      // {bool} 1|0
+      // By default an ABMobilePage will display it's this.label for a title
+      // on the page.  Setting this to TRUE (1) will hide the title.
+
+      this.settings.hideTabs = parseInt(
+         values.settings.hideTabs ?? DV.hideTabs
+      );
+      // {bool} 1|0
+      // By default, pages will show any Tab options on their display.  Set this
+      // to 1 to not show the tab options for this Page. (good for pages that
+      // are linkedPages with forms )
 
       // now properly handle our sub pages.
       var pages = [];

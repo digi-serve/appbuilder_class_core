@@ -35,6 +35,7 @@ const ABStep = require("../platform/ABStep");
 
 const ABViewDetailItem = require("../platform/views/ABViewDetailItem");
 const ABViewFormItem = require("../platform/views/ABViewFormItem");
+const ABMobileViewFormItem = require("../platform/mobile/ABMobileViewFormItem");
 
 // const ABObjectWorkspaceViewGrid = require("../platform/workspaceViews/ABObjectWorkspaceViewGrid");
 // const ABObjectWorkspaceViewKanban = require("../platform/workspaceViews/ABObjectWorkspaceViewKanban");
@@ -121,6 +122,7 @@ class ABFactory extends EventEmitter {
 
          ABViewDetailItem,
          ABViewFormItem,
+         ABMobileViewFormItem,
       };
 
       //
