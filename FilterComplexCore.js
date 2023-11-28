@@ -1314,6 +1314,8 @@ module.exports = class FilterComplexCore extends ABComponent {
          "not_contain_current_user",
          "same_as_user",
          "not_same_as_user",
+         "is_empty",
+         "is_not_empty",
       ];
 
       const isCompleteRules = (rules = []) => {
