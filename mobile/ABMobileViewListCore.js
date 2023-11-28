@@ -4,6 +4,8 @@ const ABViewListPropertyComponentDefaults = {
    dataviewID: null,
    field: null,
    height: 0,
+   hideTitle: 0,
+   hideTabs: 0,
 };
 
 const ABViewDefaults = {

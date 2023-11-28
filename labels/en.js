@@ -1,6 +1,13 @@
 /* eslint-disable */
 module.exports = {
    /* key : label */
+   "Linked Data" : "Linked Data",
+   "Use your phone's camera app to scan this QR code, and it will open a webpage to the {0} mobile app. You only need to scan the code for the first time." : "Use your phone's camera app to scan this QR code, and it will open a webpage to the {0} mobile app. You only need to scan the code for the first time.",
+   "This code can only be used once. It will expire after 7 days." : "This code can only be used once. It will expire after 7 days.",
+   "Use your phone's camera app to scan this QR code, and it will open a webpage to the conneXted mobile app. You only need to scan the code for the first time." : "Use your phone's camera app to scan this QR code, and it will open a webpage to the conneXted mobile app. You only need to scan the code for the first time.",
+   "Connect Mobile App" : "Connect Mobile App",
+   "Uh oh...we cannot communicate with our servers, please wait before saving data." : "Uh oh...we cannot communicate with our servers, please wait before saving data.",
+   "No network detected. Work will not be saved." : "No network detected. Work will not be saved.",
    "30": "30",
    "Search..": "Search..",
    "Hover over the 'select' button to highlight the chosen element.":

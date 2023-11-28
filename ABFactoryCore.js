@@ -63,6 +63,9 @@ import ABViewDetailItem from "../platform/views/ABViewDetailItem";
 // const ABViewFormItem = require("../platform/views/ABViewFormItem");
 import ABViewFormItem from "../platform/views/ABViewFormItem";
 
+// const ABMobileViewFormItem = require("../platform/mobile/ABMobileViewFormItem");
+import ABMobileViewFormItem from "../platform/mobile/ABMobileViewFormItem";
+
 // const ABObjectWorkspaceViewGrid = require("../platform/workspaceViews/ABObjectWorkspaceViewGrid");
 // const ABObjectWorkspaceViewKanban = require("../platform/workspaceViews/ABObjectWorkspaceViewKanban");
 // const ABObjectWorkspaceViewGantt = require("../platform/workspaceViews/ABObjectWorkspaceViewGantt");
@@ -153,6 +156,7 @@ class ABFactory extends EventEmitter {
 
          ABViewDetailItem,
          ABViewFormItem,
+         ABMobileViewFormItem,
       };
 
       //
