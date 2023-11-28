@@ -980,7 +980,7 @@ export default class ABApplicationCore extends ABMLClass {
     *        should this search deep (through all our children's children)
     * @return {ABViewPage}
     */
-   pageByID(id, deep = false) {
+   pageByID(id, deep = true) {
       return this.pages((f) => f.id == id, deep)[0];
    }
 
