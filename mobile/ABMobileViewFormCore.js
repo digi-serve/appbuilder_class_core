@@ -1,5 +1,4 @@
 const ABMobileView = require("../../platform/mobile/ABMobileView");
-const ABMobileViewFormItem = require("../../platform/mobile/ABMobileViewFormItem");
 
 const ABRecordRule = require("../../rules/ABViewRuleListFormRecordRules");
 const ABSubmitRule = require("../../rules/ABViewRuleListFormSubmitRules");
@@ -160,7 +159,8 @@ module.exports = class ABMobileViewFormCore extends ABMobileView {
          const allComponents = flattenComponents(this._views);
 
          if (filter == null) {
-            filter = (comp) => comp instanceof ABMobileViewFormItem;
+            filter = (comp) =>
+               comp instanceof this.AB.Class.ABMobileViewFormItem;
          }
 
          return allComponents.filter(filter);
@@ -179,11 +179,10 @@ module.exports = class ABMobileViewFormCore extends ABMobileView {
    addFieldToForm(field, yPosition) {
       if (field == null) return;
 
-      debugger;
       // TODO: figure out how to decode the Data Field and return a form
       // element.
 
-      var fieldComponent = field.formComponent();
+      var fieldComponent = field.formComponentMobile();
       if (fieldComponent == null) return;
 
       var newView = fieldComponent.newInstance(this.application, this);
