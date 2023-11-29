@@ -2,6 +2,7 @@ import ABMobileViewFormItem from "../../platform/mobile/ABMobileViewFormItem";
 
 const ABViewFormTextboxPropertyComponentDefaults = {
    type: "single", // 'single', 'multiple' or 'rich'
+   placeholder: "", // default placeholder text
 };
 
 const ABViewFormTextboxDefaults = {
@@ -26,5 +27,19 @@ export default class ABMobileViewFormTextboxCore extends ABMobileViewFormItem {
 
    static defaultValues() {
       return ABViewFormTextboxPropertyComponentDefaults;
+   }
+
+   toObj() {
+      // placeholder is a multilingual value:
+      this.unTranslate(this.settings, this.settings, ["placeholder"]);
+
+      return super.toObj();
+   }
+
+   fromValues(values) {
+      super.fromValues(values);
+
+      // placeholder is a multilingual value:
+      this.unTranslate(this.settings, this.settings, ["placeholder"]);
    }
 }
