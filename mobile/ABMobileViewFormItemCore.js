@@ -1,11 +1,11 @@
-const ABMobileView = require("../../platform/mobile/ABMobileView");
+import ABMobileView from "../../platform/mobile/ABMobileView";
 
 const ABViewFormFieldPropertyComponentDefaults = {
    required: 0,
    disable: 0,
 };
 
-module.exports = class ABMobileViewFormItemCore extends ABMobileView {
+export default class ABMobileViewFormItemCore extends ABMobileView {
    // constructor(values, application, parent, defaultValues) {
    //    super(values, application, parent, defaultValues);
    // }
@@ -56,4 +56,4 @@ module.exports = class ABMobileViewFormItemCore extends ABMobileView {
          return field;
       }
    }
-};
+}

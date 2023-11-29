@@ -1,8 +1,8 @@
-const ABMobileView = require("../../platform/mobile/ABMobileView");
-const ABMobileViewFormItem = require("../../platform/mobile/ABMobileViewFormItem");
+import ABMobileView from "../../platform/mobile/ABMobileView";
+// const ABMobileViewFormItem = require("../../platform/mobile/ABMobileViewFormItem");
 
-const ABRecordRule = require("../../rules/ABViewRuleListFormRecordRules");
-const ABSubmitRule = require("../../rules/ABViewRuleListFormSubmitRules");
+import ABRecordRule from "../../rules/ABViewRuleListFormRecordRules";
+import ABSubmitRule from "../../rules/ABViewRuleListFormSubmitRules";
 
 const ABViewFormDefaults = {
    key: "mobile-form", // unique key identifier for this ABMobileViewForm
@@ -53,7 +53,7 @@ const ABViewFormPropertyComponentDefaults = {
    submitRules: [],
 };
 
-module.exports = class ABMobileViewFormCore extends ABMobileView {
+export default class ABMobileViewFormCore extends ABMobileView {
    constructor(values, application, parent, defaultValues) {
       super(values, application, parent, defaultValues || ABViewFormDefaults);
    }
@@ -160,7 +160,8 @@ module.exports = class ABMobileViewFormCore extends ABMobileView {
          const allComponents = flattenComponents(this._views);
 
          if (filter == null) {
-            filter = (comp) => comp instanceof ABMobileViewFormItem;
+            filter = (comp) =>
+               comp instanceof this.AB.Class.ABMobileViewFormItem;
          }
 
          return allComponents.filter(filter);
@@ -245,4 +246,4 @@ module.exports = class ABMobileViewFormCore extends ABMobileView {
 
       return SubmitRules.process({ data: rowData, form: this });
    }
-};
+}
