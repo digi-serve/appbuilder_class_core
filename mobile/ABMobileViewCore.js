@@ -198,7 +198,10 @@ export default class ABMobileViewCore extends ABMLClass {
       // default value for our label
       if (this.label == "?label?") {
          if (this.parent) {
-            this.label = this.parent.label + "." + this.defaults.key;
+            this.label =
+               this.parent.label +
+               "." +
+               (this.field?.()?.columnName ?? this.defaults.key);
          }
       }
 

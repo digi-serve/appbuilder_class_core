@@ -180,11 +180,10 @@ export default class ABMobileViewFormCore extends ABMobileView {
    addFieldToForm(field, yPosition) {
       if (field == null) return;
 
-      debugger;
       // TODO: figure out how to decode the Data Field and return a form
       // element.
 
-      var fieldComponent = field.formComponent();
+      var fieldComponent = field.formComponentMobile();
       if (fieldComponent == null) return;
 
       var newView = fieldComponent.newInstance(this.application, this);

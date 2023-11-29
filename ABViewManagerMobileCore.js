@@ -14,6 +14,8 @@ var Views = {};
    require("../platform/mobile/ABMobilePage"),
    require("../platform/mobile/ABMobileView"),
    require("../platform/mobile/ABMobileViewForm"),
+   require("../platform/mobile/ABMobileViewFormButton"),
+   require("../platform/mobile/ABMobileViewFormTextbox"),
    require("../platform/mobile/ABMobileViewLabel"),
    require("../platform/mobile/ABMobileViewList"),
 ].forEach((v) => {
