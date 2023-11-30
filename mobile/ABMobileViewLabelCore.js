@@ -78,14 +78,6 @@ export default class ABMobileViewLabelCore extends ABMobileView {
       this.translate(this, this, ["label", "text"]);
    }
 
-   /**
-    * @method componentList
-    * return the list of components available on this view to display in the editor.
-    */
-   componentList() {
-      return [];
-   }
-
    //// Allow external interface to manipulate our settings:
 
    /**
