@@ -1,4 +1,4 @@
-const ABMobileViewFormCustom = require("../../platform/mobile/ABMobileViewFormCustom");
+import ABMobileViewFormCustom from "../../platform/mobile/ABMobileViewFormCustom";
 
 const ABMobileViewFormReadonlyPropertyComponentDefaults = {};
 
@@ -8,7 +8,7 @@ const ABMobileViewFormReadonlyDefaults = {
    labelKey: "readonly", // {string} the multilingual label key for the class label
 };
 
-module.exports = class ABMobileViewFormReadonly extends ABMobileViewFormCustom {
+export default class ABMobileViewFormReadonly extends ABMobileViewFormCustom {
    constructor(values, application, parent, defaultValues) {
       super(
          values,
@@ -25,4 +25,4 @@ module.exports = class ABMobileViewFormReadonly extends ABMobileViewFormCustom {
    static defaultValues() {
       return ABMobileViewFormReadonlyPropertyComponentDefaults;
    }
-};
+}

@@ -1,4 +1,4 @@
-const ABMobileViewFormItem = require("../../platform/Mobile/ABMobileViewFormItem");
+import ABMobileViewFormItem from "../../platform/mobile/ABMobileViewFormItem";
 
 const ABMobileViewFormCheckboxPropertyComponentDefaults = {};
 
@@ -8,9 +8,7 @@ const ABMobileViewFormCheckboxDefaults = {
    labelKey: "checkbox", // {string} the multilingual label key for the class label
 };
 
-module.exports = class ABMobileViewFormCheckboxCore extends (
-   ABMobileViewFormItem
-) {
+export default class ABMobileViewFormCheckboxCore extends ABMobileViewFormItem {
    constructor(values, application, parent, defaultValues) {
       super(
          values,
@@ -27,4 +25,4 @@ module.exports = class ABMobileViewFormCheckboxCore extends (
    static defaultValues() {
       return ABMobileViewFormCheckboxPropertyComponentDefaults;
    }
-};
+}
