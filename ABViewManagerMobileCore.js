@@ -16,6 +16,7 @@ var Views = {};
    require("../platform/mobile/ABMobileViewForm"),
    require("../platform/mobile/ABMobileViewFormButton"),
    require("../platform/mobile/ABMobileViewFormCheckbox"),
+   require("../platform/mobile/ABMobileViewFormConnect"),
    require("../platform/mobile/ABMobileViewFormReadonly"),
    require("../platform/mobile/ABMobileViewFormTextbox"),
    require("../platform/mobile/ABMobileViewLabel"),
