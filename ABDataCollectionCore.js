@@ -1543,6 +1543,13 @@ module.exports = class ABDataCollectionCore extends ABMLClass {
             emitter: followDC,
             eventName: "changeCursor",
             listener: () => {
+               const followCursor = followDC.getCursor();
+               const currentCursor = this.getCursor();
+
+               // If the cursor is not the new, then it should not reload.
+               if (followCursor?.[followDC.datasource.PK()] == currentCursor?.[this.datasource.PK()])
+                  return;
+
                this.clearAll();
                this.loadData();
             },
