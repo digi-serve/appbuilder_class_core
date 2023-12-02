@@ -1,4 +1,4 @@
-const ABMobileViewFormItem = require("../../platform/mobile/ABMobileViewFormItem");
+import ABMobileViewFormItem from "../../platform/mobile/ABMobileViewFormItem";
 
 const ABMobileViewFormConnectPropertyComponentDefaults = {
    formView: "", // id of form to add new data
@@ -17,9 +17,7 @@ const ABMobileViewFormConnectDefaults = {
    labelKey: "Connect", // {string} the multilingual label key for the class label
 };
 
-module.exports = class ABMobileViewFormConnectCore extends (
-   ABMobileViewFormItem
-) {
+export default class ABMobileViewFormConnectCore extends ABMobileViewFormItem {
    constructor(values, application, parent, defaultValues) {
       super(
          values,
@@ -54,4 +52,4 @@ module.exports = class ABMobileViewFormConnectCore extends (
          this.settings.filterConditions ||
          ABMobileViewFormConnectPropertyComponentDefaults.filterConditions;
    }
-};
+}
