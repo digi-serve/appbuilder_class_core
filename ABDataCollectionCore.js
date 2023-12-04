@@ -1392,10 +1392,6 @@ module.exports = class ABDataCollectionCore extends ABMLClass {
          let deletedIds = [];
          let deletedTreeIds = [];
 
-         if (this.getCursor()?.id != deleteId) {
-            return;
-         }
-
          // Query
          if (obj instanceof this.AB.Class.ABObjectQuery) {
             let objList = obj.objects((o) => o.id == data.objectId) || [];
