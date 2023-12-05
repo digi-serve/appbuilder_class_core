@@ -1523,6 +1523,10 @@ module.exports = class ABDataCollectionCore extends ABMLClass {
             emitter: linkDC,
             eventName: "changeCursor",
             listener: () => {
+               // NOTE: we can clear data here to update UI display, then data will be fetched when webix.dataFeed event
+               if (!this.settings?.loadAll)
+                  this.clearAll();
+
                this.refreshLinkCursor();
                this.setStaticCursor();
             },
