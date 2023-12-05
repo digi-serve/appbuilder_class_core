@@ -4,7 +4,7 @@
  * Manage the loading of specific ABObject data into useable objects
  * that can instantiate themselves and provide field and model resources.
  */
-
+const path = require("path");
 var ABModel = require("../platform/ABModel");
 var ABMLClass = require("../platform/ABMLClass");
 
@@ -834,6 +834,22 @@ module.exports = class ABObjectCore extends ABMLClass {
       return true;
    }
 
+   validExtension(filePath) {
+      if (
+         ![
+            "docx",
+            // Image
+            "heic",
+            "jpg",
+            "png",
+            "tiff",
+            "webp",
+         ].includes(path.parse(filePath).ext)
+      )
+         return false;
+      return true;
+   }
+
    /**
     * @method urlPointer()
     * return the url pointer that references this object. This url pointer
@@ -1004,4 +1020,3 @@ module.exports = class ABObjectCore extends ABMLClass {
       return labelData;
    }
 };
-
