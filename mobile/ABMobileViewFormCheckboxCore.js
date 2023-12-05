@@ -1,4 +1,4 @@
-const ABMobileViewFormItem = require("../../platform/Mobile/ABMobileViewFormItem");
+const ABMobileViewFormItem = require("../../platform/mobile/ABMobileViewFormItem");
 
 const ABMobileViewFormCheckboxPropertyComponentDefaults = {};
 
