@@ -1030,12 +1030,8 @@ export default class ABDataCollectionCore extends ABMLClass {
          if (!values) return;
 
          // DC who is following cursor should update only current cursor.
-         if (
-            this.isCursorFollow &&
-            this.getCursor()?.id != (values[obj.PK()] ?? values.id)
-         ) {
+         if (this.getCursor()?.id != (values[obj.PK()] ?? values.id))
             return;
-         }
 
          let needUpdate = false;
          let isExists = false;
@@ -1136,7 +1132,8 @@ export default class ABDataCollectionCore extends ABMLClass {
                   if (currData && currData.id == updatedVals.id) {
                      this.emit("changeCursor", currData);
                   }
-               } else {
+               } 
+               else {
                   // Johnny: Here we are simply removing the DataCollection Entries that are
                   // no longer valid.
                   // Just cycle through the collected updatedIds and remove them.
@@ -1403,10 +1400,6 @@ export default class ABDataCollectionCore extends ABMLClass {
          let deletedIds = [];
          let deletedTreeIds = [];
 
-         if (this.isCursorFollow && this.getCursor()?.id != deleteId) {
-            return;
-         }
-
          // Query
          if (obj instanceof this.AB.Class.ABObjectQuery) {
             let objList = obj.objects((o) => o.id == data.objectId) || [];
@@ -1538,6 +1531,10 @@ export default class ABDataCollectionCore extends ABMLClass {
             emitter: linkDC,
             eventName: "changeCursor",
             listener: () => {
+               // NOTE: we can clear data here to update UI display, then data will be fetched when webix.dataFeed event
+               if (!this.settings?.loadAll)
+                  this.clearAll();
+
                this.refreshLinkCursor();
                this.setStaticCursor();
             },
@@ -1551,6 +1548,13 @@ export default class ABDataCollectionCore extends ABMLClass {
             emitter: followDC,
             eventName: "changeCursor",
             listener: () => {
+               const followCursor = followDC.getCursor();
+               const currentCursor = this.getCursor();
+
+               // If the cursor is not the new, then it should not reload.
+               if (followCursor?.[followDC.datasource.PK()] == currentCursor?.[this.datasource.PK()])
+                  return;
+
                this.clearAll();
                this.loadData();
             },
