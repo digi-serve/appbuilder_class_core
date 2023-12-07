@@ -490,6 +490,9 @@ module.exports = class ABDataCollectionCore extends ABMLClass {
 
       let dc = this.__dataCollection;
       if (dc) {
+         // Store the old cursor id
+         this.__previousCursorId = dc.getCursor();
+
          // clear cursor
          if (itemId == null) {
             dc.setCursor(null);
@@ -1522,9 +1525,9 @@ module.exports = class ABDataCollectionCore extends ABMLClass {
          this.eventAdd({
             emitter: linkDC,
             eventName: "changeCursor",
-            listener: () => {
+            listener: (currentCursor) => {
                // NOTE: we can clear data here to update UI display, then data will be fetched when webix.dataFeed event
-               if (!this.settings?.loadAll)
+               if (!this.settings?.loadAll && currentCursor?.id != linkDC.previousCursorId)
                   this.clearAll();
 
                this.refreshLinkCursor();
@@ -2656,5 +2659,9 @@ module.exports = class ABDataCollectionCore extends ABMLClass {
       return (this.AB ?? AB).datacollectionByID(
          this.settings.followDatacollectionID
       );
+   }
+
+   get previousCursorId() {
+      return this.__previousCursorId;
    }
 };
