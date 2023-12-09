@@ -1,4 +1,4 @@
-import ABMobileViewFormItem from "../../platform/mobile/ABMobileViewFormItem";
+import ABMobileViewFormFile from "../../platform/mobile/ABMobileViewFormFile";
 
 const ABViewFormImagePropertyComponentDefaults = {};
 
@@ -11,7 +11,7 @@ const ABViewImageFileDefaults = {
    // {string} the multilingual label key for the class label
 };
 
-export default class ABMobileViewFormImageCore extends ABMobileViewFormItem {
+export default class ABMobileViewFormImageCore extends ABMobileViewFormFile {
    constructor(values, application, parent, defaultValues) {
       super(
          values,
