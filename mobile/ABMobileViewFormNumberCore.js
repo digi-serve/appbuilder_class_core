@@ -1,4 +1,4 @@
-const ABMobileViewFormItem = require("../../platform/mobile/ABMobileViewFormItem");
+import ABMobileViewFormItem from "../../platform/mobile/ABMobileViewFormItem";
 
 const ABMobileViewFormNumberPropertyComponentDefaults = {
    isStepper: 0,
@@ -10,7 +10,7 @@ const ABMobileViewFormNumberDefaults = {
    labelKey: "number", // {string} the multilingual label key for the class label
 };
 
-module.exports = class ABMobileViewFormNumberCore extends ABMobileViewFormItem {
+export default class ABMobileViewFormNumberCore extends ABMobileViewFormItem {
    constructor(values, application, parent, defaultValues) {
       super(
          values,
@@ -65,4 +65,4 @@ module.exports = class ABMobileViewFormNumberCore extends ABMobileViewFormItem {
       // convert from "0" => 0
       this.settings.isStepper = parseInt(this.settings.isStepper);
    }
-};
+}

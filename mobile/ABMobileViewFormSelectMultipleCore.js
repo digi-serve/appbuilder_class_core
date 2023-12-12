@@ -1,4 +1,4 @@
-const ABMobileViewFormItem = require("../../platform/mobile/ABMobileViewFormItem");
+import ABMobileViewFormSelectSingle from "../../platform/mobile/ABMobileViewFormSelectSingle";
 
 const ABMobileViewFormSelectMultiplePropertyComponentDefaults = {
    type: "richselect", // 'richselect' or 'radio'
@@ -10,9 +10,7 @@ const ABMobileViewFormSelectMultipleDefaults = {
    labelKey: "selectmultiple", // {string} the multilingual label key for the class label
 };
 
-module.exports = class ABMobileViewFormSelectMultipleCore extends (
-   ABMobileViewFormItem
-) {
+export default class ABMobileViewFormSelectMultipleCore extends ABMobileViewFormSelectSingle {
    constructor(values, application, parent, defaultValues) {
       super(
          values,
@@ -29,4 +27,4 @@ module.exports = class ABMobileViewFormSelectMultipleCore extends (
    static defaultValues() {
       return ABMobileViewFormSelectMultiplePropertyComponentDefaults;
    }
-};
+}
