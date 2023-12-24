@@ -588,6 +588,10 @@ module.exports = class ABDataCollectionCore extends ABMLClass {
     *    based off of the cursor.
     */
    refreshLinkCursor() {
+      // NOTE: If DC does not set load all data, then it does not need to filter by the parent DC.
+      // because it fetch data when the cursor of the parent DC changes.
+      if (!this.settings.loadAll) return;
+
       // do not set the filter unless this dc is initialized "dataStatusFlag==2"
       // if (this.dataStatus != this.dataStatusFlag.initialized) return;
 
@@ -1871,11 +1875,9 @@ module.exports = class ABDataCollectionCore extends ABMLClass {
 
             // In order to get the total_count updated I had to use .load()
             this.__dataCollection.load(async () => {
-               if (this.settings.loadAll) {
-                  setTimeout(() => {
-                     this.refreshLinkCursor();
-                  }, 250);
-               }
+               setTimeout(() => {
+                  this.refreshLinkCursor();
+               }, 250);
 
                return {
                   // NOTE: return a empty array to prevent render items in DataTable twice. (Items are rendered in .queuedParse function)
