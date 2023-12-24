@@ -754,6 +754,10 @@ export default class ABModelCore {
 
             // set .id to relation columns
             let objectLink = c.datasourceLink;
+
+            // if we didn't get the linked object, just return.
+            if (!objectLink) return;
+
             let olPK = objectLink.PK();
             var relatedMlFields = objectLink.multilingualFields();
 

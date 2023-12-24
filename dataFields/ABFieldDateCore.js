@@ -153,15 +153,17 @@ export default class ABFieldDateCore extends ABField {
     */
    isValidData(data, validator) {
       super.isValidData(data, validator);
-      let L = this.AB.Label();
 
       if (data[this.columnName]) {
          let value = data[this.columnName];
 
          if (!(value instanceof Date)) {
+            console.log(`value:[${value}]`);
             value = this.AB.rules.toDate(value);
             // value = new Date(this.convertToMoment(value));
          }
+
+         let L = this.AB.Label();
 
          // verify we didn't end up with an InValid Date result.
          if (
@@ -330,10 +332,9 @@ export default class ABFieldDateCore extends ABField {
    getFormat() {
       let dateFormatString = "";
 
-      const dateFormat =
-         this.settings && this.settings.dateFormat
-            ? this.settings.dateFormat
-            : "";
+      const dateFormat = this.settings?.dateFormat
+         ? this.settings.dateFormat
+         : "";
 
       switch (dateFormat) {
          //Ignore Date

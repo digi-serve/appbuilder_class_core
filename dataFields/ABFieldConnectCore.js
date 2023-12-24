@@ -287,6 +287,16 @@ export default class ABFieldConnectCore extends ABField {
    }
 
    /**
+    * @method LinkString()
+    * A string representation of the type of link this represents.
+    * "one:many", "many:one", "one:one", etc...
+    * @return {string}
+    */
+   get LinkString() {
+      return `${this.settings.linkType}:${this.settings.linkViaType}`;
+   }
+
+   /**
     * @method linkType
     * return the type of connection we have to our connected object
     * @return {string}
@@ -321,7 +331,7 @@ export default class ABFieldConnectCore extends ABField {
       if (!this.settings.isCustomFK || !this.settings.indexField) {
          return null;
       }
-      const linkType = `${this.settings.linkType}:${this.settings.linkViaType}`;
+      const linkType = this.LinkString; // `${this.settings.linkType}:${this.settings.linkViaType}`;
       // 1:M
       if (linkType === "one:many") {
          return this.datasourceLink.fieldByID(this.settings.indexField);
@@ -395,7 +405,7 @@ export default class ABFieldConnectCore extends ABField {
       const indexField = this.indexField;
       const datasourceLink = this.datasourceLink;
 
-      const linkType = `${this.settings.linkType}:${this.settings.linkViaType}`;
+      const linkType = this.LinkString; // `${this.settings.linkType}:${this.settings.linkViaType}`;
 
       // custom index
       // M:N

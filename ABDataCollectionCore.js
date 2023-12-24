@@ -1145,6 +1145,7 @@ export default class ABDataCollectionCore extends ABMLClass {
                         this.emit("changeCursor", null);
 
                      this.__dataCollection.remove(id);
+                     this.__totalCount--;
 
                      // TODO: update tree list
                      // if (this.__treeCollection) {
@@ -1380,6 +1381,7 @@ export default class ABDataCollectionCore extends ABMLClass {
                      if (currId == values[PK]) this.emit("changeCursor", null);
 
                      this.__dataCollection.remove(values[PK]);
+                     this.__totalCount--;
                      this.emit("delete", values[PK]);
                   }
                });
@@ -1445,12 +1447,14 @@ export default class ABDataCollectionCore extends ABMLClass {
 
                if (this.__dataCollection.exists(delId))
                   this.__dataCollection.remove(delId);
+               this.__totalCount--;
             });
 
             if (this.__treeCollection) {
                deletedTreeIds.forEach((delId) => {
                   if (this.__treeCollection.exists(delId))
                      this.__treeCollection.remove(delId);
+                  this.__totalCount--;
                });
             }
 
