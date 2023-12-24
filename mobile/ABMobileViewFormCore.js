@@ -215,6 +215,16 @@ module.exports = class ABMobileViewFormCore extends ABMobileView {
       return this._recordRule;
    }
 
+   /**
+    * @method recordRulesReady()
+    * This returns a Promise that gets resolved when all record rules report
+    * that they are ready.
+    * @return {Promise}
+    */
+   async recordRulesReady() {
+      return this.RecordRule.rulesReady();
+   }
+
    doRecordRulesPre(rowData) {
       return this.RecordRule.processPre({ data: rowData, form: this });
    }
