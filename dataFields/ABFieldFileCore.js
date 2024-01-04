@@ -168,8 +168,14 @@ export default class ABFieldFileCore extends ABField {
 
       // if we have our default empty object, then remove the entry
       // and let the DB insert a null value.
-      if (myParameter?.[this.columnName] == "{}") {
+      let val = myParameter?.[this.columnName];
+      if (val == "{}" || val == "") {
          delete myParameter[this.columnName];
+      }
+      if ("string" === typeof val) {
+         try {
+            myParameter[this.columnName] = JSON.parse(val);
+         } catch (e) {}
       }
 
       return myParameter;
