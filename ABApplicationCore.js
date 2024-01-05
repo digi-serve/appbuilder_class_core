@@ -910,6 +910,16 @@ module.exports = class ABApplicationCore extends ABMLClass {
       return this.urlPointer(acrossApp) + "_queries/";
    }
 
+   /**
+    * @method version()
+    * return the current version of this Application.
+    * Version information is in format "{Major}.{Minor}.{patch}"
+    * @return {string}
+    */
+   get version() {
+      return this.json?.versionData?.versionNumber ?? "0.0.0";
+   }
+
    ///
    ///   Object List Settings
    ///
