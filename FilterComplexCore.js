@@ -135,6 +135,8 @@ module.exports = class FilterComplexCore extends ABComponent {
       let result = condition.glue === "and" ? true : false;
 
       condition.rules.forEach((filter) => {
+         if (!filter) return;
+
          // Nested filters
          if (filter?.rules?.length) {
             if (condition.glue === "or")
@@ -1342,4 +1344,3 @@ module.exports = class FilterComplexCore extends ABComponent {
       return result;
    }
 };
-
