@@ -179,13 +179,8 @@ module.exports = class ABFieldStringCore extends ABField {
    isValidData(data, validator) {
       super.isValidData(data, validator);
 
-      const L = this.AB.Label();
-
-      if (
-         data &&
-         data[this.columnName] &&
-         data[this.columnName].length > MAX_CHAR_LENGTH
-      ) {
+      if (data?.[this.columnName]?.length > MAX_CHAR_LENGTH) {
+         const L = this.AB.Label();
          validator.addError(
             this.columnName,
             L("should NOT be longer than {0} characters", [MAX_CHAR_LENGTH])

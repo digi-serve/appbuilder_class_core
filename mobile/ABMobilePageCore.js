@@ -1,7 +1,7 @@
 /*
- * ABViewPage
+ * ABMobilePageCore
  *
- * An ABView that represents a "Page" in the system.
+ * An view that represents a "Page" on the Mobile Device.
  *
  * Pages are
  *	- allowed to be displayed in the interface list
@@ -10,30 +10,44 @@
  *
  */
 
-const ABViewContainer = require("../../platform/views/ABViewContainer");
+const ABMobileView = require("../../platform/mobile/ABMobileView");
 // var ABViewManager = require("../ABViewManager");
 
 // function L(key, altText) {
 //     return AD.lang.label.getLabel(key) || altText;
 // }
 
-const ABViewDefaults = {
-   key: "page", // unique key identifier for this ABView
-   icon: "file", // icon reference: (without 'fa-' )
+const ABMobilePageDefaults = {
+   key: "mobile-page", // unique key identifier for this ABView
+   icon: "file", // icon reference: (without 'fa-'  )
 };
 
 const ABPropertyComponentDefaults = {
-   type: "page", // 'page', 'popup' or 'reportPage'
-   popupWidth: 700,
-   popupHeight: 450,
-   pageWidth: null,
-   fixedPageWidth: 0,
-   pageBackground: "ab-background-default",
+   type: "page",
+   // {string}
+   // What type of "Page" this is: ['page', 'popup', 'reportPage']
+
+   defaultPage: 0,
+   // {bool} 1|0
+   // is this the default page for the Mobile App? If so, this is the initial
+   // Page that is displayed when the App is loaded.
+   // NOTE: there can be only 1 page defined in the app as .defaultPage
+
+   hideTitle: 0,
+   // {bool} 1|0
+   // By default we will display this.label as our Title. Set this to 1 to not
+   // show the tile on the page.
+
+   hideTabs: 0,
+   // {bool} 1|0
+   // By default, pages will show any Tab options on their display.  Set this
+   // to 1 to not show the tab options for this Page. (good for pages that
+   // are linkedPages with forms )
 };
 
-module.exports = class ABViewPageCore extends ABViewContainer {
+module.exports = class ABMobilePageCore extends ABMobileView {
    constructor(values, application, parent, defaultValues) {
-      super(values, application, parent, defaultValues || ABViewDefaults);
+      super(values, application, parent, defaultValues || ABMobilePageDefaults);
 
       // 	{
       // 		id:'uuid',					// uuid value for this obj
@@ -53,34 +67,23 @@ module.exports = class ABViewPageCore extends ABViewContainer {
       this.parent = null; // will be set by the pageNew() that creates this obj.
       // {obj} .parent
       // this points to the ABView object that manages this object as a child.
-      // this param is shared across ABViews as well as ABViewPage, but has
-      // different implications ... so we default an ABViewPage.parent = null
+      // this param is shared across ABViews as well as ABMobilePage, but has
+      // different implications ... so we default an ABMobilePage.parent = null
       // and the place that Creates the Page must assign the .parent externally.
    }
 
    static common() {
-      return ABViewDefaults;
+      return ABMobilePageDefaults;
    }
 
    static defaultValues() {
       return ABPropertyComponentDefaults;
    }
 
-   static getPageActionKey(view) {
-      return [
-         "opstools",
-         "AB_" + String(view.application.name).replace(/[^a-z0-9]/gi, ""),
-         String(view.name)
-            .replace(/[^a-z0-9]/gi, "")
-            .toLowerCase(),
-         "view",
-      ].join(".");
-   }
-
    /**
     * @method toObj()
     *
-    * properly compile the current state of this ABViewPage instance
+    * properly compile the current state of this ABMobilePage instance
     * into the values needed for saving to the DB.
     *
     * @return {json}
@@ -89,8 +92,13 @@ module.exports = class ABViewPageCore extends ABViewContainer {
       var obj = super.toObj();
 
       obj.name = this.name;
+      obj.route = this.route;
 
       obj.myAppID = this.myAppID;
+
+      obj.menuType = this.menuType;
+
+      obj.defaultPage = this.defaultPage;
 
       // icon of popup page
       if (this.settings.type == "popup") obj.icon = "clone";
@@ -113,6 +121,11 @@ module.exports = class ABViewPageCore extends ABViewContainer {
    fromValues(values) {
       super.fromValues(values);
 
+      const DV = ABPropertyComponentDefaults;
+
+      this.route =
+         values.route || (this.name || this.label).replaceAll(" ", "_");
+
       // icon of popup page
       if (values.settings.type == "popup") this.icon = "clone";
 
@@ -125,6 +138,31 @@ module.exports = class ABViewPageCore extends ABViewContainer {
          this.myAppID = this.application.id;
       }
 
+      this.menuType = values.menuType || "menu";
+      // {string}  ["menu", "tab"]
+      // indicates if this Page was added as a Mobile App's "menu" or "Tab"
+
+      this.defaultPage = values.defaultPage || 0;
+      // {bool}  1|0
+      // indicates if this is the default page that is loaded when the mobile app
+      // is started.
+      // NOTE: only 1 Page in a Mobile App can have this setting = 1.
+
+      this.settings.hideTitle = parseInt(
+         values.settings.hideTitle ?? DV.hideTitle
+      );
+      // {bool} 1|0
+      // By default an ABMobilePage will display it's this.label for a title
+      // on the page.  Setting this to TRUE (1) will hide the title.
+
+      this.settings.hideTabs = parseInt(
+         values.settings.hideTabs ?? DV.hideTabs
+      );
+      // {bool} 1|0
+      // By default, pages will show any Tab options on their display.  Set this
+      // to 1 to not show the tab options for this Page. (good for pages that
+      // are linkedPages with forms )
+
       // now properly handle our sub pages.
       var pages = [];
       (values.pageIDs || []).forEach((id) => {
@@ -132,16 +170,22 @@ module.exports = class ABViewPageCore extends ABViewContainer {
          if (def) {
             pages.push(this.pageNew(def));
          } else {
-            this.AB.error(
-               `App[${this.application.name}][${this.application.id}]->Page[${this.name}][${this.id}] referenced an unknown Page[${id}]`
+            this.emit(
+               "warning",
+               `App[${this.application.name}][${this.application.id}]->Page[${this.name}][${this.id}] referenced an unknown Page[${id}]`,
+               {
+                  appID: this.application.id,
+                  pageID: this.id,
+                  missingPageID: id,
+               }
             );
          }
       });
       this._pages = pages;
 
       // the default columns of ABView is 1
-      this.settings.columns = this.settings.columns || 1;
-      this.settings.gravity = this.settings.gravity || [1];
+      // this.settings.columns = this.settings.columns || 1;
+      // this.settings.gravity = this.settings.gravity || [1];
 
       // convert from "0" => 0
    }
@@ -158,10 +202,9 @@ module.exports = class ABViewPageCore extends ABViewContainer {
    destroy() {
       return Promise.resolve()
          .then(() => {
-            // When deleting an ABViewPage
-            // be sure to remove any of it's ABViewPages as well
-            // This cleans out any dangling ABDefinitions and cleans up the
-            // OpsPortal Permissions:
+            // When deleting an ABMobilePage
+            // be sure to remove any of it's ABMobilePage as well
+            // This cleans out any dangling ABDefinitions
 
             var allPageDeletes = [];
             var allPages = this.pages();
@@ -182,32 +225,11 @@ module.exports = class ABViewPageCore extends ABViewContainer {
          .then(() => {
             return super.destroy();
          });
-
-      // return new Promise((resolve, reject) => {
-      //    // verify we have been .save() before:
-      //    if (this.id) {
-      //       this.application
-      //          .viewDestroy(this)
-      //          .then(() => {
-      //             // remove the page in list
-      //             var parent = this.parent || this.application;
-      //             var remainingPages = parent.pages((p) => {
-      //                return p.id != this.id;
-      //             });
-      //             parent._pages = remainingPages;
-
-      //             resolve();
-      //          })
-      //          .catch(reject);
-      //    } else {
-      //       resolve(); // nothing to do really
-      //    }
-      // });
    }
 
    /**
     * @method save()
-    * persist this instance of ABViewPage
+    * persist this instance of ABMobilePage
     * @return {Promise}
     *         .resolve( {this} )
     */
@@ -224,19 +246,25 @@ module.exports = class ABViewPageCore extends ABViewContainer {
             return parent.pageInsert(this);
          })
          .then(() => {
+            // make sure .defaultPage is properly set
+            if (this.defaultPage) {
+               return this.application.setPageDefault(this);
+            }
+         })
+         .then(() => {
             return this;
          });
    }
 
    /**
     * @method refreshInstance()
-    * This returns a NEW instance of a ABViewPage based upon the latest
+    * This returns a NEW instance of a ABMobilePage based upon the latest
     * version of it's Definition.  It also resolves any current listeners
     * this copy currently has and prepare this to discard itself.
     */
    refreshInstance() {
       console.warn(
-         "This version of ABViewPage hasn't updated it's refreshInstance()",
+         "This version of ABMobilePage hasn't updated it's refreshInstance()",
          this
       );
       return this;
@@ -249,31 +277,32 @@ module.exports = class ABViewPageCore extends ABViewContainer {
    /**
     * @method pages()
     *
-    * return an array of all the ABViewPages for this ABViewPage.
+    * return an array of all the ABMobilePages for this ABMobilePage.
     *
-    * @param {fn} filter		a filter fn to return a set of ABViewPages that this fn
+    * @param {fn} filter		a filter fn to return a set of ABMobilePages that this fn
     *							returns true for.
     * @param {boolean} deep	flag to find in sub pages
     *
-    * @return {array}			array of ABViewPages
+    * @return {array}			array of ABMobilePages
     */
    pages(filter = () => true, deep = false) {
       var result = [];
 
       // find into sub-pages recursively
       if (filter && deep) {
-         if (this._pages && this._pages.length > 0) {
-            result = this._pages.filter(filter);
+         // if (this._pages && this._pages.length > 0) {
+         //    result = this._pages.filter(filter);
 
-            if (result.length < 1) {
-               this._pages.forEach((p) => {
-                  var subPages = p.pages(filter, deep);
-                  if (subPages && subPages.length > 0) {
-                     result = subPages;
-                  }
-               });
-            }
-         }
+         //    if (result.length < 1) {
+         //       this._pages.forEach((p) => {
+         //          var subPages = p.pages(filter, deep);
+         //          if (subPages && subPages.length > 0) {
+         //             result = subPages;
+         //          }
+         //       });
+         //    }
+         // }
+         result = this.application._searchDeep(this, "_pages", filter);
       }
       // find root pages
       else {
@@ -286,10 +315,10 @@ module.exports = class ABViewPageCore extends ABViewContainer {
    /**
     * @method pageInsert()
     *
-    * save the given ABViewPage in our ._pages array and persist the current
+    * save the given ABMobilePage in our ._pages array and persist the current
     * values if they changed.
     *
-    * @param {ABViewPage} page The instance of the page to save.
+    * @param {ABMobilePage} page The instance of the page to save.
     * @return {Promise}
     */
    pageInsert(page) {
@@ -307,17 +336,17 @@ module.exports = class ABViewPageCore extends ABViewContainer {
    /**
     * @method pageNew()
     *
-    * return an instance of a new (unsaved) ABViewPage that is tied to this
-    * ABViewPage.
+    * return an instance of a new (unsaved) ABMobilePage that is tied to this
+    * ABMobilePage.
     *
     * NOTE: this new page is not included in our this.pages until a .save()
     * is performed on the page.
     *
-    * @return {ABViewPage}
+    * @return {ABMobilePage}
     */
    pageNew(values) {
-      // make sure this is an ABViewPage description
-      values.key = ABViewDefaults.key;
+      // make sure this is an ABMobilePage description
+      values.key = ABMobilePageDefaults.key;
 
       // NOTE: this returns a new ABView component.
       // when creating a new page, the 3rd param should be null, to signify
@@ -330,17 +359,15 @@ module.exports = class ABViewPageCore extends ABViewContainer {
    /**
     * @method pageRemove()
     *
-    * remove the given ABViewPage from our ._pages array and persist the current
+    * remove the given ABMobilePage from our ._pages array and persist the current
     * values.
     *
-    * @param {ABViewPage} page The instance of the page to remove.
+    * @param {ABMobilePage} page The instance of the page to remove.
     * @return {Promise}
     */
    pageRemove(page) {
       var origLen = this._pages.length;
-      this._pages = this.pages(function (p) {
-         return p.id != page.id;
-      });
+      this._pages = this.pages((p) => p.id != page.id);
 
       if (this._pages.length < origLen) {
          return this.save();
@@ -350,43 +377,19 @@ module.exports = class ABViewPageCore extends ABViewContainer {
       return Promise.resolve();
    }
 
-   /**
-    * @method urlView()
-    * return the url pointer for views in this application.
-    * @return {string}
-    */
-   urlPage() {
-      return this.urlPointer() + "/_pages/";
-   }
-
-   /**
-    * @method urlPointer()
-    * return the url pointer that references this view.  This url pointer
-    * should be able to be used by this.application.urlResolve() to return
-    * this view object.
-    * @return {string}
-    */
-   urlPointer() {
-      if (this.parent) {
-         return this.parent.urlPage() + this.id;
-      } else {
-         return this.application.urlPage() + this.id;
-      }
-   }
-
    updateIcon(obj) {
       // icon of page
       if (obj.settings.type == "popup") {
          obj.icon = "clone";
       } else {
-         obj.icon = ABViewDefaults.icon;
+         obj.icon = ABMobilePageDefaults.icon;
       }
       return obj;
    }
 
    /**
     * @method clone()
-    * clone the defintions of this ABViewPage object.
+    * clone the defintions of this ABMobilePage object.
     * @param {obj} lookUpIds
     *        an { oldID : newID } lookup hash for converting ABView objects
     *        and their setting pointers.
@@ -430,7 +433,7 @@ module.exports = class ABViewPageCore extends ABViewContainer {
 
    /**
     * @method copy()
-    * create a new copy of this ABViewPage object. The resulting ABView should
+    * create a new copy of this ABMobilePage object. The resulting ABView should
     * be identical in settings and all sub pages/views, but each new object
     * is a unique view (different ids).
     * @param {obj} lookUpIds

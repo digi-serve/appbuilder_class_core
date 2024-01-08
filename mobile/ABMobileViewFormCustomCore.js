@@ -1,17 +1,17 @@
-const ABViewFormItem = require("../../platform/views/ABViewFormItem");
+const ABMobileViewFormItem = require("../../platform/mobile/ABMobileViewFormItem");
 
 const ABViewFormCustomPropertyComponentDefaults = {};
 
 const ABViewFormCustomDefaults = {
-   key: "fieldcustom",
+   key: "mobile-fieldcustom",
    // {string} unique key for this view
    icon: "object-group",
    // {string} fa-[icon] reference for this view
-   labelKey: "ab.components.custom",
+   labelKey: "custom",
    // {string} the multilingual label key for the class label
 };
 
-module.exports = class ABViewFormCustom extends ABViewFormItem {
+module.exports = class ABMobileViewFormCustomCore extends ABMobileViewFormItem {
    constructor(values, application, parent, defaultValues) {
       super(
          values,
@@ -27,13 +27,5 @@ module.exports = class ABViewFormCustom extends ABViewFormItem {
 
    static defaultValues() {
       return ABViewFormCustomPropertyComponentDefaults;
-   }
-
-   /**
-    * @method componentList
-    * return the list of components available on this view to display in the editor.
-    */
-   componentList() {
-      return [];
    }
 };

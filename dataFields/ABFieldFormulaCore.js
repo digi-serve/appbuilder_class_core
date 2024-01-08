@@ -8,10 +8,6 @@
 
 const ABField = require("../../platform/dataFields/ABField");
 
-function L(key, altText) {
-   return altText; // AD.lang.label.getLabel(key) || altText;
-}
-
 const ABFieldFormulaDefaults = {
    key: "formula",
    // unique key to reference this specific DataField

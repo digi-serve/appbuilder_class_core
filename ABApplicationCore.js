@@ -61,6 +61,10 @@ module.exports = class ABApplicationCore extends ABMLClass {
       // {string} .type
       // the ABDefinition.type of this object.
 
+      this.appType = attributes.appType || "web";
+      // {string} .appType
+      // the kind of Application this is. ["web", "mobile"]
+
       this.json = attributes.json;
       if (typeof this.json == "string") this.json = JSON.parse(this.json);
       // {obj} .json
@@ -246,6 +250,10 @@ module.exports = class ABApplicationCore extends ABMLClass {
    /// Instance Methods
    ///
 
+   get ViewManager() {
+      return ABViewManager;
+   }
+
    /// ABApplication data methods
    /**
     * @method isAccessibleForRoles()
@@ -293,6 +301,14 @@ module.exports = class ABApplicationCore extends ABMLClass {
       return foundRole;
    }
 
+   get isWebApp() {
+      return this.appType == "web";
+   }
+
+   get isMobile() {
+      return this.appType == "mobile";
+   }
+
    /**
     * @method toObj()
     *
@@ -338,6 +354,7 @@ module.exports = class ABApplicationCore extends ABMLClass {
       return {
          id: this.id,
          type: this.type || "application",
+         appType: this.appType || "web",
          name: this.name,
          icon: this.icon,
          isSystemObject: this.isSystemObject,
@@ -357,25 +374,8 @@ module.exports = class ABApplicationCore extends ABMLClass {
    /// Mobile Apps
    ///
 
-   /**
-    * @method mobileApps()
-    *
-    * return an array of all the ABObjectQueries for this ABApplication.
-    *
-    * @param {fn} filter   a filter fn to return a set of ABObjectQueries that
-    *                this fn returns true for.
-    * @return {array}   array of ABObjectQueries
-    */
-   mobileApps(filter = () => true) {
-      return (this._mobileApps || []).filter(filter);
-   }
-
    ///
    /// Datacollections
-   ///
-
-   ///
-   /// Data collections
    ///
 
    // datacollectionNew(values) {
@@ -530,16 +530,21 @@ module.exports = class ABApplicationCore extends ABMLClass {
 
       // find into sub-pages recursively
       if (filter && deep) {
-         result = this._pages.filter(filter);
+         // function searchDeep(curr) {
+         //    let resultsCurr = curr._pages.filter(filter);
 
-         if (result.length < 1) {
-            this._pages.forEach((p) => {
-               var subPages = p.pages(filter, deep);
-               if (subPages && subPages.length > 0) {
-                  result = subPages;
-               }
-            });
-         }
+         //    for (let p of curr._pages) {
+         //       let resultsP = searchDeep(p);
+         //       if (resultsP.length) {
+         //          resultsCurr = resultsCurr.concat(resultsP);
+         //       }
+         //    }
+         //    // if we get here, end
+         //    return resultsCurr;
+         // }
+
+         // result = searchDeep(this);
+         result = this._searchDeep(this, "_pages", filter);
       }
       // find root pages
       else {
@@ -547,6 +552,33 @@ module.exports = class ABApplicationCore extends ABMLClass {
       }
 
       return result;
+   }
+
+   /**
+    * @method _searchDeep()
+    * search each node of a tree and return all matches that pass the provided
+    * filter.
+    * @param {AB*} curr
+    *        An object that contains a tree structure.
+    * @param {string} key
+    *        The curr[key] reference of the array of items to search
+    * @param {function} filter
+    *        The curr[key].filter(filter) that returns true/false if a node is
+    *        to be included in the result.
+    * @return {array}
+    */
+   _searchDeep(curr, key, filter) {
+      let items = curr[key] ?? [];
+      let resultsCurr = items.filter?.(filter) ?? [];
+
+      for (let p of items) {
+         let resultsP = this._searchDeep(p, key, filter);
+         if (resultsP.length) {
+            resultsCurr = resultsCurr.concat(resultsP);
+         }
+      }
+
+      return resultsCurr;
    }
 
    ///
@@ -707,7 +739,7 @@ module.exports = class ABApplicationCore extends ABMLClass {
     * @return {array} of ABView objects
     */
    viewAll(fn = () => true) {
-      return ABViewManager.allViews(fn);
+      return this.ViewManager.allViews(fn);
    }
 
    ///
@@ -878,6 +910,16 @@ module.exports = class ABApplicationCore extends ABMLClass {
       return this.urlPointer(acrossApp) + "_queries/";
    }
 
+   /**
+    * @method version()
+    * return the current version of this Application.
+    * Version information is in format "{Major}.{Minor}.{patch}"
+    * @return {string}
+    */
+   get version() {
+      return this.json?.versionData?.versionNumber ?? "0.0.0";
+   }
+
    ///
    ///   Object List Settings
    ///
@@ -933,7 +975,7 @@ module.exports = class ABApplicationCore extends ABMLClass {
       // values.key = ABViewPageCore.common().key;
       values.key = "page";
 
-      return ABViewManager.newView(values, this, null);
+      return this.ViewManager.newView(values, this, null);
    }
 
    /**
@@ -941,10 +983,12 @@ module.exports = class ABApplicationCore extends ABMLClass {
     * return pages from the given {id}
     * @param {string} id
     *        the uuid of the page to return.
+    * @param {bool} deep
+    *        should this search deep (through all our children's children)
     * @return {ABViewPage}
     */
-   pageByID(id) {
-      return this.pages((f) => f.id == id)[0];
+   pageByID(id, deep = true) {
+      return this.pages((f) => f.id == id, deep)[0];
    }
 
    /**
@@ -955,7 +999,7 @@ module.exports = class ABApplicationCore extends ABMLClass {
     * @return {ABView}
     */
    viewNew(values, application, parent) {
-      return ABViewManager.newView(values, application, parent);
+      return this.ViewManager.newView(values, application, parent);
    }
 
    ///
