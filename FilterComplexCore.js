@@ -18,6 +18,13 @@ function getFieldVal(rowData, field) {
       value = rowData[columnName];
    }
 
+   // pull relation data
+   if (value == null && field.relationName) {
+      const relationName = field.relationName();
+      const pureRelationName = relationName.split(".")[1]; // support [BASE_OBJECT.columnName] field name of ABQuery
+      value = rowData[relationName] || rowData[pureRelationName];
+   }
+
    if (value != null && !isNaN(value)) {
       return value;
    }
