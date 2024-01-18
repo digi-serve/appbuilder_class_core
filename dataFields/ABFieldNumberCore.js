@@ -369,20 +369,13 @@ module.exports = class ABFieldNumberCore extends ABField {
          integerValue = integerStr;
       }
 
-      let result = "";
+      // Integer
+      let result = `${negativeSign}${integerValue}`;
 
       // Decimal
-      if (options.decimalDelimiter && options.decimalSize) {
-         result = `${negativeSign}${integerValue}${
-            decimalStr
-               ? options.decimalDelimiter +
-                 decimalStr.toString().substr(0, options.decimalSize)
-               : ""
-         }`;
-      }
-      // Integer
-      else {
-         result = `${negativeSign}${integerValue}`;
+      if (decimalStr && options.decimalDelimiter && options.decimalSize) {
+         const decimalVal = data.toFixed(options.decimalSize).split(".")[1];
+         result += `${options.decimalDelimiter}${decimalVal}`;
       }
 
       return result;
