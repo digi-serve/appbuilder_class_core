@@ -1615,6 +1615,53 @@ module.exports = class ABDataCollectionCore extends ABMLClass {
       });
    }
 
+   /**
+    * @method whereCleanUp()
+    * Parse through the current where condition and remove any null or
+    * empty logical blocks.
+    * @param {obj} curr
+    *        1) The current where condition in ABQuery Format:
+    *        {
+    *           glue: [AND, OR],
+    *           rules: [ {rule} ]
+    *        }
+    *        or 2) The current {rule} to validate
+    *        {
+    *          key:{string},
+    *          rule:{string},
+    *          vlaue:{mixed}
+    *        }
+    * @return {ABQuery.where} / { Rule }
+    */
+   whereCleanUp(curr) {
+      if (curr) {
+         if (curr.glue && curr.rules) {
+            // this is a logical Block (AND, OR)
+            // we need to filter the children
+            let newValue = { glue: curr.glue, rules: [] };
+            curr.rules.forEach((r) => {
+               let cleanRule = this.whereCleanUp(r);
+               // don't add values that didn't pass
+               if (cleanRule) {
+                  newValue.rules.push(cleanRule);
+               }
+            });
+
+            // if we have a non empty block, then return it:
+            if (newValue.rules.length > 0) {
+               return newValue;
+            }
+
+            // this isn't really a valid conditional, so null
+            return null;
+         }
+
+         // This is a specific rule, that isn't null so:
+         return curr;
+      }
+      return null;
+   }
+
    async loadData(start, limit) {
       // mark data status is initializing
       if (this._dataStatus == this.dataStatusFlag.notInitial) {
@@ -1702,12 +1749,15 @@ module.exports = class ABDataCollectionCore extends ABMLClass {
 
       // Combine setting & program filters
       if (__additionalWheres.rules.length) {
-         __additionalWheres.rules.unshift(wheres);
+         if (wheres.rules.length) {
+            __additionalWheres.rules.unshift(wheres);
+         }
          wheres = __additionalWheres;
       }
 
       // remove any null in the .rules
-      if (wheres?.rules?.filter) wheres.rules = wheres.rules.filter((r) => r);
+      // if (wheres?.rules?.filter) wheres.rules = wheres.rules.filter((r) => r);
+      wheres = this.whereCleanUp(wheres);
 
       // set query condition
       var cond = {
