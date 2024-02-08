@@ -1033,8 +1033,7 @@ module.exports = class ABDataCollectionCore extends ABMLClass {
          if (!values) return;
 
          // DC who is following cursor should update only current cursor.
-         if (this.getCursor()?.id != (values[obj.PK()] ?? values.id))
-            return;
+         if (this.getCursor()?.id != (values[obj.PK()] ?? values.id)) return;
 
          let needUpdate = false;
          let isExists = false;
@@ -1135,8 +1134,7 @@ module.exports = class ABDataCollectionCore extends ABMLClass {
                   if (currData && currData.id == updatedVals.id) {
                      this.emit("changeCursor", currData);
                   }
-               } 
-               else {
+               } else {
                   // Johnny: Here we are simply removing the DataCollection Entries that are
                   // no longer valid.
                   // Just cycle through the collected updatedIds and remove them.
@@ -1535,7 +1533,10 @@ module.exports = class ABDataCollectionCore extends ABMLClass {
             eventName: "changeCursor",
             listener: (currentCursor) => {
                // NOTE: we can clear data here to update UI display, then data will be fetched when webix.dataFeed event
-               if (!this.settings?.loadAll && currentCursor?.id != linkDC.previousCursorId)
+               if (
+                  !this.settings?.loadAll &&
+                  currentCursor?.id != linkDC.previousCursorId
+               )
                   this.clearAll();
 
                this.refreshLinkCursor();
@@ -1555,7 +1556,10 @@ module.exports = class ABDataCollectionCore extends ABMLClass {
                const currentCursor = this.getCursor();
 
                // If the cursor is not the new, then it should not reload.
-               if (followCursor?.[followDC.datasource.PK()] == currentCursor?.[this.datasource.PK()])
+               if (
+                  followCursor?.[followDC.datasource.PK()] ==
+                  currentCursor?.[this.datasource.PK()]
+               )
                   return;
 
                this.clearAll();
