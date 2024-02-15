@@ -1609,8 +1609,20 @@ module.exports = class ABDataCollectionCore extends ABMLClass {
 
                // if don't have .loadAll set,  we'll need to reload our data:
                if (!this.settings?.loadAll) {
+                  // find out how many entries we have already loaded and try to
+                  // load at least that many again.:
+                  let count = 20;
+                  if (this.__dataCollection.count() > count)
+                     count = this.__dataCollection.count();
+                  if (this.__treeCollection?.count() > count)
+                     count = this.__treeCollection.count();
+
+                  let currCursor = this.__dataCollection.getCursor();
                   this.clearAll();
-                  this.reloadData(0, 20);
+                  this.reloadData(0, count).then(() => {
+                     this.__dataCollection.setCursor(currCursor);
+                     this.emit("cursorSelect", currCursor);
+                  });
                   return;
                }
 
