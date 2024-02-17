@@ -596,6 +596,10 @@ export default class ABDataCollectionCore extends ABMLClass {
     *    based off of the cursor.
     */
    refreshLinkCursor() {
+      // our filter conditions need to know there was an updated cursor.
+      // some of our filters are based upon our linked data.
+      this.refreshFilterConditions();
+
       // NOTE: If DC does not set load all data, then it does not need to filter by the parent DC.
       // because it fetch data when the cursor of the parent DC changes.
       if (!this.settings.loadAll) return;
@@ -1627,6 +1631,53 @@ export default class ABDataCollectionCore extends ABMLClass {
       });
    }
 
+   /**
+    * @method whereCleanUp()
+    * Parse through the current where condition and remove any null or
+    * empty logical blocks.
+    * @param {obj} curr
+    *        1) The current where condition in ABQuery Format:
+    *        {
+    *           glue: [AND, OR],
+    *           rules: [ {rule} ]
+    *        }
+    *        or 2) The current {rule} to validate
+    *        {
+    *          key:{string},
+    *          rule:{string},
+    *          vlaue:{mixed}
+    *        }
+    * @return {ABQuery.where} / { Rule }
+    */
+   whereCleanUp(curr) {
+      if (curr) {
+         if (curr.glue && curr.rules) {
+            // this is a logical Block (AND, OR)
+            // we need to filter the children
+            let newValue = { glue: curr.glue, rules: [] };
+            curr.rules.forEach((r) => {
+               let cleanRule = this.whereCleanUp(r);
+               // don't add values that didn't pass
+               if (cleanRule) {
+                  newValue.rules.push(cleanRule);
+               }
+            });
+
+            // if we have a non empty block, then return it:
+            if (newValue.rules.length > 0) {
+               return newValue;
+            }
+
+            // this isn't really a valid conditional, so null
+            return null;
+         }
+
+         // This is a specific rule, that isn't null so:
+         return curr;
+      }
+      return null;
+   }
+
    async loadData(start, limit) {
       // mark data status is initializing
       if (this._dataStatus == this.dataStatusFlag.notInitial) {
@@ -1668,20 +1719,9 @@ export default class ABDataCollectionCore extends ABMLClass {
       }
 
       // Filter by a selected cursor of a link DC
-      const dataCollectionLink = this.datacollectionLink;
-      const fieldLink = this.fieldLink;
-      if (!this.settings.loadAll && dataCollectionLink && fieldLink) {
-         const linkCursorId = dataCollectionLink?.getCursor()?.id;
-         if (linkCursorId) {
-            __additionalWheres.rules.push({
-               alias: fieldLink.alias, // ABObjectQuery
-               key: fieldLink.id,
-               rule: fieldLink.alias ? "contains" : "equals", // NOTE: If object is query, then use "contains" because ABOBjectQuery return JSON
-               value: fieldLink.getRelationValue(
-                  dataCollectionLink.__dataCollection.getItem(linkCursorId)
-               ),
-            });
-         }
+      let linkRule = this.ruleLinkedData();
+      if (!this.settings.loadAll && linkRule) {
+         __additionalWheres.rules.push(linkRule);
       }
       // pull data rows following the follow data collection
       else if (this.datacollectionFollow) {
@@ -1725,12 +1765,15 @@ export default class ABDataCollectionCore extends ABMLClass {
 
       // Combine setting & program filters
       if (__additionalWheres.rules.length) {
-         __additionalWheres.rules.unshift(wheres);
+         if (wheres.rules.length) {
+            __additionalWheres.rules.unshift(wheres);
+         }
          wheres = __additionalWheres;
       }
 
       // remove any null in the .rules
-      if (wheres?.rules?.filter) wheres.rules = wheres.rules.filter((r) => r);
+      // if (wheres?.rules?.filter) wheres.rules = wheres.rules.filter((r) => r);
+      wheres = this.whereCleanUp(wheres);
 
       // set query condition
       var cond = {
@@ -2183,6 +2226,32 @@ export default class ABDataCollectionCore extends ABMLClass {
    }
 
    /**
+    * @method ruleLinkedData()
+    * return a QueryFilter rule that also checks that incoming data is linked
+    * to our .datacollectionLink (if it exists).
+    * @return {obj} {QueryFilterRule}
+    */
+   ruleLinkedData() {
+      let rule = null;
+      const dataCollectionLink = this.datacollectionLink;
+      const fieldLink = this.fieldLink;
+      if (dataCollectionLink && fieldLink) {
+         const linkCursorId = dataCollectionLink?.getCursor()?.id;
+         if (linkCursorId) {
+            rule = {
+               alias: fieldLink.alias, // ABObjectQuery
+               key: fieldLink.id,
+               rule: fieldLink.alias ? "contains" : "equals", // NOTE: If object is query, then use "contains" because ABOBjectQuery return JSON
+               value: fieldLink.getRelationValue(
+                  dataCollectionLink.__dataCollection.getItem(linkCursorId)
+               ),
+            };
+         }
+      }
+      return rule;
+   }
+
+   /**
     * @method refreshFilterConditions()
     * This is called in two primary cases:
     *    - on initialization of a DC to setup our filters.
@@ -2250,16 +2319,52 @@ export default class ABDataCollectionCore extends ABMLClass {
          this.datasource ? this.datasource.fields() : []
       );
 
+      // if we pass in wheres, then Save that value to our internal .filterConditions
       if (wheres) this.settings.objectWorkspace.filterConditions = wheres;
 
-      if (
-         this.settings &&
-         this.settings.objectWorkspace &&
-         this.settings.objectWorkspace.filterConditions
-      ) {
-         this.__filterDatacollection.setValue(
-            this.settings.objectWorkspace.filterConditions
-         );
+      let filter = this.AB.cloneDeep(
+         this.settings.objectWorkspace?.filterConditions ?? {
+            glue: "and",
+            rules: [],
+         }
+      );
+
+      // if there is a linkRule, add it to filter
+      let linkRule = this.ruleLinkedData(); // returns a rule if we are linked
+      if (linkRule) {
+         // NOTE: linkRule was originally designed to produce a rule for the
+         // loadData() routine.  In SQL, our linkRule might have an "equals"
+         // rule, to match.  But in this context if our linktype is "many"
+         // we need to change the rule to "contains":
+         if (this.fieldLink?.linkType() == "many") {
+            linkRule.rule = "contains";
+         }
+
+         // if linkRule not already IN filter:
+         let isAlreadyThere = false;
+         let keys = Object.keys(linkRule);
+         (filter.rules || []).forEach((r) => {
+            if (isAlreadyThere) return;
+            let allMatch = true;
+            keys.forEach((k) => {
+               if (r[k] != linkRule[k]) {
+                  allMatch = false;
+               }
+            });
+            isAlreadyThere = allMatch;
+         });
+         if (!isAlreadyThere) {
+            // link Rule needs to be ANDed to our current Rules:
+            if (filter.glue == "and") {
+               filter.rules.push(linkRule);
+            } else {
+               filter = { glue: "and", rules: [filter, linkRule] };
+            }
+         }
+      }
+
+      if (filter.rules.length > 0) {
+         this.__filterDatacollection.setValue(filter);
       } else {
          this.__filterDatacollection.setValue(
             DefaultValues.settings.objectWorkspace.filterConditions

@@ -379,8 +379,11 @@ export default class FilterComplexCore extends ABComponent {
       let result = false;
 
       switch (rule) {
-         case "equals":
-            result = value == compareValue;
+         case "checked":
+            result = value == true || value > 0 || value == "true";
+            break;
+         case "unchecked":
+            result = value == false || value <= 0 || value == "false" || value == null;
             break;
          default:
             result = this.queryFieldValid(value, rule, compareValue);
@@ -1031,7 +1034,8 @@ export default class FilterComplexCore extends ABComponent {
 
    fieldsAddFiltersBoolean(field) {
       let booleanConditions = {
-         equals: this.labels.component.equalListCondition,
+         checked: this.labels.component.checkedCondition,
+         unchecked: this.labels.component.notCheckedCondition,
       };
 
       let result = [];
@@ -1040,7 +1044,7 @@ export default class FilterComplexCore extends ABComponent {
          result.push({
             id: condKey,
             value: booleanConditions[condKey],
-            batch: "boolean",
+            batch: "none",
             handler: (a, b) => this.booleanValid(a, condKey, b),
          });
       }
@@ -1323,6 +1327,8 @@ export default class FilterComplexCore extends ABComponent {
          "not_same_as_user",
          "is_empty",
          "is_not_empty",
+         "checked",
+         "unchecked",
       ];
 
       const isCompleteRules = (rules = []) => {

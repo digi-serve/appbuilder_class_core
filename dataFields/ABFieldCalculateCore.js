@@ -256,7 +256,7 @@ export default class ABFieldCalculateCore extends ABField {
             );
          }
          // date fields
-         else if (f.key == "date") {
+         else if (f.key == "date" || f.key == "datetime") {
             const dateVal = `"${data || ""}"`; // "date"
             formula = formula.replace(
                new RegExp("{" + colName + "}", "g"),
