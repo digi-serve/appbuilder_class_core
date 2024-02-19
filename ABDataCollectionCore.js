@@ -1867,6 +1867,8 @@ module.exports = class ABDataCollectionCore extends ABMLClass {
       if (this.__reloadWheres) {
          wheres = this.__reloadWheres;
       }
+      wheres.glue = wheres.glue || "and";
+      wheres.rules = wheres.rules || [];
 
       const __additionalWheres = {
          glue: "and",
@@ -2485,6 +2487,10 @@ module.exports = class ABDataCollectionCore extends ABMLClass {
             rules: [],
          }
       );
+      // sanity checks:
+      // I've learned not to trust: this.settings.objectWorkspace
+      filter.glue = filter.glue || "and";
+      filter.rules = filter.rules || [];
 
       // if there is a linkRule, add it to filter
       let linkRule = this.ruleLinkedData(); // returns a rule if we are linked
@@ -2520,7 +2526,7 @@ module.exports = class ABDataCollectionCore extends ABMLClass {
          }
       }
 
-      if (filter.rules.length > 0) {
+      if ((filter.rules || []).length > 0) {
          this.__filterDatacollection.setValue(filter);
       } else {
          this.__filterDatacollection.setValue(
