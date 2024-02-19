@@ -146,7 +146,7 @@ module.exports = class ABDataCollectionCore extends ABMLClass {
       this.settings.linkDatacollectionID =
          values.settings.linkDatacollectionID ||
          DefaultValues.settings.linkDatacollectionID;
-      // {string} .settings.linkDaacollectionID
+      // {string} .settings.linkDatacollectionID
       // the uuid of another ABDataCollection that provides the link/trigger
       // for filtering the values of this ABDataCollection.
 
@@ -1607,22 +1607,91 @@ module.exports = class ABDataCollectionCore extends ABMLClass {
                // This is triggered by one of our socket updates that detects
                // changes to the cursor data.
 
-               // if don't have .loadAll set,  we'll need to reload our data:
+               // if don't have .loadAll set,  we'll need to update our data:
                if (!this.settings?.loadAll) {
-                  // find out how many entries we have already loaded and try to
-                  // load at least that many again.:
-                  let count = 20;
-                  if (this.__dataCollection.count() > count)
-                     count = this.__dataCollection.count();
-                  if (this.__treeCollection?.count() > count)
-                     count = this.__treeCollection.count();
+                  // // find out how many entries we have already loaded and try to
+                  // // load at least that many again.:
+                  // let count = 20;
+                  // if (this.__dataCollection.count() > count)
+                  //    count = this.__dataCollection.count();
+                  // if (this.__treeCollection?.count() > count)
+                  //    count = this.__treeCollection.count();
 
-                  let currCursor = this.__dataCollection.getCursor();
-                  this.clearAll();
-                  this.reloadData(0, count).then(() => {
-                     this.__dataCollection.setCursor(currCursor);
-                     this.emit("cursorSelect", currCursor);
+                  // let currCursor = this.__dataCollection.getCursor();
+                  // this.clearAll();
+                  // this.reloadData(0, count).then(() => {
+                  //    this.__dataCollection.setCursor(currCursor);
+                  //    this.emit("cursorSelect", currCursor);
+                  // });
+
+                  // the values I currently contain can fall into 1 of 3 categories:
+                  // 1) A value I currently have that I need to Keep
+                  // 2) A value I currently have that I need to remove
+                  // 3) A value I don't have, but need to Add
+
+                  // the current value of the cursor should have the ID references
+                  // to what SHOULD be in my display
+
+                  // get the current cursor of our linked DC
+                  let linkCursor;
+                  let dvLink = this.datacollectionLink;
+                  if (dvLink) {
+                     linkCursor = dvLink.getCursor();
+                  }
+                  if (!linkCursor) {
+                     // if linkCursor is no longer set, then we should clear()
+                     this.clearAll();
+                     return;
+                  }
+
+                  let PK = this.datasource.PK();
+
+                  // lets start by assuming all the current values in cursor are #3
+                  // -> all the values into valuesToAdd:
+                  let colName = this.fieldLink.fieldLink.relationName();
+                  let valuesToAdd = {};
+                  (linkCursor[colName] || []).forEach((v) => {
+                     valuesToAdd[v[PK]] = v;
                   });
+
+                  let valuesToRemove = [];
+                  // step through all the values I currently have
+                  let currValues = this.__dataCollection.find(() => true);
+                  currValues.forEach((value) => {
+                     // if value is in valuesToAdd
+                     if (valuesToAdd[value[PK]]) {
+                        // we already have it so turns out we don't need to add
+                        // it after all
+                        delete valuesToAdd[value[PK]];
+                     } else {
+                        // the current state of the Link Cursor value doesn't have
+                        // this value, so we need to remove it:
+                        valuesToRemove.push(value[PK]);
+                     }
+                  });
+
+                  // now remove the items we don't want:
+                  this.__dataCollection.remove(valuesToRemove);
+
+                  // then we have to ask for the values we need to add:
+                  valuesToAdd = Object.keys(valuesToAdd); // convert to []
+                  if (valuesToAdd.length > 0) {
+                     let cond = { where: {} };
+                     cond.where[PK] = valuesToAdd;
+                     // NOTE: we are using the abbreviated condition syntax here.
+
+                     // NOTE: staleRefresh() has some buffering capabilities
+                     // that combine multiple calls into 1 more efficient call:
+                     this.model.staleRefresh(cond).then((res) => {
+                        // check to make sure there is data to work with
+                        if (Array.isArray(res.data) && res.data.length) {
+                           res.data.forEach((d) => {
+                              this.__dataCollection.add(d);
+                           });
+                        }
+                     });
+                  }
+
                   return;
                }
 
