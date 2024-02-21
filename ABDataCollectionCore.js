@@ -818,7 +818,7 @@ module.exports = class ABDataCollectionCore extends ABMLClass {
             .then(() => {
                if (needAdd) {
                   // normalize data before add to data collection
-                  var model = obj.model();
+                  // var model = obj.model();
 
                   // UPDATE: this should already have happened in NetworkRestSocket
                   // when the initial data is received.
@@ -827,6 +827,10 @@ module.exports = class ABDataCollectionCore extends ABMLClass {
                   (updatedVals || []).forEach((updatedV) => {
                      // filter condition before add
                      if (!this.isValidData(updatedV)) return;
+
+                     // filter the cursor of parent DC
+                     const dcLink = this.datacollectionLink;
+                     if (dcLink && !this.isParentFilterValid(updatedV)) return;
 
                      // check to see if item already exisits in data collection
                      // and check to see that we are not loading the data serverside from cursor
