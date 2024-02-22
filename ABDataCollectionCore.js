@@ -1650,7 +1650,10 @@ module.exports = class ABDataCollectionCore extends ABMLClass {
                   // -> all the values into valuesToAdd:
                   let colName = this.fieldLink.fieldLink.relationName();
                   let valuesToAdd = {};
-                  (linkCursor[colName] || []).forEach((v) => {
+                  let valuesIn = linkCursor[colName] || [];
+                  if (!Array.isArray(valuesIn)) valuesIn = [valuesIn];
+                  valuesIn = valuesIn.filter((v) => v);
+                  valuesIn.forEach((v) => {
                      valuesToAdd[v[PK]] = v;
                   });
 
