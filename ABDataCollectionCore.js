@@ -153,8 +153,14 @@ module.exports = class ABDataCollectionCore extends ABMLClass {
       this.settings.linkFieldID =
          values.settings.linkFieldID || DefaultValues.settings.linkFieldID;
       // {string} .settings.linkFieldID
-      // the uuid of the ABDataField of the .linkDatacollection ABObject
-      // whose value is the trigger value for this ABDataCollection
+      // this.fieldLink is intended to be the way to connect to the column in
+      // the datacollectionLink that we are following.  However this field
+      // is the field in this.datasource that connects to the field in
+      // datacollectionLink that has the value we are linked to.
+      // So, If this DC(ObjB), and our datacollectionLink (ObjA)
+      // then this.fieldLink = ObjB->FieldB
+      // To find the corresponding field in ObjA, we do:
+      // this.fieldLink.fieldLink  (ObjA->FieldA)
 
       this.settings.followDatacollectionID =
          values.settings.followDatacollectionID ||
@@ -1196,6 +1202,7 @@ module.exports = class ABDataCollectionCore extends ABMLClass {
          let updateCursor = null;
 
          // if it is a linked object
+         // look for connected fields that link to the incoming objectId
          let connectedFields = obj.connectFields(
             (f) => f.datasourceLink && f.datasourceLink.id == data.objectId
          );
@@ -1209,7 +1216,7 @@ module.exports = class ABDataCollectionCore extends ABMLClass {
             // various PK name
             // webix datacollections require an .id value, so make sure
             // this incoming value has an .id set
-            let PK = connectedFields[0].object.PK();
+            let PK = obj.PK();
             if (!values.id && PK != "id") values.id = values[PK];
 
             if (this.__dataCollection.count() > 0) {
@@ -1609,87 +1616,111 @@ module.exports = class ABDataCollectionCore extends ABMLClass {
 
                // if don't have .loadAll set,  we'll need to update our data:
                if (!this.settings?.loadAll) {
-                  // // find out how many entries we have already loaded and try to
-                  // // load at least that many again.:
-                  // let count = 20;
-                  // if (this.__dataCollection.count() > count)
-                  //    count = this.__dataCollection.count();
-                  // if (this.__treeCollection?.count() > count)
-                  //    count = this.__treeCollection.count();
-
-                  // let currCursor = this.__dataCollection.getCursor();
-                  // this.clearAll();
-                  // this.reloadData(0, count).then(() => {
-                  //    this.__dataCollection.setCursor(currCursor);
-                  //    this.emit("cursorSelect", currCursor);
-                  // });
-
-                  // the values I currently contain can fall into 1 of 3 categories:
-                  // 1) A value I currently have that I need to Keep
-                  // 2) A value I currently have that I need to remove
-                  // 3) A value I don't have, but need to Add
-
-                  // the current value of the cursor should have the ID references
-                  // to what SHOULD be in my display
-
-                  // get the current cursor of our linked DC
-                  let linkCursor;
+                  // What I do here depends on what my linked DC has set for
+                  // it's .loadConnections (shouldPopulate) value
                   let dvLink = this.datacollectionLink;
-                  if (dvLink) {
-                     linkCursor = dvLink.getCursor();
+                  let isMyDataThere = dvLink.shouldPopulate;
+                  if (Array.isArray(isMyDataThere)) {
+                     // if this was an array: it should be an array of columnNames
+                     // of the dvLink that are being populated.
+
+                     // the column I'm interested in:
+                     let colName = this.fieldLink.fieldLink.columnName;
+
+                     // is it there?
+                     isMyDataThere = isMyDataThere.indexOf(colName) > -1;
                   }
-                  if (!linkCursor) {
-                     // if linkCursor is no longer set, then we should clear()
+                  if (!isMyDataThere) {
+                     // If it didn't populate it's data, then I can't be
+                     // efficient about how to update my data.
+                     // we'll just have to reload:
+
+                     // find out how many entries we have already loaded and try to
+                     // load at least that many again.:
+                     let count = 20;
+                     if (this.__dataCollection.count() > count)
+                        count = this.__dataCollection.count();
+                     if (this.__treeCollection?.count() > count)
+                        count = this.__treeCollection.count();
+
+                     let currCursor = this.__dataCollection.getCursor();
                      this.clearAll();
-                     return;
-                  }
+                     this.reloadData(0, count).then(() => {
+                        this.__dataCollection.setCursor(currCursor);
+                        this.emit("cursorSelect", currCursor);
+                     });
+                  } else {
+                     // if the linked DC does have my data populated:
 
-                  let PK = this.datasource.PK();
+                     // the values I currently contain can fall into 1 of 3 categories:
+                     // 1) A value I currently have that I need to Keep
+                     // 2) A value I currently have that I need to remove
+                     // 3) A value I don't have, but need to Add
 
-                  // lets start by assuming all the current values in cursor are #3
-                  // -> all the values into valuesToAdd:
-                  let colName = this.fieldLink.fieldLink.relationName();
-                  let valuesToAdd = {};
-                  (linkCursor[colName] || []).forEach((v) => {
-                     valuesToAdd[v[PK]] = v;
-                  });
+                     // the current value of the cursor should have the ID references
+                     // to what SHOULD be in my display
 
-                  let valuesToRemove = [];
-                  // step through all the values I currently have
-                  let currValues = this.__dataCollection.find(() => true);
-                  currValues.forEach((value) => {
-                     // if value is in valuesToAdd
-                     if (valuesToAdd[value[PK]]) {
-                        // we already have it so turns out we don't need to add
-                        // it after all
-                        delete valuesToAdd[value[PK]];
-                     } else {
-                        // the current state of the Link Cursor value doesn't have
-                        // this value, so we need to remove it:
-                        valuesToRemove.push(value[PK]);
+                     // get the current cursor of our linked DC
+                     let linkCursor;
+
+                     if (dvLink) {
+                        linkCursor = dvLink.getCursor();
                      }
-                  });
+                     if (!linkCursor) {
+                        // if linkCursor is no longer set, then we should clear()
+                        this.clearAll();
+                        return;
+                     }
 
-                  // now remove the items we don't want:
-                  this.__dataCollection.remove(valuesToRemove);
+                     let PK = this.datasource.PK();
 
-                  // then we have to ask for the values we need to add:
-                  valuesToAdd = Object.keys(valuesToAdd); // convert to []
-                  if (valuesToAdd.length > 0) {
-                     let cond = { where: {} };
-                     cond.where[PK] = valuesToAdd;
-                     // NOTE: we are using the abbreviated condition syntax here.
+                     // lets start by assuming all the current values in cursor are #3
+                     // -> all the values into valuesToAdd:
+                     let colName = this.fieldLink.fieldLink.relationName();
+                     let valuesToAdd = {};
+                     let valuesIn = linkCursor[colName] || [];
+                     if (!Array.isArray(valuesIn)) valuesIn = [valuesIn];
+                     valuesIn.forEach((v) => {
+                        valuesToAdd[v[PK]] = v;
+                     });
 
-                     // NOTE: staleRefresh() has some buffering capabilities
-                     // that combine multiple calls into 1 more efficient call:
-                     this.model.staleRefresh(cond).then((res) => {
-                        // check to make sure there is data to work with
-                        if (Array.isArray(res.data) && res.data.length) {
-                           res.data.forEach((d) => {
-                              this.__dataCollection.add(d);
-                           });
+                     let valuesToRemove = [];
+                     // step through all the values I currently have
+                     let currValues = this.__dataCollection.find(() => true);
+                     currValues.forEach((value) => {
+                        // if value is in valuesToAdd
+                        if (valuesToAdd[value[PK]]) {
+                           // we already have it so turns out we don't need to add
+                           // it after all
+                           delete valuesToAdd[value[PK]];
+                        } else {
+                           // the current state of the Link Cursor value doesn't have
+                           // this value, so we need to remove it:
+                           valuesToRemove.push(value[PK]);
                         }
                      });
+
+                     // now remove the items we don't want:
+                     this.__dataCollection.remove(valuesToRemove);
+
+                     // then we have to ask for the values we need to add:
+                     valuesToAdd = Object.keys(valuesToAdd); // convert to []
+                     if (valuesToAdd.length > 0) {
+                        let cond = { where: {} };
+                        cond.where[PK] = valuesToAdd;
+                        // NOTE: we are using the abbreviated condition syntax here.
+
+                        // NOTE: staleRefresh() has some buffering capabilities
+                        // that combine multiple calls into 1 more efficient call:
+                        this.model.staleRefresh(cond).then((res) => {
+                           // check to make sure there is data to work with
+                           if (Array.isArray(res.data) && res.data.length) {
+                              res.data.forEach((d) => {
+                                 this.__dataCollection.add(d);
+                              });
+                           }
+                        });
+                     }
                   }
 
                   return;
@@ -1943,9 +1974,7 @@ module.exports = class ABDataCollectionCore extends ABMLClass {
          // limit: limit || 20,
          skip: start || 0,
          sort: sorts,
-         populate:
-            this.settings.populate ??
-            (this.settings.preventPopulate ? false : true),
+         populate: this.shouldPopulate,
       };
 
       //// NOTE: we no longer set a default limit on loadData() but
@@ -2019,6 +2048,13 @@ module.exports = class ABDataCollectionCore extends ABMLClass {
       return model.findAll(cond).then((data) => {
          return this.processIncomingData(data);
       });
+   }
+
+   get shouldPopulate() {
+      return (
+         this.settings.populate ??
+         (this.settings.preventPopulate ? false : true)
+      );
    }
 
    /**
