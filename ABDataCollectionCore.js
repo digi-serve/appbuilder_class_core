@@ -2050,6 +2050,13 @@ module.exports = class ABDataCollectionCore extends ABMLClass {
       });
    }
 
+   /**
+    * @method shouldPopulate()
+    * Return our populate status. We now want to query this info outside this
+    * object.
+    * @return {bool|Array}
+    *         true/false,  or an array of columnNames that are being populated.
+    */
    get shouldPopulate() {
       return (
          this.settings.populate ??
