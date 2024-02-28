@@ -587,14 +587,14 @@ module.exports = class ABDataCollectionCore extends ABMLClass {
     *    it finds it's parents current set cursor and then filters its data
     *    based off of the cursor.
     */
-   refreshLinkCursor() {
+   refreshLinkCursor(force = false) {
       // our filter conditions need to know there was an updated cursor.
       // some of our filters are based upon our linked data.
       this.refreshFilterConditions();
 
       // NOTE: If DC does not set load all data, then it does not need to filter by the parent DC.
       // because it fetch data when the cursor of the parent DC changes.
-      if (!this.settings.loadAll) return;
+      if (!this.settings.loadAll && !force) return;
 
       // do not set the filter unless this dc is initialized "dataStatusFlag==2"
       // if (this.dataStatus != this.dataStatusFlag.initialized) return;
@@ -1033,7 +1033,12 @@ module.exports = class ABDataCollectionCore extends ABMLClass {
          if (!values) return;
 
          // DC who is following cursor should update only current cursor.
-         if (this.getCursor()?.id != (values[obj.PK()] ?? values.id)) return;
+         if (
+            this.isCursorFollow &&
+            this.getCursor()?.id != (values[obj.PK()] ?? values.id)
+         ) {
+            return;
+         }
 
          let needUpdate = false;
          let isExists = false;
@@ -1178,8 +1183,7 @@ module.exports = class ABDataCollectionCore extends ABMLClass {
          // update relation data
          if (
             obj instanceof this.AB.Class.ABObject &&
-            connectedFields &&
-            connectedFields.length > 0
+            connectedFields?.length > 0
          ) {
             // various PK name
             let PK = connectedFields[0].object.PK();
@@ -1305,7 +1309,31 @@ module.exports = class ABDataCollectionCore extends ABMLClass {
             }
          }
 
-         this.refreshLinkCursor();
+         // Add the new data that just relate to the Link DC
+         if (
+            this.datacollectionLink?.datasource.id == data.objectId &&
+            values.id == this.datacollectionLink.getCursor()?.id
+         ) {
+            const linkedField = this.fieldLink;
+            let relatedData = values[linkedField.fieldLink.relationName()];
+            if (relatedData && !Array.isArray(relatedData))
+               relatedData = [relatedData];
+
+            (relatedData ?? []).forEach((item) => {
+               if (item == null) return;
+
+               if (!this.__dataCollection.exists(item[obj.PK()])) {
+                  // QUESTION: Should we .find to get fully info here ?
+                  const newItem = this.AB.cloneDeep(item);
+                  newItem[linkedField.relationName()] = [values];
+                  this.__dataCollection.add(newItem);
+               }
+            });
+
+            // TODO: show warning to the user
+         }
+
+         this.refreshLinkCursor(true);
          this.setStaticCursor();
       });
 
