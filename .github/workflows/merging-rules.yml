@@ -1,7 +1,7 @@
 name: Test
 on:
   pull_request:
-    branches: [periodOfTime]
+    branches: [v2]
 jobs:
   call-e2e-tests:
     name: Test
