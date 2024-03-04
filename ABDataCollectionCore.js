@@ -1055,12 +1055,12 @@ module.exports = class ABDataCollectionCore extends ABMLClass {
          // #Johnny: removing this check.  A DC that is following another cursor
          // still has a value that might need updating.
          // DC who is following cursor should update only current cursor.
-         // if (
-         //    this.isCursorFollow &&
-         //    this.getCursor()?.id != (values[obj.PK()] ?? values.id)
-         // ) {
-         //    return;
-         // }
+         if (
+            this.isCursorFollow &&
+            this.getCursor()?.id != (values[obj.PK()] ?? values.id)
+         ) {
+            return;
+         }
 
          let needUpdate = false;
          let isExists = false;
@@ -1377,7 +1377,7 @@ module.exports = class ABDataCollectionCore extends ABMLClass {
          if (updateCursor) {
             this.emit("cursorStale", null);
          }
-         // this.updateRelationalDataFromLinkDC(data.objectId, values);
+         this.updateRelationalDataFromLinkDC(data.objectId, values);
          this.refreshLinkCursor();
 
          this.setStaticCursor();
