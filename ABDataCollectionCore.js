@@ -146,15 +146,21 @@ module.exports = class ABDataCollectionCore extends ABMLClass {
       this.settings.linkDatacollectionID =
          values.settings.linkDatacollectionID ||
          DefaultValues.settings.linkDatacollectionID;
-      // {string} .settings.linkDaacollectionID
+      // {string} .settings.linkDatacollectionID
       // the uuid of another ABDataCollection that provides the link/trigger
       // for filtering the values of this ABDataCollection.
 
       this.settings.linkFieldID =
          values.settings.linkFieldID || DefaultValues.settings.linkFieldID;
       // {string} .settings.linkFieldID
-      // the uuid of the ABDataField of the .linkDatacollection ABObject
-      // whose value is the trigger value for this ABDataCollection
+      // this.fieldLink is intended to be the way to connect to the column in
+      // the datacollectionLink that we are following.  However this field
+      // is the field in this.datasource that connects to the field in
+      // datacollectionLink that has the value we are linked to.
+      // So, If this DC(ObjB), and our datacollectionLink (ObjA)
+      // then this.fieldLink = ObjB->FieldB
+      // To find the corresponding field in ObjA, we do:
+      // this.fieldLink.fieldLink  (ObjA->FieldA)
 
       this.settings.followDatacollectionID =
          values.settings.followDatacollectionID ||
@@ -586,6 +592,13 @@ module.exports = class ABDataCollectionCore extends ABMLClass {
     *    If the data collection is bound to another and it is the child connection
     *    it finds it's parents current set cursor and then filters its data
     *    based off of the cursor.
+    *
+    *    In cases where a DC has set .loadAll, our job is to filter existing data
+    *    that is already loaded in the internal __dataCollection.
+    *
+    *    Otherwise this is not the place to trigger a data refresh.  We depend
+    *    on other mechanisms (.reloadData(), datacollection .select()) to trigger
+    *    an update.
     */
    refreshLinkCursor(force = false) {
       // our filter conditions need to know there was an updated cursor.
@@ -1032,7 +1045,6 @@ module.exports = class ABDataCollectionCore extends ABMLClass {
          // data.objectId {string} uuid of the ABObject's row that was updated
          // data.data {json} the new updated value of that row entry.
 
-         // debugger;
          let obj = this.datasource;
          if (!obj) return;
 
@@ -1040,13 +1052,15 @@ module.exports = class ABDataCollectionCore extends ABMLClass {
          let values = data.data;
          if (!values) return;
 
+         // #Johnny: removing this check.  A DC that is following another cursor
+         // still has a value that might need updating.
          // DC who is following cursor should update only current cursor.
-         if (
-            this.isCursorFollow &&
-            this.getCursor()?.id != (values[obj.PK()] ?? values.id)
-         ) {
-            return;
-         }
+         // if (
+         //    this.isCursorFollow &&
+         //    this.getCursor()?.id != (values[obj.PK()] ?? values.id)
+         // ) {
+         //    return;
+         // }
 
          let needUpdate = false;
          let isExists = false;
@@ -1057,6 +1071,14 @@ module.exports = class ABDataCollectionCore extends ABMLClass {
 
          let updatedTreeIds = [];
          let updatedVals = {};
+
+         //
+         // Case 1: This DC contains the value that was updated
+         // In this case, we want to replace our current entry with
+         // the new one passed in.
+         // EX: This is a DC of Users, and the incoming Entry is a User
+         // that we are already displaying.
+         //
 
          // Query
          if (obj instanceof this.AB.Class.ABObjectQuery) {
@@ -1119,12 +1141,10 @@ module.exports = class ABDataCollectionCore extends ABMLClass {
          if (needUpdate) {
             if (isExists) {
                if (this.isValidData(updatedVals)) {
-                  // NOTE: this is now done in NetworkRestSocket before
-                  // we start the update events.
-                  // normalize data before update data collection
-                  // var model = obj.model();
-                  // model.normalizeData(updatedVals);
-
+                  // only spread around cloned copies because some objects (I'm
+                  // looking at you ABFieldUser) will modify some data for local
+                  // usage.
+                  updatedVals = this.AB.cloneDeep(updatedVals);
                   if (this.__dataCollection) {
                      updatedIds = this.AB.uniq(updatedIds);
                      updatedIds.forEach((itemId) => {
@@ -1144,18 +1164,18 @@ module.exports = class ABDataCollectionCore extends ABMLClass {
 
                   // If the update item is current cursor, then should tell components to update.
                   let currData = this.getCursor();
-                  if (currData && currData.id == updatedVals.id) {
-                     this.emit("changeCursor", currData);
+                  if (currData?.id == updatedVals.id) {
+                     this.emit("cursorStale", currData);
                   }
                } else {
                   // Johnny: Here we are simply removing the DataCollection Entries that are
                   // no longer valid.
                   // Just cycle through the collected updatedIds and remove them.
+                  let currData = this.getCursor();
                   updatedIds.forEach((id) => {
                      // If the item is current cursor, then the current cursor should be cleared.
-                     let currData = this.getCursor();
-                     if (currData && currData.id == id)
-                        this.emit("changeCursor", null);
+
+                     if (currData?.id == id) this.emit("cursorStale", null);
 
                      this.__dataCollection.remove(id);
 
@@ -1183,7 +1203,19 @@ module.exports = class ABDataCollectionCore extends ABMLClass {
             }
          }
 
+         //
+         // Case 2: This DC has entries that CONNECT to the updated value.
+         // We need to make sure our connections, properly reflect the
+         // current state of the incoming data.
+         //
+         // EG: This DC is a list of Roles that connect to User, and an updated
+         // User is passed in.
+
+         let currCursor = this.getCursor();
+         let updateCursor = null;
+
          // if it is a linked object
+         // look for connected fields that link to the incoming objectId
          let connectedFields = obj.connectFields(
             (f) => f.datasourceLink && f.datasourceLink.id == data.objectId
          );
@@ -1194,7 +1226,9 @@ module.exports = class ABDataCollectionCore extends ABMLClass {
             connectedFields?.length > 0
          ) {
             // various PK name
-            let PK = connectedFields[0].object.PK();
+            // webix datacollections require an .id value, so make sure
+            // this incoming value has an .id set
+            let PK = obj.PK();
             if (!values.id && PK != "id") values.id = values[PK];
 
             if (this.__dataCollection.count() > 0) {
@@ -1213,9 +1247,11 @@ module.exports = class ABDataCollectionCore extends ABMLClass {
                         updateRelateVal =
                            values[f.fieldLink.relationName()] || {};
 
+                     // check to see if we are supposed to be related to this
                      let valIsRelated = isRelated(updateRelateVal, d.id, PK);
 
-                     // Unrelate data
+                     // If NO, then make sure we Unrelate data
+                     // if this is an array -> filter out the entry
                      if (
                         Array.isArray(rowRelateVal) &&
                         rowRelateVal.filter(
@@ -1227,12 +1263,16 @@ module.exports = class ABDataCollectionCore extends ABMLClass {
                         !valIsRelated
                      ) {
                         updateItemData[f.relationName()] = rowRelateVal.filter(
-                           (v) => (v.id || v[PK] || v) != values.id
+                           // NOTE: Special case: the incoming value.id will be .uuid
+                           // however in case of User Fields, v.id == username and not .uuid
+                           // so we put our default check to be v[PK] here to play nice
+                           (v) => (v[PK] || v.id || v) != values.id
                         );
                         updateItemData[f.columnName] = updateItemData[
                            f.relationName()
                         ].map((v) => v.id || v[PK] || v);
                      } else if (
+                        // this is not an array so set link to null
                         !Array.isArray(rowRelateVal) &&
                         (rowRelateVal == values.id ||
                            rowRelateVal.id == values.id ||
@@ -1243,7 +1283,12 @@ module.exports = class ABDataCollectionCore extends ABMLClass {
                         updateItemData[f.columnName] = null;
                      }
 
-                     // Relate data or Update
+                     // However, if we are supposed to be related => make sure we are
+                     // If this is an array, then add to list
+                     // AND YES: make sure it is cloned
+                     if (valIsRelated) {
+                        values = this.AB.cloneDeep(values);
+                     }
                      if (Array.isArray(rowRelateVal) && valIsRelated) {
                         // update relate data
                         if (
@@ -1254,6 +1299,8 @@ module.exports = class ABDataCollectionCore extends ABMLClass {
                                  v[PK] == values.id
                            ).length > 0
                         ) {
+                           // just update the one entry in my array with the new
+                           // value
                            rowRelateVal.forEach((v, index) => {
                               if (
                                  v == values.id ||
@@ -1285,7 +1332,8 @@ module.exports = class ABDataCollectionCore extends ABMLClass {
                   });
 
                   // If this item needs to update
-                  if (Object.keys(updateItemData).length > 0) {
+                  // meaning there is > 1 key in the object (we always have .id)
+                  if (Object.keys(updateItemData).length > 1) {
                      // normalize data before add to data collection
                      // UPDATE: this should already have happened in NetworkRestSocket
                      // when the initial data is received.
@@ -1311,14 +1359,27 @@ module.exports = class ABDataCollectionCore extends ABMLClass {
                            "update",
                            this.__dataCollection.getItem(d.id)
                         );
+                        if (currCursor?.id == dcItem.id) {
+                           updateCursor = dcItem;
+                        }
                      }
                   }
                });
             }
          }
 
-         this.updateRelationalDataFromLinkDC(data.objectId, values);
-         this.refreshLinkCursor(true);
+         //
+         // Case 3: Our DC is linked to a DC that was effected by this update.
+         //
+         // We will approach it from another direction, if the current DC made
+         // an update to it's current Cursor, then we will emit a "cursorStale"
+         // event, so our linked DCs will update themselves with the new value:
+         if (updateCursor) {
+            this.emit("cursorStale", null);
+         }
+         // this.updateRelationalDataFromLinkDC(data.objectId, values);
+         this.refreshLinkCursor();
+
          this.setStaticCursor();
       });
 
@@ -1383,14 +1444,14 @@ module.exports = class ABDataCollectionCore extends ABMLClass {
 
                      // If the update item is current cursor, then should tell components to update.
                      var currData = this.getCursor();
-                     if (currData && currData[PK] == values[PK]) {
-                        this.emit("changeCursor", currData);
+                     if (currData?.[PK] == values[PK]) {
+                        this.emit("cursorStale", currData);
                      }
                   } else {
                      // If there is no data in the object then it was deleted...lets clean things up
                      // If the deleted item is current cursor, then the current cursor should be cleared.
                      var currId = this.getCursor();
-                     if (currId == values[PK]) this.emit("changeCursor", null);
+                     if (currId == values[PK]) this.emit("cursorStale", null);
 
                      this.__dataCollection.remove(values[PK]);
                      this.emit("delete", values[PK]);
@@ -1453,8 +1514,8 @@ module.exports = class ABDataCollectionCore extends ABMLClass {
             var currData = this.getCursor();
 
             deletedIds.forEach((delId) => {
-               if (currData && currData[obj.PK()] == delId)
-                  this.emit("changeCursor", null);
+               if (currData?.[obj.PK()] == delId)
+                  this.emit("cursorStale", null);
 
                if (this.__dataCollection.exists(delId))
                   this.__dataCollection.remove(delId);
@@ -1556,6 +1617,133 @@ module.exports = class ABDataCollectionCore extends ABMLClass {
                this.setStaticCursor();
             },
          });
+
+         this.eventAdd({
+            emitter: linkDC,
+            eventName: "cursorStale",
+            listener: (currentCursor) => {
+               // cursorStale : the current cursor hasn't CHANGED, but the data
+               // of that value has changed.
+               // This is triggered by one of our socket updates that detects
+               // changes to the cursor data.
+
+               // if don't have .loadAll set,  we'll need to update our data:
+               if (!this.settings?.loadAll) {
+                  // What I do here depends on what my linked DC has set for
+                  // it's .loadConnections (shouldPopulate) value
+                  let dvLink = this.datacollectionLink;
+                  let isMyDataThere = dvLink.shouldPopulate;
+                  if (Array.isArray(isMyDataThere)) {
+                     // if this was an array: it should be an array of columnNames
+                     // of the dvLink that are being populated.
+
+                     // the column I'm interested in:
+                     let colName = this.fieldLink.fieldLink.columnName;
+
+                     // is it there?
+                     isMyDataThere = isMyDataThere.indexOf(colName) > -1;
+                  }
+                  if (!isMyDataThere) {
+                     // If it didn't populate it's data, then I can't be
+                     // efficient about how to update my data.
+                     // we'll just have to reload:
+
+                     // find out how many entries we have already loaded and try to
+                     // load at least that many again.:
+                     let count = 20;
+                     if (this.__dataCollection.count() > count)
+                        count = this.__dataCollection.count();
+                     if (this.__treeCollection?.count() > count)
+                        count = this.__treeCollection.count();
+
+                     let currCursor = this.__dataCollection.getCursor();
+                     this.clearAll();
+                     this.reloadData(0, count).then(() => {
+                        this.__dataCollection.setCursor(currCursor);
+                        this.emit("cursorSelect", currCursor);
+                     });
+                  } else {
+                     // if the linked DC does have my data populated:
+
+                     // the values I currently contain can fall into 1 of 3 categories:
+                     // 1) A value I currently have that I need to Keep
+                     // 2) A value I currently have that I need to remove
+                     // 3) A value I don't have, but need to Add
+
+                     // the current value of the cursor should have the ID references
+                     // to what SHOULD be in my display
+
+                     // get the current cursor of our linked DC
+                     let linkCursor;
+
+                     if (dvLink) {
+                        linkCursor = dvLink.getCursor();
+                     }
+                     if (!linkCursor) {
+                        // if linkCursor is no longer set, then we should clear()
+                        this.clearAll();
+                        return;
+                     }
+
+                     let PK = this.datasource.PK();
+
+                     // lets start by assuming all the current values in cursor are #3
+                     // -> all the values into valuesToAdd:
+                     let colName = this.fieldLink.fieldLink.relationName();
+                     let valuesToAdd = {};
+                     let valuesIn = linkCursor[colName] || [];
+                     if (!Array.isArray(valuesIn)) valuesIn = [valuesIn];
+                     valuesIn.forEach((v) => {
+                        valuesToAdd[v[PK]] = v;
+                     });
+
+                     let valuesToRemove = [];
+                     // step through all the values I currently have
+                     let currValues = this.__dataCollection.find(() => true);
+                     currValues.forEach((value) => {
+                        // if value is in valuesToAdd
+                        if (valuesToAdd[value[PK]]) {
+                           // we already have it so turns out we don't need to add
+                           // it after all
+                           delete valuesToAdd[value[PK]];
+                        } else {
+                           // the current state of the Link Cursor value doesn't have
+                           // this value, so we need to remove it:
+                           valuesToRemove.push(value[PK]);
+                        }
+                     });
+
+                     // now remove the items we don't want:
+                     this.__dataCollection.remove(valuesToRemove);
+
+                     // then we have to ask for the values we need to add:
+                     valuesToAdd = Object.keys(valuesToAdd); // convert to []
+                     if (valuesToAdd.length > 0) {
+                        let cond = { where: {} };
+                        cond.where[PK] = valuesToAdd;
+                        // NOTE: we are using the abbreviated condition syntax here.
+
+                        // NOTE: staleRefresh() has some buffering capabilities
+                        // that combine multiple calls into 1 more efficient call:
+                        this.model.staleRefresh(cond).then((res) => {
+                           // check to make sure there is data to work with
+                           if (Array.isArray(res.data) && res.data.length) {
+                              res.data.forEach((d) => {
+                                 this.__dataCollection.add(d);
+                              });
+                           }
+                        });
+                     }
+                  }
+
+                  return;
+               }
+
+               // Otherwise, we need to refilter our data:
+               this.refreshLinkCursor();
+               this.setStaticCursor();
+            },
+         });
       }
 
       // add listeners when cursor of the followed data collection is changed
@@ -1574,6 +1762,20 @@ module.exports = class ABDataCollectionCore extends ABMLClass {
                   currentCursor?.[this.datasource.PK()]
                )
                   return;
+
+               this.clearAll();
+               this.loadData();
+            },
+         });
+
+         this.eventAdd({
+            emitter: followDC,
+            eventName: "cursorStale",
+            listener: () => {
+               // cursorStale : the current cursor hasn't CHANGED, but the data
+               // of that value has changed.
+               // This is triggered by one of our socket updates that detects
+               // changes to the cursor data.
 
                this.clearAll();
                this.loadData();
@@ -1709,13 +1911,16 @@ module.exports = class ABDataCollectionCore extends ABMLClass {
       if (this.__reloadWheres) {
          wheres = this.__reloadWheres;
       }
+      wheres.glue = wheres.glue || "and";
+      wheres.rules = wheres.rules || [];
 
       const __additionalWheres = {
          glue: "and",
          rules: [],
       };
 
-      if (this.__filterCond) {
+      // add the filterCond if there are rules to add
+      if (this.__filterCond?.rules?.length > 0) {
          __additionalWheres.rules.push(this.__filterCond);
       }
 
@@ -1782,9 +1987,7 @@ module.exports = class ABDataCollectionCore extends ABMLClass {
          // limit: limit || 20,
          skip: start || 0,
          sort: sorts,
-         populate:
-            this.settings.populate ??
-            (this.settings.preventPopulate ? false : true),
+         populate: this.shouldPopulate,
       };
 
       //// NOTE: we no longer set a default limit on loadData() but
@@ -1858,6 +2061,20 @@ module.exports = class ABDataCollectionCore extends ABMLClass {
       return model.findAll(cond).then((data) => {
          return this.processIncomingData(data);
       });
+   }
+
+   /**
+    * @method shouldPopulate()
+    * Return our populate status. We now want to query this info outside this
+    * object.
+    * @return {bool|Array}
+    *         true/false,  or an array of columnNames that are being populated.
+    */
+   get shouldPopulate() {
+      return (
+         this.settings.populate ??
+         (this.settings.preventPopulate ? false : true)
+      );
    }
 
    /**
@@ -2326,6 +2543,10 @@ module.exports = class ABDataCollectionCore extends ABMLClass {
             rules: [],
          }
       );
+      // sanity checks:
+      // I've learned not to trust: this.settings.objectWorkspace
+      filter.glue = filter.glue || "and";
+      filter.rules = filter.rules || [];
 
       // if there is a linkRule, add it to filter
       let linkRule = this.ruleLinkedData(); // returns a rule if we are linked
@@ -2361,7 +2582,7 @@ module.exports = class ABDataCollectionCore extends ABMLClass {
          }
       }
 
-      if (filter.rules.length > 0) {
+      if ((filter.rules || []).length > 0) {
          this.__filterDatacollection.setValue(filter);
       } else {
          this.__filterDatacollection.setValue(
