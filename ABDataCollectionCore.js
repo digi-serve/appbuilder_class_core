@@ -600,14 +600,14 @@ module.exports = class ABDataCollectionCore extends ABMLClass {
     *    on other mechanisms (.reloadData(), datacollection .select()) to trigger
     *    an update.
     */
-   refreshLinkCursor() {
+   refreshLinkCursor(force = false) {
       // our filter conditions need to know there was an updated cursor.
       // some of our filters are based upon our linked data.
       this.refreshFilterConditions();
 
       // NOTE: If DC does not set load all data, then it does not need to filter by the parent DC.
       // because it fetch data when the cursor of the parent DC changes.
-      if (!this.settings.loadAll) return;
+      if (!this.settings.loadAll && !force) return;
 
       // do not set the filter unless this dc is initialized "dataStatusFlag==2"
       // if (this.dataStatus != this.dataStatusFlag.initialized) return;
@@ -623,6 +623,9 @@ module.exports = class ABDataCollectionCore extends ABMLClass {
       }
 
       let filterData = (rowData) => {
+         // This row is not loaded yet. It will be loaded when scrolling.
+         if (rowData == null) return true;
+
          // if link dc cursor is null:
          // ... if there's no parent show all data
          // ... if we have a parent hide all data - address cases where user see
@@ -828,7 +831,7 @@ module.exports = class ABDataCollectionCore extends ABMLClass {
             .then(() => {
                if (needAdd) {
                   // normalize data before add to data collection
-                  var model = obj.model();
+                  // var model = obj.model();
 
                   // UPDATE: this should already have happened in NetworkRestSocket
                   // when the initial data is received.
@@ -837,6 +840,10 @@ module.exports = class ABDataCollectionCore extends ABMLClass {
                   (updatedVals || []).forEach((updatedV) => {
                      // filter condition before add
                      if (!this.isValidData(updatedV)) return;
+
+                     // filter the cursor of parent DC
+                     const dcLink = this.datacollectionLink;
+                     if (dcLink && !this.isParentFilterValid(updatedV)) return;
 
                      // check to see if item already exisits in data collection
                      // and check to see that we are not loading the data serverside from cursor
@@ -1025,6 +1032,7 @@ module.exports = class ABDataCollectionCore extends ABMLClass {
                   }
                }
 
+               this.updateRelationalDataFromLinkDC(data.objectId, data.data);
                // filter link data collection's cursor
                this.refreshLinkCursor();
                this.setStaticCursor();
@@ -1047,7 +1055,12 @@ module.exports = class ABDataCollectionCore extends ABMLClass {
          // #Johnny: removing this check.  A DC that is following another cursor
          // still has a value that might need updating.
          // DC who is following cursor should update only current cursor.
-         // if (this.getCursor()?.id != (values[obj.PK()] ?? values.id)) return;
+         // if (
+         //    this.isCursorFollow &&
+         //    this.getCursor()?.id != (values[obj.PK()] ?? values.id)
+         // ) {
+         //    return;
+         // }
 
          let needUpdate = false;
          let isExists = false;
@@ -1210,8 +1223,7 @@ module.exports = class ABDataCollectionCore extends ABMLClass {
          // update relation data
          if (
             obj instanceof this.AB.Class.ABObject &&
-            connectedFields &&
-            connectedFields.length > 0
+            connectedFields?.length > 0
          ) {
             // various PK name
             // webix datacollections require an .id value, so make sure
@@ -1365,8 +1377,9 @@ module.exports = class ABDataCollectionCore extends ABMLClass {
          if (updateCursor) {
             this.emit("cursorStale", null);
          }
-
+         // this.updateRelationalDataFromLinkDC(data.objectId, values);
          this.refreshLinkCursor();
+
          this.setStaticCursor();
       });
 
@@ -2824,6 +2837,38 @@ module.exports = class ABDataCollectionCore extends ABMLClass {
          result = result && this.__filterScope.isValid(rowData);
 
       return result;
+   }
+
+   updateRelationalDataFromLinkDC(objectId, rowData) {
+      const dcLink = this.datacollectionLink;
+      const cursorLink = dcLink?.getCursor();
+
+      // Add the new data that just relate to the Link DC
+      if (
+         dcLink?.datasource.id == objectId &&
+         cursorLink &&
+         cursorLink.id == rowData?.id
+      ) {
+         const obj = this.datasource;
+         const linkedField = this.fieldLink;
+         let relatedData = rowData[linkedField.fieldLink.relationName()];
+         if (relatedData && !Array.isArray(relatedData))
+            relatedData = [relatedData];
+
+         (relatedData ?? []).forEach((item) => {
+            if (item == null) return;
+
+            if (!this.__dataCollection.exists(item[obj.PK()])) {
+               // QUESTION: Should we .find to get fully info here ?
+               const newItem = this.AB.cloneDeep(item);
+               newItem[linkedField.relationName()] = [rowData];
+               this.__dataCollection.add(newItem);
+            }
+         });
+
+         // trigger to components to know there are updated data.
+         this.emit("warnRefresh");
+      }
    }
 
    // Clone
