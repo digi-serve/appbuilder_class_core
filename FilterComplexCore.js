@@ -407,24 +407,22 @@ module.exports = class FilterComplexCore extends ABComponent {
             result = value != this.Account.username;
             break;
          case "contain_current_user":
+            compareValue = this.Account.username;
+         case "equals":
             if (!Array.isArray(value)) value = [value];
 
             result =
-               value.filter((v) => (v.username || v) == this.Account.username)
+               value.filter((v) => (v.username || v) == compareValue)
                   .length > 0;
             break;
          case "not_contain_current_user":
+            compareValue = this.Account.username;
+         case "not_equal":
             if (!Array.isArray(value)) value = [value];
 
             result =
-               value.filter((v) => (v.username || v) == this.Account.username)
+               value.filter((v) => (v.username || v) == compareValue)
                   .length < 1;
-            break;
-         case "equals":
-            result = (value ?? []).indexOf(compareValue) > -1;
-            break;
-         case "not_equal":
-            result = (value ?? []).indexOf(compareValue) < 0;
             break;
          default:
             result = this.queryFieldValid(value, rule, compareValue);
