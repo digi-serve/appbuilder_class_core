@@ -421,9 +421,13 @@ module.exports = class FilterComplexCore extends ABComponent {
                   .length < 1;
             break;
          case "equals":
+            if (!Array.isArray(value)) value = [value];
+
             result = (value ?? []).indexOf(compareValue) > -1;
             break;
          case "not_equal":
+            if (!Array.isArray(value)) value = [value];
+
             result = (value ?? []).indexOf(compareValue) < 0;
             break;
          default:
