@@ -1042,7 +1042,7 @@ module.exports = class ABDataCollectionCore extends ABMLClass {
 
          // DC who is following cursor should update only current cursor.
          if (
-            this.isCursorFollow &&
+            // this.isCursorFollow &&
             this.getCursor()?.id != (values[obj.PK()] ?? values.id)
          ) {
             return;
