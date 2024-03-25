@@ -2361,7 +2361,7 @@ module.exports = class ABDataCollectionCore extends ABMLClass {
          }
       }
 
-      if (filter.rules.length > 0) {
+      if (filter?.rules?.length > 0 && !this.isCursorFollow) {
          this.__filterDatacollection.setValue(filter);
       } else {
          this.__filterDatacollection.setValue(
