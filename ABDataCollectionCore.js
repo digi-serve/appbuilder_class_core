@@ -1907,7 +1907,7 @@ module.exports = class ABDataCollectionCore extends ABMLClass {
 
       // pull filter conditions
       let wheres = this.AB.cloneDeep(
-         this.settings.objectWorkspace.filterConditions ?? null
+         this.settings.objectWorkspace.filterConditions ?? {}
       );
       // if we pass new wheres with a reload use them instead
       if (this.__reloadWheres) {
