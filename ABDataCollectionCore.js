@@ -1041,10 +1041,17 @@ module.exports = class ABDataCollectionCore extends ABMLClass {
          if (!values) return;
 
          // DC who is following cursor should update only current cursor.
-         if (
-            // this.isCursorFollow &&
-            this.getCursor()?.id != (values[obj.PK()] ?? values.id)
-         ) {
+         if (this.getCursor()?.id != (values[obj.PK()] ?? values.id)) {
+            // If this DC has only one row, then refresh data
+            if (this.isCursorFollow) {
+               const connectedFields = obj.connectFields(
+                  (f) => f.datasourceLink?.id == data.objectId
+               );
+               if (connectedFields?.length) {
+                  this.loadData();
+               }
+            }
+
             return;
          }
 
