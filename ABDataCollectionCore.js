@@ -1318,7 +1318,9 @@ module.exports = class ABDataCollectionCore extends ABMLClass {
                         updateItemData[f.relationName()] = rowRelateVal;
                         updateItemData[f.columnName] = updateItemData[
                            f.relationName()
-                        ].map((v) => v.id || v[PK] || v);
+                        ].map(
+                           (v) => f.getRelationValue(v) /*v.id || v[PK] || v*/
+                        );
                      } else if (
                         !Array.isArray(rowRelateVal) &&
                         (rowRelateVal != values.id ||
@@ -1327,7 +1329,9 @@ module.exports = class ABDataCollectionCore extends ABMLClass {
                         valIsRelated
                      ) {
                         updateItemData[f.relationName()] = values;
-                        updateItemData[f.columnName] = values.id || values;
+                        // make ConnectedField use .getRelationValue() here!
+                        updateItemData[f.columnName] =
+                           f.getRelationValue(values);
                      }
                   });
 
