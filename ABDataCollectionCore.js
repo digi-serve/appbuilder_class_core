@@ -1041,19 +1041,12 @@ module.exports = class ABDataCollectionCore extends ABMLClass {
          if (!values) return;
 
          // DC who is following cursor should update only current cursor.
-         if (this.getCursor()?.id != (values[obj.PK()] ?? values.id)) {
-            // If this DC has only one row, then refresh data
-            if (this.isCursorFollow) {
-               const connectedFields = obj.connectFields(
-                  (f) => f.datasourceLink?.id == data.objectId
-               );
-               if (connectedFields?.length) {
-                  this.loadData();
-               }
-            }
-
-            return;
-         }
+         // if (
+         // //   this.isCursorFollow &&
+         //    this.getCursor()?.id != (values[obj.PK()] ?? values.id)
+         // ) {
+         //    return;
+         // }
 
          let needUpdate = false;
          let isExists = false;
@@ -1150,10 +1143,10 @@ module.exports = class ABDataCollectionCore extends ABMLClass {
                   this.emit("update", updatedVals);
 
                   // If the update item is current cursor, then should tell components to update.
-                  let currData = this.getCursor();
-                  if (currData && currData.id == updatedVals.id) {
-                     this.emit("changeCursor", currData);
-                  }
+                  // let currData = this.getCursor();
+                  // if (currData && currData.id == updatedVals.id) {
+                  //    this.emit("changeCursor", currData);
+                  // }
                } else {
                   // Johnny: Here we are simply removing the DataCollection Entries that are
                   // no longer valid.
@@ -1191,12 +1184,14 @@ module.exports = class ABDataCollectionCore extends ABMLClass {
          }
 
          // if it is a linked object
-         let connectedFields = obj.connectFields(
-            (f) => f.datasourceLink && f.datasourceLink.id == data.objectId
+         const connectedFields = obj.connectFields(
+            (f) => f.datasourceLink?.id == data.objectId
          );
 
          // update relation data
          if (
+            // NOTE: only Follow cursor because of Performance issue
+            this.isCursorFollow &&
             obj instanceof this.AB.Class.ABObject &&
             connectedFields?.length > 0
          ) {
@@ -1289,6 +1284,12 @@ module.exports = class ABDataCollectionCore extends ABMLClass {
                         updateItemData[f.relationName()] = values;
                         updateItemData[f.columnName] = values.id || values;
                      }
+                  });
+
+                  // Refresh formula field values
+                  const updatedItem = Object.assign(d, updateItemData);
+                  obj.fields((f) => f.key == "formula").forEach((f) => {
+                     updateItemData[f.columnName] = f.format(updatedItem, true);
                   });
 
                   // If this item needs to update
@@ -2630,11 +2631,7 @@ module.exports = class ABDataCollectionCore extends ABMLClass {
       const cursorLink = dcLink?.getCursor();
 
       // Add the new data that just relate to the Link DC
-      if (
-         dcLink?.datasource.id == objectId &&
-         cursorLink &&
-         cursorLink.id == rowData?.id
-      ) {
+      if (dcLink?.datasource?.id == objectId && cursorLink?.id == rowData?.id) {
          const obj = this.datasource;
          const linkedField = this.fieldLink;
          let relatedData = rowData[linkedField.fieldLink.relationName()];
