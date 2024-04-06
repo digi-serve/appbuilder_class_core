@@ -412,7 +412,7 @@ module.exports = class FilterComplexCore extends ABComponent {
             break;
          case "contain_current_user":
             compareValue = this.Account.username;
-            break;
+         // break;  <-- NO BREAK HERE
          case "equals":
             if (!Array.isArray(value)) value = [value];
 
@@ -422,7 +422,7 @@ module.exports = class FilterComplexCore extends ABComponent {
             break;
          case "not_contain_current_user":
             compareValue = this.Account.username;
-            break;
+         // break;  <-- NO BREAK HERE
          case "not_equal":
             if (!Array.isArray(value)) value = [value];
 
