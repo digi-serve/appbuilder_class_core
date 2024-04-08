@@ -210,7 +210,7 @@ module.exports = class ABProcessTaskUserApprovalCore extends ABProcessElement {
                options: options,
             },
          },
-         myObj,
+         myObj
       );
 
       // NOTE: We are pretending our response is a type of ABFieldList. But our

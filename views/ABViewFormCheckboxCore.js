@@ -34,4 +34,3 @@ module.exports = class ABViewFormCheckboxCore extends ABViewFormItem {
       return [];
    }
 };
-

@@ -93,7 +93,7 @@ module.exports = class ABViewFormButtonCore extends ABView {
       this.unTranslate(this.settings, this.settings, labels);
 
       this.settings.includeSave = JSON.parse(
-         (this.settings?.includeSave ?? true) && 
+         (this.settings?.includeSave ?? true) &&
             ABViewFormButtonPropertyComponentDefaults.includeSave
       );
       this.settings.includeCancel = JSON.parse(

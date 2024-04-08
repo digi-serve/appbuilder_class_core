@@ -164,9 +164,16 @@ module.exports = class ABProcessTriggerLifecycle extends ABProcessTrigger {
             } else if (parts[1] == "uuid") {
                return myState["data"]["uuid"];
             } else {
+               ///
+               /// Questioning the validity of this section of code.
+               /// In order to get here, we tried to find field, and it
+               /// didn't exist.
+               /// then we turn around and REPEAT the same attempt
+               /// and check for field again.
+               /*
                // parts[1] should be a field.id
-               var object = this.AB.objectByID(this.objectID);
-               var field = object.fields((f) => {
+               object = this.AB.objectByID(this.objectID);
+               field = object.fields((f) => {
                   return f.id == parts[1];
                })[0];
                if (field) {
@@ -177,6 +184,7 @@ module.exports = class ABProcessTriggerLifecycle extends ABProcessTrigger {
                      return myState["data"][field.columnName];
                   }
                }
+               */
             }
          }
       }

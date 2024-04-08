@@ -36,4 +36,3 @@ module.exports = class ABViewFormSelectMultipleCore extends ABViewFormItem {
       return [];
    }
 };
-
