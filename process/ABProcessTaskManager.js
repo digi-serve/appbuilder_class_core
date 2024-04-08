@@ -50,16 +50,14 @@ AllProcessElements.forEach((ELEMENT) => {
    switch (ELEMENT.defaults().category) {
       case "start":
       case "end":
-         DEFINITIONTYPES[
-            ELEMENT.DiagramReplace().target.eventDefinitionType
-         ] = ELEMENT.defaults();
+         DEFINITIONTYPES[ELEMENT.DiagramReplace().target.eventDefinitionType] =
+            ELEMENT.defaults();
          break;
 
       case "gateway":
       case "task":
-         DEFINITIONTYPES[
-            ELEMENT.DiagramReplace().target.type
-         ] = ELEMENT.defaults();
+         DEFINITIONTYPES[ELEMENT.DiagramReplace().target.type] =
+            ELEMENT.defaults();
          break;
    }
 });
@@ -135,4 +133,3 @@ module.exports = {
       return DEFINITIONTYPES[key];
    },
 };
-

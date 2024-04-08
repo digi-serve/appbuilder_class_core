@@ -55,7 +55,7 @@ module.exports = class ABViewTabCore extends ABViewWidget {
       this.settings.stackTabs = parseInt(this.settings.stackTabs);
       this.settings.darkTheme = parseInt(this.settings.darkTheme);
       this.settings.sidebarWidth = parseInt(this.settings.sidebarWidth);
-      this.settings.sidebarPos = this.settings.sidebarPos;
+      // this.settings.sidebarPos = this.settings.sidebarPos;
       this.settings.iconOnTop = parseInt(this.settings.iconOnTop);
    }
 

@@ -215,7 +215,8 @@ module.exports = class ABModelCore {
       };
       return this.request("get", params)
          .then((numberOfRows) => {
-            resolve(numberOfRows);
+            // resolve(numberOfRows);
+            return numberOfRows;
          })
          .catch((err) => {
             // TODO: this should be done in platform/ABModel
@@ -435,7 +436,7 @@ module.exports = class ABModelCore {
                if (fields.length == 1) {
                   let data =
                      myObj[
-                        fields[0].replace(/[^a-z0-9\.]/gi, "") + "__relation"
+                        fields[0].replace(/[^a-z0-9.]/gi, "") + "__relation"
                      ];
                   if (!data) return resolve([]);
 
@@ -458,7 +459,7 @@ module.exports = class ABModelCore {
                var returnData = {};
                fields.forEach((colName) => {
                   returnData[colName] =
-                     myObj[colName.replace(/[^a-z0-9\.]/gi, "") + "__relation"];
+                     myObj[colName.replace(/[^a-z0-9.]/gi, "") + "__relation"];
                });
 
                resolve(returnData);

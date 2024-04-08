@@ -402,7 +402,7 @@ module.exports = class FilterComplexCore extends ABComponent {
       let result = false;
 
       // if (Array.isArray(value)) value = [value];
-
+      /* eslint-disable no-fallthrough */
       switch (rule) {
          case "is_current_user":
             result = value == this.Account.username;
@@ -412,7 +412,8 @@ module.exports = class FilterComplexCore extends ABComponent {
             break;
          case "contain_current_user":
             compareValue = this.Account.username;
-            break;
+         // break;  <-- NO BREAK HERE: fall through to "equals"
+
          case "equals":
             if (!Array.isArray(value)) value = [value];
 
@@ -422,7 +423,8 @@ module.exports = class FilterComplexCore extends ABComponent {
             break;
          case "not_contain_current_user":
             compareValue = this.Account.username;
-            break;
+         // break;  <-- NO BREAK HERE: fall through to "not_equals"
+
          case "not_equal":
             if (!Array.isArray(value)) value = [value];
 
@@ -434,6 +436,7 @@ module.exports = class FilterComplexCore extends ABComponent {
             result = this.queryFieldValid(value, rule, compareValue);
             break;
       }
+      /* eslint-enable no-fallthrough */
 
       return result;
    }

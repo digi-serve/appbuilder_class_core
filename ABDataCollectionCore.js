@@ -1804,6 +1804,7 @@ module.exports = class ABDataCollectionCore extends ABMLClass {
       DC.init();
 
       return new Promise((resolve, reject) => {
+         /* eslint-disable no-fallthrough */
          switch (DC.dataStatus) {
             // if that DC hasn't started initializing yet, start it!
             case DC.dataStatusFlag.notInitial:
@@ -1811,7 +1812,7 @@ module.exports = class ABDataCollectionCore extends ABMLClass {
             // no break;
 
             // once in the process of initializing
-            /* eslint-disable no-fallthrough*/
+
             case DC.dataStatusFlag.initializing:
                /* eslint-enable no-fallthrough*/
                // listen for "initializedData" event from the DC
@@ -1837,6 +1838,7 @@ module.exports = class ABDataCollectionCore extends ABMLClass {
                resolve();
                break;
          }
+         /* eslint-enable no-fallthrough */
       });
    }
 

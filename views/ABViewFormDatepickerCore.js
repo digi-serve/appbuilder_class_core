@@ -40,4 +40,3 @@ module.exports = class ABViewFormDatepickerCore extends ABViewFormItem {
       return [];
    }
 };
-
