@@ -688,51 +688,7 @@ module.exports = class ABModelCore {
       // return this.request("put", params);
    }
 
-   /**
-    * @method csvUnpack()
-    * unpack our compressed data into our exptected json format.
-    *
-    * Incoming data should look like:
-    * {
-    *    csv_packed: {
-    *       objID: {uuid},
-    *       data: "csvString: 1st Row = column headers ",
-    *       connections:{
-    *          {ConnectedObject1.ID} : "csvString of connection data",
-    *          {ConnectedObject2.ID} : "csvString of connection data",
-    *          ...
-    *          {ConnectedObjectN.ID} : "csvString of connection data",
-    *       }
-    *    }
-    * }
-    *
-    * each "csvString" will
-    * - contain the object's properties as the 1st row
-    * - only have the connection field with ID's separated by "|"
-    * - all __relation fields are pulled out and stored in the
-    *   {ConnectedObject} csvString
-    *
-    * This function will recombine this data into our expected
-    * [ {row1 with embedded relations}, {row2 with embedded relations},...]
-    *
-    * @param {json} data
-    *        json structure with csv packed data
-    * @return {array}
-    */
-   csvUnpack(data) {
-      if (!data.csv_packed) {
-         return data;
-      }
-      let coreObject = this.AB.objectByID(data.csv_packed.objID);
-      let coreData = this.csvUnpackCSVToArray(coreObject, data.csv_packed.data);
-   }
-
    normalizeData(data) {
-      // check for CSV_PACKED data
-      if (data.csv_packed) {
-         data = this.csvUnpack(data);
-      }
-
       // convert to array
       if (!(data instanceof Array)) data = [data];
 
