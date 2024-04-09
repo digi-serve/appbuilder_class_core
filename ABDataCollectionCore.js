@@ -1169,7 +1169,7 @@ module.exports = class ABDataCollectionCore extends ABMLClass {
                }
             }
             // filter before add new record
-            else if (this.isValidData(updatedVals)) {
+            else if (this.isValidData(updatedVals) && !this.isCursorFollow) {
                // this means the updated record was not loaded yet so we are adding it to the top of the grid
                // the placement will probably change on the next load of the data
                this.__dataCollection.add(updatedVals, 0);
