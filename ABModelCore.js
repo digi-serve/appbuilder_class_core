@@ -344,7 +344,13 @@ module.exports = class ABModelCore {
             );
          }
          allKeys.forEach((key) => {
-            var resolve = responseHash[key].resolve;
+            let entry = responseHash[key];
+            let resolve;
+            if (Array.isArray(entry)) {
+               resolve = entry[0].resolve;
+            } else {
+               resolve = entry.resolve;
+            }
             resolve({ data: [] });
             delete responseHash[key];
          });
