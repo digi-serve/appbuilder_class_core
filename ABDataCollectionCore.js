@@ -702,6 +702,10 @@ module.exports = class ABDataCollectionCore extends ABMLClass {
                // if (rowId) {
                this.__dataCollection.setCursor(rowId || null);
 
+               if (this.__dataCollection.data.count() == 0) {
+                  this.emit("collectionEmpty", {});
+               }
+
                this.setCursorTree(rowId);
                // }
             }
