@@ -3053,4 +3053,19 @@ module.exports = class ABDataCollectionCore extends ABMLClass {
    get previousCursorId() {
       return this.__previousCursorId;
    }
+
+   waitReady() {
+      // if (this.dataStatus == this.dataStatusFlag.initialized) {
+      //    return Promise.resolve();
+      // }
+      // console.log(`DC[${this.label}] waiting for initializedData.`);
+      // return new Promise((resolve /*, reject */) => {
+      //    this.once("initializedData", ()=>{
+      //       resolve();
+      //    })
+
+      // })
+
+      return this.waitForDataCollectionToInitialize(this);
+   }
 };
