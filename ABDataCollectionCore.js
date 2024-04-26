@@ -561,6 +561,16 @@ module.exports = class ABDataCollectionCore extends ABMLClass {
       let dc = this.__dataCollection;
       if (dc == null) return null;
 
+      this.setStaticCursor();
+      // if (this.isCursorFollow) {
+      //    let fDC = this.datacollectionFollow;
+      //    if (fDC) {
+      //       let fCursor = fDC.getCursor();
+      //       this.setCursor(fCursor);
+      //    }
+
+      // }
+
       let currId = dc.getCursor();
       let currItem = dc.getItem(currId);
 
