@@ -734,7 +734,7 @@ module.exports = class ABDataCollectionCore extends ABMLClass {
 
          // If no data but the parent DC set cursor, then this should be reload data.
          const dcFollow = this.datacollectionFollow;
-         if (!rowId && dcFollow.getCursor()) {
+         if (!rowId && dcFollow?.getCursor()) {
             this.loadData();
          }
       }
