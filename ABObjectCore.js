@@ -724,7 +724,7 @@ module.exports = class ABObjectCore extends ABMLClass {
     * @return {string}
     */
    urlRestCount() {
-      return `/app_builder/model/count/${this.id}`;
+      return `/app_builder/model/${this.id}/count`;
    }
 
    ///
