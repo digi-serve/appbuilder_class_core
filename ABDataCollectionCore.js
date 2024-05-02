@@ -724,7 +724,7 @@ module.exports = class ABDataCollectionCore extends ABMLClass {
 
          // If no data but the parent DC set cursor, then this should be reload data.
          const dcFollow = this.datacollectionFollow;
-         if (!rowId && dcFollow.getCursor()) {
+         if (!rowId && dcFollow?.getCursor()) {
             this.loadData();
          }
       }
@@ -3052,5 +3052,20 @@ module.exports = class ABDataCollectionCore extends ABMLClass {
 
    get previousCursorId() {
       return this.__previousCursorId;
+   }
+
+   waitReady() {
+      // if (this.dataStatus == this.dataStatusFlag.initialized) {
+      //    return Promise.resolve();
+      // }
+      // console.log(`DC[${this.label}] waiting for initializedData.`);
+      // return new Promise((resolve /*, reject */) => {
+      //    this.once("initializedData", ()=>{
+      //       resolve();
+      //    })
+
+      // })
+
+      return this.waitForDataCollectionToInitialize(this);
    }
 };
