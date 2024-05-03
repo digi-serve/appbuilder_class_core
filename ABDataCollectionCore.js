@@ -103,6 +103,11 @@ module.exports = class ABDataCollectionCore extends ABMLClass {
       // {QueryCondition}
       // A passed in Query Condition for filtering our DataCollection.
       // This value is ANDed with our normal filter conditions.
+
+      this.__model = null;
+      // {ABModel}
+      // An instance of the ABModel used for this DataCollection to
+      // access data on the server.
    }
 
    /**
@@ -452,9 +457,12 @@ module.exports = class ABDataCollectionCore extends ABMLClass {
     * @return ABModel
     */
    get model() {
-      let object = this.datasource; // already notified
+      if (!this.__model) {
+         let object = this.datasource; // already notified
 
-      return object ? object.model() : null;
+         this.__model = object ? object.model() : null;
+      }
+      return this.__model;
    }
 
    get dataStatusFlag() {
