@@ -1939,7 +1939,9 @@ module.exports = class ABDataCollectionCore extends ABMLClass {
                            // check to make sure there is data to work with
                            if (Array.isArray(res.data) && res.data.length) {
                               res.data.forEach((d) => {
-                                 this.__dataCollection.add(d);
+                                 if (!this.__dataCollection.exists(d[PK])) {
+                                    this.__dataCollection.add(d);
+                                 }
                               });
                            }
                         });
