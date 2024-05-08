@@ -188,6 +188,8 @@ module.exports = class FilterComplexCore extends ABComponent {
                condResult = this.textValid(value, filter.rule, filter.value);
                break;
             case "date":
+               condResult = this.dateValid(value, filter.rule, filter.value);
+               break;
             case "datetime":
                condResult = this.dateValid(value, filter.rule, filter.value);
                break;
@@ -296,7 +298,6 @@ module.exports = class FilterComplexCore extends ABComponent {
 
       if (!(compareValue instanceof Date))
          compareValue = new Date(compareValue);
-
       switch (rule) {
          case "less":
             result = value < compareValue;
@@ -310,11 +311,13 @@ module.exports = class FilterComplexCore extends ABComponent {
          case "greater_or_equal":
             result = value >= compareValue;
             break;
+         case "is_current_date":
+            result = value == compareValue;
+            break;
          default:
             result = this.queryFieldValid(value, rule, compareValue);
             break;
       }
-
       return result;
    }
 
@@ -934,6 +937,7 @@ module.exports = class FilterComplexCore extends ABComponent {
          greater: this.labels.component.afterCondition,
          less_or_equal: this.labels.component.onOrBeforeCondition,
          greater_or_equal: this.labels.component.onOrAfterCondition,
+         is_current_date: this.labels.component.isCurrentDateCondition,
          less_current: this.labels.component.beforeCurrentCondition,
          greater_current: this.labels.component.afterCurrentCondition,
          less_or_equal_current:
@@ -947,14 +951,22 @@ module.exports = class FilterComplexCore extends ABComponent {
       let result = [];
 
       for (let condKey in dateConditions) {
-         result.push({
-            id: condKey,
-            value: dateConditions[condKey],
-            batch: "datepicker",
-            handler: (a, b) => this.dateValid(a, condKey, b),
-         });
+         if (condKey == "is_current_date") {
+            result.push({
+               id: condKey,
+               value: dateConditions[condKey],
+               batch: "none",
+               handler: (a, b) => this.dateValid(a, condKey, b),
+            });
+         } else {
+            result.push({
+               id: condKey,
+               value: dateConditions[condKey],
+               batch: "datepicker",
+               handler: (a, b) => this.dateValid(a, condKey, b),
+            });
+         }
       }
-
       return result;
    }
 
@@ -1341,6 +1353,7 @@ module.exports = class FilterComplexCore extends ABComponent {
          "is_not_empty",
          "checked",
          "unchecked",
+         "is_current_date",
       ];
 
       const isCompleteRules = (rules = []) => {
