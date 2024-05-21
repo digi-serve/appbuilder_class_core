@@ -188,8 +188,6 @@ module.exports = class FilterComplexCore extends ABComponent {
                condResult = this.textValid(value, filter.rule, filter.value);
                break;
             case "date":
-               condResult = this.dateValid(value, filter.rule, filter.value);
-               break;
             case "datetime":
                condResult = this.dateValid(value, filter.rule, filter.value);
                break;
