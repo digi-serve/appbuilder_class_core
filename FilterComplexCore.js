@@ -310,7 +310,8 @@ module.exports = class FilterComplexCore extends ABComponent {
             result = value >= compareValue;
             break;
          case "is_current_date":
-            result = value == compareValue;
+            result =
+               value.setHours(0, 0, 0, 0) == compareValue.setHours(0, 0, 0, 0);
             break;
          default:
             result = this.queryFieldValid(value, rule, compareValue);
