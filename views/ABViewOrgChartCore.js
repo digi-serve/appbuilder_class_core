@@ -21,7 +21,12 @@ const ABViewOrgChartDefaults = {
 
 module.exports = class ABViewOrgChartCore extends ABViewContainer {
    constructor(values, application, parent, defaultValues) {
-      super(values, application, parent, defaultValues || ABViewChartDefaults);
+      super(
+         values,
+         application,
+         parent,
+         defaultValues || ABViewOrgChartDefaults
+      );
    }
 
    static common() {
@@ -47,46 +52,46 @@ module.exports = class ABViewOrgChartCore extends ABViewContainer {
 
       this.settings.dataviewID =
          this.settings.dataviewID ??
-         ABViewChartPropertyComponentDefaults.dataviewID;
+         ABViewOrgChartPropertyComponentDefaults.dataviewID;
 
       this.settings.columnValue =
          this.settings.columnValue ??
-         ABViewChartPropertyComponentDefaults.columnValue;
+         ABViewOrgChartPropertyComponentDefaults.columnValue;
 
       this.settings.columnLabel =
          this.settings.columnLabel ??
-         ABViewChartPropertyComponentDefaults.columnLabel;
+         ABViewOrgChartPropertyComponentDefaults.columnLabel;
 
       this.settings.columnValue2 =
          this.settings.columnValue2 ??
-         ABViewChartPropertyComponentDefaults.columnValue2;
+         ABViewOrgChartPropertyComponentDefaults.columnValue2;
 
       this.settings.isPercentage = parseInt(
          this.settings.isPercentage ??
-            ABViewChartPropertyComponentDefaults.isPercentage
+            ABViewOrgChartPropertyComponentDefaults.isPercentage
       );
 
       this.settings.showLabel = parseInt(
          this.settings.showLabel ??
-            ABViewChartPropertyComponentDefaults.showLabel
+            ABViewOrgChartPropertyComponentDefaults.showLabel
       );
 
       this.settings.labelPosition =
          this.settings.labelPosition ||
-         ABViewChartPropertyComponentDefaults.labelPosition;
+         ABViewOrgChartPropertyComponentDefaults.labelPosition;
 
       this.settings.labelWidth = parseInt(
          this.settings.labelWidth ??
-            ABViewChartPropertyComponentDefaults.labelWidth
+            ABViewOrgChartPropertyComponentDefaults.labelWidth
       );
 
       this.settings.height = parseInt(
-         this.settings.height ?? ABViewChartPropertyComponentDefaults.height
+         this.settings.height ?? ABViewOrgChartPropertyComponentDefaults.height
       );
 
       this.settings.multipleSeries = parseInt(
          this.settings.multipleSeries ??
-            ABViewChartPropertyComponentDefaults.multipleSeries
+            ABViewOrgChartPropertyComponentDefaults.multipleSeries
       );
 
       this.translate(this, this, ["chartLabel"]);
