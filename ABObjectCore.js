@@ -932,6 +932,11 @@ module.exports = class ABObjectCore extends ABMLClass {
             fields.push(field.columnName);
          });
       }
+      // Default defining label
+      else {
+         const defaultFld = this.fields((f) => f.fieldUseAsLabel())[0];
+         if (defaultFld) fields.push(defaultFld.columnName);
+      }
 
       // System requires to include number field values
       // because they are used on Formula/Calculate fields on client side
