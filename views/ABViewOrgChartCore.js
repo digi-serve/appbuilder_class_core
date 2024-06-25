@@ -1,16 +1,17 @@
-const ABViewContainer = require("../../platform/views/ABViewContainer");
+const ABViewWidget = require("../../platform/views/ABViewWidget");
 
 const ABViewOrgChartPropertyComponentDefaults = {
-   dataviewID: "",
+   datacollectionID: "",
    columnValue: "",
-   columnLabel: "",
-   columnValue2: "",
-   isPercentage: 1,
-   showLabel: 1,
-   labelPosition: "left",
-   labelWidth: 120,
-   height: 200,
-   multipleSeries: 0,
+   columnDescription: "",
+   direction: "t2b",
+   depth: 2,
+   // visibleLevel: 2,
+   pan: 1,
+   zoom: 1,
+   height: 0,
+   export: 0,
+   exportFilename: "",
 };
 
 const ABViewOrgChartDefaults = {
@@ -19,7 +20,7 @@ const ABViewOrgChartDefaults = {
    labelKey: "OrgChart", // {string} the multilingual label key for the class label
 };
 
-module.exports = class ABViewOrgChartCore extends ABViewContainer {
+module.exports = class ABViewOrgChartCore extends ABViewWidget {
    constructor(values, application, parent, defaultValues) {
       super(
          values,
@@ -50,91 +51,68 @@ module.exports = class ABViewOrgChartCore extends ABViewContainer {
    fromValues(values) {
       super.fromValues(values);
 
-      this.settings.dataviewID =
-         this.settings.dataviewID ??
-         ABViewOrgChartPropertyComponentDefaults.dataviewID;
+      this.settings.datacollectionID =
+         this.settings.datacollectionID ??
+         ABViewOrgChartPropertyComponentDefaults.datacollectionID;
 
       this.settings.columnValue =
          this.settings.columnValue ??
          ABViewOrgChartPropertyComponentDefaults.columnValue;
 
-      this.settings.columnLabel =
-         this.settings.columnLabel ??
-         ABViewOrgChartPropertyComponentDefaults.columnLabel;
+      this.settings.direction =
+         this.settings.direction ??
+         ABViewOrgChartPropertyComponentDefaults.direction;
 
-      this.settings.columnValue2 =
-         this.settings.columnValue2 ??
-         ABViewOrgChartPropertyComponentDefaults.columnValue2;
-
-      this.settings.isPercentage = parseInt(
-         this.settings.isPercentage ??
-            ABViewOrgChartPropertyComponentDefaults.isPercentage
+      this.settings.depth = parseInt(
+         this.settings.depth ?? ABViewOrgChartPropertyComponentDefaults.depth
       );
 
-      this.settings.showLabel = parseInt(
-         this.settings.showLabel ??
-            ABViewOrgChartPropertyComponentDefaults.showLabel
+      this.settings.pan = JSON.parse(
+         this.settings.pan ?? ABViewOrgChartPropertyComponentDefaults.pan
       );
 
-      this.settings.labelPosition =
-         this.settings.labelPosition ||
-         ABViewOrgChartPropertyComponentDefaults.labelPosition;
-
-      this.settings.labelWidth = parseInt(
-         this.settings.labelWidth ??
-            ABViewOrgChartPropertyComponentDefaults.labelWidth
+      this.settings.zoom = JSON.parse(
+         this.settings.zoom ?? ABViewOrgChartPropertyComponentDefaults.zoom
       );
 
       this.settings.height = parseInt(
          this.settings.height ?? ABViewOrgChartPropertyComponentDefaults.height
       );
 
-      this.settings.multipleSeries = parseInt(
-         this.settings.multipleSeries ??
-            ABViewOrgChartPropertyComponentDefaults.multipleSeries
+      this.settings.export = JSON.parse(
+         this.settings.export ?? ABViewOrgChartPropertyComponentDefaults.export
       );
 
-      this.translate(this, this, ["chartLabel"]);
+      this.settings.exportFilename =
+         this.settings.exportFilename ??
+         ABViewOrgChartPropertyComponentDefaults.exportFilename;
    }
 
-   /**
-    * @method componentList
-    * return the list of components available on this view to display in the editor.
-    */
-   componentList() {
-      const viewsToAllow = ["label", "pie", "bar", "line", "area"];
-      return this.application.viewAll((c) => {
-         return viewsToAllow.indexOf(c.common().key) > -1;
-      });
+   get datacollection() {
+      const datacollectionID = (this.settings || {}).datacollectionID;
+
+      return this.AB.datacollectionByID(datacollectionID);
    }
 
-   labelField() {
+   get connectFields() {
       const dc = this.datacollection;
-      if (!dc) return null;
 
-      const obj = dc.datasource;
-      if (!obj) return null;
-
-      return obj.fieldByID(this.settings.columnLabel);
+      return (
+         dc?.datasource?.connectFields(
+            (f) => f.linkType() == "many" && f.linkViaType() == "one"
+         ) ?? []
+      );
    }
 
    valueField() {
-      const dc = this.datacollection;
-      if (!dc) return null;
-
-      const obj = dc.datasource;
-      if (!obj) return null;
-
-      return obj.fieldByID(this.settings.columnValue);
+      return this.datacollection?.datasource?.fieldByID?.(
+         this.settings.columnValue
+      );
    }
 
-   valueField2() {
-      const dc = this.datacollection;
-      if (!dc) return null;
-
-      const obj = dc.datasource;
-      if (!obj) return null;
-
-      return obj.fieldByID(this.settings.columnValue2);
+   descriptionField() {
+      return this.valueField()?.datasourceLink?.fieldByID?.(
+         this.settings.columnDescription
+      );
    }
 };
