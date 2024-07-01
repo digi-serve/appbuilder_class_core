@@ -2,10 +2,10 @@ const ABViewWidget = require("../../platform/views/ABViewWidget");
 
 const ABViewOrgChartPropertyComponentDefaults = {
    datacollectionID: "",
-   columnValue: "",
-   columnDescription: "",
+   fields: "",
    direction: "t2b",
-   depth: 2,
+   depth: 99,
+   color: "#00BCD4",
    // visibleLevel: 2,
    pan: 1,
    zoom: 1,
@@ -55,9 +55,8 @@ module.exports = class ABViewOrgChartCore extends ABViewWidget {
          this.settings.datacollectionID ??
          ABViewOrgChartPropertyComponentDefaults.datacollectionID;
 
-      this.settings.columnValue =
-         this.settings.columnValue ??
-         ABViewOrgChartPropertyComponentDefaults.columnValue;
+      this.settings.fields =
+         this.settings.fields ?? ABViewOrgChartPropertyComponentDefaults.fields;
 
       this.settings.direction =
          this.settings.direction ??
@@ -66,6 +65,9 @@ module.exports = class ABViewOrgChartCore extends ABViewWidget {
       this.settings.depth = parseInt(
          this.settings.depth ?? ABViewOrgChartPropertyComponentDefaults.depth
       );
+
+      this.settings.color =
+         this.settings.color ?? ABViewOrgChartPropertyComponentDefaults.color;
 
       this.settings.pan = JSON.parse(
          this.settings.pan ?? ABViewOrgChartPropertyComponentDefaults.pan
@@ -94,25 +96,37 @@ module.exports = class ABViewOrgChartCore extends ABViewWidget {
       return this.AB.datacollectionByID(datacollectionID);
    }
 
-   get connectFields() {
-      const dc = this.datacollection;
-
+   getValueFields(object) {
       return (
-         dc?.datasource?.connectFields(
+         object?.connectFields(
             (f) => f.linkType() == "many" && f.linkViaType() == "one"
          ) ?? []
       );
    }
 
-   valueField() {
-      return this.datacollection?.datasource?.fieldByID?.(
-         this.settings.columnValue
-      );
+   valueFields() {
+      let fieldValues = (this.settings?.fields ?? "").split(",");
+      if (!Array.isArray(fieldValues)) fieldValues = [fieldValues];
+
+      const result = [];
+
+      let obj = this.datacollection?.datasource;
+      fieldValues.forEach((fId) => {
+         if (!fId) return;
+
+         const field = obj?.fieldByID?.(fId);
+         if (!field) return;
+
+         result.push(field);
+         obj = field.datasourceLink;
+      });
+
+      return result;
    }
 
-   descriptionField() {
-      return this.valueField()?.datasourceLink?.fieldByID?.(
-         this.settings.columnDescription
-      );
-   }
+   // descriptionField() {
+   //    return this.valueField()?.datasourceLink?.fieldByID?.(
+   //       this.settings.columnDescription
+   //    );
+   // }
 };
