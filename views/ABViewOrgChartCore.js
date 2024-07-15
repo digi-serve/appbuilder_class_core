@@ -105,6 +105,13 @@ module.exports = class ABViewOrgChartCore extends ABViewWidget {
       );
    }
 
+   /**
+    * @function valueFields()
+    * Return IDs of connect field for each layer of OrgChart, starting from the top to the bottom.
+    * 
+    * @return {Array}
+    * 
+    */
    valueFields() {
       let fieldValues = (this.settings?.fields ?? "").split(",");
       if (!Array.isArray(fieldValues)) fieldValues = [fieldValues];
