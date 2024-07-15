@@ -97,6 +97,7 @@ module.exports = class ABViewOrgChartCore extends ABViewWidget {
    }
 
    getValueFields(object) {
+      // OrgChart supports only one parent node.
       return (
          object?.connectFields(
             (f) => f.linkType() == "many" && f.linkViaType() == "one"
