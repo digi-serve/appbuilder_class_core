@@ -113,7 +113,7 @@ jobs:
         run: pm2 start ./logs.js -- --toFile logs/ABServices.log
         working-directory: ./AppBuilder
       - name: Wait for AB
-        # Skipping the wait step. Cypress has a bit of wait time built in. It might be enough.
+        # Skipping the wait step. Cypress has a bit of wait time built in.
         if: false
         uses: ifaxity/wait-on-action@v1.1.0
         with:
