@@ -1880,7 +1880,8 @@ module.exports = class ABDataCollectionCore extends ABMLClass {
 
       let nextData;
       if (data.length > 250) {
-         let pos = this.__dataCollection.count();
+         // let pos = this.__dataCollection.count();
+         let pos = this.__dataCollection.find({}).length;
          let remain = data.splice(250);
          nextData = {
             data: remain,
