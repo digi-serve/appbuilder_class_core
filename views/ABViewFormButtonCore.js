@@ -7,6 +7,8 @@ const ABViewFormButtonPropertyComponentDefaults = {
    cancelLabel: "",
    includeReset: false,
    resetLabel: "",
+   includeDelete: false,
+   deleteLabel: "",
    afterCancel: null,
    alignment: "right",
    isDefault: false, // mark default button of form widget
@@ -55,6 +57,8 @@ module.exports = class ABViewFormButtonCore extends ABView {
 
       if (this.settings.resetLabel) labels.push("resetLabel");
 
+      if (this.settings.deleteLabel) labels.push("deleteLabel");
+
       this.unTranslate(this.settings, this.settings, labels);
 
       let result = super.toObj();
@@ -84,10 +88,12 @@ module.exports = class ABViewFormButtonCore extends ABView {
 
       if (this.settings.resetLabel) labels.push("resetLabel");
 
+      if (this.settings.deleteLabel) labels.push("deleteLabel");
+
       this.unTranslate(this.settings, this.settings, labels);
 
       this.settings.includeSave = JSON.parse(
-         this.settings.includeSave ||
+         (this.settings?.includeSave ?? true) &&
             ABViewFormButtonPropertyComponentDefaults.includeSave
       );
       this.settings.includeCancel = JSON.parse(
@@ -97,6 +103,10 @@ module.exports = class ABViewFormButtonCore extends ABView {
       this.settings.includeReset = JSON.parse(
          this.settings.includeReset ||
             ABViewFormButtonPropertyComponentDefaults.includeReset
+      );
+      this.settings.includeDelete = JSON.parse(
+         this.settings.includeDelete ||
+            ABViewFormButtonPropertyComponentDefaults.includeDelete
       );
 
       this.settings.isDefault = JSON.parse(

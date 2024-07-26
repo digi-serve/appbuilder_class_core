@@ -238,7 +238,7 @@ module.exports = class ABProcessTaskCore extends ABMLClass {
 
       var myDiagramObj = instance.hashDiagramObjects[this.diagramID];
       if (!myDiagramObj) {
-         var error = new Error(
+         let error = new Error(
             `Configuration Error: Did not find my definition for dID[${this.diagramID}]`
          );
          this.onError(instance, error);
@@ -255,7 +255,7 @@ module.exports = class ABProcessTaskCore extends ABMLClass {
       // find my possible exits:
       var exitFlows = myDiagramObj["bpmn2:outgoing"];
       if (!exitFlows) {
-         var error = new Error(
+         let error = new Error(
             `Configuration Error: Did not find any outgoing flows for dID[${this.diagramID}]`
          );
          this.AB.notify.builder(error, { task: this });
@@ -288,7 +288,7 @@ module.exports = class ABProcessTaskCore extends ABMLClass {
                   nextTasks.push(targetTask);
                }
             } else {
-               var error = new Error(
+               let error = new Error(
                   `Configuration Error: No ProcessTask instance for diagramID[${tid}]`
                );
                this.AB.notify.builder(error, { task: this });

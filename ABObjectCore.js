@@ -724,7 +724,7 @@ module.exports = class ABObjectCore extends ABMLClass {
     * @return {string}
     */
    urlRestCount() {
-      return `/app_builder/model/count/${this.id}`;
+      return `/app_builder/model/${this.id}/count`;
    }
 
    ///
@@ -932,6 +932,11 @@ module.exports = class ABObjectCore extends ABMLClass {
             fields.push(field.columnName);
          });
       }
+      // Default defining label
+      else {
+         const defaultFld = this.fields((f) => f.fieldUseAsLabel())[0];
+         if (defaultFld) fields.push(defaultFld.columnName);
+      }
 
       // System requires to include number field values
       // because they are used on Formula/Calculate fields on client side
@@ -1003,5 +1008,55 @@ module.exports = class ABObjectCore extends ABMLClass {
 
       return labelData;
    }
-};
 
+   /**
+    * @method whereCleanUp()
+    * Parse through the current where condition and remove any null or
+    * empty logical blocks.
+    * @param {obj} curr
+    *        1) The current where condition in ABQuery Format:
+    *        {
+    *           glue: [AND, OR],
+    *           rules: [ {rule} ]
+    *        }
+    *        or 2) The current {rule} to validate
+    *        {
+    *          key:{string},
+    *          rule:{string},
+    *          vlaue:{mixed}
+    *        }
+    * @return {ABQuery.where} / { Rule }
+    */
+   whereCleanUp(curr) {
+      if (curr) {
+         if (curr.glue && curr.rules) {
+            // this is a logical Block (AND, OR)
+            // we need to filter the children
+            let newValue = { glue: curr.glue, rules: [] };
+            curr.rules.forEach((r) => {
+               let cleanRule = this.whereCleanUp(r);
+               // don't add values that didn't pass
+               if (cleanRule) {
+                  newValue.rules.push(cleanRule);
+               }
+            });
+
+            // if we have a non empty block, then return it:
+            if (newValue.rules.length > 0) {
+               return newValue;
+            }
+
+            // this isn't really a valid conditional, so null
+            return null;
+         }
+
+         // This is a specific rule, that isn't null so:
+         // if it isn't {}, then return it
+         if (Object.keys(curr).length > 0) return curr;
+
+         // otherwise we skip this as well
+         return null;
+      }
+      return null;
+   }
+};

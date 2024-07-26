@@ -108,7 +108,7 @@ module.exports = class ABViewCSVImporterCore extends ABViewWidget {
 
    get RecordRule() {
       let object = this.datacollection?.datasource;
-      if (!object) return;
+      if (!object) return null;
 
       if (this._recordRule == null) {
          this._recordRule = new ABRecordRule();

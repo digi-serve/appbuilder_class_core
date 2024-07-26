@@ -829,7 +829,7 @@ class ABFactory extends EventEmitter {
          var newStep = new ABStep(params, this);
          return newStep;
       }
-      return null;
+      // return null;
    }
 
    //

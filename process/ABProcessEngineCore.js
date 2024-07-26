@@ -36,9 +36,8 @@ module.exports = class ABProcessEngineCore {
 
 */
          };
-         var processDefinitions = this.instance.jsonDefinition[
-            "bpmn2:definitions"
-         ]["bpmn2:process"];
+         var processDefinitions =
+            this.instance.jsonDefinition["bpmn2:definitions"]["bpmn2:process"];
 
          this.setHashDiagramObjects(processDefinitions);
 
@@ -181,4 +180,3 @@ module.exports = class ABProcessEngineCore {
       });
    }
 };
-
