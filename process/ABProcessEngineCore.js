@@ -36,10 +36,8 @@ module.exports = class ABProcessEngineCore {
 
 */
          };
-         var processDefinitions =
-            this.instance.jsonDefinition.definition["bpmn2:definitions"][
-               "bpmn2:process"
-            ];
+         const jsonDefinition = this.instance.jsonDefinition?.definition ?? this.instance.jsonDefinition ?? this.instance.definition;
+         const processDefinitions = jsonDefinition["bpmn2:definitions"]["bpmn2:process"];
 
          this.setHashDiagramObjects(processDefinitions);
 
