@@ -37,9 +37,13 @@ module.exports = class ABProcessEngineCore {
 */
          };
          const jsonDefinition = this.instance.jsonDefinition?.definition ?? this.instance.jsonDefinition ?? this.instance.definition;
-         const processDefinitions = jsonDefinition["bpmn2:definitions"]["bpmn2:process"];
+         const processDefinitions = jsonDefinition?.["bpmn2:definitions"]?.["bpmn2:process"];
 
-         this.setHashDiagramObjects(processDefinitions);
+         if (processDefinitions)
+            this.setHashDiagramObjects(processDefinitions);
+         // else {
+         // Should LOGGING ?
+         // }
 
          // var typeLookup = [
          //    { xmlRef: "bpmn2:sequenceFlow", type: "flow" },
