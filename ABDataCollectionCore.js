@@ -825,8 +825,14 @@ module.exports = class ABDataCollectionCore extends ABMLClass {
                   //model.normalizeData(updatedVals);
 
                   (updatedVals || []).forEach((updatedV) => {
+                     // If this DC uses a query, it pulls refreshed data from the server in the previous step,
+                     // so there is no need to recheck the query's filter.
+                     const skipDatasourceFilter =
+                        obj instanceof this.AB.Class.ABObjectQuery;
+
                      // filter condition before add
-                     if (!this.isValidData(updatedV)) return;
+                     if (!this.isValidData(updatedV, skipDatasourceFilter))
+                        return;
 
                      // filter the cursor of parent DC
                      const dcLink = this.datacollectionLink;
@@ -2610,12 +2616,12 @@ module.exports = class ABDataCollectionCore extends ABMLClass {
       return updatedVals;
    }
 
-   isValidData(rowData) {
+   isValidData(rowData, skipDatasourceFilter = false) {
       let result = true;
 
       // NOTE: should we use filter of the current view of object to filter
       //        if yes, update .wheres condition in .loadData too
-      if (this.__filterDatasource)
+      if (this.__filterDatasource && !skipDatasourceFilter)
          result = result && this.__filterDatasource.isValid(rowData);
 
       if (this.__filterDatacollection)
