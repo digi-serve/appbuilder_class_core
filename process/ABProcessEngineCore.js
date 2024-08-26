@@ -8,7 +8,7 @@ module.exports = class ABProcessEngineCore {
       if (!this.instance.jsonDefinition) {
          this.instance.jsonDefinition = convert.xml2js(
             this.instance.xmlDefinition,
-            { compact: true }
+            { compact: true },
          );
       }
       if (!this.instance.hashDiagramObjects) {
@@ -36,11 +36,14 @@ module.exports = class ABProcessEngineCore {
 
 */
          };
-         var processDefinitions = this.instance.jsonDefinition[
-            "bpmn2:definitions"
-         ]["bpmn2:process"];
+         const jsonDefinition = this.instance.jsonDefinition?.definition ?? this.instance.jsonDefinition ?? this.instance.definition;
+         const processDefinitions = jsonDefinition?.["bpmn2:definitions"]?.["bpmn2:process"];
 
-         this.setHashDiagramObjects(processDefinitions);
+         if (processDefinitions)
+            this.setHashDiagramObjects(processDefinitions);
+         // else {
+         // Should LOGGING ?
+         // }
 
          // var typeLookup = [
          //    { xmlRef: "bpmn2:sequenceFlow", type: "flow" },
@@ -103,7 +106,7 @@ module.exports = class ABProcessEngineCore {
     */
    startTask() {
       return this.process.elementForDiagramID(
-         this.instance.context.startTaskID
+         this.instance.context.startTaskID,
       );
    }
 
@@ -181,4 +184,3 @@ module.exports = class ABProcessEngineCore {
       });
    }
 };
-

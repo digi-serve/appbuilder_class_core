@@ -150,4 +150,3 @@ module.exports = class ABFieldAutoIndexCore extends ABField {
       }
    }
 };
-
