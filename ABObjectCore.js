@@ -1030,6 +1030,21 @@ module.exports = class ABObjectCore extends ABMLClass {
    whereCleanUp(curr) {
       if (curr) {
          if (curr.glue && curr.rules) {
+            // SENTRY Error AB-APPBUILDER-4H
+            // "curr.rules.forEach is not a function"
+            // curr.rules is supposed to be an array. If we are not
+            // getting that, then let's send an alert to figure out what
+            // is happening here:
+            if (!Array.isArray(curr.rules)) {
+               // what is this entry?
+               let err = new Error(
+                  `ABObjectCore.whereCleanUP(): Sentry Error: AB-APPBUILDER-4H: current rule is not properly formed: ${JSON.stringify(
+                     curr
+                  )}`
+               );
+               this.AB.notify.developer(err, { curr });
+            }
+
             // this is a logical Block (AND, OR)
             // we need to filter the children
             let newValue = { glue: curr.glue, rules: [] };
