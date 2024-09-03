@@ -1622,7 +1622,7 @@ module.exports = class ABDataCollectionCore extends ABMLClass {
                /* eslint-enable no-fallthrough*/
                // listen for "initializedData" event from the DC
                // then we can continue.
-               this.eventRemove(DC, "initializedData");
+               this.eventRemove("initializedData", DC);
                this.eventAdd({
                   emitter: DC,
                   eventName: "initializedData",
@@ -2797,13 +2797,13 @@ module.exports = class ABDataCollectionCore extends ABMLClass {
     * @method eventRemove()
     * unsubscribe a event.
     *
-    * @param {object} emitter - Emitter object
     * @param {string} eventName - Name of the event
+    * @param {object} emitter - Emitter object
     */
-   eventRemove(emitter, eventName) {
-      if (this.__events?.length > 0 && emitter && eventName) {
+   eventRemove(eventName, emitter = null) {
+      if (this.__events?.length > 0 && eventName) {
          this.__events.forEach((e) => {
-            if (emitter == e.emitter && eventName == e.eventName)
+            if (eventName == e.eventName && (!emitter || emitter == e.emitter))
                e.emitter.removeListener(e.eventName, e.listener);
          });
 
