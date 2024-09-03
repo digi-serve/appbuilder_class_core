@@ -408,7 +408,7 @@ module.exports = class ABProcessCore extends ABMLClass {
       //       : values[0]
       //    : null;
 
-      var tasksToAsk = this.allPreviousTasks(currElement)
+      var tasksToAsk = this.allPreviousTasks(currElement);
       var values = queryPreviousTasks(tasksToAsk, "processData", params, this);
       return values.length > 0
          ? values.length > 1

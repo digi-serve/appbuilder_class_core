@@ -93,7 +93,6 @@ module.exports = class ABProcessGatewayExclusiveCore extends ABProcessElement {
    //// Process Instance Methods
    ////
 
-
    /**
     * initState()
     * setup this task's initial state variables

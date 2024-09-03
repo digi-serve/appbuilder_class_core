@@ -215,7 +215,8 @@ module.exports = class ABModelCore {
       };
       return this.request("get", params)
          .then((numberOfRows) => {
-            resolve(numberOfRows);
+            // resolve(numberOfRows);
+            return numberOfRows;
          })
          .catch((err) => {
             // TODO: this should be done in platform/ABModel
@@ -292,7 +293,7 @@ module.exports = class ABModelCore {
       var responseHash = {
          /* id : [{entry}] */
       };
-      var cond = { where: {} };
+      var cond = { where: {}, populate: true };
       cond.where[PK] = [];
 
       console.log(
@@ -343,7 +344,13 @@ module.exports = class ABModelCore {
             );
          }
          allKeys.forEach((key) => {
-            var resolve = responseHash[key].resolve;
+            let entry = responseHash[key];
+            let resolve;
+            if (Array.isArray(entry)) {
+               resolve = entry[0].resolve;
+            } else {
+               resolve = entry.resolve;
+            }
             resolve({ data: [] });
             delete responseHash[key];
          });
@@ -435,7 +442,7 @@ module.exports = class ABModelCore {
                if (fields.length == 1) {
                   let data =
                      myObj[
-                        fields[0].replace(/[^a-z0-9\.]/gi, "") + "__relation"
+                        fields[0].replace(/[^a-z0-9.]/gi, "") + "__relation"
                      ];
                   if (!data) return resolve([]);
 
@@ -458,7 +465,7 @@ module.exports = class ABModelCore {
                var returnData = {};
                fields.forEach((colName) => {
                   returnData[colName] =
-                     myObj[colName.replace(/[^a-z0-9\.]/gi, "") + "__relation"];
+                     myObj[colName.replace(/[^a-z0-9.]/gi, "") + "__relation"];
                });
 
                resolve(returnData);

@@ -62,7 +62,7 @@ module.exports = class ABMobileAppCore extends ABMLClass {
          type: this.type || "mobile.application",
          name: this.name,
          settings: this.settings,
-         translations: obj.translations
+         translations: obj.translations,
       };
    }
 };

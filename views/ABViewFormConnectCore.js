@@ -69,4 +69,3 @@ module.exports = class ABViewFormConnectCore extends ABViewFormItem {
       return [];
    }
 };
-

@@ -50,24 +50,32 @@ function getFieldVal(rowData, field) {
 function getConnectFieldValue(rowData, field) {
    let connectedVal = "";
 
-   if (rowData) {
-      let relationName = field.relationName();
-      if (rowData[relationName]) {
-         connectedVal =
+   const extractVal = (itemData) => {
+      let val;
+      const relationName = field.relationName();
+      if (itemData[relationName]) {
+         val =
             (field.indexField
-               ? rowData[relationName][field.indexField.columnName]
+               ? itemData[relationName][field.indexField.columnName]
                : null) ?? // custom index
             (field.indexField2
-               ? rowData[relationName][field.indexField2.columnName]
+               ? itemData[relationName][field.indexField2.columnName]
                : null) ?? // custom index 2
-            rowData[relationName].id ??
-            rowData[relationName];
+            itemData[relationName].id ??
+            itemData[relationName];
       } else {
-         let fieldVal = getFieldVal(rowData, field);
+         let fieldVal = getFieldVal(itemData, field);
          if (fieldVal != null) {
-            connectedVal = fieldVal;
+            val = fieldVal;
          }
       }
+      return val;
+   };
+
+   if (Array.isArray(rowData)) {
+      connectedVal = rowData.map((data) => extractVal(data));
+   } else if (rowData) {
+      connectedVal = extractVal(rowData);
    }
    return connectedVal;
 }
@@ -296,7 +304,6 @@ module.exports = class FilterComplexCore extends ABComponent {
 
       if (!(compareValue instanceof Date))
          compareValue = new Date(compareValue);
-
       switch (rule) {
          case "less":
             result = value < compareValue;
@@ -310,11 +317,14 @@ module.exports = class FilterComplexCore extends ABComponent {
          case "greater_or_equal":
             result = value >= compareValue;
             break;
+         case "is_current_date":
+            result =
+               value.setHours(0, 0, 0, 0) == compareValue.setHours(0, 0, 0, 0);
+            break;
          default:
             result = this.queryFieldValid(value, rule, compareValue);
             break;
       }
-
       return result;
    }
 
@@ -383,7 +393,11 @@ module.exports = class FilterComplexCore extends ABComponent {
             result = value == true || value > 0 || value == "true";
             break;
          case "unchecked":
-            result = value == false || value <= 0 || value == "false" || value == null;
+            result =
+               value == false ||
+               value <= 0 ||
+               value == "false" ||
+               value == null;
             break;
          default:
             result = this.queryFieldValid(value, rule, compareValue);
@@ -394,42 +408,46 @@ module.exports = class FilterComplexCore extends ABComponent {
    }
 
    userValid(value, rule, compareValue) {
-      if (!value) return false;
+      if (!value || !value?.length) return false;
       let result = false;
 
-      // if (Array.isArray(value)) value = [value];
+      if (!Array.isArray(value)) value = [value];
 
+      /* eslint-disable no-fallthrough */
       switch (rule) {
          case "is_current_user":
-            result = value == this.Account.username;
-            break;
-         case "is_not_current_user":
-            result = value != this.Account.username;
-            break;
-         case "contain_current_user":
-            if (!Array.isArray(value)) value = [value];
-
             result =
-               value.filter((v) => (v.username || v) == this.Account.username)
+               value.filter((v) => (v?.username || v) == this.Account.username)
                   .length > 0;
             break;
-         case "not_contain_current_user":
-            if (!Array.isArray(value)) value = [value];
-
+         case "is_not_current_user":
             result =
-               value.filter((v) => (v.username || v) == this.Account.username)
-                  .length < 1;
+               value.filter((v) => (v?.username || v) != this.Account.username)
+                  .length > 0;
             break;
+         case "contain_current_user":
+            compareValue = this.Account.username;
+         // break;  <-- NO BREAK HERE: fall through to "equals"
+
          case "equals":
-            result = (value ?? []).indexOf(compareValue) > -1;
+            result =
+               value.filter((v) => (v?.username || v) == compareValue).length >
+               0;
             break;
+         case "not_contain_current_user":
+            compareValue = this.Account.username;
+         // break;  <-- NO BREAK HERE: fall through to "not_equals"
+
          case "not_equal":
-            result = (value ?? []).indexOf(compareValue) < 0;
+            result =
+               value.filter((v) => (v?.username || v) == compareValue).length <
+               1;
             break;
          default:
             result = this.queryFieldValid(value, rule, compareValue);
             break;
       }
+      /* eslint-enable no-fallthrough */
 
       return result;
    }
@@ -559,7 +577,12 @@ module.exports = class FilterComplexCore extends ABComponent {
             connectedVal;
       }
 
-      let compareValueLowercase = (compareValue || "").toLowerCase();
+      // Compare value isn't always a string?
+      // https://appdev-designs.sentry.io/issues/5056850389/
+      let compareValueLowercase =
+         typeof compareValue === "string"
+            ? compareValue.toLowerCase?.()
+            : compareValue;
 
       switch (rule) {
          case "contains":
@@ -922,6 +945,7 @@ module.exports = class FilterComplexCore extends ABComponent {
          greater: this.labels.component.afterCondition,
          less_or_equal: this.labels.component.onOrBeforeCondition,
          greater_or_equal: this.labels.component.onOrAfterCondition,
+         is_current_date: this.labels.component.isCurrentDateCondition,
          less_current: this.labels.component.beforeCurrentCondition,
          greater_current: this.labels.component.afterCurrentCondition,
          less_or_equal_current:
@@ -935,14 +959,22 @@ module.exports = class FilterComplexCore extends ABComponent {
       let result = [];
 
       for (let condKey in dateConditions) {
-         result.push({
-            id: condKey,
-            value: dateConditions[condKey],
-            batch: "datepicker",
-            handler: (a, b) => this.dateValid(a, condKey, b),
-         });
+         if (condKey == "is_current_date") {
+            result.push({
+               id: condKey,
+               value: dateConditions[condKey],
+               batch: "none",
+               handler: (a, b) => this.dateValid(a, condKey, b),
+            });
+         } else {
+            result.push({
+               id: condKey,
+               value: dateConditions[condKey],
+               batch: "datepicker",
+               handler: (a, b) => this.dateValid(a, condKey, b),
+            });
+         }
       }
-
       return result;
    }
 
@@ -1329,6 +1361,7 @@ module.exports = class FilterComplexCore extends ABComponent {
          "is_not_empty",
          "checked",
          "unchecked",
+         "is_current_date",
       ];
 
       const isCompleteRules = (rules = []) => {
