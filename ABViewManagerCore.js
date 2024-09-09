@@ -29,6 +29,7 @@ var AllViews = [
    require("../platform/views/ABViewList"),
    require("../platform/views/ABViewMenu"),
    require("../platform/views/ABViewOrgChart"),
+   require("../platform/views/ABViewOrgChartTeams"),
    require("../platform/views/ABViewPage"),
    require("../platform/views/ABViewPDFImporter"),
    require("../platform/views/ABViewPivot"),
