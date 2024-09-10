@@ -2,6 +2,9 @@ const ABViewWidget = require("../../platform/views/ABViewWidget");
 
 const ABViewOrgChartTeamsPropertyComponentDefaults = {
    datacollectionID: "",
+   teamLink: "",
+   teamName: "",
+   topTeam: "",
    fields: "",
    direction: "t2b",
    depth: 99,
@@ -55,9 +58,17 @@ module.exports = class ABViewOrgChartTeamsCore extends ABViewWidget {
          this.settings.datacollectionID ??
          ABViewOrgChartTeamsPropertyComponentDefaults.datacollectionID;
 
-      this.settings.fields =
-         this.settings.fields ??
-         ABViewOrgChartTeamsPropertyComponentDefaults.fields;
+      this.settings.teamLink =
+         this.settings.teamLink ??
+         ABViewOrgChartTeamsPropertyComponentDefaults.teamLink;
+
+      this.settings.teamName =
+         this.settings.teamName ??
+         ABViewOrgChartTeamsPropertyComponentDefaults.teamName;
+
+      this.settings.topTeam =
+         this.settings.topTeam ??
+         ABViewOrgChartTeamsPropertyComponentDefaults.topTeam;
 
       this.settings.direction =
          this.settings.direction ??
