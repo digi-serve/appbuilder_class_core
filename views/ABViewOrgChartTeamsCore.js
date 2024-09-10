@@ -10,6 +10,7 @@ const ABViewOrgChartTeamsPropertyComponentDefaults = {
    depth: 99,
    color: "#00BCD4",
    // visibleLevel: 2,
+   draggable: 1,
    pan: 1,
    zoom: 1,
    height: 0,
@@ -89,6 +90,11 @@ module.exports = class ABViewOrgChartTeamsCore extends ABViewWidget {
 
       this.settings.zoom = JSON.parse(
          this.settings.zoom ?? ABViewOrgChartTeamsPropertyComponentDefaults.zoom
+      );
+
+      this.settings.draggable = JSON.parse(
+         this.settings.draggable ??
+            ABViewOrgChartTeamsPropertyComponentDefaults.draggable
       );
 
       this.settings.height = parseInt(
