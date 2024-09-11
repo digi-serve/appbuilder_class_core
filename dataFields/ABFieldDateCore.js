@@ -7,13 +7,10 @@
 
 const ABField = require("../../platform/dataFields/ABField");
 
-function L(key, altText) {
+/*function L(key, altText) {
    // TODO:
    // return altText; // AD.lang.label.getLabel(key) || altText;
-   return key.replace(/{(\d+)}/g, function (match, number) {
-      return typeof altText[number] !== "undefined" ? altText[number] : match;
-   });
-}
+}*/
 
 const ABFieldDateDefaults = {
    key: "date",
@@ -161,6 +158,7 @@ module.exports = class ABFieldDateCore extends ABField {
     */
    isValidData(data, validator) {
       super.isValidData(data, validator);
+      var L = this.AB.Label();
 
       const currentDate = new Date();
       currentDate.setHours(0, 0, 0, 0);
