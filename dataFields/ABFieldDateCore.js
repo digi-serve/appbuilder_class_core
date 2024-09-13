@@ -7,10 +7,10 @@
 
 const ABField = require("../../platform/dataFields/ABField");
 
-function L(key, altText) {
-   // TODO:
-   return altText; // AD.lang.label.getLabel(key) || altText;
-}
+/*function L(key, altText) {
+   // TODO:git 
+   // return altText; // AD.lang.label.getLabel(key) || altText;
+}*/
 
 const ABFieldDateDefaults = {
    key: "date",
@@ -158,6 +158,10 @@ module.exports = class ABFieldDateCore extends ABField {
     */
    isValidData(data, validator) {
       super.isValidData(data, validator);
+      var L = this.AB.Label();
+
+      const currentDate = new Date();
+      currentDate.setHours(0, 0, 0, 0);
 
       if (data[this.columnName]) {
          let value = data[this.columnName];
@@ -299,6 +303,30 @@ module.exports = class ABFieldDateCore extends ABField {
                         validator.addError(
                            this.columnName,
                            L("Should before or equal {0}", [startDateDisplay])
+                        );
+                     break;
+                  case "lessCurrentDate":
+                     isValid =
+                        value.getTime &&
+                        value.getTime() < currentDate.getTime();
+                     if (!isValid)
+                        validator.addError(
+                           this.columnName,
+                           L("Should before {0}", [
+                              this.getDateDisplay(currentDate),
+                           ])
+                        );
+                     break;
+                  case "lessEqualCurrentDate":
+                     isValid =
+                        value.getTime &&
+                        value.getTime() <= currentDate.getTime();
+                     if (!isValid)
+                        validator.addError(
+                           this.columnName,
+                           L("Should before or equal {0}", [
+                              this.getDateDisplay(currentDate),
+                           ])
                         );
                      break;
                }
