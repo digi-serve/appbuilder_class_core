@@ -71,6 +71,14 @@ module.exports = class ABViewOrgChartTeamsCore extends ABViewWidget {
          this.settings.topTeam ??
          ABViewOrgChartTeamsPropertyComponentDefaults.topTeam;
 
+      this.settings.teamInactive =
+         this.settings.teamInactive ??
+         ABViewOrgChartTeamsPropertyComponentDefaults.teamInactive;
+
+      this.settings.teamCanInactivate =
+         this.settings.teamCanInactivate ??
+         ABViewOrgChartTeamsPropertyComponentDefaults.teamCanInactivate;
+
       this.settings.direction =
          this.settings.direction ??
          ABViewOrgChartTeamsPropertyComponentDefaults.direction;
