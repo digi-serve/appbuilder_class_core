@@ -20,6 +20,7 @@ module.exports = class ABObjectApiNetsuiteCore extends ABObjectApi {
       super.fromValues(attributes);
 
       this.credentials = attributes.credentials ?? {};
+      this.columnRef = attributes.columnRef ?? {};
    }
 
    /**
@@ -33,8 +34,9 @@ module.exports = class ABObjectApiNetsuiteCore extends ABObjectApi {
    toObj() {
       const result = super.toObj();
 
-      result.isNetsuite = this.isNetsuite;
+      result.isNetsuite = true;
       result.credentials = this.credentials;
+      result.columnRef = this.columnRef;
 
       return result;
    }
