@@ -16,6 +16,10 @@ const ABViewOrgChartTeamsPropertyComponentDefaults = {
    height: 0,
    export: 0,
    exportFilename: "",
+   contentField: "",
+   contentFieldFilter: null,
+   contentGroupByField: "",
+   contentDisplayedFields: {},
 };
 
 const ABViewOrgChartTeamsDefaults = {
@@ -110,6 +114,18 @@ module.exports = class ABViewOrgChartTeamsCore extends ABViewWidget {
       this.settings.exportFilename =
          this.settings.exportFilename ??
          ABViewOrgChartTeamsPropertyComponentDefaults.exportFilename;
+      this.settings.contentField =
+         this.settings.contentField ??
+         ABViewOrgChartTeamsPropertyComponentDefaults.contentField;
+      this.settings.contentFieldFilter =
+         this.settings.contentFieldFilter ??
+         ABViewOrgChartTeamsPropertyComponentDefaults.contentFieldFilter;
+      this.settings.contentGroupByField =
+         this.settings.contentGroupByField ??
+         ABViewOrgChartTeamsPropertyComponentDefaults.contentGroupByField;
+      this.settings.contentDisplayedFields =
+         this.settings.contentDisplayedFields ??
+         ABViewOrgChartTeamsPropertyComponentDefaults.contentDisplayedFields;
    }
 
    get datacollection() {
