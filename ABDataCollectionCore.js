@@ -1906,8 +1906,12 @@ module.exports = class ABDataCollectionCore extends ABMLClass {
       return new Promise((resolve) => {
          setTimeout(async () => {
             await this.queuedParse(nextData);
-            cb?.();
-            resolve();
+
+            // Introduce a delay to ensure the UI has fully rendered the list before proceeding
+            setTimeout(async () => {
+               cb?.();
+               resolve();
+            }, 100);
          }, 15);
       });
    }
