@@ -49,7 +49,7 @@ module.exports = class ABScopeCore {
          createdBy: this.createdBy,
          filter: this.filter,
          allowAll: this.allowAll || false,
-         objectIds: this.objects().map((o) => o.id)
+         objectIds: this.objects().map((o) => o.id),
       };
    }
 

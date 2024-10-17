@@ -71,7 +71,8 @@ module.exports = class ABViewDocxBuilderCore extends ABViewWidget {
       // TODO: Convert this to use ABFactory.urlFileUpload() or a ABFieldFile
       // to get the URL:
 
-      const object = this.datacollection.datasource;
+      // support uploading template when more than one data source is selected
+      const object = this.datacollections[0].datasource;
 
       // NOTE: file-upload API needs to have the id of ANY field.
       const field = object ? object.fields()[0] : null;

@@ -213,6 +213,13 @@ module.exports = class ABProcessTaskUserApprovalCore extends ABProcessElement {
          myObj
       );
 
+      // NOTE: We are pretending our response is a type of ABFieldList. But our
+      // ABField objects no longer allow "." in our columnNames:
+      //    ( https://github.com/digi-serve/appbuilder_class_core/blob/212cf5fa1c1d5c959aa246c730582ed50809ee0f/dataFields/ABFieldCore.js#L262 )
+      // But our Process tasks really will be expecting it there so lets put
+      // it back:
+      listField.columnName = `${myID}.userFormResponse`;
+
       return [
          {
             key: `${myID}.userFormResponse`,

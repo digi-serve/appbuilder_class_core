@@ -35,9 +35,8 @@ module.exports = class ABHintCore extends ABMLClass {
       }
     }
     */
-      let active = attributes?.settings.hasOwnProperty("active")
-         ? attributes?.settings?.active
-         : "1";
+
+      let active = attributes?.settings?.active ?? "1";
 
       this.id = attributes?.id || "";
       this.name = attributes?.name || "New Tutorial";
