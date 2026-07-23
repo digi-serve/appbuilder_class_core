@@ -46,14 +46,14 @@ var AllViews = [
    //
    // Detail Components
    //
-   require("../platform/views/ABViewDetail"),
-   require("../platform/views/ABViewDetailCheckbox"),
-   require("../platform/views/ABViewDetailConnect"),
-   require("../platform/views/ABViewDetailCustom"),
-   require("../platform/views/ABViewDetailImage"),
+   // require("../platform/views/ABViewDetail"),
+   // require("../platform/views/ABViewDetailCheckbox"),
+   // require("../platform/views/ABViewDetailConnect"),
+   // require("../platform/views/ABViewDetailCustom"),
+   // require("../platform/views/ABViewDetailImage"),
    // require("../platform/views/ABViewDetailSelectivity"),
-   require("../platform/views/ABViewDetailText"),
-   require("../platform/views/ABViewDetailTree"),
+   // require("../platform/views/ABViewDetailText"),
+   // require("../platform/views/ABViewDetailTree"),
 ];
 
 /*
