@@ -1,5 +1,4 @@
 const ABComponent = require("../platform/ABComponent");
-// const ABObjectQuery = require("../platform/ABObjectQuery");
 
 /**
  *  support get data from objects and queries
