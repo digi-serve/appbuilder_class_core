@@ -4,7 +4,6 @@
  * It is expected that an instance of this should be returned from an
  * ABBootstrap.init(req).then((AB)=>{}) call.
  */
-
 import ABClassManager from "../platform/ABClassManager.js";
 import ABApplication from "../platform/ABApplication.js";
 import ABApplicationMobile from "../platform/ABApplicationMobile.js";
@@ -25,8 +24,8 @@ import ABProcessParticipant from "../platform/process/ABProcessParticipant.js";
 import ABProcessLane from "../platform/process/ABProcessLane.js";
 import ABProcessTaskManager from "./process/ABProcessTaskManager.js";
 import ABStep from "../platform/ABStep.js";
-import ABViewDetailItem from "../platform/views/ABViewDetailItem.js";
-import ABViewFormItem from "../platform/views/ABViewFormItem.js";
+// import ABViewDetailItem from "../platform/views/ABViewDetailItem.js";
+// import ABViewFormItem from "../platform/views/ABViewFormItem.js";
 import ABMobileViewFormItem from "../platform/mobile/ABMobileViewFormItem.js";
 import RowFilter from "../platform/RowFilter.js";
 import FilterComplex from "../platform/FilterComplex.js";
@@ -109,8 +108,6 @@ class ABFactory extends EventEmitter {
 
          ABProcessTaskManager,
 
-         ABViewDetailItem,
-         ABViewFormItem,
          ABMobileViewFormItem,
       };
 
@@ -128,7 +125,7 @@ class ABFactory extends EventEmitter {
          isUUID: function (key) {
             var checker = RegExp(
                "^[0-9a-f]{8}-[0-9a-f]{4}-[1-5][0-9a-f]{3}-[89ab][0-9a-f]{3}-[0-9a-f]{12}$",
-               "i",
+               "i"
             );
             return checker.test(key);
          },
@@ -200,7 +197,7 @@ class ABFactory extends EventEmitter {
             appName,
             sourceTableName,
             targetTableName,
-            colName,
+            colName
          ) {
             // The maximum length of a table name in MySql is 64 characters
             appName = this.toApplicationNameFormat(appName);
@@ -268,7 +265,7 @@ class ABFactory extends EventEmitter {
       await this.pluginLocalLoad();
 
       let allDefinitions = Object.keys(this._definitions).map(
-         (k) => this._definitions[k],
+         (k) => this._definitions[k]
       );
       // {array} all our definitions in an Array format.
 
@@ -573,7 +570,7 @@ class ABFactory extends EventEmitter {
       dc.on("destroyed", () => {
          // make sure it is no longer in our internal list
          this._allDatacollections = this._allDatacollections.filter(
-            (d) => d.id != dc.id,
+            (d) => d.id != dc.id
          );
       });
       return dc;
@@ -676,7 +673,7 @@ class ABFactory extends EventEmitter {
          newObj = this.ClassManager.createObject(
             values.plugin_key,
             values,
-            this,
+            this
          );
       } else if (values.isExternal == true)
          newObj = new ABObjectExternal(values, this);
@@ -969,7 +966,7 @@ class ABFactory extends EventEmitter {
                newElement = ABProcessTaskManager.newTask(
                   defaultDef,
                   process,
-                  this,
+                  this
                );
             }
             break;
@@ -1078,7 +1075,7 @@ class ABFactory extends EventEmitter {
     */
    notify(/* ...params */) {
       console.error(
-         "ABFactory.notify() is expected to be overwritten by the platform!",
+         "ABFactory.notify() is expected to be overwritten by the platform!"
       );
    }
 
