@@ -1,4 +1,4 @@
-const ABViewWidget = require("../../platform/views/ABViewWidget");
+import ABViewWidget from "../../platform/views/ABViewWidget.js";
 
 const ABViewConnectDataFilterPropertyComponentDefaults = {
    dataviewID: null, // uuid of ABDatacollection
@@ -11,7 +11,7 @@ const ABViewDefaults = {
    labelKey: "Connected Data Filter", // {string} the multilingual label key for the class label
 };
 
-module.exports = class ABViewConnectDataFilterCore extends ABViewWidget {
+export default class ABViewConnectDataFilterCore extends ABViewWidget {
    constructor(values, application, parent, defaultValues) {
       super(values, application, parent, defaultValues ?? ABViewDefaults);
    }
@@ -35,4 +35,4 @@ module.exports = class ABViewConnectDataFilterCore extends ABViewWidget {
    componentList() {
       return [];
    }
-};
+}

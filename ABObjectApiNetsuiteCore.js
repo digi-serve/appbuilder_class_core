@@ -1,7 +1,7 @@
-const ABObjectApi = require("../platform/ABObjectApi");
-const ABModelApiNetsuite = require("../platform/ABModelApiNetsuite");
+import ABObjectApi from "../platform/ABObjectApi.js";
+import ABModelApiNetsuite from "../platform/ABModelApiNetsuite.js";
 
-module.exports = class ABObjectApiNetsuiteCore extends ABObjectApi {
+export default class ABObjectApiNetsuiteCore extends ABObjectApi {
    constructor(attributes, AB) {
       super(attributes, AB);
 
@@ -118,4 +118,4 @@ module.exports = class ABObjectApiNetsuiteCore extends ABObjectApi {
    }
 
    */
-};
+}

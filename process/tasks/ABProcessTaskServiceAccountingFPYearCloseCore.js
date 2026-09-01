@@ -1,4 +1,4 @@
-const ABProcessElement = require("../../../platform/process/tasks/ABProcessElement.js");
+import ABProcessElement from "../../../platform/process/tasks/ABProcessElement.js";
 
 var AccountingFPYearCloseDefaults = {
    category: null,
@@ -49,7 +49,7 @@ var AccountingFPYearCloseDefaults = {
    // values set by the platform .propertiesStash()
 };
 
-module.exports = class AccountingFPYearCloseCore extends ABProcessElement {
+export default class AccountingFPYearCloseCore extends ABProcessElement {
    constructor(attributes, process, AB) {
       attributes.type =
          attributes.type || "process.task.service.accounting.fpYearClose";
@@ -165,4 +165,4 @@ module.exports = class AccountingFPYearCloseCore extends ABProcessElement {
         return null;
     }
     */
-};
+}

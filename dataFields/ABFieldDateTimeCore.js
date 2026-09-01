@@ -1,16 +1,11 @@
+import ABFieldDateCore from "./ABFieldDateCore.js";
+
 /*
  * ABFieldDateTime
  *
  * An ABFieldDateTime defines a datetime field type.
  *
  */
-
-const ABFieldDateCore = require("./ABFieldDateCore");
-
-function L(key, altText) {
-   // TODO:
-   return altText; // AD.lang.label.getLabel(key) || altText;
-}
 
 const ABFieldDateDefaults = {
    key: "datetime",
@@ -71,7 +66,7 @@ const defaultValues = {
    defaultTimeValue: null, // {Date}
 };
 
-module.exports = class ABFieldDateTimeCore extends ABFieldDateCore {
+export default class ABFieldDateTimeCore extends ABFieldDateCore {
    constructor(values, object) {
       super(values, object, ABFieldDateDefaults);
    }
@@ -190,8 +185,7 @@ module.exports = class ABFieldDateTimeCore extends ABFieldDateCore {
 
       if (this.AB.Webix)
          return this.AB.Webix.Date.dateToStr(datetimeFormat)(dateObj);
-      else
-         return dateObj?.toISOString() ?? "";
+      else return dateObj?.toISOString() ?? "";
    }
 
    getTimeFormat() {
@@ -214,9 +208,7 @@ module.exports = class ABFieldDateTimeCore extends ABFieldDateCore {
    exportValue(date) {
       return date?.toISOString?.() ?? "";
    }
-};
+}
 
-// Transition Code:
-// revert to static RegEx once babel-loader is working locally.
-module.exports.RegEx =
-   "^[0-9]{4}-[0-9]{2}-[0-9]{2} [0-9]{2}:[0-9]{2}:[0-9]{2}$";
+// Transition Code: RegEx for datetime format validation
+export const RegEx = "^[0-9]{4}-[0-9]{2}-[0-9]{2} [0-9]{2}:[0-9]{2}:[0-9]{2}$";

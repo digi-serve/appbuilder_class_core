@@ -1,11 +1,11 @@
+import ABField from "../../platform/dataFields/ABField.js";
+
 /*
  * ABFieldAutoIndex
  *
  * An ABFieldAutoIndex defines a AutoIndex field type.
  *
  */
-
-const ABField = require("../../platform/dataFields/ABField");
 
 function L(key, altText) {
    // TODO:
@@ -73,7 +73,7 @@ const defaultValues = {
    previewText: "0000",
 };
 
-module.exports = class ABFieldAutoIndexCore extends ABField {
+export default class ABFieldAutoIndexCore extends ABField {
    constructor(values, object) {
       super(values, object, ABFieldAutoIndexDefaults);
    }
@@ -141,7 +141,7 @@ module.exports = class ABFieldAutoIndexCore extends ABField {
             this.settings.prefix,
             this.settings.delimiter,
             this.settings.displayLength,
-            rowData[this.columnName]
+            rowData[this.columnName],
          );
 
          return resultAutoIndex;
@@ -149,4 +149,4 @@ module.exports = class ABFieldAutoIndexCore extends ABField {
          return "";
       }
    }
-};
+}

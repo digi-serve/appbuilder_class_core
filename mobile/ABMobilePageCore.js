@@ -1,3 +1,5 @@
+import ABMobileView from "../../platform/mobile/ABMobileView.js";
+
 /*
  * ABMobilePageCore
  *
@@ -10,10 +12,7 @@
  *
  */
 
-const ABMobileView = require("../../platform/mobile/ABMobileView");
-// var ABViewManager = require("../ABViewManager");
-
-// function L(key, altText) {
+// // function L(key, altText) {
 //     return AD.lang.label.getLabel(key) || altText;
 // }
 
@@ -45,7 +44,7 @@ const ABPropertyComponentDefaults = {
    // are linkedPages with forms )
 };
 
-module.exports = class ABMobilePageCore extends ABMobileView {
+export default class ABMobilePageCore extends ABMobileView {
    constructor(values, application, parent, defaultValues) {
       super(values, application, parent, defaultValues || ABMobilePageDefaults);
 
@@ -149,14 +148,14 @@ module.exports = class ABMobilePageCore extends ABMobileView {
       // NOTE: only 1 Page in a Mobile App can have this setting = 1.
 
       this.settings.hideTitle = parseInt(
-         values.settings.hideTitle ?? DV.hideTitle
+         values.settings.hideTitle ?? DV.hideTitle,
       );
       // {bool} 1|0
       // By default an ABMobilePage will display it's this.label for a title
       // on the page.  Setting this to TRUE (1) will hide the title.
 
       this.settings.hideTabs = parseInt(
-         values.settings.hideTabs ?? DV.hideTabs
+         values.settings.hideTabs ?? DV.hideTabs,
       );
       // {bool} 1|0
       // By default, pages will show any Tab options on their display.  Set this
@@ -177,7 +176,7 @@ module.exports = class ABMobilePageCore extends ABMobileView {
                   appID: this.application.id,
                   pageID: this.id,
                   missingPageID: id,
-               }
+               },
             );
          }
       });
@@ -265,7 +264,7 @@ module.exports = class ABMobilePageCore extends ABMobileView {
    refreshInstance() {
       console.warn(
          "This version of ABMobilePage hasn't updated it's refreshInstance()",
-         this
+         this,
       );
       return this;
    }
@@ -471,4 +470,4 @@ module.exports = class ABMobilePageCore extends ABMobileView {
       // now continue with the default .copy()
       return super.copy(lookUpIds, parent, options);
    }
-};
+}

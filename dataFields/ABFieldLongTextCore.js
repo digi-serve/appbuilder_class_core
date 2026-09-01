@@ -1,3 +1,5 @@
+import ABField from "../../platform/dataFields/ABField.js";
+
 /*
  * ABFieldLongText
  *
@@ -5,14 +7,12 @@
  *
  */
 
-const ABField = require("../../platform/dataFields/ABField");
-
 const MAX_CHAR_LENGTH = 5000;
 
-function L(key, altText) {
-   // TODO:
-   return altText; // AD.lang.label.getLabel(key) || altText;
-}
+// function L(key, altText) {
+//    // TODO:
+//    return altText; // AD.lang.label.getLabel(key) || altText;
+// }
 
 const ABFieldLongTextDefaults = {
    key: "LongText", // unique key to reference this specific DataField
@@ -76,7 +76,7 @@ const defaultValues = {
    supportMultilingual: 0,
 };
 
-module.exports = class ABFieldLongText extends ABField {
+export default class ABFieldLongText extends ABField {
    constructor(values, object) {
       super(values, object, ABFieldLongTextDefaults);
 
@@ -121,7 +121,7 @@ module.exports = class ABFieldLongText extends ABField {
 
       // text to Int:
       this.settings.supportMultilingual = parseInt(
-         this.settings.supportMultilingual
+         this.settings.supportMultilingual,
       );
 
       if (this.settings.supportMultilingual) {
@@ -195,8 +195,8 @@ module.exports = class ABFieldLongText extends ABField {
       ) {
          validator.addError(
             this.columnName,
-            `should NOT be longer than ${MAX_CHAR_LENGTH} characters`
+            `should NOT be longer than ${MAX_CHAR_LENGTH} characters`,
          );
       }
    }
-};
+}

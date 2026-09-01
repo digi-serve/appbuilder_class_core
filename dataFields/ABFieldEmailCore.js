@@ -1,16 +1,11 @@
+import ABField from "../../platform/dataFields/ABField.js";
+
 /*
  * ABFieldEmail
  *
  * An ABFieldEmail defines a boolean field type.
  *
  */
-
-const ABField = require("../../platform/dataFields/ABField");
-
-function L(key, altText) {
-   // TODO:
-   return altText; // AD.lang.label.getLabel(key) || altText;
-}
 
 const ABFieldEmailDefaults = {
    key: "email",
@@ -70,7 +65,7 @@ const defaultValues = {
    defaultCheckbox: 0,
 };
 
-module.exports = class ABFieldEmailCore extends ABField {
+export default class ABFieldEmailCore extends ABField {
    constructor(values, object) {
       super(values, object, ABFieldEmailDefaults);
    }
@@ -134,4 +129,4 @@ module.exports = class ABFieldEmailCore extends ABField {
          }
       }
    }
-};
+}

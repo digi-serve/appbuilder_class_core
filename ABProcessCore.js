@@ -1,11 +1,10 @@
+import ABMLClass from "../platform/ABMLClass.js";
+import _concat from "lodash/concat.js";
+import ABProcessTaskSubProcess from "../platform/process/tasks/ABProcessTaskSubProcess.js";
+
 // import ABApplication from "./ABApplication"
 
-var ABMLClass = require("../platform/ABMLClass");
-const _concat = require("lodash/concat");
-
-const ABProcessTaskSubProcess = require("../platform/process/tasks/ABProcessTaskSubProcess");
-
-module.exports = class ABProcessCore extends ABMLClass {
+export default class ABProcessCore extends ABMLClass {
    constructor(attributes, AB) {
       super(["label"], AB);
 
@@ -54,7 +53,7 @@ module.exports = class ABProcessCore extends ABMLClass {
                this.emit(
                   "warning",
                   `P[${this.name}] is referencing an unknown process element id[${eID}]`,
-                  { process: this.id, eID }
+                  { process: this.id, eID },
                );
             }
          }
@@ -95,7 +94,7 @@ module.exports = class ABProcessCore extends ABMLClass {
          // NOTE: when a task is initially created, it doesn't have an .id
          // so we need to reference it by it's .diagramID
          data.elementIDs.push(
-            this._elements[e].id ?? this._elements[e].diagramID
+            this._elements[e].id ?? this._elements[e].diagramID,
          );
       }
 
@@ -434,7 +433,7 @@ module.exports = class ABProcessCore extends ABMLClass {
          tasksToAsk,
          "processDataFields",
          null,
-         this
+         this,
       );
       // Include data from the main process as well
       if (this.key === "SubProcess") {
@@ -523,7 +522,7 @@ module.exports = class ABProcessCore extends ABMLClass {
          tasksToAsk,
          "processDataObjects",
          null,
-         this
+         this,
       );
       return fields.length > 0 ? fields : null;
    }
@@ -579,7 +578,7 @@ module.exports = class ABProcessCore extends ABMLClass {
    //         return p.diagramID == dID;
    //     });
    // }
-};
+}
 
 var queryPreviousTasks = (
    list,
@@ -587,7 +586,7 @@ var queryPreviousTasks = (
    param,
    process,
    responses,
-   processedIDs
+   processedIDs,
 ) => {
    // recursive fn() to step through our graph and compile
    // results.
@@ -630,7 +629,7 @@ var queryPreviousTasks = (
          param,
          process,
          responses,
-         processedIDs
+         processedIDs,
       );
    }
 };

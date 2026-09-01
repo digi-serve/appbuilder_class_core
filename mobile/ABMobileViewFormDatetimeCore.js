@@ -1,4 +1,4 @@
-const ABMobileViewFormItem = require("../../platform/mobile/ABMobileViewFormItem");
+import ABMobileViewFormItem from "../../platform/mobile/ABMobileViewFormItem.js";
 
 const ABMobileViewFormDatetimePropertyComponentDefaults = {
    timepicker: false,
@@ -10,15 +10,13 @@ const ABMobileViewFormDatetimeDefaults = {
    labelKey: "Date and Time", // {string} the multilingual label key for the class label
 };
 
-module.exports = class ABMobileViewFormDatetimeCore extends (
-   ABMobileViewFormItem
-) {
+export default class ABMobileViewFormDatetimeCore extends ABMobileViewFormItem {
    constructor(values, application, parent, defaultValues) {
       super(
          values,
          application,
          parent,
-         defaultValues || ABMobileViewFormDatetimeDefaults
+         defaultValues || ABMobileViewFormDatetimeDefaults,
       );
    }
 
@@ -33,4 +31,4 @@ module.exports = class ABMobileViewFormDatetimeCore extends (
    ///
    /// Instance Methods
    ///
-};
+}

@@ -1,3 +1,6 @@
+import ABModel from "../platform/ABModel.js";
+import ABMLClass from "../platform/ABMLClass.js";
+
 /**
  * ABObjectCore
  *
@@ -5,13 +8,10 @@
  * that can instantiate themselves and provide field and model resources.
  */
 
-var ABModel = require("../platform/ABModel");
-var ABMLClass = require("../platform/ABMLClass");
-
 /* eslint-disable-next-line no-undef */
 const L = (...params) => AB.Multilingual.label(...params);
 
-module.exports = class ABObjectCore extends ABMLClass {
+export default class ABObjectCore extends ABMLClass {
    constructor(attributes, AB) {
       super(["label"], AB);
 
@@ -115,7 +115,7 @@ module.exports = class ABObjectCore extends ABMLClass {
       // {Object} .labelSettings
 
       this.labelSettings.isNoLabelDisplay = parseInt(
-         this.labelSettings.isNoLabelDisplay || 0
+         this.labelSettings.isNoLabelDisplay || 0,
       );
       // {bool} .isNoLabelDisplay
 
@@ -220,7 +220,7 @@ module.exports = class ABObjectCore extends ABMLClass {
          } else {
             this._unknownFieldIDs.push(id);
             let err = new Error(
-               `O[${this.name}] is referenceing an unknown field id[${id}]`
+               `O[${this.name}] is referenceing an unknown field id[${id}]`,
             );
             this.AB.notify.builder(err, {
                field: { id, object: { id: this.id, name: this.name } },
@@ -252,7 +252,7 @@ module.exports = class ABObjectCore extends ABMLClass {
          } else {
             this._unknownIndex.push(id);
             let err = new Error(
-               `O[${this.name}] is referenceing an unknown index id[${id}]`
+               `O[${this.name}] is referenceing an unknown index id[${id}]`,
             );
             this.AB.notify.builder(err, {
                field: { id, object: { id: this.id, name: this.name } },
@@ -430,7 +430,7 @@ module.exports = class ABObjectCore extends ABMLClass {
             this._unknownFieldIDs = this._unknownFieldIDs || [];
             this._unknownFieldIDs.push(id);
             let err = new Error(
-               `O[${this.name}] is importing an unknown field id[${id}]`
+               `O[${this.name}] is importing an unknown field id[${id}]`,
             );
             this.AB.notify.builder(err, {
                field: { id, object: { id: this.id, name: this.name } },
@@ -472,7 +472,7 @@ module.exports = class ABObjectCore extends ABMLClass {
       // be sure to remove this from our imported ids if it was
       // listed there.
       this.importedFieldIDs = this.importedFieldIDs.filter(
-         (fid) => fid != field.id
+         (fid) => fid != field.id,
       );
 
       if (this._fields.length < origLen) {
@@ -880,7 +880,7 @@ module.exports = class ABObjectCore extends ABMLClass {
    remoteCreate(data) {
       console.log(
          "object[" + this.name + "] received a remoteCreate() with data:",
-         data
+         data,
       );
    }
 
@@ -942,7 +942,7 @@ module.exports = class ABObjectCore extends ABMLClass {
       // System requires to include number field values
       // because they are used on Formula/Calculate fields on client side
       fields = fields.concat(
-         this.fields((f) => f.key == "number").map((f) => f.columnName)
+         this.fields((f) => f.key == "number").map((f) => f.columnName),
       );
 
       return fields;
@@ -1047,8 +1047,8 @@ module.exports = class ABObjectCore extends ABMLClass {
                // what is this entry?
                let err = new Error(
                   `ABObjectCore.whereCleanUP(): Sentry Error: AB-APPBUILDER-4H: current rule is not properly formed: ${JSON.stringify(
-                     curr
-                  )}`
+                     curr,
+                  )}`,
                );
                this.AB.notify.developer(err, { curr });
             }
@@ -1082,4 +1082,4 @@ module.exports = class ABObjectCore extends ABMLClass {
       }
       return null;
    }
-};
+}

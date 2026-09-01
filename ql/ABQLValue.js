@@ -1,3 +1,5 @@
+import Import_ABQLValueSave from "../../platform/ql/ABQLValueSave.js";
+
 /*
  * ABQLValue
  *
@@ -6,4 +8,4 @@
  *
  */
 
-module.exports = [require("../../platform/ql/ABQLValueSave.js")];
+export default [Import_ABQLValueSave];

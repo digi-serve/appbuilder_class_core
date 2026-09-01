@@ -1,16 +1,11 @@
+import ABFieldConnect from "../../platform/dataFields/ABFieldConnect.js";
+
 /*
  * ABFieldUser
  *
  * An ABFieldUser defines a user field type.
  *
  */
-
-const ABFieldConnect = require("../../platform/dataFields/ABFieldConnect");
-
-function L(key, altText) {
-   // TODO:
-   return altText; // AD.lang.label.getLabel(key) || altText;
-}
 
 const ABFieldUserDefaults = {
    key: "user",
@@ -84,7 +79,7 @@ const defaultValues = {
    isShowUsername: 1,
 };
 
-module.exports = class ABFieldUserCore extends ABFieldConnect {
+export default class ABFieldUserCore extends ABFieldConnect {
    constructor(values, object) {
       super(values, object, ABFieldUserDefaults);
 
@@ -116,7 +111,7 @@ module.exports = class ABFieldUserCore extends ABFieldConnect {
       this.settings.isMultiple = parseInt(this.settings.isMultiple);
       this.settings.isCurrentUser = parseInt(this.settings.isCurrentUser);
       this.settings.isShowProfileImage = parseInt(
-         this.settings.isShowProfileImage
+         this.settings.isShowProfileImage,
       );
       this.settings.isShowUsername = parseInt(this.settings.isShowUsername);
    }
@@ -133,4 +128,4 @@ module.exports = class ABFieldUserCore extends ABFieldConnect {
 
       return val.map((v) => v.username || v).join(", ");
    }
-};
+}

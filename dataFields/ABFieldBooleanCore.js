@@ -1,16 +1,11 @@
+import ABField from "../../platform/dataFields/ABField.js";
+
 /*
  * ABFieldBoolean
  *
  * An ABFieldBoolean defines a boolean field type.
  *
  */
-
-const ABField = require("../../platform/dataFields/ABField");
-
-function L(key, altText) {
-   // TODO:
-   return altText; // AD.lang.label.getLabel(key) || altText;
-}
 
 const ABFieldBooleanDefaults = {
    key: "boolean",
@@ -69,7 +64,7 @@ const defaultValues = {
    default: 0,
 };
 
-module.exports = class ABFieldBooleanCore extends ABField {
+export default class ABFieldBooleanCore extends ABField {
    constructor(values, object) {
       super(values, object, ABFieldBooleanDefaults);
    }
@@ -111,4 +106,4 @@ module.exports = class ABFieldBooleanCore extends ABField {
          values[this.columnName] = this.settings.default;
       }
    }
-};
+}

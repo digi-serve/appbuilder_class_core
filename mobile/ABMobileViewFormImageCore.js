@@ -1,4 +1,4 @@
-const ABMobileViewFormFile = require("../../platform/mobile/ABMobileViewFormFile");
+import ABMobileViewFormFile from "../../platform/mobile/ABMobileViewFormFile.js";
 
 const ABViewFormImagePropertyComponentDefaults = {};
 
@@ -11,13 +11,13 @@ const ABViewImageFileDefaults = {
    // {string} the multilingual label key for the class label
 };
 
-module.exports = class ABMobileViewFormImageCore extends ABMobileViewFormFile {
+export default class ABMobileViewFormImageCore extends ABMobileViewFormFile {
    constructor(values, application, parent, defaultValues) {
       super(
          values,
          application,
          parent,
-         defaultValues || ABViewImageFileDefaults
+         defaultValues || ABViewImageFileDefaults,
       );
    }
 
@@ -28,4 +28,4 @@ module.exports = class ABMobileViewFormImageCore extends ABMobileViewFormFile {
    static defaultValues() {
       return ABViewFormImagePropertyComponentDefaults;
    }
-};
+}

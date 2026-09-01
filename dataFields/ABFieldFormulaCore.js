@@ -1,3 +1,5 @@
+import ABField from "../../platform/dataFields/ABField.js";
+
 /*
  * ABFieldFormula
  *
@@ -5,8 +7,6 @@
  * and store the total of that calculation in the parent.
  *
  */
-
-const ABField = require("../../platform/dataFields/ABField");
 
 const ABFieldFormulaDefaults = {
    key: "formula",
@@ -91,7 +91,7 @@ const defaultValues = {
    where: "",
 };
 
-module.exports = class ABFieldFormulaCore extends ABField {
+export default class ABFieldFormulaCore extends ABField {
    constructor(values, object) {
       super(values, object, ABFieldFormulaDefaults);
    }
@@ -283,4 +283,4 @@ module.exports = class ABFieldFormulaCore extends ABField {
 
       return this._rowFilter;
    }
-};
+}

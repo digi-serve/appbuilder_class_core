@@ -1,11 +1,11 @@
+import ABField from "../../platform/dataFields/ABField.js";
+
 /*
  * ABFieldCombine
  *
  * An ABFieldCombine defines a combined field type.
  *
  */
-
-const ABField = require("../../platform/dataFields/ABField");
 
 // function L(key, altText) {
 //    // TODO:
@@ -75,7 +75,7 @@ const defaultValues = {
    delimiter: "plus", // plus, space, dash, period
 };
 
-module.exports = class ABFieldCombineCore extends ABField {
+export default class ABFieldCombineCore extends ABField {
    constructor(values, object) {
       super(values, object, ABFieldCombinedDefaults);
    }
@@ -136,7 +136,7 @@ module.exports = class ABFieldCombineCore extends ABField {
    format(rowData) {
       let val = rowData[this.columnName] ?? "";
 
-      this.getCombinedFields().forEach((f, index) => {
+      this.getCombinedFields().forEach((f /*, _index */) => {
          if (
             f.key != "connectObject" ||
             f.settings.indexField ||
@@ -158,4 +158,4 @@ module.exports = class ABFieldCombineCore extends ABField {
 
       return val;
    }
-};
+}

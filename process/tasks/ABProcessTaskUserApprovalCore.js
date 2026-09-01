@@ -1,6 +1,5 @@
-const ABProcessElement = require("../../../platform/process/tasks/ABProcessElement.js");
-
-const ABFieldList = require("../../../platform/dataFields/ABFieldList.js");
+import ABProcessElement from "../../../platform/process/tasks/ABProcessElement.js";
+import ABFieldList from "../../../platform/dataFields/ABFieldList.js";
 
 var ABProcessTaskApprovalDefaults = {
    category: null,
@@ -29,7 +28,7 @@ var ABProcessTaskApprovalDefaults = {
    // values set by the platform .propertiesStash()
 };
 
-module.exports = class ABProcessTaskUserApprovalCore extends ABProcessElement {
+export default class ABProcessTaskUserApprovalCore extends ABProcessElement {
    constructor(attributes, process, AB) {
       attributes.type = attributes.type || "process.task.user.approval";
       super(attributes, process, AB, ABProcessTaskApprovalDefaults);
@@ -210,7 +209,7 @@ module.exports = class ABProcessTaskUserApprovalCore extends ABProcessElement {
                options: options,
             },
          },
-         myObj
+         myObj,
       );
 
       // NOTE: We are pretending our response is a type of ABFieldList. But our
@@ -246,4 +245,4 @@ module.exports = class ABProcessTaskUserApprovalCore extends ABProcessElement {
       }
       return null;
    }
-};
+}

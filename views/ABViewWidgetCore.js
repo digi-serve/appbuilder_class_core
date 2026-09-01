@@ -1,4 +1,4 @@
-const ABView = require("../../platform/views/ABView");
+import ABView from "../../platform/views/ABView.js";
 
 const ABViewDefaults = {
    key: "viewwidget", // {string} unique key for this view
@@ -11,7 +11,7 @@ const ABPropertyComponentDefaults = {
    rowSpan: 1,
 };
 
-module.exports = class ABViewWidgetCore extends ABView {
+export default class ABViewWidgetCore extends ABView {
    /**
     * @param {obj} values  key=>value hash of ABView values
     * @param {ABApplication} application the application object this view is under
@@ -41,10 +41,10 @@ module.exports = class ABViewWidgetCore extends ABView {
 
       // convert from "0" => 0
       this.settings.columnSpan = parseInt(
-         this.settings.columnSpan || ABPropertyComponentDefaults.columnSpan
+         this.settings.columnSpan || ABPropertyComponentDefaults.columnSpan,
       );
       this.settings.rowSpan = parseInt(
-         this.settings.rowSpan || ABPropertyComponentDefaults.rowSpan
+         this.settings.rowSpan || ABPropertyComponentDefaults.rowSpan,
       );
    }
-};
+}

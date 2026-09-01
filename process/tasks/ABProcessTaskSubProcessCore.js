@@ -1,4 +1,4 @@
-const ABProcessElement = require("../../../platform/process/tasks/ABProcessElement.js");
+import ABProcessElement from "../../../platform/process/tasks/ABProcessElement.js";
 
 let SubProcessDefaults = {
    category: "task",
@@ -35,7 +35,7 @@ const NOSPAM = {
 };
 // prevent sending the same message over and over.
 
-module.exports = class SubProcessCore extends ABProcessElement {
+export default class SubProcessCore extends ABProcessElement {
    constructor(attributes, process, AB) {
       attributes.type = attributes.type || "process.task.service.subProcess";
       super(attributes, process, AB, SubProcessDefaults);
@@ -139,12 +139,12 @@ module.exports = class SubProcessCore extends ABProcessElement {
 
       // get the subtask data
       let dataFieldOpt = dataFieldsAll.filter(
-         (opt) => opt.key === this.parameterId
+         (opt) => opt.key === this.parameterId,
       )[0];
 
       // get data from insert tasks
       let dataFieldsAllInserted = dataFieldsAll.filter(
-         (opt) => (opt?.field?.key ?? opt?.field) === "InsertedRecord"
+         (opt) => (opt?.field?.key ?? opt?.field) === "InsertedRecord",
       );
 
       if (dataFieldOpt == null) return [];
@@ -197,7 +197,7 @@ module.exports = class SubProcessCore extends ABProcessElement {
       // Get any tasks that exist inside the subprocess
       let previousFields = this.process.processDataFields.call(
          this,
-         currElement
+         currElement,
       );
       if (previousFields && previousFields.length > 0) {
          result = result.concat(previousFields);
@@ -239,7 +239,7 @@ module.exports = class SubProcessCore extends ABProcessElement {
                      return item.uuid || item.id || item;
                   } else if (dataFieldOpt.field.datasourceLink) {
                      let returnField = dataFieldOpt.field.datasourceLink.fields(
-                        (f) => f.id == fieldId
+                        (f) => f.id == fieldId,
                      )[0];
                      if (returnField) return item[returnField.columnName];
                      else return item;
@@ -268,14 +268,14 @@ module.exports = class SubProcessCore extends ABProcessElement {
    allPreviousConnectionsForElement(...params) {
       return this.process.allPreviousConnectionsForElement.call(
          this,
-         ...params
+         ...params,
       );
    }
 
    allPreviousConnectionsForConnection(...params) {
       return this.process.allPreviousConnectionsForConnection.call(
          this,
-         ...params
+         ...params,
       );
    }
 
@@ -434,4 +434,4 @@ module.exports = class SubProcessCore extends ABProcessElement {
 
       this.process.elementRemove.call(this, def);
    }
-};
+}

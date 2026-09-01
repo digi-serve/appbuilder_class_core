@@ -1,6 +1,4 @@
-// import ABApplication from "./ABApplication"
-// const ABApplication = require("./ABApplication"); // NOTE: change to require()
-const ABProcessTrigger = require("../../../platform/process/tasks/ABProcessTrigger.js");
+import ABProcessTrigger from "../../../platform/process/tasks/ABProcessTrigger.js";
 
 var ABProcessTaskTriggerLifecycleDefaults = {
    category: "start",
@@ -27,7 +25,7 @@ var ABProcessTaskTriggerLifecycleDefaults = {
    // unique key to reference this specific Task
 };
 
-module.exports = class ABProcessTriggerLifecycle extends ABProcessTrigger {
+export default class ABProcessTriggerLifecycle extends ABProcessTrigger {
    constructor(attributes, process, AB) {
       attributes.type = attributes.type || "trigger";
       super(attributes, process, AB, ABProcessTaskTriggerLifecycleDefaults);
@@ -114,7 +112,7 @@ module.exports = class ABProcessTriggerLifecycle extends ABProcessTrigger {
             // OK, so we have an this.objectID defined, but we can't find it.
             // that's something we need to alert:
             var error = new Error(
-               `ABProcessTriggerLifecycleCore.processDataFields():TaskID[${this.id}]: could not find referenced object by ID [${this.objectID}]`
+               `ABProcessTriggerLifecycleCore.processDataFields():TaskID[${this.id}]: could not find referenced object by ID [${this.objectID}]`,
             );
             this.AB.notify.builder(error, {
                task: this.id,
@@ -204,4 +202,4 @@ module.exports = class ABProcessTriggerLifecycle extends ABProcessTrigger {
       }
       return objects;
    }
-};
+}

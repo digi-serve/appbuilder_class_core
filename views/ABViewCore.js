@@ -1,3 +1,5 @@
+import ABMLClass from "../../platform/ABMLClass.js";
+
 /*
  * ABViewCore
  *
@@ -6,8 +8,6 @@
  * how it is related to the ABView classes.
  *
  */
-
-var ABMLClass = require("../../platform/ABMLClass");
 
 const ABViewDefaults = {
    key: "view", // {string} unique key for this view
@@ -20,7 +20,7 @@ const ABViewPropertyComponentDefaults = {
    label: "",
 };
 
-module.exports = class ABViewCore extends ABMLClass {
+export default class ABViewCore extends ABMLClass {
    /**
     * @param {obj} values  key=>value hash of ABView values
     * @param {ABApplication} application the application object this view is under
@@ -293,7 +293,7 @@ module.exports = class ABViewCore extends ABMLClass {
             this.AB.Account.roles().forEach((role) => {
                if (
                   this.application.accessManagers.role.indexOf(
-                     role.id || role.uuid
+                     role.id || role.uuid,
                   ) > -1
                ) {
                   // if so set the access level to full access
@@ -310,7 +310,7 @@ module.exports = class ABViewCore extends ABMLClass {
             // check if the user's account matches the managers
             if (
                this.application.accessManagers.account.indexOf(
-                  this.AB.Account.uuid() + ""
+                  this.AB.Account.uuid() + "",
                ) > -1
             ) {
                // if so set the access level to full access
@@ -443,7 +443,7 @@ module.exports = class ABViewCore extends ABMLClass {
       if (!dataviewID) {
          if (
             ["form", "grid", "line", "area", "bar", "gantt", "kanban"].indexOf(
-               this.key
+               this.key,
             ) > -1
          ) {
             // NOTE: ignore kanban side forms where this is the case:
@@ -452,7 +452,7 @@ module.exports = class ABViewCore extends ABMLClass {
             if (this.warningsSilent) return null;
 
             var errNoDCID = new Error(
-               `ABViewCore:get datacollection(): View[${this.key}] didn't define a dataviewID.`
+               `ABViewCore:get datacollection(): View[${this.key}] didn't define a dataviewID.`,
             );
             this.AB.notify.builder(errNoDCID, {
                view: this,
@@ -462,11 +462,11 @@ module.exports = class ABViewCore extends ABMLClass {
             // These views shouldn't matter if they don't have a datacollection.
             if (
                ["button", "label", "page", "tab", "viewcontainer"].indexOf(
-                  this.key
+                  this.key,
                ) == -1
             ) {
                console.warn(
-                  `TODO: figure out which ABView* require a .dataviewID: ${this.key}?`
+                  `TODO: figure out which ABView* require a .dataviewID: ${this.key}?`,
                );
             }
          }
@@ -476,7 +476,7 @@ module.exports = class ABViewCore extends ABMLClass {
       var dc = this.AB.datacollectionByID(dataviewID);
       if (!dc) {
          var errNoDC = new Error(
-            `View[${this.label}][${this.id}] is unable to find associated DataCollection`
+            `View[${this.label}][${this.id}] is unable to find associated DataCollection`,
          );
          this.AB.notify.builder(errNoDC, {
             view: this,
@@ -914,12 +914,12 @@ module.exports = class ABViewCore extends ABMLClass {
                            // remove the temp {id:} entry above:
                            this.application._pages =
                               this.application._pages.filter(
-                                 (p2) => p2.id != lookUpIds[p.id]
+                                 (p2) => p2.id != lookUpIds[p.id],
                               );
 
                            // now add the full copiedSubPage:
                            result._pages.push(copiedSubPage);
-                        })
+                        }),
                   );
                });
             }
@@ -945,7 +945,7 @@ module.exports = class ABViewCore extends ABMLClass {
                         ) {
                            result._views.push(copiedView);
                         }
-                     })
+                     }),
                   );
                });
             }
@@ -960,4 +960,4 @@ module.exports = class ABViewCore extends ABMLClass {
             return result;
          });
    }
-};
+}

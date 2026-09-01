@@ -1,4 +1,4 @@
-const ABProcessElement = require("../../../platform/process/tasks/ABProcessElement.js");
+import ABProcessElement from "../../../platform/process/tasks/ABProcessElement.js";
 
 const ABProcessTaskUserFormDefaults = {
    category: null,
@@ -29,7 +29,7 @@ const ABProcessTaskUserFormDefaults = {
 
 const settings = {};
 
-module.exports = class ABProcessTaskUserFormCore extends ABProcessElement {
+export default class ABProcessTaskUserFormCore extends ABProcessElement {
    constructor(attributes, process, AB) {
       for (const key in settings)
          attributes[key] = attributes[key] ?? settings[key];
@@ -38,11 +38,11 @@ module.exports = class ABProcessTaskUserFormCore extends ABProcessElement {
             {
                type: "process.task.service.form",
             },
-            attributes
+            attributes,
          ),
          process,
          AB,
-         ABProcessTaskUserFormDefaults
+         ABProcessTaskUserFormDefaults,
       );
 
       // listen
@@ -89,4 +89,4 @@ module.exports = class ABProcessTaskUserFormCore extends ABProcessElement {
 
       return myState[key];
    }
-};
+}

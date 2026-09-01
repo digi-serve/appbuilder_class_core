@@ -1,4 +1,4 @@
-const ABComponent = require("../platform/ABComponent");
+import ABComponent from "../platform/ABComponent.js";
 
 /**
  *  support get data from objects and queries
@@ -42,7 +42,7 @@ function getFieldVal(rowData, field, returnSingular = true) {
    return value;
 }
 
-module.exports = class RowFilterCore extends ABComponent {
+export default class RowFilterCore extends ABComponent {
    constructor(App, idBase, AB) {
       idBase = idBase || "ab_row_filter";
 
@@ -432,7 +432,7 @@ module.exports = class RowFilterCore extends ABComponent {
 
                   result =
                      dc.getData(
-                        (d) => (d.id || d.uuid) == (rowData.id || rowData.uuid)
+                        (d) => (d.id || d.uuid) == (rowData.id || rowData.uuid),
                      ).length > 0;
                   break;
                case "not_in_data_collection":
@@ -440,7 +440,7 @@ module.exports = class RowFilterCore extends ABComponent {
 
                   result =
                      dc.getData(
-                        (d) => (d.id || d.uuid) == (rowData.id || rowData.uuid)
+                        (d) => (d.id || d.uuid) == (rowData.id || rowData.uuid),
                      ).length < 1;
                   break;
             }
@@ -503,7 +503,7 @@ module.exports = class RowFilterCore extends ABComponent {
                      rowData,
                      relationName,
                      rule,
-                     compareValue
+                     compareValue,
                   );
                case "is_current_user":
                case "is_not_current_user":
@@ -529,7 +529,7 @@ module.exports = class RowFilterCore extends ABComponent {
                      rowData,
                      relationName,
                      rule,
-                     compareValue
+                     compareValue,
                   );
             }
          },
@@ -556,7 +556,7 @@ module.exports = class RowFilterCore extends ABComponent {
                      // this object as part of the query.
 
                      console.error(
-                        "HEY!  Can't compare this_object to a query that has > 1 copy of that object!"
+                        "HEY!  Can't compare this_object to a query that has > 1 copy of that object!",
                      );
                      return true;
                   }
@@ -575,7 +575,7 @@ module.exports = class RowFilterCore extends ABComponent {
                      newRowData,
                      null,
                      rule,
-                     compareValue
+                     compareValue,
                   );
                // break; /* eslint no-unreachable */
 
@@ -587,7 +587,7 @@ module.exports = class RowFilterCore extends ABComponent {
                      rowData,
                      null,
                      rule,
-                     compareValue
+                     compareValue,
                   );
                // break; /* eslint no-unreachable */
             }
@@ -656,7 +656,7 @@ module.exports = class RowFilterCore extends ABComponent {
                   rowData,
                   fieldInfo,
                   filter.rule,
-                  filter.value
+                  filter.value,
                );
                break;
             case "date":
@@ -665,7 +665,7 @@ module.exports = class RowFilterCore extends ABComponent {
                   rowData,
                   fieldInfo,
                   filter.rule,
-                  filter.value
+                  filter.value,
                );
                break;
             case "number":
@@ -674,7 +674,7 @@ module.exports = class RowFilterCore extends ABComponent {
                   rowData,
                   fieldInfo,
                   filter.rule,
-                  filter.value
+                  filter.value,
                );
                break;
             case "list":
@@ -682,7 +682,7 @@ module.exports = class RowFilterCore extends ABComponent {
                   rowData,
                   fieldInfo,
                   filter.rule,
-                  filter.value
+                  filter.value,
                );
                break;
             case "boolean":
@@ -690,7 +690,7 @@ module.exports = class RowFilterCore extends ABComponent {
                   rowData,
                   fieldInfo,
                   filter.rule,
-                  filter.value
+                  filter.value,
                );
                break;
             case "user":
@@ -698,7 +698,7 @@ module.exports = class RowFilterCore extends ABComponent {
                   rowData,
                   fieldInfo,
                   filter.rule,
-                  filter.value
+                  filter.value,
                );
                break;
             case "connectField":
@@ -707,14 +707,14 @@ module.exports = class RowFilterCore extends ABComponent {
                   rowData,
                   fieldInfo,
                   filter.rule,
-                  filter.value
+                  filter.value,
                );
                break;
             case "this_object":
                condResult = _logic.thisObjectValid(
                   rowData,
                   filter.rule,
-                  filter.value
+                  filter.value,
                );
                break;
          }
@@ -797,8 +797,9 @@ module.exports = class RowFilterCore extends ABComponent {
       if (this._Queries) {
          result = result.concat(
             (this._Queries || []).filter(
-               (q) => filter(q) && result.filter((r) => r.id == q.id).length < 1
-            )
+               (q) =>
+                  filter(q) && result.filter((r) => r.id == q.id).length < 1,
+            ),
          );
       }
 
@@ -809,4 +810,4 @@ module.exports = class RowFilterCore extends ABComponent {
       this.config_settings = settings || {};
       this.config_settings.rules = this.config_settings.rules || [];
    }
-};
+}

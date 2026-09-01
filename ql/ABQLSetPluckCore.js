@@ -1,3 +1,6 @@
+import ABQL from "../../platform/ql/ABQL.js";
+// import ABQLSet from "./ABQLSet.js";
+
 /*
 /*
  * ABQLSetPluckCore
@@ -6,9 +9,6 @@
  * field to then make an array of values that only contain that field.
  *
  */
-
-const ABQL = require("../../platform/ql/ABQL.js");
-// const ABQLSet = require("./ABQLSet.js");
 
 const ParameterDefinitions = [
    {
@@ -83,4 +83,4 @@ ABQLSetPluckCore.key = "set_pluck";
 ABQLSetPluckCore.label = "Read the value from the field";
 ABQLSetPluckCore.NextQLOps = [];
 
-module.exports = ABQLSetPluckCore;
+export default ABQLSetPluckCore;

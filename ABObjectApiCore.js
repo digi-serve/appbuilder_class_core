@@ -1,7 +1,7 @@
-const ABObject = require("../platform/ABObject");
-const ABModelApi = require("../platform/ABModelApi");
+import ABObject from "../platform/ABObject.js";
+import ABModelApi from "../platform/ABModelApi.js";
 
-module.exports = class ABObjectApiCore extends ABObject {
+export default class ABObjectApiCore extends ABObject {
    constructor(attributes, AB) {
       super(attributes, AB);
 
@@ -125,4 +125,4 @@ module.exports = class ABObjectApiCore extends ABObject {
 
       return headers;
    }
-};
+}

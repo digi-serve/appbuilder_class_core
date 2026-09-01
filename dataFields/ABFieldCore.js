@@ -1,3 +1,6 @@
+// import ABEmitter from "../../platform/ABEmitter.js";
+import ABMLClass from "../../platform/ABMLClass.js";
+
 /*
  * ABFieldCore
  *
@@ -6,10 +9,7 @@
  * how it is related to the ABObject classes.
  *
  */
-// const ABEmitter = require("../../platform/ABEmitter");
-const ABMLClass = require("../../platform/ABMLClass");
-
-module.exports = class ABFieldCore extends ABMLClass {
+export default class ABFieldCore extends ABMLClass {
    constructor(values, object, fieldDefaults) {
       super(["label"], object.AB);
 
@@ -247,7 +247,7 @@ module.exports = class ABFieldCore extends ABMLClass {
       for (const dv in defaultValues) {
          this.settings[dv] = this.defaultCheck(
             values.settings[dv],
-            defaultValues[dv]
+            defaultValues[dv],
          );
       }
 
@@ -354,4 +354,4 @@ module.exports = class ABFieldCore extends ABMLClass {
       }
       return myDef;
    }
-};
+}

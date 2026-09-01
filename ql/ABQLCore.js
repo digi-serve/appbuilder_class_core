@@ -1,3 +1,5 @@
+import ABEmitter from "../../platform/ABEmitter.js";
+
 /*
  * ABQL
  *
@@ -7,7 +9,6 @@
  *
  *
  */
-var ABEmitter = require("../../platform/ABEmitter");
 class ABQLCore extends ABEmitter {
    constructor(attributes, parameterDefinitions, prevOP, task, AB) {
       super();
@@ -44,7 +45,7 @@ class ABQLCore extends ABEmitter {
    ///
    /// Instance Methods
    ///
-   initObject(attributes) {}
+   initObject(/* _attributes */) {}
 
    fromAttributes(attributes) {
       /*
@@ -76,12 +77,12 @@ class ABQLCore extends ABEmitter {
       if (this.objectID && !this.object)
          this.AB.notify.developer(
             new Error(
-               `ABQLCore.fromAttributes(): unable to initialize ABObject [${this.objectID}]`
+               `ABQLCore.fromAttributes(): unable to initialize ABObject [${this.objectID}]`,
             ),
             {
                attributes,
                objectID: this.objectID,
-            }
+            },
          );
 
       if (attributes.next) {
@@ -149,7 +150,7 @@ class ABQLCore extends ABEmitter {
     *        the this.parameterDefinition entry of the parameter that was
     *        changed.
     */
-   paramChanged(pDef) {}
+   paramChanged(/* _pDef */) {}
 
    /**
     * @method toObj()
@@ -175,4 +176,4 @@ class ABQLCore extends ABEmitter {
    }
 }
 
-module.exports = ABQLCore;
+export default ABQLCore;

@@ -1,3 +1,25 @@
+import Import_ABMobilePage from "../platform/mobile/ABMobilePage.js";
+import Import_ABMobileView from "../platform/mobile/ABMobileView.js";
+import Import_ABMobileViewCustom from "../platform/mobile/ABMobileViewCustom.js";
+import Import_ABMobileViewForm from "../platform/mobile/ABMobileViewForm.js";
+import Import_ABMobileViewFormButton from "../platform/mobile/ABMobileViewFormButton.js";
+import Import_ABMobileViewFormCheckbox from "../platform/mobile/ABMobileViewFormCheckbox.js";
+import Import_ABMobileViewFormConnect from "../platform/mobile/ABMobileViewFormConnect.js";
+import Import_ABMobileViewFormDate from "../platform/mobile/ABMobileViewFormDate.js";
+import Import_ABMobileViewFormDatetime from "../platform/mobile/ABMobileViewFormDatetime.js";
+import Import_ABMobileViewFormEmail from "../platform/mobile/ABMobileViewFormEmail.js";
+import Import_ABMobileViewFormFile from "../platform/mobile/ABMobileViewFormFile.js";
+import Import_ABMobileViewFormFormula from "../platform/mobile/ABMobileViewFormFormula.js";
+import Import_ABMobileViewFormImage from "../platform/mobile/ABMobileViewFormImage.js";
+import Import_ABMobileViewFormNumber from "../platform/mobile/ABMobileViewFormNumber.js";
+import Import_ABMobileViewFormReadonly from "../platform/mobile/ABMobileViewFormReadonly.js";
+import Import_ABMobileViewFormSelectMultiple from "../platform/mobile/ABMobileViewFormSelectMultiple.js";
+import Import_ABMobileViewFormSelectSingle from "../platform/mobile/ABMobileViewFormSelectSingle.js";
+import Import_ABMobileViewFormTextbox from "../platform/mobile/ABMobileViewFormTextbox.js";
+import Import_ABMobileViewLabel from "../platform/mobile/ABMobileViewLabel.js";
+import Import_ABMobileViewList from "../platform/mobile/ABMobileViewList.js";
+import Import_ABMobileViewTimeline from "../platform/mobile/ABMobileViewTimeline.js";
+
 /*
  * ABViewManagerMobile
  *
@@ -11,27 +33,27 @@
  */
 var Views = {};
 [
-   require("../platform/mobile/ABMobilePage"),
-   require("../platform/mobile/ABMobileView"),
-   require("../platform/mobile/ABMobileViewCustom"),
-   require("../platform/mobile/ABMobileViewForm"),
-   require("../platform/mobile/ABMobileViewFormButton"),
-   require("../platform/mobile/ABMobileViewFormCheckbox"),
-   require("../platform/mobile/ABMobileViewFormConnect"),
-   require("../platform/mobile/ABMobileViewFormDate"),
-   require("../platform/mobile/ABMobileViewFormDatetime"),
-   require("../platform/mobile/ABMobileViewFormEmail"),
-   require("../platform/mobile/ABMobileViewFormFile"),
-   require("../platform/mobile/ABMobileViewFormFormula"),
-   require("../platform/mobile/ABMobileViewFormImage"),
-   require("../platform/mobile/ABMobileViewFormNumber"),
-   require("../platform/mobile/ABMobileViewFormReadonly"),
-   require("../platform/mobile/ABMobileViewFormSelectMultiple"),
-   require("../platform/mobile/ABMobileViewFormSelectSingle"),
-   require("../platform/mobile/ABMobileViewFormTextbox"),
-   require("../platform/mobile/ABMobileViewLabel"),
-   require("../platform/mobile/ABMobileViewList"),
-   require("../platform/mobile/ABMobileViewTimeline"),
+   Import_ABMobilePage,
+   Import_ABMobileView,
+   Import_ABMobileViewCustom,
+   Import_ABMobileViewForm,
+   Import_ABMobileViewFormButton,
+   Import_ABMobileViewFormCheckbox,
+   Import_ABMobileViewFormConnect,
+   Import_ABMobileViewFormDate,
+   Import_ABMobileViewFormDatetime,
+   Import_ABMobileViewFormEmail,
+   Import_ABMobileViewFormFile,
+   Import_ABMobileViewFormFormula,
+   Import_ABMobileViewFormImage,
+   Import_ABMobileViewFormNumber,
+   Import_ABMobileViewFormReadonly,
+   Import_ABMobileViewFormSelectMultiple,
+   Import_ABMobileViewFormSelectSingle,
+   Import_ABMobileViewFormTextbox,
+   Import_ABMobileViewLabel,
+   Import_ABMobileViewList,
+   Import_ABMobileViewTimeline,
 ].forEach((v) => {
    if (v.default?.common) {
       v = v.default;
@@ -39,7 +61,7 @@ var Views = {};
    Views[v.common().key] = v;
 });
 
-module.exports = class ABViewManagerCore {
+export default class ABViewManagerCore {
    /**
     * @function allViews
     * return all the currently defined ABViews in an array.
@@ -74,7 +96,7 @@ module.exports = class ABViewManagerCore {
             console.error(
                "!! View[" +
                   values.key +
-                  "] not yet defined.  Have an ABView instead:"
+                  "] not yet defined.  Have an ABView instead:",
             );
             return new Views["mobile-view"](values, application, parent);
          }
@@ -99,4 +121,4 @@ module.exports = class ABViewManagerCore {
       console.error(`Unknown View Key[${key}]`);
       return;
    }
-};
+}

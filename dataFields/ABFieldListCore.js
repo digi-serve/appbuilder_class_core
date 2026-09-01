@@ -1,3 +1,6 @@
+// import ABFieldSelectivity from "../../platform/dataFields/ABFieldSelectivity.js";
+import ABField from "../../platform/dataFields/ABField.js";
+
 /*
  * ABFieldListCore
  *
@@ -5,13 +8,10 @@
  *
  */
 
-// const ABFieldSelectivity = require("../../platform/dataFields/ABFieldSelectivity");
-const ABField = require("../../platform/dataFields/ABField");
-
-function L(key, altText) {
-   // TODO:
-   return altText; // AD.lang.label.getLabel(key) || altText;
-}
+// function L(key, altText) {
+//    // TODO:
+//    return altText; // AD.lang.label.getLabel(key) || altText;
+// }
 
 const ABFieldListDefaults = {
    key: "list",
@@ -113,7 +113,7 @@ const defaultValues = {
    multipleDefault: [],
 };
 
-module.exports = class ABFieldListCore extends ABField {
+export default class ABFieldListCore extends ABField {
    constructor(values, object) {
       super(values, object, ABFieldListDefaults);
 
@@ -257,7 +257,7 @@ module.exports = class ABFieldListCore extends ABField {
 
             // Pull text of option with specify language code
             const optTran = (opt.translations || []).filter(
-               (o) => o.language_code == languageCode
+               (o) => o.language_code == languageCode,
             )[0];
             if (optTran) text = optTran.text;
 
@@ -266,4 +266,4 @@ module.exports = class ABFieldListCore extends ABField {
 
       return displayOpts.join(", ");
    }
-};
+}

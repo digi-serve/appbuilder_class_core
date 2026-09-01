@@ -1,4 +1,4 @@
-const ABProcessElement = require("../../../platform/process/tasks/ABProcessElement.js");
+import ABProcessElement from "../../../platform/process/tasks/ABProcessElement.js";
 
 let InsertRecordDefaults = {
    category: null,
@@ -30,7 +30,7 @@ let InsertRecordDefaults = {
    ],
 };
 
-module.exports = class InsertRecordCore extends ABProcessElement {
+export default class InsertRecordCore extends ABProcessElement {
    constructor(attributes, process, AB) {
       attributes.type = attributes.type || "process.task.service.insertRecord";
       super(attributes, process, AB, InsertRecordDefaults);
@@ -62,7 +62,7 @@ module.exports = class InsertRecordCore extends ABProcessElement {
       // Find the start (trigger) task
       while (!startElem && currProcess) {
          startElem = currProcess.elements(
-            (elem) => elem?.defaults?.category == "start"
+            (elem) => elem?.defaults?.category == "start",
          )[0];
 
          // If .currProcess is a sub task, then go to the parent process for get the start task
@@ -159,4 +159,4 @@ module.exports = class InsertRecordCore extends ABProcessElement {
    ////
    //// Process Instance Methods
    ////
-};
+}

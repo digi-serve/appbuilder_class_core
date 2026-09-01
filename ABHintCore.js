@@ -1,9 +1,9 @@
+import ABMLClass from "../platform/ABMLClass.js";
+// import _concat from "lodash/concat";
+
 // import ABApplication from "./ABApplication"
 
-var ABMLClass = require("../platform/ABMLClass");
-const _concat = require("lodash/concat");
-
-module.exports = class ABHintCore extends ABMLClass {
+export default class ABHintCore extends ABMLClass {
    constructor(attributes, AB) {
       super(["name", "description"], AB);
 
@@ -49,7 +49,7 @@ module.exports = class ABHintCore extends ABMLClass {
       this.settings.view = attributes?.settings?.view || "";
       this.stepIDs = attributes?.stepIDs || [];
 
-      let currSteps = this?._steps || {};
+      // let currSteps = this?._steps || {};
       this._steps = {};
       (attributes?.stepIDs || []).forEach((sID) => {
          if (!sID) return;
@@ -140,4 +140,4 @@ module.exports = class ABHintCore extends ABMLClass {
       // remove from _steps definitions
       delete this._steps[id];
    }
-};
+}

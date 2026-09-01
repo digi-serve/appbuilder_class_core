@@ -1,3 +1,5 @@
+// import { isArray } from "lodash";
+
 //
 // ABModelCore
 //
@@ -12,9 +14,7 @@
 //    })
 //
 
-// const { isArray } = require("lodash");
-
-module.exports = class ABModelCore {
+export default class ABModelCore {
    constructor(object) {
       // link me to my ABObject
       this.object = object;
@@ -83,7 +83,7 @@ module.exports = class ABModelCore {
 
    request(/* method, params */) {
       console.error(
-         "!!! ABModelCore.request() should be overridden by platform."
+         "!!! ABModelCore.request() should be overridden by platform.",
       );
       return Promise.resolve();
    }
@@ -252,7 +252,7 @@ module.exports = class ABModelCore {
       return new Promise((resolve, reject) => {
          if (!currID) {
             var Err = new Error(
-               "Model.staleRefresh(): could not resolve ." + PK
+               "Model.staleRefresh(): could not resolve ." + PK,
             );
             Err.cond = cond;
             reject(Err);
@@ -301,7 +301,7 @@ module.exports = class ABModelCore {
       console.log(
          "Model.staleRefreshProcess(): buffered " +
             currentEntries.length +
-            " requests"
+            " requests",
       );
       currentEntries.forEach((e) => {
          responseHash[e[PK]] = responseHash[e[PK]] || [];
@@ -329,7 +329,7 @@ module.exports = class ABModelCore {
                   console.error(
                      "Model.staleRefreshProcess(): returned entry was not in our responseHash:",
                      data,
-                     responseHash
+                     responseHash,
                   );
                }
             });
@@ -342,7 +342,7 @@ module.exports = class ABModelCore {
             console.warn(
                "Model.staleRefreshProcess(): " +
                   allKeys.length +
-                  " entries with no responses. "
+                  " entries with no responses. ",
             );
          }
          allKeys.forEach((key) => {
@@ -719,7 +719,7 @@ module.exports = class ABModelCore {
       if (firstRow) {
          const columnNames = Object.keys(firstRow);
          for (const missingField of myObject.fields(
-            (f) => columnNames.indexOf(f.columnName) === -1
+            (f) => columnNames.indexOf(f.columnName) === -1,
          ))
             firstRow[missingField.columnName] = undefined;
       }
@@ -791,7 +791,7 @@ module.exports = class ABModelCore {
             let connRelations = this.csvPackGetRelations(
                connObject,
                values,
-               visited
+               visited,
             );
 
             // merge these into my relations
@@ -962,7 +962,7 @@ module.exports = class ABModelCore {
             packedData.relations[id] = await this.AB.jsonToCsvBatched(
                values,
                batchSize,
-               jobID
+               jobID,
             );
          }
       }
@@ -971,7 +971,7 @@ module.exports = class ABModelCore {
       packedData.data = await this.AB.jsonToCsvBatched(
          content,
          batchSize,
-         jobID
+         jobID,
       );
       packedData.type = returnType; // single or array
 
@@ -1002,7 +1002,7 @@ module.exports = class ABModelCore {
                      console.error(
                         "Error parsing JSON data for column: " + f.columnName,
                         val,
-                        e
+                        e,
                      );
                   }
                }
@@ -1073,7 +1073,7 @@ module.exports = class ABModelCore {
                         populatedData.push(connEntry);
                      } else if (id != null) {
                         console.warn(
-                           `Missing relation entry for _csvID: ${id}`
+                           `Missing relation entry for _csvID: ${id}`,
                         );
                      }
                   });
@@ -1278,7 +1278,7 @@ module.exports = class ABModelCore {
             ) {
                // if so parse the string into an object
                d[relationName].translations = JSON.parse(
-                  d[relationName].translations
+                  d[relationName].translations,
                );
             }
 
@@ -1318,7 +1318,7 @@ module.exports = class ABModelCore {
                   objectLink.translate(
                      d[relationName],
                      d[relationName],
-                     relatedMlFields
+                     relatedMlFields,
                   );
                }
             }
@@ -1363,7 +1363,7 @@ module.exports = class ABModelCore {
                         try {
                            d[c.columnName] = (d[relationName] || []).map(
                               // (i) => i[olPK]
-                              (i) => c.getRelationValue(i)
+                              (i) => c.getRelationValue(i),
                            );
                         } catch (e) {
                            console.log("+++++++++++++++");
@@ -1413,12 +1413,12 @@ module.exports = class ABModelCore {
                         {
                            format: "MM/DD/YYYY",
                            ignoreTime: true,
-                        }
+                        },
                      );
                   } else {
                      // Convert UTC to Date
                      d[date.columnName] = this.AB.rules.toDate(
-                        d[date.columnName]
+                        d[date.columnName],
                      );
                      // d[date.columnName] = new Date(moment(d[date.columnName]));
                   }
@@ -1431,4 +1431,4 @@ module.exports = class ABModelCore {
          });
       });
    }
-};
+}

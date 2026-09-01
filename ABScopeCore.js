@@ -1,6 +1,6 @@
-const ABApplication = require("../platform/ABApplication");
+import ABApplication from "../platform/ABApplication.js";
 
-module.exports = class ABScopeCore {
+export default class ABScopeCore {
    constructor(values) {
       // this.application = application;
 
@@ -57,4 +57,4 @@ module.exports = class ABScopeCore {
       if (filterFn == null) return this._objects || [];
       else return (this._objects || []).filter(filterFn);
    }
-};
+}

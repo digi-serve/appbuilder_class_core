@@ -1,6 +1,26 @@
 /* eslint-disable */
-module.exports = {
+export default {
    /* key : label */
+   "ab.components.json": "json",
+   "dismiss" : "dismiss",
+   "Slow Network Detected! This may affect your experience." : "Slow Network Detected! This may affect your experience.",
+   "requests" : "requests",
+   "is unchecked" : "is unchecked",
+   "Problems Saving" : "Problems Saving",
+   "Missing Required Field" : "Missing Required Field",
+   "System could not save your data" : "System could not save your data",
+   "Oops, we cannot communicate with the site." : "Oops, we cannot communicate with the site.",
+   "changing this rule will reset any following rules." : "changing this rule will reset any following rules.",
+   "continue?" : "continue?",
+   "Process" : "Process",
+   "Custom" : "Custom",
+   "Fields" : "Fields",
+   "Custom Name" : "Custom Name",
+   "Custom Action Button" : "Custom Action Button",
+   "Deny" : "Deny",
+   "Deny Button" : "Deny Button",
+   "Approve" : "Approve",
+   "Approve Button" : "Approve Button",
    "Linked Data" : "Linked Data",
    "Use your phone's camera app to scan this QR code, and it will open a webpage to the {0} mobile app. You only need to scan the code for the first time." : "Use your phone's camera app to scan this QR code, and it will open a webpage to the {0} mobile app. You only need to scan the code for the first time.",
    "This code can only be used once. It will expire after 7 days." : "This code can only be used once. It will expire after 7 days.",

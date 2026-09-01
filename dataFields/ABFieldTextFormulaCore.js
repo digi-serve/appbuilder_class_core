@@ -1,16 +1,11 @@
+import ABField from "../../platform/dataFields/ABField.js";
+
 /*
  * ABFieldTextFormula
  *
  * An ABFieldTextFormula defines a TextFormula field type.
  *
  */
-
-const ABField = require("../../platform/dataFields/ABField");
-
-function L(key, altText) {
-   // TODO:
-   return altText; // AD.lang.label.getLabel(key) || altText;
-}
 
 const ABFieldTextFormulaDefaults = {
    key: "TextFormula",
@@ -109,16 +104,15 @@ function setValueToFormula(object, formulaString, rowData) {
                   element,
                   rowData[columnName]
                      ? field.exportValue(rowData[columnName])
-                     : ""
+                     : "",
                );
             } else {
-               
                formulaString = formulaString.replace(
                   element,
                   // support normal field and connect field
-                  (rowData[columnName] || rowData[field.relationName?.()])
+                  rowData[columnName] || rowData[field.relationName?.()]
                      ? field.format(rowData)
-                     : ""
+                     : "",
                );
             }
          }
@@ -146,7 +140,7 @@ function setBuildinValueToFormula(AB, formulaString) {
             formula_array.length > 2 && formula_array[2] != "";
          const functionName = formula_array[0];
          const parameters_array = formula_array[1].split(",");
-         let isMatch = false;
+
          for (let i = 0; i < buildinList.length; i++) {
             let resultParameters = element;
             if (functionName == buildinList[i].id) {
@@ -155,20 +149,20 @@ function setBuildinValueToFormula(AB, formulaString) {
                      case "left":
                         resultParameters = getLeft(
                            parameters_array[0],
-                           parameters_array[1]
+                           parameters_array[1],
                         );
                         break;
                      case "right":
                         resultParameters = getRight(
                            parameters_array[0],
-                           parameters_array[1]
+                           parameters_array[1],
                         );
                         break;
                      case "mid":
                         resultParameters = getMid(
                            parameters_array[0],
                            parameters_array[1],
-                           parameters_array[2]
+                           parameters_array[2],
                         );
                         break;
                      case "trim":
@@ -187,20 +181,20 @@ function setBuildinValueToFormula(AB, formulaString) {
                         resultParameters = getRegExpReplace(
                            parameters_array[0],
                            parameters_array[1].trimLeft(),
-                           parameters_array[2].trimLeft()
+                           parameters_array[2].trimLeft(),
                         );
                         break;
                      case "extractRegex":
                         resultParameters = getExtractRegex(
                            parameters_array[0],
-                           parameters_array[1].trimLeft()
+                           parameters_array[1].trimLeft(),
                         );
                         break;
                      case "replace":
                         resultParameters = getReplace(
                            parameters_array[0],
                            parameters_array[1].trimLeft(),
-                           parameters_array[2].trimLeft()
+                           parameters_array[2].trimLeft(),
                         );
                         break;
                      case "lower":
@@ -217,7 +211,7 @@ function setBuildinValueToFormula(AB, formulaString) {
                         break;
                      case "numberToWords":
                         resultParameters = getNumberToWords(
-                           parameters_array[0]
+                           parameters_array[0],
                         );
                         break;
                      case "getDateDayOfWeekName":
@@ -226,7 +220,7 @@ function setBuildinValueToFormula(AB, formulaString) {
                         }
                         resultParameters = getDateDayOfWeekName(
                            AB,
-                           parameters_array[0]
+                           parameters_array[0],
                         );
                         break;
                      case "getDateMonthOfYearName":
@@ -235,29 +229,29 @@ function setBuildinValueToFormula(AB, formulaString) {
                         }
                         resultParameters = getDateMonthOfYearName(
                            AB,
-                           parameters_array[0]
+                           parameters_array[0],
                         );
                         break;
                      case "formatDate":
                         resultParameters = getFormatDate(
                            parameters_array[0],
-                           parameters_array[1].trimLeft()
+                           parameters_array[1].trimLeft(),
                         );
                         break;
                      default:
                         break;
                   }
-                  isMatch = true;
+
                   formulaString = formulaString.replace(
                      element,
-                     resultParameters
+                     resultParameters,
                   );
                   return;
                } else {
                   resultParameters = functionName + "(Bad Parameter)";
                   formulaString = formulaString.replace(
                      element,
-                     resultParameters
+                     resultParameters,
                   );
                }
             }
@@ -393,7 +387,7 @@ function getMid(string, startPosition, length) {
    if (string.length < startPosition) return "mid(Bad Parameter)";
    return string.substring(
       parseInt(startPosition),
-      parseInt(startPosition) + parseInt(length)
+      parseInt(startPosition) + parseInt(length),
    );
 }
 
@@ -625,7 +619,7 @@ function getFormatDate(date, format) {
    return dt.toString(format);
 }
 
-module.exports = class ABFieldTextFormulaCore extends ABField {
+export default class ABFieldTextFormulaCore extends ABField {
    constructor(values, object) {
       super(values, object, ABFieldTextFormulaDefaults);
 
@@ -716,7 +710,7 @@ module.exports = class ABFieldTextFormulaCore extends ABField {
          return "";
       }
    }
-};
+}
 
 //// NOTE: if you need a unique [edit_type] by your returned config.editor above:
 // webix.editors = {

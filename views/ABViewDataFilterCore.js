@@ -1,4 +1,4 @@
-const ABViewWidget = require("../../platform/views/ABViewWidget");
+import ABViewWidget from "../../platform/views/ABViewWidget.js";
 
 const ABViewDataFilterPropertyComponentDefaults = {
    dataviewID: null, // uuid of ABDatacollection
@@ -14,7 +14,7 @@ const ABViewDefaults = {
    labelKey: "Data Filter", // {string} the multilingual label key for the class label
 };
 
-module.exports = class ABViewDataFilterCore extends ABViewWidget {
+export default class ABViewDataFilterCore extends ABViewWidget {
    constructor(values, application, parent, defaultValues) {
       super(values, application, parent, defaultValues ?? ABViewDefaults);
    }
@@ -48,4 +48,4 @@ module.exports = class ABViewDataFilterCore extends ABViewWidget {
    componentList() {
       return [];
    }
-};
+}

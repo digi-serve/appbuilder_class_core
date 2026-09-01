@@ -1,11 +1,11 @@
+import ABField from "../../platform/dataFields/ABField.js";
+
 /*
  * ABFieldConnect
  *
  * An ABFieldConnect defines a connect to other object field type.
  *
  */
-
-var ABField = require("../../platform/dataFields/ABField");
 
 // function L(key, altText) {
 //    // TODO:
@@ -114,7 +114,7 @@ const defaultValues = {
    //       custom Key for the data we are storing.
 };
 
-module.exports = class ABFieldConnectCore extends ABField {
+export default class ABFieldConnectCore extends ABField {
    constructor(values, object, fieldDefaults = ABFieldConnectDefaults) {
       super(values, object, fieldDefaults);
 
@@ -194,7 +194,7 @@ module.exports = class ABFieldConnectCore extends ABField {
       const linkObj = this.AB.objectByID(this.settings.linkObject);
       if (!linkObj) {
          const configError = new Error(
-            `ConnectField[${this.label}][${this.id}] unable to find linkObject[${this.settings.linkObject}]`
+            `ConnectField[${this.label}][${this.id}] unable to find linkObject[${this.settings.linkObject}]`,
          );
          this.AB.notify.builder(configError, {
             field: this,
@@ -216,7 +216,7 @@ module.exports = class ABFieldConnectCore extends ABField {
       const linkColumn = objectLink.fieldByID(this.settings.linkColumn);
       if (!linkColumn) {
          const configError = new Error(
-            `ConnectField[${this.label}][${this.id}] unable to find linkColumn[${this.settings.linkColumn}]`
+            `ConnectField[${this.label}][${this.id}] unable to find linkColumn[${this.settings.linkColumn}]`,
          );
          this.AB.notify.builder(configError, {
             field: this,
@@ -349,7 +349,7 @@ module.exports = class ABFieldConnectCore extends ABField {
 
          if (indexField == null)
             indexField = this.datasourceLink.fieldByID(
-               this.settings.indexField
+               this.settings.indexField,
             );
 
          return indexField;
@@ -378,7 +378,7 @@ module.exports = class ABFieldConnectCore extends ABField {
 
          if (indexField == null)
             indexField = this.datasourceLink.fieldByID(
-               this.settings.indexField2
+               this.settings.indexField2,
             );
       }
 
@@ -450,4 +450,4 @@ module.exports = class ABFieldConnectCore extends ABField {
 
       return result;
    }
-};
+}

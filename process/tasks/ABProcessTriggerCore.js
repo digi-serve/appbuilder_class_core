@@ -1,4 +1,4 @@
-const ABProcessElement = require("../../../platform/process/tasks/ABProcessElement.js");
+import ABProcessElement from "../../../platform/process/tasks/ABProcessElement.js";
 
 var ABProcessTriggerDefaults = {
    category: "start",
@@ -22,7 +22,7 @@ var ABProcessTriggerDefaults = {
    // unique key to reference this specific Task
 };
 
-module.exports = class ABProcessTriggerCore extends ABProcessElement {
+export default class ABProcessTriggerCore extends ABProcessElement {
    constructor(attributes, process, AB) {
       attributes.type = attributes.type || "trigger";
       super(attributes, process, AB, ABProcessTriggerDefaults);
@@ -73,4 +73,4 @@ module.exports = class ABProcessTriggerCore extends ABProcessElement {
 
       return data;
    }
-};
+}

@@ -1,4 +1,4 @@
-const ABViewWidget = require("../../platform/views/ABViewWidget");
+import ABViewWidget from "../../platform/views/ABViewWidget.js";
 
 const ABViewMenuPropertyComponentDefaults = {
    orientation: "x",
@@ -31,7 +31,7 @@ const ABMenuDefaults = {
    labelKey: "Menu", // {string} the multilingual label key for the class label
 };
 
-module.exports = class ABViewMenuCore extends ABViewWidget {
+export default class ABViewMenuCore extends ABViewWidget {
    /**
     * @param {obj} values  key=>value hash of ABView values
     * @param {ABApplication} application the application object this view is under
@@ -147,7 +147,7 @@ module.exports = class ABViewMenuCore extends ABViewWidget {
          if (displayPage.isChecked) {
             let existsPage = this.application.pages(
                (p) => p.id == displayPage.pageId,
-               true
+               true,
             )[0];
             if (!existsPage) return;
 
@@ -157,7 +157,7 @@ module.exports = class ABViewMenuCore extends ABViewWidget {
             if (displayPage.tabId) {
                let existsTab = this.application.views(
                   (v) => v.id == displayPage.tabId,
-                  true
+                  true,
                )[0];
                if (!existsTab) return;
 
@@ -200,7 +200,7 @@ module.exports = class ABViewMenuCore extends ABViewWidget {
                      ? "fa fa-fw fa-" + displayPage.icon
                      : "",
                },
-               displayPage.position ? parseInt(displayPage.position) : 0
+               displayPage.position ? parseInt(displayPage.position) : 0,
             );
          }
       });
@@ -262,7 +262,7 @@ module.exports = class ABViewMenuCore extends ABViewWidget {
             if (pageInfo.type == "tab" || pageInfo.key == "viewcontainer") {
                var tabView = page.views(
                   (v) => v.id == pageInfo.tabId || v.id == pageInfo.id,
-                  true
+                  true,
                )[0];
                if (tabView) {
                   label = tabView.label;
@@ -304,4 +304,4 @@ module.exports = class ABViewMenuCore extends ABViewWidget {
          });
       });
    }
-};
+}

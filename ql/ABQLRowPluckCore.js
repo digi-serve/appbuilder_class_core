@@ -1,3 +1,9 @@
+// import ABQLValue from "./ABQLValue.js";
+import ABQLSet from "./ABQLSet.js";
+import ABQLSetPluck from "../../platform/ql/ABQLSetPluck.js";
+import ABQLRowUpdate from "../../platform/ql/ABQLRowUpdate.js";
+import ABQLRowSave from "../../platform/ql/ABQLRowSave.js";
+
 /*
 /*
  * ABQLRowPluckCore
@@ -6,12 +12,6 @@
  * field to then make an object of values that only contain that field.
  *
  */
-
-// const ABQLValue = require("./ABQLValue.js");
-// const ABQLSet = require("./ABQLSet.js");
-const ABQLSetPluck = require("../../platform/ql/ABQLSetPluck.js");
-const ABQLRowUpdate = require("../../platform/ql/ABQLRowUpdate.js");
-const ABQLRowSave = require("../../platform/ql/ABQLRowSave.js");
 
 class ABQLRowPluckCore extends ABQLSetPluck {
    // Dynamic NextQLOps
@@ -25,9 +25,7 @@ class ABQLRowPluckCore extends ABQLSetPluck {
          // M:1 M:N connect field, then set ABQLSet to next steps
          case "connectObject":
             if (field.settings.linkType === "many") {
-               // NOTE: Could not require("./ABQLSet.js") on the top. It returns an empty object. Why ><
-               const ABQLSet = require("./ABQLSet.js");
-
+               // NOTE: Could not ABQLSet on the top. It returns an empty object. Why ><
                nextQLOps = ABQLSet;
 
                break;
@@ -37,7 +35,7 @@ class ABQLRowPluckCore extends ABQLSetPluck {
             nextQLOps = this.prevOP.constructor.NextQLOps.filter(
                (NextQLOp) =>
                   NextQLOp.key === this.constructor.key ||
-                  NextQLOp.key === ABQLRowUpdate.key
+                  NextQLOp.key === ABQLRowUpdate.key,
             );
 
             break;
@@ -48,9 +46,7 @@ class ABQLRowPluckCore extends ABQLSetPluck {
                field.settings.linkType === "many" ||
                field.settings.isMultiple // may be unnessicary
             ) {
-               // NOTE: Could not require("./ABQLSet.js") on the top. It returns an empty object. Why ><
-               const ABQLSet = require("./ABQLSet.js");
-
+               // NOTE: Could not ABQLSet on the top. It returns an empty object. Why ><
                nextQLOps = ABQLSet;
 
                break;
@@ -61,7 +57,7 @@ class ABQLRowPluckCore extends ABQLSetPluck {
                (NextQLOp) =>
                   NextQLOp.key === this.constructor.key ||
                   NextQLOp.key === ABQLRowUpdate.key ||
-                  NextQLOp.key === ABQLRowSave.key
+                  NextQLOp.key === ABQLRowSave.key,
             );
 
             break;
@@ -69,7 +65,7 @@ class ABQLRowPluckCore extends ABQLSetPluck {
          default:
             // Normal field and _PK
             nextQLOps = this.prevOP.constructor.NextQLOps.filter(
-               (NextQLOp) => NextQLOp.key === ABQLRowSave.key
+               (NextQLOp) => NextQLOp.key === ABQLRowSave.key,
             );
 
             break;
@@ -83,4 +79,4 @@ ABQLRowPluckCore.key = "row_pluck";
 ABQLRowPluckCore.label = "Read the value from the field";
 ABQLRowPluckCore.NextQLOps = []; // Static NextQLOps
 
-module.exports = ABQLRowPluckCore;
+export default ABQLRowPluckCore;

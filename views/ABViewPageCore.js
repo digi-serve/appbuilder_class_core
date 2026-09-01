@@ -1,3 +1,6 @@
+import ABViewContainer from "../../platform/views/ABViewContainer.js";
+// import ABViewManager from "../ABViewManager.js";
+
 /*
  * ABViewPage
  *
@@ -10,10 +13,7 @@
  *
  */
 
-const ABViewContainer = require("../../platform/views/ABViewContainer");
-// var ABViewManager = require("../ABViewManager");
-
-// function L(key, altText) {
+// // function L(key, altText) {
 //     return AD.lang.label.getLabel(key) || altText;
 // }
 
@@ -31,7 +31,7 @@ const ABPropertyComponentDefaults = {
    pageBackground: "ab-background-default",
 };
 
-module.exports = class ABViewPageCore extends ABViewContainer {
+export default class ABViewPageCore extends ABViewContainer {
    constructor(values, application, parent, defaultValues) {
       super(values, application, parent, defaultValues || ABViewDefaults);
 
@@ -133,7 +133,7 @@ module.exports = class ABViewPageCore extends ABViewContainer {
             pages.push(this.pageNew(def));
          } else {
             this.AB.error(
-               `App[${this.application.name}][${this.application.id}]->Page[${this.name}][${this.id}] referenced an unknown Page[${id}]`
+               `App[${this.application.name}][${this.application.id}]->Page[${this.name}][${this.id}] referenced an unknown Page[${id}]`,
             );
          }
       });
@@ -237,7 +237,7 @@ module.exports = class ABViewPageCore extends ABViewContainer {
    refreshInstance() {
       console.warn(
          "This version of ABViewPage hasn't updated it's refreshInstance()",
-         this
+         this,
       );
       return this;
    }
@@ -468,4 +468,4 @@ module.exports = class ABViewPageCore extends ABViewContainer {
       // now continue with the default .copy()
       return super.copy(lookUpIds, parent, options);
    }
-};
+}

@@ -1,4 +1,4 @@
-const ABMobileViewFormItem = require("../../platform/mobile/ABMobileViewFormItem");
+import ABMobileViewFormItem from "../../platform/mobile/ABMobileViewFormItem.js";
 
 const ABMobileViewFormDatepickerPropertyComponentDefaults = {
    timepicker: false,
@@ -10,15 +10,13 @@ const ABMobileViewFormDatepickerDefaults = {
    labelKey: "datepicker", // {string} the multilingual label key for the class label
 };
 
-module.exports = class ABMobileViewFormDatepickerCore extends (
-   ABMobileViewFormItem
-) {
+export default class ABMobileViewFormDatepickerCore extends ABMobileViewFormItem {
    constructor(values, application, parent, defaultValues) {
       super(
          values,
          application,
          parent,
-         defaultValues || ABMobileViewFormDatepickerDefaults
+         defaultValues || ABMobileViewFormDatepickerDefaults,
       );
    }
 
@@ -33,4 +31,4 @@ module.exports = class ABMobileViewFormDatepickerCore extends (
    ///
    /// Instance Methods
    ///
-};
+}
