@@ -1,3 +1,6 @@
+import ABViewManagerMobile from "../platform/ABViewManagerMobile.js";
+import ABApplication from "../platform/ABApplication.js";
+
 /**
  * ABApplicationMobileCore
  *
@@ -7,10 +10,7 @@
 
 // webpack can handle 'require()' statements, but node can't handle import
 // so let's use require():
-const ABViewManagerMobile = require("../platform/ABViewManagerMobile");
-var ABApplication = require("../platform/ABApplication");
-
-module.exports = class ABApplicationMobileCore extends ABApplication {
+export default class ABApplicationMobileCore extends ABApplication {
    constructor(attributes, AB) {
       super(attributes, AB);
       this.appType = "mobile"; // Just making sure.
@@ -36,7 +36,7 @@ module.exports = class ABApplicationMobileCore extends ABApplication {
       return ABViewManagerMobile;
    }
 
-   pageNew(def) {
+   pageNew(/* _def */) {
       console.error("TODO: pageNew for ApplicationMobile");
       return null;
    }
@@ -61,4 +61,4 @@ module.exports = class ABApplicationMobileCore extends ABApplication {
 
       return json;
    }
-};
+}

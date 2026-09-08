@@ -1,11 +1,11 @@
+import ABMLClass from "../../platform/ABMLClass.js";
+
 /**
  * ABProcessParticipant
  * manages the participant lanes in a Process Diagram.
  *
  * Participants manage users in the system, and provide a way to lookup a SiteUser.
  */
-const ABMLClass = require("../../platform/ABMLClass");
-
 const ABProcessParticipantDefaults = {
    type: "process.participant",
    // {string} .type
@@ -14,7 +14,7 @@ const ABProcessParticipantDefaults = {
    // icon: "key" // font-awesome icon reference.  (without the 'fa-').  so 'user'  to reference 'fa-user'
 };
 
-module.exports = class ABProcessParticipantCore extends ABMLClass {
+export default class ABProcessParticipantCore extends ABMLClass {
    constructor(attributes, process, AB) {
       super(["label"], AB);
 
@@ -156,4 +156,4 @@ module.exports = class ABProcessParticipantCore extends ABMLClass {
     * setup and ready.
     */
    onProcessReady() {}
-};
+}

@@ -1,4 +1,4 @@
-const ABProcessElement = require("../../../platform/process/tasks/ABProcessElement.js");
+import ABProcessElement from "../../../platform/process/tasks/ABProcessElement.js";
 
 let ApiDefaults = {
    category: null,
@@ -33,7 +33,7 @@ let ApiDefaults = {
    headers: [],
 };
 
-module.exports = class ApiTaskCore extends ABProcessElement {
+export default class ApiTaskCore extends ABProcessElement {
    constructor(attributes, process, AB) {
       attributes.type = attributes.type || "process.task.service.api";
       super(attributes, process, AB, ApiDefaults);
@@ -73,4 +73,4 @@ module.exports = class ApiTaskCore extends ABProcessElement {
          },
       ];
    }
-};
+}

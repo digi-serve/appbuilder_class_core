@@ -1,3 +1,6 @@
+import ABQL from "../../platform/ql/ABQL.js";
+// import ABQLRow from "./ABQLRow.js";
+
 /*
  * ABQLRowUpdateCore
  *
@@ -5,9 +8,6 @@
  * Row of data.
  *
  */
-
-const ABQL = require("../../platform/ql/ABQL.js");
-// const ABQLRow = require("./ABQLRow.js");
 
 const ParameterDefinitions = [
    {
@@ -36,4 +36,4 @@ ABQLRowUpdateCore.label = "Update this record";
 ABQLRowUpdateCore.NextQLOps = [];
 // NOTE: .NextQLOps => see the #Hack in the constructor
 
-module.exports = ABQLRowUpdateCore;
+export default ABQLRowUpdateCore;

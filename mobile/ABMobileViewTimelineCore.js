@@ -1,4 +1,4 @@
-const ABMobileView = require("../../platform/mobile/ABMobileView");
+import ABMobileView from "../../platform/mobile/ABMobileView.js";
 
 const ABViewTimelinePropertyComponentDefaults = {
    dataviewID: null,
@@ -14,7 +14,7 @@ const ABViewDefaults = {
    labelKey: "Timeline", // {string} the multilingual label key for the class label
 };
 
-module.exports = class ABViewTimelineCore extends ABMobileView {
+export default class ABViewTimelineCore extends ABMobileView {
    constructor(values, application, parent, defaultValues) {
       super(values, application, parent, defaultValues || ABViewDefaults);
    }
@@ -55,4 +55,4 @@ module.exports = class ABViewTimelineCore extends ABMobileView {
       // we do if we have a setting for linkPageAdd
       return this.settings.linkPageAdd != "";
    }
-};
+}

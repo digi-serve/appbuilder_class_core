@@ -1,3 +1,58 @@
+import Import_ABView from "../platform/views/ABView.js";
+// import Import_ABViewCarousel from "../platform/views/ABViewCarousel.js";
+// import Import_ABViewChart from "../platform/views/ABViewChart.js";
+// import Import_ABViewChartArea from "../platform/views/ABViewChartArea.js";
+// import Import_ABViewChartBar from "../platform/views/ABViewChartBar.js";
+// import Import_ABViewChartLine from "../platform/views/ABViewChartLine.js";
+// import Import_ABViewChartPie from "../platform/views/ABViewChartPie.js";
+// import Import_ABViewComment from "../platform/views/ABViewComment.js";
+import Import_ABViewConditionalContainer from "../platform/views/ABViewConditionalContainer.js";
+import Import_ABViewConnectDataFilter from "../platform/views/ABViewConnectDataFilter.js";
+import Import_ABViewContainer from "../platform/views/ABViewContainer.js";
+// import Import_ABViewCSVExporter from "../platform/views/ABViewCSVExporter.js";
+// import Import_ABViewCSVImporter from "../platform/views/ABViewCSVImporter.js";
+import Import_ABViewDataFilter from "../platform/views/ABViewDataFilter.js";
+// import Import_ABViewDataSelect from "../platform/views/ABViewDataSelect.js";
+// import Import_ABViewDataview from "../platform/views/ABViewDataview.js";
+// import Import_ABViewDocxBuilder from "../platform/views/ABViewDocxBuilder.js";
+// import Import_ABViewGrid from "../platform/views/ABViewGrid.js";
+// import Import_ABViewImage from "../platform/views/ABViewImage.js";
+// import Import_ABViewLabel from "../platform/views/ABViewLabel.js";
+// import Import_ABViewLayout from "../platform/views/ABViewLayout.js";
+// import Import_ABViewList from "../platform/views/ABViewList.js";
+import Import_ABViewMenu from "../platform/views/ABViewMenu.js";
+import Import_ABViewPage from "../platform/views/ABViewPage.js";
+// import Import_ABViewPDFImporter from "../platform/views/ABViewPDFImporter.js";
+// import Import_ABViewPivot from "../platform/views/ABViewPivot.js";
+// import Import_ABViewTab from "../platform/views/ABViewTab.js";
+// import Import_ABViewText from "../platform/views/ABViewText.js";
+// import Import_ABViewGantt from "../platform/views/ABViewGantt.js";
+// import Import_ABViewKanban from "../platform/views/ABViewKanban.js";
+import Import_ABViewReportsManager from "../platform/views/ABViewReportsManager.js";
+import Import_ABViewScheduler from "../platform/views/ABViewScheduler.js";
+// import Import_ABViewDetail from "../platform/views/ABViewDetail.js";
+// import Import_ABViewDetailCheckbox from "../platform/views/ABViewDetailCheckbox.js";
+// import Import_ABViewDetailConnect from "../platform/views/ABViewDetailConnect.js";
+// import Import_ABViewDetailCustom from "../platform/views/ABViewDetailCustom.js";
+// import Import_ABViewDetailImage from "../platform/views/ABViewDetailImage.js";
+// import Import_ABViewDetailSelectivity from "../platform/views/ABViewDetailSelectivity.js";
+// import Import_ABViewDetailText from "../platform/views/ABViewDetailText.js";
+// import Import_ABViewDetailTree from "../platform/views/ABViewDetailTree.js";
+// import Import_ABViewForm from "../platform/views/ABViewForm.js";
+// import Import_ABViewFormButton from "../platform/views/ABViewFormButton.js";
+// import Import_ABViewFormCheckbox from "../platform/views/ABViewFormCheckbox.js";
+// import Import_ABViewFormConnect from "../platform/views/ABViewFormConnect.js";
+// import Import_ABViewFormCustom from "../platform/views/ABViewFormCustom.js";
+// import Import_ABViewFormDatepicker from "../platform/views/ABViewFormDatepicker.js";
+// import Import_ABViewFormJson from "../platform/views/ABViewFormJson.js";
+// import Import_ABViewFormNumber from "../platform/views/ABViewFormNumber.js";
+// import Import_ABViewFormReadonly from "../platform/views/ABViewFormReadonly.js";
+// import Import_ABViewFormSelectMultiple from "../platform/views/ABViewFormSelectMultiple.js";
+// import Import_ABViewFormSelectSingle from "../platform/views/ABViewFormSelectSingle.js";
+// import Import_ABViewFormTextbox from "../platform/views/ABViewFormTextbox.js";
+// import Import_ABViewFormTree from "../platform/views/ABViewFormTree.js";
+// import Import_ABViewFormURL from "../platform/views/ABViewFormURL.js";
+
 /*
  * ABViewManager
  *
@@ -6,72 +61,75 @@
  */
 
 var AllViews = [
-   require("../platform/views/ABView"),
-   // require("../platform/views/ABViewCarousel"),
-   // require("../platform/views/ABViewChart"),
-   // require("../platform/views/ABViewChartArea"),
-   // require("../platform/views/ABViewChartBar"),
-   // require("../platform/views/ABViewChartLine"),
-   // require("../platform/views/ABViewChartPie"),
-   // require("../platform/views/ABViewComment"),
-   require("../platform/views/ABViewConditionalContainer"),
-   require("../platform/views/ABViewConnectDataFilter"),
-   // require("../platform/views/ABViewContainer"),
-   // require("../platform/views/ABViewCSVExporter"),
-   // require("../platform/views/ABViewCSVImporter"),
-   require("../platform/views/ABViewDataFilter"),
-   // require("../platform/views/ABViewDataSelect"),
-   require("../platform/views/ABViewDataview"),
-   require("../platform/views/ABViewDocxBuilder"),
-   require("../platform/views/ABViewGrid"),
-   // require("../platform/views/ABViewImage"),
-   // require("../platform/views/ABViewLabel"),
-   // require("../platform/views/ABViewLayout"),
-   // require("../platform/views/ABViewList"),
-   require("../platform/views/ABViewMenu"),
-   require("../platform/views/ABViewPage"),
-   // require("../platform/views/ABViewPDFImporter"),
-   // require("../platform/views/ABViewPivot"),
-   // require("../platform/views/ABViewTab"),
-   // require("../platform/views/ABViewText"),
+   Import_ABView,
+   // Import_ABViewCarousel,
+   // Import_ABViewChart,
+   // Import_ABViewChartArea,
+   // Import_ABViewChartBar,
+   // Import_ABViewChartLine,
+   // Import_ABViewChartPie,
+   // Import_ABViewComment,
+   Import_ABViewConditionalContainer,
+   Import_ABViewConnectDataFilter,
+   // Import_ABViewContainer,
+   // Import_ABViewCSVExporter,
+   // Import_ABViewCSVImporter,
+   Import_ABViewDataFilter,
+   // Import_ABViewDataSelect,
+   // Import_ABViewDataview,
+   // Import_ABViewDocxBuilder,
+   // Import_ABViewGrid,
+   // Import_ABViewImage,
+   // Import_ABViewLabel,
+   // Import_ABViewLayout,
+   // Import_ABViewList,
+   Import_ABViewMenu,
+   Import_ABViewPage,
+   // Import_ABViewPDFImporter,
+   // Import_ABViewPivot,
+   // Import_ABViewTab,
+   // Import_ABViewText,
+
 
    //
    // Special Editors
    //
-   // require("../platform/views/ABViewKanban"),
-   // require("../platform/views/ABViewGantt"),
-   require("../platform/views/ABViewReportsManager"),
-   require("../platform/views/ABViewScheduler"),
+   // Import_ABViewGantt,
+   // Import_ABViewKanban,
+   Import_ABViewReportsManager,
+   Import_ABViewScheduler,
 
-   //
-   // Detail Components
-   //
-   // require("../platform/views/ABViewDetail"),
-   require("../platform/views/ABViewDetailCheckbox"),
-   require("../platform/views/ABViewDetailConnect"),
-   require("../platform/views/ABViewDetailCustom"),
-   require("../platform/views/ABViewDetailImage"),
-   // require("../platform/views/ABViewDetailSelectivity"),
-   require("../platform/views/ABViewDetailText"),
-   require("../platform/views/ABViewDetailTree"),
 
-   //
-   // Form Components
-   //
-   require("../platform/views/ABViewForm"),
-   require("../platform/views/ABViewFormButton"),
-   require("../platform/views/ABViewFormCheckbox"),
-   require("../platform/views/ABViewFormConnect"),
-   require("../platform/views/ABViewFormCustom"),
-   require("../platform/views/ABViewFormDatepicker"),
-   require("../platform/views/ABViewFormJson"),
-   require("../platform/views/ABViewFormNumber"),
-   require("../platform/views/ABViewFormReadonly"),
-   require("../platform/views/ABViewFormSelectMultiple"),
-   require("../platform/views/ABViewFormSelectSingle"),
-   require("../platform/views/ABViewFormTextbox"),
-   require("../platform/views/ABViewFormTree"),
-   require("../platform/views/ABViewFormURL"),
+   // //
+   // // Detail Components
+   // //
+   // Import_ABViewDetail,
+   // Import_ABViewDetailCheckbox,
+   // Import_ABViewDetailConnect,
+   // Import_ABViewDetailCustom,
+   // Import_ABViewDetailImage,
+   // Import_ABViewDetailSelectivity,
+   // Import_ABViewDetailText,
+   // Import_ABViewDetailTree,
+
+
+   // //
+   // // Form Components
+   // //
+   // Import_ABViewForm,
+   // Import_ABViewFormButton,
+   // Import_ABViewFormCheckbox,
+   // Import_ABViewFormConnect,
+   // Import_ABViewFormCustom,
+   // Import_ABViewFormDatepicker,
+   // Import_ABViewFormJson,
+   // Import_ABViewFormNumber,
+   // Import_ABViewFormReadonly,
+   // Import_ABViewFormSelectMultiple,
+   // Import_ABViewFormSelectSingle,
+   // Import_ABViewFormTextbox,
+   // Import_ABViewFormTree,
+   // Import_ABViewFormURL,
 ];
 
 /*
@@ -86,7 +144,7 @@ AllViews.forEach((v) => {
    Views[v.common().key] = v;
 });
 
-module.exports = class ABViewManagerCore {
+export default class ABViewManagerCore {
    /**
     * @function allViews
     * return all the currently defined ABViews in an array.
@@ -121,10 +179,10 @@ module.exports = class ABViewManagerCore {
             if (!isPlugin(values.key)) {
                console.error(
                   "!! View[" +
-                  values.key + 
-                  " (" +
-                  values.name +
-                  ")" +
+                     values.key +
+                     " (" +
+                     values.name +
+                     ")" +
                      "] not yet defined.  Have an ABView instead:"
                );
             }
@@ -155,7 +213,7 @@ module.exports = class ABViewManagerCore {
    static addViewClass(View) {
       Views[View.common().key] = View;
    }
-};
+}
 
 /**
  * Check if the key starts with plugin_

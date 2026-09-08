@@ -1,4 +1,4 @@
-const ABMobileViewFormItem = require("../../platform/mobile/ABMobileViewFormItem");
+import ABMobileViewFormItem from "../../platform/mobile/ABMobileViewFormItem.js";
 
 const ABViewFormCustomPropertyComponentDefaults = {};
 
@@ -11,13 +11,13 @@ const ABViewFormCustomDefaults = {
    // {string} the multilingual label key for the class label
 };
 
-module.exports = class ABMobileViewFormCustomCore extends ABMobileViewFormItem {
+export default class ABMobileViewFormCustomCore extends ABMobileViewFormItem {
    constructor(values, application, parent, defaultValues) {
       super(
          values,
          application,
          parent,
-         defaultValues || ABViewFormCustomDefaults
+         defaultValues || ABViewFormCustomDefaults,
       );
    }
 
@@ -28,4 +28,4 @@ module.exports = class ABMobileViewFormCustomCore extends ABMobileViewFormItem {
    static defaultValues() {
       return ABViewFormCustomPropertyComponentDefaults;
    }
-};
+}

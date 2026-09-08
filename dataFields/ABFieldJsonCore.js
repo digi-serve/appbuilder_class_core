@@ -1,11 +1,11 @@
+import ABField from "../../platform/dataFields/ABField.js";
+
 /*
  * ABFieldJson
  *
  * An ABFieldJson defines a JSON field type.
  *
  */
-
-const ABField = require("../../platform/dataFields/ABField");
 
 const ABFieldJsonDefaults = {
    key: "json",
@@ -62,7 +62,7 @@ const ABFieldJsonDefaults = {
 
 const defaultValues = {};
 
-module.exports = class ABFieldJsonCore extends ABField {
+export default class ABFieldJsonCore extends ABField {
    constructor(values, object) {
       super(values, object, ABFieldJsonDefaults);
    }
@@ -82,9 +82,9 @@ module.exports = class ABFieldJsonCore extends ABField {
     * for this field.
     * @param {obj} values a key=>value hash of the current values.
     */
-   defaultValue(values) {
+   defaultValue(/* _values */) {
       // in the case of a JSON data type, we should NOT insert a ""
       //
       // values[this.columnName] = "";
    }
-};
+}

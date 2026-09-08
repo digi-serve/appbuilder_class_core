@@ -1,16 +1,11 @@
+import ABField from "../../platform/dataFields/ABField.js";
+
 /*
  * ABFieldFile
  *
  * An ABFieldFile defines a File field type.
  *
  */
-
-const ABField = require("../../platform/dataFields/ABField");
-
-function L(key, altText) {
-   // TODO:
-   return altText; // AD.lang.label.getLabel(key) || altText;
-}
 
 const ABFieldFileDefaults = {
    key: "file",
@@ -71,7 +66,7 @@ const defaultValues = {
    fileType: "",
 };
 
-module.exports = class ABFieldFileCore extends ABField {
+export default class ABFieldFileCore extends ABField {
    constructor(values, object) {
       super(values, object, ABFieldFileDefaults);
    }
@@ -97,7 +92,7 @@ module.exports = class ABFieldFileCore extends ABField {
       this.settings.limitFileSize = parseInt(this.settings.limitFileSize);
       this.settings.limitFileType = parseInt(this.settings.limitFileType);
       this.settings.removeExistingData = parseInt(
-         this.settings.removeExistingData
+         this.settings.removeExistingData,
       );
    }
 
@@ -187,4 +182,4 @@ module.exports = class ABFieldFileCore extends ABField {
 
       return myParameter;
    }
-};
+}

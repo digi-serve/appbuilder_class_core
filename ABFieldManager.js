@@ -5,6 +5,27 @@
  *
  */
 
+import ABFieldString from "../platform/dataFields/ABFieldString.js";
+import ABFieldLongText from "../platform/dataFields/ABFieldLongText.js";
+import ABFieldNumber from "../platform/dataFields/ABFieldNumber.js";
+import ABFieldDate from "../platform/dataFields/ABFieldDate.js";
+import ABFieldDateTime from "../platform/dataFields/ABFieldDateTime.js";
+import ABFieldBoolean from "../platform/dataFields/ABFieldBoolean.js";
+import ABFieldList from "../platform/dataFields/ABFieldList.js";
+import ABFieldTree from "../platform/dataFields/ABFieldTree.js";
+import ABFieldEmail from "../platform/dataFields/ABFieldEmail.js";
+import ABFieldFile from "../platform/dataFields/ABFieldFile.js";
+import ABFieldImage from "../platform/dataFields/ABFieldImage.js";
+import ABFieldUser from "../platform/dataFields/ABFieldUser.js";
+import ABFieldConnect from "../platform/dataFields/ABFieldConnect.js";
+import ABFieldCalculate from "../platform/dataFields/ABFieldCalculate.js";
+import ABFieldTextFormula from "../platform/dataFields/ABFieldTextFormula.js";
+import ABFieldFormula from "../platform/dataFields/ABFieldFormula.js";
+import ABFieldAutoIndex from "../platform/dataFields/ABFieldAutoIndex.js";
+import ABFieldJson from "../platform/dataFields/ABFieldJson.js";
+import ABFieldCombine from "../platform/dataFields/ABFieldCombine.js";
+import ABFieldSelectivity from "../platform/dataFields/ABFieldSelectivity.js";
+
 /*
  * Fields
  * A name => ABField  hash of the different ABFields available.
@@ -12,33 +33,33 @@
 var Fields = {};
 
 var AllFieldClasses = [
-   require("../platform/dataFields/ABFieldString"),
-   require("../platform/dataFields/ABFieldLongText"),
-   require("../platform/dataFields/ABFieldNumber"),
-   require("../platform/dataFields/ABFieldDate"),
-   require("../platform/dataFields/ABFieldDateTime"),
-   require("../platform/dataFields/ABFieldBoolean"),
-   require("../platform/dataFields/ABFieldList"),
-   require("../platform/dataFields/ABFieldTree"),
-   require("../platform/dataFields/ABFieldEmail"),
-   require("../platform/dataFields/ABFieldFile"),
-   require("../platform/dataFields/ABFieldImage"),
-   require("../platform/dataFields/ABFieldUser"),
-   require("../platform/dataFields/ABFieldConnect"),
-   require("../platform/dataFields/ABFieldCalculate"),
-   require("../platform/dataFields/ABFieldTextFormula"),
-   require("../platform/dataFields/ABFieldFormula"),
-   require("../platform/dataFields/ABFieldAutoIndex"),
-   require("../platform/dataFields/ABFieldJson"),
-   require("../platform/dataFields/ABFieldCombine"),
-   require("../platform/dataFields/ABFieldSelectivity"),
+   ABFieldString,
+   ABFieldLongText,
+   ABFieldNumber,
+   ABFieldDate,
+   ABFieldDateTime,
+   ABFieldBoolean,
+   ABFieldList,
+   ABFieldTree,
+   ABFieldEmail,
+   ABFieldFile,
+   ABFieldImage,
+   ABFieldUser,
+   ABFieldConnect,
+   ABFieldCalculate,
+   ABFieldTextFormula,
+   ABFieldFormula,
+   ABFieldAutoIndex,
+   ABFieldJson,
+   ABFieldCombine,
+   ABFieldSelectivity,
 ];
 
 AllFieldClasses.forEach((FIELD) => {
    Fields[FIELD.defaults().key] = FIELD;
 });
 
-module.exports = class ABFieldManager {
+export default class ABFieldManager {
    /*
     * @function allFields
     * return all the currently defined ABFields in an array.
@@ -86,9 +107,9 @@ module.exports = class ABFieldManager {
          console.error(object);
          console.log("-------");
          throw new Error(
-            `ABFieldManager.newField(): Unknown Field Key [${values.name}][${values.key}] for object[${object.name}]`
+            `ABFieldManager.newField(): Unknown Field Key [${values.name}][${values.key}] for object[${object.name}]`,
          );
          //// TODO: what to do here?
       }
    }
-};
+}

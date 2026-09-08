@@ -4,52 +4,33 @@
  * It is expected that an instance of this should be returned from an
  * ABBootstrap.init(req).then((AB)=>{}) call.
  */
-
-// const _ = require("lodash");
-// const uuidv4 = require("uuid");
-
-const ABClassManager = require("../platform/ABClassManager");
-
-const ABApplication = require("../platform/ABApplication");
-const ABApplicationMobile = require("../platform/ABApplicationMobile");
-const ABDefinition = require("../platform/ABDefinition");
-
-const ABComponent = require("../platform/ABComponent");
-
-const ABFieldManager = require("./ABFieldManager");
-
-const ABIndex = require("../platform/ABIndex");
-const ABObject = require("../platform/ABObject");
-const ABObjectExternal = require("../platform/ABObjectExternal");
-const ABObjectImport = require("../platform/ABObjectImport");
-const ABObjectApi = require("../platform/ABObjectApi");
-const ABObjectApiNetsuite = require("../platform/ABObjectApiNetsuite");
-const ABDataCollection = require("../platform/ABDataCollection");
-const ABObjectQuery = require("../platform/ABObjectQuery");
-
-const ABHint = require("../platform/ABHint");
-const ABProcess = require("../platform/ABProcess");
-
-const ABProcessParticipant = require("../platform/process/ABProcessParticipant");
-const ABProcessLane = require("../platform/process/ABProcessLane");
-const ABProcessTaskManager = require("./process/ABProcessTaskManager");
-
-const ABStep = require("../platform/ABStep");
-
-const ABViewDetailItem = require("../platform/views/ABViewDetailItem");
-const ABViewFormItem = require("../platform/views/ABViewFormItem");
-const ABMobileViewFormItem = require("../platform/mobile/ABMobileViewFormItem");
-
-// const ABObjectWorkspaceViewGrid = require("../platform/workspaceViews/ABObjectWorkspaceViewGrid");
-// const ABObjectWorkspaceViewKanban = require("../platform/workspaceViews/ABObjectWorkspaceViewKanban");
-// const ABObjectWorkspaceViewGantt = require("../platform/workspaceViews/ABObjectWorkspaceViewGantt");
-
-const RowFilter = require("../platform/RowFilter");
-const FilterComplex = require("../platform/FilterComplex");
-
-const ABMLClass = require("../platform/ABMLClass");
-
-const EventEmitter = require("../platform/ABEmitter");
+import ABClassManager from "../platform/ABClassManager.js";
+import ABApplication from "../platform/ABApplication.js";
+import ABApplicationMobile from "../platform/ABApplicationMobile.js";
+import ABDefinition from "../platform/ABDefinition.js";
+import ABComponent from "../platform/ABComponent.js";
+import ABFieldManager from "./ABFieldManager.js";
+import ABIndex from "../platform/ABIndex.js";
+import ABObject from "../platform/ABObject.js";
+import ABObjectExternal from "../platform/ABObjectExternal.js";
+import ABObjectImport from "../platform/ABObjectImport.js";
+import ABObjectApi from "../platform/ABObjectApi.js";
+import ABObjectApiNetsuite from "../platform/ABObjectApiNetsuite.js";
+import ABDataCollection from "../platform/ABDataCollection.js";
+import ABObjectQuery from "../platform/ABObjectQuery.js";
+import ABHint from "../platform/ABHint.js";
+import ABProcess from "../platform/ABProcess.js";
+import ABProcessParticipant from "../platform/process/ABProcessParticipant.js";
+import ABProcessLane from "../platform/process/ABProcessLane.js";
+import ABProcessTaskManager from "./process/ABProcessTaskManager.js";
+import ABStep from "../platform/ABStep.js";
+// import ABViewDetailItem from "../platform/views/ABViewDetailItem.js";
+// import ABViewFormItem from "../platform/views/ABViewFormItem.js";
+import ABMobileViewFormItem from "../platform/mobile/ABMobileViewFormItem.js";
+import RowFilter from "../platform/RowFilter.js";
+import FilterComplex from "../platform/FilterComplex.js";
+import ABMLClass from "../platform/ABMLClass.js";
+import EventEmitter from "../platform/ABEmitter.js";
 
 class ABFactory extends EventEmitter {
    constructor(definitions) {
@@ -127,8 +108,6 @@ class ABFactory extends EventEmitter {
 
          ABProcessTaskManager,
 
-         ABViewDetailItem,
-         ABViewFormItem,
          ABMobileViewFormItem,
       };
 
@@ -1180,4 +1159,4 @@ class ABFactory extends EventEmitter {
    }
 }
 
-module.exports = ABFactory;
+export default ABFactory;

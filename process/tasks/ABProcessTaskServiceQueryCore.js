@@ -1,6 +1,5 @@
-const ABProcessElement = require("../../../platform/process/tasks/ABProcessElement.js");
-
-const ABQLManager = require("../../../platform/ql/ABQLManager.js");
+import ABProcessElement from "../../../platform/process/tasks/ABProcessElement.js";
+import ABQLManager from "../../../platform/ql/ABQLManager.js";
 
 const ABProcessTaskServiceQueryDefaults = {
    category: null,
@@ -29,7 +28,7 @@ const ABProcessTaskServiceQueryDefaults = {
    // values set by the platform .propertiesStash()
 };
 
-module.exports = class ABProcessTaskServiceQueryCore extends ABProcessElement {
+export default class ABProcessTaskServiceQueryCore extends ABProcessElement {
    constructor(attributes, process, AB) {
       attributes.type = attributes.type || "process.task.service.query";
       super(attributes, process, AB, ABProcessTaskServiceQueryDefaults);
@@ -142,4 +141,4 @@ module.exports = class ABProcessTaskServiceQueryCore extends ABProcessElement {
 
       return null;
    }
-};
+}

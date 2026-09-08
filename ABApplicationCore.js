@@ -1,3 +1,6 @@
+import ABViewManager from "../platform/ABViewManager.js";
+import ABMLClass from "../platform/ABMLClass.js";
+
 /**
  * ABApplicationCore
  *
@@ -22,9 +25,6 @@
 
 // webpack can handle 'require()' statements, but node can't handle import
 // so let's use require():
-const ABViewManager = require("../platform/ABViewManager");
-var ABMLClass = require("../platform/ABMLClass");
-
 function toBool(val) {
    if (typeof val == "undefined") {
       return false;
@@ -41,7 +41,7 @@ function toBool(val) {
    return val;
 }
 
-module.exports = class ABApplicationCore extends ABMLClass {
+export default class ABApplicationCore extends ABMLClass {
    constructor(attributes, AB) {
       super(["label", "description"], AB);
 
@@ -134,14 +134,14 @@ module.exports = class ABApplicationCore extends ABMLClass {
       // of the detailed access permissions.
 
       this.isTranslationManaged = JSON.parse(
-         attributes.isTranslationManaged || false
+         attributes.isTranslationManaged || false,
       );
       this.translationManagers = attributes.translationManagers;
       if (typeof this.translationManagers == "string")
          this.translationManagers = JSON.parse(this.translationManagers);
 
       this.isTutorialManaged = JSON.parse(
-         attributes.isTutorialManaged || false
+         attributes.isTutorialManaged || false,
       );
       this.tutorialManagers = attributes.tutorialManagers;
       if (typeof this.tutorialManagers == "string")
@@ -187,7 +187,7 @@ module.exports = class ABApplicationCore extends ABMLClass {
                {
                   appID: this.id,
                   pageID: id,
-               }
+               },
             );
             // console.error(
             //    `App[${this.id}] is referenceing an unknown Page[${id}]`
@@ -207,7 +207,7 @@ module.exports = class ABApplicationCore extends ABMLClass {
             this.emit(
                "warning",
                `Application is referencing an unknown process.`,
-               { appID: this.id, processID: pID }
+               { appID: this.id, processID: pID },
             );
          }
       });
@@ -221,14 +221,14 @@ module.exports = class ABApplicationCore extends ABMLClass {
          attributes.json.objectListSettings || {};
       this.objectListSettings = this.objectListSettings || {};
       this.objectListSettings.isOpen = JSON.parse(
-         attributes.json.objectListSettings.isOpen || false
+         attributes.json.objectListSettings.isOpen || false,
       );
       this.objectListSettings.searchText =
          attributes.json.objectListSettings.searchText || "";
       this.objectListSettings.sortDirection =
          attributes.json.objectListSettings.sortDirection || "asc";
       this.objectListSettings.isGroup = JSON.parse(
-         attributes.json.objectListSettings.isGroup || false
+         attributes.json.objectListSettings.isGroup || false,
       );
 
       // let the MLClass now process the translations:
@@ -450,7 +450,7 @@ module.exports = class ABApplicationCore extends ABMLClass {
     */
    connectedObjects(id) {
       console.error(
-         "ABApplicationCore.connectedObjects(): who is calling this?"
+         "ABApplicationCore.connectedObjects(): who is calling this?",
       );
 
       if (id == "") return [];
@@ -464,7 +464,7 @@ module.exports = class ABApplicationCore extends ABMLClass {
       var connectedObj = {};
       connectedFields.forEach((f) => {
          connectedObj[f.settings.linkObject] = this.AB.objectByID(
-            f.settings.linkObject
+            f.settings.linkObject,
          );
       });
       // Look up the objects by their ID and push them in an options array
@@ -497,7 +497,7 @@ module.exports = class ABApplicationCore extends ABMLClass {
 
       // Get all the connected Fields for our object that match the linkedObjectID
       var connectedFields = myObj.connectFields(
-         (f) => f.settings.linkObject == linkedObjectID
+         (f) => f.settings.linkObject == linkedObjectID,
       );
       // Build an arry of options for the webix select
       var linkedFields = [];
@@ -1010,10 +1010,10 @@ module.exports = class ABApplicationCore extends ABMLClass {
 
    cloneDeep(/* object */) {
       var errorDepreciated = new Error(
-         "ABApplicationCore.cloneDeep(): Depreciated!  Use AB.cloneDeep() instead."
+         "ABApplicationCore.cloneDeep(): Depreciated!  Use AB.cloneDeep() instead.",
       );
       throw errorDepreciated;
 
       // return JSON.parse(JSON.stringify(object));
    }
-};
+}

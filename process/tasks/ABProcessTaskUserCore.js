@@ -1,3 +1,5 @@
+import ABProcessElement from "../../../platform/process/tasks/ABProcessElement.js";
+
 /**
  * ABProcessTaskUserCore
  *
@@ -12,8 +14,6 @@
  *  - fill out a form
  *
  */
-
-const ABProcessElement = require("../../../platform/process/tasks/ABProcessElement.js");
 
 var ABProcessTaskUserDefaults = {
    category: "task",
@@ -42,7 +42,7 @@ var ABProcessTaskUserDefaults = {
    // values set by the platform .propertiesStash()
 };
 
-module.exports = class ABProcessTaskUserCore extends ABProcessElement {
+export default class ABProcessTaskUserCore extends ABProcessElement {
    constructor(attributes, process, AB) {
       attributes.type = attributes.type || "process.task.user";
       super(attributes, process, AB, ABProcessTaskUserDefaults);
@@ -103,4 +103,4 @@ module.exports = class ABProcessTaskUserCore extends ABProcessElement {
 
       super.initState(context, myDefaults, val);
    }
-};
+}

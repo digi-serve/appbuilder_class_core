@@ -1,3 +1,5 @@
+import ABQLSetSave from "../../platform/ql/ABQLSetSave.js";
+
 /*
 /*
  * ABQLRowValueCore
@@ -6,8 +8,6 @@
  * in, so that this data can be made available to other Process Tasks.
  *
  */
-
-const ABQLSetSave = require("../../platform/ql/ABQLSetSave.js");
 
 class ABQLValueSaveCore extends ABQLSetSave {
    ///
@@ -27,4 +27,4 @@ ABQLValueSaveCore.label = "save";
 ABQLValueSaveCore.NextQLOps = [];
 // NOTE: currently, this is an ending step. but it doesn't have to be...
 
-module.exports = ABQLValueSaveCore;
+export default ABQLValueSaveCore;

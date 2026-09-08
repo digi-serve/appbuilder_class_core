@@ -1,4 +1,4 @@
-const ABViewWidget = require("../../platform/views/ABViewWidget");
+import ABViewWidget from "../../platform/views/ABViewWidget.js";
 
 const ABViewReportManagerPropertyComponentDefaults = {
    dataviewID: "",
@@ -20,7 +20,7 @@ const ABViewDefaults = {
    labelKey: "Reports Manager", // {string} the multilingual label key for the class label
 };
 
-module.exports = class ABViewReportsManagerCore extends ABViewWidget {
+export default class ABViewReportsManagerCore extends ABViewWidget {
    constructor(values, application, parent, defaultValues) {
       super(values, application, parent, defaultValues || ABViewDefaults);
    }
@@ -54,13 +54,13 @@ module.exports = class ABViewReportsManagerCore extends ABViewWidget {
                typeof ABViewReportManagerPropertyComponentDefaults[key1] ===
                   "object" &&
                !Array.isArray(
-                  ABViewReportManagerPropertyComponentDefaults[key1]
+                  ABViewReportManagerPropertyComponentDefaults[key1],
                )
             ) {
                parsedSettings[key1] = {};
 
                Object.keys(
-                  ABViewReportManagerPropertyComponentDefaults[key1]
+                  ABViewReportManagerPropertyComponentDefaults[key1],
                ).forEach((key2) => {
                   parsedSettings[key1][key2] =
                      this.settings[key1]?.[key2] ??
@@ -73,7 +73,7 @@ module.exports = class ABViewReportsManagerCore extends ABViewWidget {
             parsedSettings[key1] =
                this.settings[key1] ??
                ABViewReportManagerPropertyComponentDefaults[key1];
-         }
+         },
       );
 
       this.settings = parsedSettings;
@@ -102,4 +102,4 @@ module.exports = class ABViewReportsManagerCore extends ABViewWidget {
    componentList() {
       return [];
    }
-};
+}

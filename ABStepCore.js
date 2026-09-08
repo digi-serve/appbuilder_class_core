@@ -1,9 +1,9 @@
+import ABMLClass from "../platform/ABMLClass.js";
+// import _concat from "lodash/concat.js";
+
 // import ABApplication from "./ABApplication"
 
-var ABMLClass = require("../platform/ABMLClass");
-const _concat = require("lodash/concat");
-
-module.exports = class ABStepCore extends ABMLClass {
+export default class ABStepCore extends ABMLClass {
    constructor(attributes, AB) {
       super(["name", "text"], AB);
 
@@ -117,4 +117,4 @@ module.exports = class ABStepCore extends ABMLClass {
    // stepRemove(def) {
    //    delete this._steps[def.id];
    // }
-};
+}

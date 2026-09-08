@@ -1,11 +1,11 @@
+import ABField from "../../platform/dataFields/ABField.js";
+
 /*
  * ABFieldString
  *
  * An ABFieldString defines a string field type.
  *
  */
-
-const ABField = require("../../platform/dataFields/ABField");
 
 const MAX_CHAR_LENGTH = 255;
 
@@ -71,7 +71,7 @@ const defaultValues = {
    supportMultilingual: 0,
 };
 
-module.exports = class ABFieldStringCore extends ABField {
+export default class ABFieldStringCore extends ABField {
    constructor(values, object) {
       super(values, object, ABFieldStringDefaults);
 
@@ -115,7 +115,7 @@ module.exports = class ABFieldStringCore extends ABField {
 
       // text to Int:
       this.settings.supportMultilingual = parseInt(
-         this.settings.supportMultilingual
+         this.settings.supportMultilingual,
       );
 
       if (this.settings.supportMultilingual) {
@@ -183,7 +183,7 @@ module.exports = class ABFieldStringCore extends ABField {
          const L = this.AB.Label();
          validator.addError(
             this.columnName,
-            L("should NOT be longer than {0} characters", [MAX_CHAR_LENGTH])
+            L("should NOT be longer than {0} characters", [MAX_CHAR_LENGTH]),
          );
       }
    }
@@ -196,4 +196,4 @@ module.exports = class ABFieldStringCore extends ABField {
    get isMultilingual() {
       return this.settings.supportMultilingual == 1;
    }
-};
+}

@@ -1,4 +1,4 @@
-const ABMobileView = require("../../platform/mobile/ABMobileView");
+import ABMobileView from "../../platform/mobile/ABMobileView.js";
 
 const ABViewFormButtonPropertyComponentDefaults = {
    includeSave: true,
@@ -23,13 +23,13 @@ const ABViewFormButtonDefaults = {
    // {string} the multilingual label key for the class label
 };
 
-module.exports = class ABMobileViewFormButtonCore extends ABMobileView {
+export default class ABMobileViewFormButtonCore extends ABMobileView {
    constructor(values, application, parent, defaultValues) {
       super(
          values,
          application,
          parent,
-         defaultValues || ABViewFormButtonDefaults
+         defaultValues || ABViewFormButtonDefaults,
       );
    }
 
@@ -115,4 +115,4 @@ module.exports = class ABMobileViewFormButtonCore extends ABMobileView {
       //       ABViewFormButtonPropertyComponentDefaults.isDefault
       // );
    }
-};
+}

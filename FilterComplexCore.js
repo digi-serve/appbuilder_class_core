@@ -1,5 +1,5 @@
-const ABComponent = require("../platform/ABComponent");
-// const ABObjectQuery = require("../platform/ABObjectQuery");
+import ABComponent from "../platform/ABComponent.js";
+// import ABObjectQuery from "../platform/ABObjectQuery.js";
 
 /**
  *  support get data from objects and queries
@@ -80,7 +80,7 @@ function getConnectFieldValue(rowData, field) {
    return connectedVal;
 }
 
-module.exports = class FilterComplexCore extends ABComponent {
+export default class FilterComplexCore extends ABComponent {
    constructor(idBase, AB) {
       idBase = idBase || "ab_filter_complex";
 
@@ -99,7 +99,8 @@ module.exports = class FilterComplexCore extends ABComponent {
       this._Fields;
 
       // internal business logic
-      const _logic = (this._logic = {
+      // TODO: removeHtmlTags() is a web only command, so this code should NOT be in the core
+      this._logic = {
          callbacks: {
             onChange: () => {},
          },
@@ -117,7 +118,7 @@ module.exports = class FilterComplexCore extends ABComponent {
 
             return result;
          },
-      });
+      };
 
       // Interface methods for parent component:
       // this.objectLoad = _logic.objectLoad;
@@ -161,7 +162,7 @@ module.exports = class FilterComplexCore extends ABComponent {
          else if (!filter || !filter.key || !filter.rule) return;
 
          const fieldInfo = (this._Fields || []).filter(
-            (f) => f.id == filter.key || f.columnName == filter.key
+            (f) => f.id == filter.key || f.columnName == filter.key,
          )[0];
 
          if (!fieldInfo) return;
@@ -219,14 +220,14 @@ module.exports = class FilterComplexCore extends ABComponent {
                   rowData,
                   fieldInfo,
                   filter.rule,
-                  filter.value
+                  filter.value,
                );
                break;
             case "this_object":
                condResult = this.thisObjectValid(
                   rowData,
                   filter.rule,
-                  filter.value
+                  filter.value,
                );
                break;
          }
@@ -318,20 +319,25 @@ module.exports = class FilterComplexCore extends ABComponent {
             result = value >= compareValue;
             break;
          case "less_current":
-            result = value.setHours?.(0, 0, 0, 0) < (new Date()).setHours(0, 0, 0, 0);
+            result =
+               value.setHours?.(0, 0, 0, 0) < new Date().setHours(0, 0, 0, 0);
             break;
          case "greater_current":
-            result = value.setHours?.(0, 0, 0, 0) > (new Date()).setHours(0, 0, 0, 0);
+            result =
+               value.setHours?.(0, 0, 0, 0) > new Date().setHours(0, 0, 0, 0);
             break;
          case "less_or_equal_current":
-            result = value.setHours?.(0, 0, 0, 0) <= (new Date()).setHours(0, 0, 0, 0);
+            result =
+               value.setHours?.(0, 0, 0, 0) <= new Date().setHours(0, 0, 0, 0);
             break;
          case "greater_or_equal_current":
-            result = value.setHours?.(0, 0, 0, 0) >= (new Date()).setHours(0, 0, 0, 0);
-            break
+            result =
+               value.setHours?.(0, 0, 0, 0) >= new Date().setHours(0, 0, 0, 0);
+            break;
          case "is_current_date":
             result =
-               value.setHours?.(0, 0, 0, 0) == compareValue.setHours(0, 0, 0, 0);
+               value.setHours?.(0, 0, 0, 0) ==
+               compareValue.setHours(0, 0, 0, 0);
             break;
          case "is_null":
          case "is_empty":
@@ -448,7 +454,6 @@ module.exports = class FilterComplexCore extends ABComponent {
 
       if (!Array.isArray(value)) value = [value];
 
-      /* eslint-disable no-fallthrough */
       switch (rule) {
          case "is_current_user":
             result =
@@ -482,7 +487,6 @@ module.exports = class FilterComplexCore extends ABComponent {
             result = this.queryFieldValid(value, rule, compareValue);
             break;
       }
-      /* eslint-enable no-fallthrough */
 
       return result;
    }
@@ -588,7 +592,7 @@ module.exports = class FilterComplexCore extends ABComponent {
             if (linkType == "many") {
                // lets get an array of connected ids => stringified()
                connectedVal = JSON.stringify(
-                  getConnectFieldValue(rowData, field).map((i) => i.id || i)
+                  getConnectFieldValue(rowData, field).map((i) => i.id || i),
                );
             } else {
                // connectedVal = (
@@ -712,7 +716,7 @@ module.exports = class FilterComplexCore extends ABComponent {
                // this object as part of the query.
 
                console.error(
-                  "HEY!  Can't compare this_object to a query that has > 1 copy of that object!"
+                  "HEY!  Can't compare this_object to a query that has > 1 copy of that object!",
                );
 
                return true;
@@ -757,7 +761,7 @@ module.exports = class FilterComplexCore extends ABComponent {
     */
    fieldsLoad(fields = [], object = null) {
       this._Fields = fields.filter(
-         (f) => f && f.fieldIsFilterable && f.fieldIsFilterable()
+         (f) => f && f.fieldIsFilterable && f.fieldIsFilterable(),
       );
       this._QueryFields = this._Fields
          ? this._Fields.filter((f) => f && f.isConnection && f.key != "user")
@@ -831,7 +835,7 @@ module.exports = class FilterComplexCore extends ABComponent {
             switch (f.key) {
                case "boolean":
                   conditions = conditions.concat(
-                     this.fieldsAddFiltersBoolean(f)
+                     this.fieldsAddFiltersBoolean(f),
                   );
                   processFieldKeys = ["boolean"];
 
@@ -851,19 +855,19 @@ module.exports = class FilterComplexCore extends ABComponent {
                         f.settings.isSource)
                   ) {
                      const stringResults = this.fieldsAddFiltersString(
-                        f
+                        f,
                      ).filter(
                         (opt) =>
                            f.settings.isCustomFK ||
                            // If this connect field does not use custom FK, then allow just `is empty` and `is not empty` filter options
                            opt.id == "is_empty" ||
-                           opt.id == "is_not_empty"
+                           opt.id == "is_not_empty",
                      );
                      conditions = stringResults.concat(conditions);
 
                      // By Query Field
                      conditions = conditions.concat(
-                        this.fieldsAddFiltersQuery(f, true)
+                        this.fieldsAddFiltersQuery(f, true),
                      );
                   }
 
@@ -885,7 +889,7 @@ module.exports = class FilterComplexCore extends ABComponent {
                case "number":
                   type = "number";
                   conditions = conditions.concat(
-                     this.fieldsAddFiltersNumber(f)
+                     this.fieldsAddFiltersNumber(f),
                   );
                   processFieldKeys = ["calculate", "formula", "number"];
 
@@ -897,7 +901,7 @@ module.exports = class FilterComplexCore extends ABComponent {
                case "LongText":
                case "AutoIndex":
                   conditions = conditions.concat(
-                     this.fieldsAddFiltersString(f)
+                     this.fieldsAddFiltersString(f),
                   );
                   processFieldKeys = [
                      "string",
@@ -921,7 +925,7 @@ module.exports = class FilterComplexCore extends ABComponent {
 
                case "uuid":
                   conditions = conditions.concat(
-                     this.fieldsAddFiltersThisObject(f)
+                     this.fieldsAddFiltersThisObject(f),
                   );
                   hasQueryField = false;
 
@@ -939,7 +943,7 @@ module.exports = class FilterComplexCore extends ABComponent {
             }
 
          conditions = conditions.concat(
-            this.fieldsAddFiltersQuery(f, hasQueryField)
+            this.fieldsAddFiltersQuery(f, hasQueryField),
          );
 
          if (this._settings.isRecordRule) {
@@ -1009,7 +1013,7 @@ module.exports = class FilterComplexCore extends ABComponent {
       return fields;
    }
 
-   fieldsAddFiltersDate(field) {
+   fieldsAddFiltersDate(/* _field */) {
       let dateConditions = {
          less: this.labels.component.beforeCondition,
          greater: this.labels.component.afterCondition,
@@ -1066,7 +1070,7 @@ module.exports = class FilterComplexCore extends ABComponent {
       return result;
    }
 
-   fieldsAddFiltersString(field) {
+   fieldsAddFiltersString(/* _field */) {
       let stringConditions = {
          contains: {
             batch: "text",
@@ -1108,7 +1112,7 @@ module.exports = class FilterComplexCore extends ABComponent {
       return result;
    }
 
-   fieldsAddFiltersNumber(field) {
+   fieldsAddFiltersNumber(/* _field */) {
       let numberConditions = {
          equals: this.labels.component.equalCondition,
          not_equal: this.labels.component.notEqualCondition,
@@ -1132,7 +1136,7 @@ module.exports = class FilterComplexCore extends ABComponent {
       return result;
    }
 
-   fieldsAddFiltersList(field) {
+   fieldsAddFiltersList(/* _field */) {
       let listConditions = {
          equals: this.labels.component.equalListCondition,
          not_equal: this.labels.component.notEqualListCondition,
@@ -1152,7 +1156,7 @@ module.exports = class FilterComplexCore extends ABComponent {
       return result;
    }
 
-   fieldsAddFiltersBoolean(field) {
+   fieldsAddFiltersBoolean(/* _field */) {
       let booleanConditions = {
          checked: this.labels.component.checkedCondition,
          unchecked: this.labels.component.notCheckedCondition,
@@ -1172,7 +1176,7 @@ module.exports = class FilterComplexCore extends ABComponent {
       return result;
    }
 
-   fieldsAddFiltersEmail(field) {
+   fieldsAddFiltersEmail(/* _field */) {
       let userConditions = {
          is_current_email: {
             batch: "none",
@@ -1198,7 +1202,7 @@ module.exports = class FilterComplexCore extends ABComponent {
       return result;
    }
 
-   fieldsAddFiltersUser(field) {
+   fieldsAddFiltersUser(/* _field */) {
       let userConditions = {
          is_current_user: {
             batch: "none",
@@ -1240,7 +1244,7 @@ module.exports = class FilterComplexCore extends ABComponent {
       return result;
    }
 
-   fieldsAddFiltersConnectObject(field) {
+   fieldsAddFiltersConnectObject(/* _field */) {
       const connectConditions = {
          same_as_user: {
             batch: "user",
@@ -1322,7 +1326,7 @@ module.exports = class FilterComplexCore extends ABComponent {
       return result;
    }
 
-   fieldsAddFiltersThisObject(field) {
+   fieldsAddFiltersThisObject(/* _field */) {
       let thisObjectConditions = {
          in_data_collection: {
             batch: "datacollection",
@@ -1348,7 +1352,7 @@ module.exports = class FilterComplexCore extends ABComponent {
       return result;
    }
 
-   fieldsAddFiltersRecordRule(field) {
+   fieldsAddFiltersRecordRule(/* _field */) {
       let recordRuleConditions = {
          same_as_field: this.labels.component.sameAsField,
          not_same_as_field: this.labels.component.notSameAsField,
@@ -1361,14 +1365,14 @@ module.exports = class FilterComplexCore extends ABComponent {
             id: condKey,
             value: recordRuleConditions[condKey],
             batch: "recordRule",
-            handler: (a, b) => true, // TODO: record rule validation
+            handler: (/* _a, _b */) => true, // TODO: record rule validation
          });
       }
 
       return result;
    }
 
-   fieldsAddFiltersContext(field) {
+   fieldsAddFiltersContext(/* _field */) {
       let contextConditions = {
          context_equals: {
             batch: "context",
@@ -1501,4 +1505,4 @@ module.exports = class FilterComplexCore extends ABComponent {
 
       return result;
    }
-};
+}

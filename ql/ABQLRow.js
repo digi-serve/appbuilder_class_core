@@ -1,3 +1,7 @@
+import QLUpdate from "../../platform/ql/ABQLRowUpdate.js";
+import QLSave from "../../platform/ql/ABQLRowSave.js";
+import QLPluck from "../../platform/ql/ABQLRowPluck.js";
+
 /*
  * ABQLRow
  *
@@ -6,8 +10,4 @@
  *
  */
 
-const QLUpdate = require("../../platform/ql/ABQLRowUpdate.js");
-const QLSave = require("../../platform/ql/ABQLRowSave");
-const QLPluck = require("../../platform/ql/ABQLRowPluck");
-
-module.exports = [QLUpdate, QLSave, QLPluck];
+export default [QLUpdate, QLSave, QLPluck];

@@ -1,3 +1,5 @@
+import QLRootObject from "../../platform/ql/ABQLRootObject.js";
+
 /*
  * ABQLRoot
  *
@@ -5,6 +7,4 @@
  *
  */
 
-const QLRootObject = require("../../platform/ql/ABQLRootObject.js");
-
-module.exports = [QLRootObject];
+export default [QLRootObject];

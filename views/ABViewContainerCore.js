@@ -1,3 +1,5 @@
+import ABView from "../../platform/views/ABView.js";
+
 /*
  * ABViewContainerCore
  *
@@ -6,8 +8,6 @@
  * A container might have multiple columns of display info.
  *
  */
-
-const ABView = require("../../platform/views/ABView");
 
 // function L(key, altText) {
 // 	return AD.lang.label.getLabel(key) || altText;
@@ -26,7 +26,7 @@ const ABPropertyComponentDefaults = {
    removable: true,
 };
 
-module.exports = class ABViewContainerCore extends ABView {
+export default class ABViewContainerCore extends ABView {
    /**
     * @param {obj} values  key=>value hash of ABView values
     * @param {ABApplication} application the application object this view is under
@@ -56,7 +56,7 @@ module.exports = class ABViewContainerCore extends ABView {
 
       // convert from "0" => 0
       this.settings.columns = parseInt(
-         this.settings.columns || ABPropertyComponentDefaults.columns
+         this.settings.columns || ABPropertyComponentDefaults.columns,
       );
 
       if (typeof this.settings.gravity != "undefined") {
@@ -89,4 +89,4 @@ module.exports = class ABViewContainerCore extends ABView {
    // saveReorder() {
    //    return this.application.viewReorder(this);
    // }
-};
+}

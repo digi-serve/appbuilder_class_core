@@ -1,4 +1,4 @@
-const ABMobileViewFormItem = require("../../platform/mobile/ABMobileViewFormItem");
+import ABMobileViewFormItem from "../../platform/mobile/ABMobileViewFormItem.js";
 
 const ABMobileViewFormEmailPropertyComponentDefaults = {
    timepicker: false,
@@ -10,13 +10,13 @@ const ABMobileViewFormEmailDefaults = {
    labelKey: "Email", // {string} the multilingual label key for the class label
 };
 
-module.exports = class ABMobileViewFormEmailCore extends ABMobileViewFormItem {
+export default class ABMobileViewFormEmailCore extends ABMobileViewFormItem {
    constructor(values, application, parent, defaultValues) {
       super(
          values,
          application,
          parent,
-         defaultValues || ABMobileViewFormEmailDefaults
+         defaultValues || ABMobileViewFormEmailDefaults,
       );
    }
 
@@ -31,4 +31,4 @@ module.exports = class ABMobileViewFormEmailCore extends ABMobileViewFormItem {
    ///
    /// Instance Methods
    ///
-};
+}

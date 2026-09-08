@@ -1,3 +1,5 @@
+import ABMLClass from "../platform/ABMLClass.js";
+
 /*
  * ABDataCollection
  * Defines a set of data that other parts of the Application can work with.
@@ -7,13 +9,6 @@
  *
  *
  */
-// const ABEmitter = require("../platform/ABEmitter");
-const ABMLClass = require("../platform/ABMLClass");
-
-// const ABObject = require("../platform/ABObject");
-// const ABObjectQuery = require("../platform/ABObjectQuery");
-// const RowFilter = require("../platform/RowFilter");
-
 var DefaultValues = {
    id: "uuid",
    label: "", // label
@@ -43,9 +38,11 @@ var DefaultValues = {
    },
 };
 
+/*
 const QueuedOperations = [];
 // {array} of operations that we want to perform but allow some space
 // between operations.
+
 var _queueTimer = null;
 
 function runQueue() {
@@ -64,12 +61,14 @@ function runQueue() {
    op.fn();
    _queueTimer = setTimeout(runQueue, op.timeout);
 }
+
 function queueOperation(fn, timeout = 20) {
    QueuedOperations.push({ fn, timeout });
    if (!_queueTimer) {
       runQueue();
    }
 }
+*/
 
 /**
  * @function SearchWhereCond()
@@ -98,7 +97,7 @@ function SearchWhereCond(cond, rules, cb) {
    }
 }
 
-module.exports = class ABDataCollectionCore extends ABMLClass {
+export default class ABDataCollectionCore extends ABMLClass {
    constructor(attributes, AB) {
       super(["label"], AB);
 
@@ -217,13 +216,13 @@ module.exports = class ABDataCollectionCore extends ABMLClass {
 
       // Convert to boolean
       this.settings.loadAll = JSON.parse(
-         values.settings.loadAll || DefaultValues.settings.loadAll
+         values.settings.loadAll || DefaultValues.settings.loadAll,
       );
       // {bool} .settings.loadAll
       // do we load all the data at one time? false == load by pages.
 
       this.settings.isQuery = JSON.parse(
-         values.settings.isQuery || DefaultValues.settings.isQuery
+         values.settings.isQuery || DefaultValues.settings.isQuery,
       );
       // {bool} .settings.isQuery
       // is the data source for this ABDataCollection based upon an
@@ -248,7 +247,7 @@ module.exports = class ABDataCollectionCore extends ABMLClass {
 
       // Convert to number
       this.settings.syncType = parseInt(
-         values.settings.syncType || DefaultValues.settings.syncType
+         values.settings.syncType || DefaultValues.settings.syncType,
       );
       // {int} .settings.syncType
       // how is the data between this ABDataCollection and it's
@@ -295,7 +294,7 @@ module.exports = class ABDataCollectionCore extends ABMLClass {
             }
          } else {
             console.error(
-               `ABDataCollection[${this.name}][${this.id}] unable to find datasource [${this.settings.datasourceID}]`
+               `ABDataCollection[${this.name}][${this.id}] unable to find datasource [${this.settings.datasourceID}]`,
             );
          }
       }
@@ -427,7 +426,7 @@ module.exports = class ABDataCollectionCore extends ABMLClass {
             // occassionally we have blank DCs (without .id or .name)
             // and I don't want to see errors for those
             var err = new Error(
-               `DataCollection[${this.name}][${this.id}] missing reference datasource`
+               `DataCollection[${this.name}][${this.id}] missing reference datasource`,
             );
             this.AB.notify("builder", err, { datacollection: this.toObj() });
          }
@@ -597,7 +596,7 @@ module.exports = class ABDataCollectionCore extends ABMLClass {
 
             // filter current id for serialize
             this.__treeCollection.filter(
-               (item) => item._itemId == currItem._itemId
+               (item) => item._itemId == currItem._itemId,
             );
 
             // pull item with child items
@@ -920,7 +919,7 @@ module.exports = class ABDataCollectionCore extends ABMLClass {
                         // and check to see that we are not loading the data serverside from cursor
                         if (
                            !this.__dataCollection.exists(
-                              updatedV[`${obj.PK()}`]
+                              updatedV[`${obj.PK()}`],
                            ) &&
                            !this.__reloadWheres
                         ) {
@@ -929,16 +928,20 @@ module.exports = class ABDataCollectionCore extends ABMLClass {
                            // this.__dataCollection.setCursor(rowData.id);
                         } else if (
                            !this.__dataCollection.exists(
-                              updatedV[`${obj.PK()}`]
+                              updatedV[`${obj.PK()}`],
                            ) &&
                            this.__reloadWheres
                         ) {
                            // debugger;
                            if (this.isParentFilterValid(updatedV)) {
+                              // TODO: $$ is a webix only command, so this code should NOT be in the core
+                              // we should probably create a ABDataCollectionCore.onReload(), then have the
+                              // platform_web insert this code there.
+
                               // we track bound components and flexlayout components
                               var attachedComponents =
                                  this.__bindComponentIds.concat(
-                                    this.__flexComponentIds
+                                    this.__flexComponentIds,
                                  );
                               attachedComponents.forEach((bcids) => {
                                  // if the reload button already exisits move on
@@ -979,17 +982,17 @@ module.exports = class ABDataCollectionCore extends ABMLClass {
                                           id: bcids + "_reloadView",
                                           view: "button",
                                           value: L(
-                                             "New data available. Click to reload."
+                                             "New data available. Click to reload.",
                                           ),
                                           css: "webix_primary webix_warn",
-                                          click: function (id, event) {
+                                          click: function (id /*, _event */) {
                                              DC.reloadData();
                                              $$(id)
                                                 .getParentView()
                                                 .removeView(id);
                                           },
                                        },
-                                       pos
+                                       pos,
                                     );
                                  }
                               });
@@ -1013,7 +1016,7 @@ module.exports = class ABDataCollectionCore extends ABMLClass {
                      let connectedFields = this.datasource.connectFields(
                         (f) =>
                            f.datasourceLink &&
-                           f.datasourceLink.id == data.objectId
+                           f.datasourceLink.id == data.objectId,
                      );
 
                      // It should always be only one item for ABObject
@@ -1046,7 +1049,7 @@ module.exports = class ABDataCollectionCore extends ABMLClass {
                               let valIsRelated = isRelated(
                                  updateRelateVal,
                                  d.id,
-                                 PK
+                                 PK,
                               );
 
                               // Relate data
@@ -1056,7 +1059,7 @@ module.exports = class ABDataCollectionCore extends ABMLClass {
                                     (v) =>
                                        v == updatedVals.id ||
                                        v.id == updatedVals.id ||
-                                       v[PK] == updatedVals.id
+                                       v[PK] == updatedVals.id,
                                  ).length < 1 &&
                                  valIsRelated
                               ) {
@@ -1084,18 +1087,18 @@ module.exports = class ABDataCollectionCore extends ABMLClass {
                            if (Object.keys(updateItemData).length > 0) {
                               this.__dataCollection.updateItem(
                                  d.id,
-                                 updateItemData
+                                 updateItemData,
                               );
 
                               if (this.__treeCollection)
                                  this.__treeCollection.updateItem(
                                     d.id,
-                                    updateItemData
+                                    updateItemData,
                                  );
 
                               this.emit(
                                  "update",
-                                 this.__dataCollection.getItem(d.id)
+                                 this.__dataCollection.getItem(d.id),
                               );
                            }
                         });
@@ -1151,7 +1154,7 @@ module.exports = class ABDataCollectionCore extends ABMLClass {
                      if (localField.linkType() == "many") {
                         if (!Array.isArray(row[colName])) {
                            row[colName] = [row[colName]].filter(
-                              (r) => !this.AB.isNil(r)
+                              (r) => !this.AB.isNil(r),
                            );
                         }
                         // if it isn't already in the array, add it
@@ -1162,7 +1165,7 @@ module.exports = class ABDataCollectionCore extends ABMLClass {
 
                         if (!Array.isArray(row[relName])) {
                            row[relName] = [row[relName]].filter(
-                              (r) => !this.AB.isNil(r)
+                              (r) => !this.AB.isNil(r),
                            );
                         }
                         if (
@@ -1247,14 +1250,14 @@ module.exports = class ABDataCollectionCore extends ABMLClass {
                            // is included as an [ {obj} ], but will also prevent
                            // [ undefined ] if row[col] isn't set:
                            row[colName] = [row[colName]].filter(
-                              (r) => !this.AB.isNil(r)
+                              (r) => !this.AB.isNil(r),
                            );
                         }
                         row[colName].push(field.getRelationValue(newData));
 
                         if (!Array.isArray(row[relName])) {
                            row[relName] = [row[relName]].filter(
-                              (r) => !this.AB.isNil(r)
+                              (r) => !this.AB.isNil(r),
                            );
                         }
                         row[relName].push(newData);
@@ -1271,7 +1274,7 @@ module.exports = class ABDataCollectionCore extends ABMLClass {
 
                      this.emit(
                         "update",
-                        this.__dataCollection.getItem(data.rowID)
+                        this.__dataCollection.getItem(data.rowID),
                      );
                   }
                }
@@ -1364,12 +1367,12 @@ module.exports = class ABDataCollectionCore extends ABMLClass {
                            return (
                               item[
                                  `${this.datasource.objectAlias(
-                                    o.id
+                                    o.id,
                                  )}.${o.PK()}`
                               ] == (values[o.PK()] || values.id)
                            );
                         })
-                        .map((o) => o.id) || []
+                        .map((o) => o.id) || [],
                   );
 
                   // grouped queries
@@ -1380,12 +1383,12 @@ module.exports = class ABDataCollectionCore extends ABMLClass {
                               return (
                                  item[
                                     `${this.datasource.objectAlias(
-                                       o.id
+                                       o.id,
                                     )}.${o.PK()}`
                                  ] == (values[o.PK()] || values.id)
                               );
                            })
-                           .map((o) => o.id) || []
+                           .map((o) => o.id) || [],
                      );
                   }
                });
@@ -1499,7 +1502,7 @@ module.exports = class ABDataCollectionCore extends ABMLClass {
          // if it is a linked object
          // look for connected fields that link to the incoming objectId
          let connectedFields = obj.connectFields(
-            (f) => f.datasourceLink && f.datasourceLink.id == data.objectId
+            (f) => f.datasourceLink && f.datasourceLink.id == data.objectId,
          );
 
          // update relation data
@@ -1540,7 +1543,7 @@ module.exports = class ABDataCollectionCore extends ABMLClass {
                            (v) =>
                               v == values.id ||
                               v.id == values.id ||
-                              v[PK] == values.id
+                              v[PK] == values.id,
                         ).length > 0 &&
                         !valIsRelated
                      ) {
@@ -1548,7 +1551,7 @@ module.exports = class ABDataCollectionCore extends ABMLClass {
                            // NOTE: Special case: the incoming value.id will be .uuid
                            // however in case of User Fields, v.id == username and not .uuid
                            // so we put our default check to be v[PK] here to play nice
-                           (v) => (v[PK] || v.id || v) != values.id
+                           (v) => (v[PK] || v.id || v) != values.id,
                         );
                         updateItemData[f.columnName] = updateItemData[
                            f.relationName()
@@ -1578,7 +1581,7 @@ module.exports = class ABDataCollectionCore extends ABMLClass {
                               (v) =>
                                  v == values.id ||
                                  v.id == values.id ||
-                                 v[PK] == values.id
+                                 v[PK] == values.id,
                            ).length > 0
                         ) {
                            // just update the one entry in my array with the new
@@ -1601,7 +1604,7 @@ module.exports = class ABDataCollectionCore extends ABMLClass {
                         updateItemData[f.columnName] = updateItemData[
                            f.relationName()
                         ].map(
-                           (v) => f.getRelationValue(v) /*v.id || v[PK] || v*/
+                           (v) => f.getRelationValue(v) /*v.id || v[PK] || v*/,
                         );
                      } else if (
                         !Array.isArray(rowRelateVal) &&
@@ -1631,10 +1634,10 @@ module.exports = class ABDataCollectionCore extends ABMLClass {
                                     // Populate specific connect fields
                                     (Array.isArray(this.settings?.populate) &&
                                        this.settings?.populate.indexOf(
-                                          conFld.id
+                                          conFld.id,
                                        ) > -1))
                               );
-                           }).length > 0
+                           }).length > 0,
                      ).forEach((formulaField) => {
                         updateItemData[formulaField.columnName] =
                            formulaField.format(updateItemData, true);
@@ -1654,7 +1657,7 @@ module.exports = class ABDataCollectionCore extends ABMLClass {
                      if (this.__treeCollection?.exists(d.id)) {
                         const treeItem = Object.assign(
                            this.__treeCollection.getItem(d.id),
-                           updateItemData
+                           updateItemData,
                         );
                         this.__treeCollection.updateItem(d.id, treeItem);
                      }
@@ -1662,12 +1665,12 @@ module.exports = class ABDataCollectionCore extends ABMLClass {
                      if (this.__dataCollection?.exists(d.id)) {
                         const dcItem = Object.assign(
                            this.__dataCollection.getItem(d.id),
-                           updateItemData
+                           updateItemData,
                         );
                         this.__dataCollection.updateItem(d.id, dcItem);
                         this.emit(
                            "update",
-                           this.__dataCollection.getItem(d.id)
+                           this.__dataCollection.getItem(d.id),
                         );
                         if (currCursor?.id == dcItem.id) {
                            updateCursor = dcItem;
@@ -1748,7 +1751,7 @@ module.exports = class ABDataCollectionCore extends ABMLClass {
                      if (this.__dataCollection.exists(values[PK])) {
                         this.__dataCollection.updateItem(
                            values[PK],
-                           res.data[0]
+                           res.data[0],
                         );
                      }
 
@@ -1843,7 +1846,7 @@ module.exports = class ABDataCollectionCore extends ABMLClass {
 
          // if it is a linked object
          let connectedFields = obj.connectFields(
-            (f) => f.datasourceLink && f.datasourceLink.id == data.objectId
+            (f) => f.datasourceLink && f.datasourceLink.id == data.objectId,
          );
 
          // update relation data
@@ -1875,7 +1878,7 @@ module.exports = class ABDataCollectionCore extends ABMLClass {
                      // ).length > 0
                   ) {
                      updateRelateVals[f.relationName()] = relateVal.filter(
-                        (v) => (v.id || v[PK] || v) != deleteId
+                        (v) => (v.id || v[PK] || v) != deleteId,
                      );
                      updateRelateVals[f.columnName] = updateRelateVals[
                         f.relationName()
@@ -1932,7 +1935,7 @@ module.exports = class ABDataCollectionCore extends ABMLClass {
          this.eventAdd({
             emitter: linkDC,
             eventName: "cursorStale",
-            listener: (currentCursor) => {
+            listener: (/* _currentCursor */) => {
                // cursorStale : the current cursor hasn't CHANGED, but the data
                // of that value has changed.
                // This is triggered by one of our socket updates that detects
@@ -2056,7 +2059,7 @@ module.exports = class ABDataCollectionCore extends ABMLClass {
                                     allAdds.push(res.data);
                                  }
                               }
-                           })
+                           }),
                         );
                      });
                      Promise.all(prmsAllRefreshes).then(() => {
@@ -2130,7 +2133,7 @@ module.exports = class ABDataCollectionCore extends ABMLClass {
             if (condDC) {
                listFilterDCs.push(condDC);
             }
-         }
+         },
       );
       listFilterDCs.forEach((condDC) => {
          this.eventAdd({
@@ -2156,7 +2159,7 @@ module.exports = class ABDataCollectionCore extends ABMLClass {
     *      the DC this datacollection depends on.
     * @returns {Promise}
     */
-   async waitForDataCollectionToInitialize(DC, msg) {
+   async waitForDataCollectionToInitialize(DC /*, _msg */) {
       DC.init();
 
       return new Promise((resolve, reject) => {
@@ -2194,7 +2197,6 @@ module.exports = class ABDataCollectionCore extends ABMLClass {
                resolve();
                break;
          }
-         /* eslint-enable no-fallthrough */
       });
    }
 
@@ -2261,7 +2263,7 @@ module.exports = class ABDataCollectionCore extends ABMLClass {
    getWhereClause(start, limit) {
       // pull filter conditions
       let wheres = this.AB.cloneDeep(
-         this.settings.objectWorkspace.filterConditions ?? {}
+         this.settings.objectWorkspace.filterConditions ?? {},
       );
       // if we pass new wheres with a reload use them instead
       if (this.__reloadWheres) {
@@ -2352,7 +2354,7 @@ module.exports = class ABDataCollectionCore extends ABMLClass {
       SearchWhereCond(
          wheres,
          ["in_data_collection", "not_in_data_collection"],
-         patch
+         patch,
       );
 
       // remove any null in the .rules
@@ -2417,7 +2419,7 @@ module.exports = class ABDataCollectionCore extends ABMLClass {
                if (dv) {
                   dcFilters.push(this.waitForDataCollectionToInitialize(dv));
                }
-            }
+            },
          );
 
          await Promise.all(dcFilters);
@@ -2817,7 +2819,7 @@ module.exports = class ABDataCollectionCore extends ABMLClass {
             linkVal.filter(
                (val) =>
                   (val[PK] || val.id || val) ==
-                  (linkCursor[linkObj.PK()] || linkCursor.id || linkCursor)
+                  (linkCursor[linkObj.PK()] || linkCursor.id || linkCursor),
             ).length > 0
          );
       } else {
@@ -2898,7 +2900,7 @@ module.exports = class ABDataCollectionCore extends ABMLClass {
                key: fieldLink.id,
                rule: filterRule,
                value: fieldLink.getRelationValue(
-                  dataCollectionLink.__dataCollection.getItem(linkCursorId)
+                  dataCollectionLink.__dataCollection.getItem(linkCursorId),
                ),
             };
          }
@@ -2927,7 +2929,7 @@ module.exports = class ABDataCollectionCore extends ABMLClass {
       // Set filter of ABObject
       if (this.__filterDatasource == null)
          this.__filterDatasource = this.AB.filterComplexNew(
-            `${this.id}_filterDatasource`
+            `${this.id}_filterDatasource`,
          );
 
       if (this.datasource) {
@@ -2956,7 +2958,7 @@ module.exports = class ABDataCollectionCore extends ABMLClass {
       } else {
          this.__filterDatasource.fieldsLoad([]);
          this.__filterDatasource.setValue(
-            DefaultValues.settings.objectWorkspace.filterConditions
+            DefaultValues.settings.objectWorkspace.filterConditions,
          );
       }
 
@@ -2964,14 +2966,14 @@ module.exports = class ABDataCollectionCore extends ABMLClass {
       // Apr 29, 2021 Added this code back to validate with DataCollection Filters
       if (this.__filterDatacollection == null)
          this.__filterDatacollection = this.AB.filterComplexNew(
-            `${this.id}_filterDatacollection`
+            `${this.id}_filterDatacollection`,
          );
 
       // this.__filterDatacollection.applicationLoad(
       //    this.datasource ? this.datasource.application : null
       // );
       this.__filterDatacollection.fieldsLoad(
-         this.datasource ? this.datasource.fields() : []
+         this.datasource ? this.datasource.fields() : [],
       );
 
       // if we pass in wheres, then Save that value to our internal .filterConditions
@@ -2981,7 +2983,7 @@ module.exports = class ABDataCollectionCore extends ABMLClass {
          this.settings.objectWorkspace?.filterConditions ?? {
             glue: "and",
             rules: [],
-         }
+         },
       );
       // sanity checks:
       // I've learned not to trust: this.settings.objectWorkspace
@@ -3027,21 +3029,21 @@ module.exports = class ABDataCollectionCore extends ABMLClass {
          this.__filterDatacollection.setValue(filter);
       } else {
          this.__filterDatacollection.setValue(
-            DefaultValues.settings.objectWorkspace.filterConditions
+            DefaultValues.settings.objectWorkspace.filterConditions,
          );
       }
 
       // Set filter of user's scope
       if (this.__filterScope == null)
          this.__filterScope = this.AB.filterComplexNew(
-            `${this.id}_filterScope`
+            `${this.id}_filterScope`,
          );
 
       if (this.datasource) {
          let scopeList = (this.userScopes || []).filter(
             (s) =>
                !s.allowAll &&
-               (s.objectIds || []).indexOf(this.datasource.id) > -1
+               (s.objectIds || []).indexOf(this.datasource.id) > -1,
          );
          if (scopeList && scopeList.length > 0) {
             // this.__filterScope.applicationLoad(this.datasource.application);
@@ -3051,12 +3053,12 @@ module.exports = class ABDataCollectionCore extends ABMLClass {
             let scopeRules = [];
             scopeList
                .filter(
-                  (s) => s.filter && s.filter.rules && s.filter.rules.length
+                  (s) => s.filter && s.filter.rules && s.filter.rules.length,
                )
                .forEach((s) => {
                   let sRules = (s.filter.rules || []).filter(
                      (r) =>
-                        this.datasource.fields((f) => f.id == r.key).length > 0
+                        this.datasource.fields((f) => f.id == r.key).length > 0,
                   );
 
                   scopeRules = scopeRules.concat(sRules);
@@ -3102,7 +3104,7 @@ module.exports = class ABDataCollectionCore extends ABMLClass {
     */
    _dataCollectionNew(/*data*/) {
       var error = new Error(
-         "the platform.ABDataCollection._dataCollectionNew() is expected to return a proper DataCollection!"
+         "the platform.ABDataCollection._dataCollectionNew() is expected to return a proper DataCollection!",
       );
       console.error(error);
       return null;
@@ -3117,12 +3119,12 @@ module.exports = class ABDataCollectionCore extends ABMLClass {
     */
    _treeCollectionNew() {
       console.error(
-         "the platform.ABDataCollection._treeCollectionNew() is expected to return a proper TreeCollection!"
+         "the platform.ABDataCollection._treeCollectionNew() is expected to return a proper TreeCollection!",
       );
       return null;
    }
 
-   parseTreeCollection(data = {}) {
+   parseTreeCollection(/* _data = {} */) {
       // TODO all this does is log "is missing?"
       // if (false) {
       //    console.log(
@@ -3322,7 +3324,7 @@ module.exports = class ABDataCollectionCore extends ABMLClass {
 
       // clonedDatacollection.__dataCollection = this.__dataCollection.copy();
       clonedDatacollection.__filterDatacollection.setValue(
-         settings.settings.objectWorkspace.filterConditions
+         settings.settings.objectWorkspace.filterConditions,
       );
 
       var parseMe = () => {
@@ -3331,8 +3333,8 @@ module.exports = class ABDataCollectionCore extends ABMLClass {
                this.__dataCollection
                   .find({})
                   .filter((row) =>
-                     clonedDatacollection.__filterDatacollection.isValid(row)
-                  )
+                     clonedDatacollection.__filterDatacollection.isValid(row),
+                  ),
             );
          }
          if (clonedDatacollection.__treeCollection) {
@@ -3340,8 +3342,8 @@ module.exports = class ABDataCollectionCore extends ABMLClass {
                this.__treeCollection
                   .find({})
                   .filter((row) =>
-                     clonedDatacollection.__filterDatacollection.isValid(row)
-                  )
+                     clonedDatacollection.__filterDatacollection.isValid(row),
+                  ),
             );
          }
       };
@@ -3382,7 +3384,7 @@ module.exports = class ABDataCollectionCore extends ABMLClass {
          if (obj.settings.objectWorkspace.filterConditions?.rules?.length) {
             obj.settings.objectWorkspace.filterConditions.rules =
                obj.settings.objectWorkspace.filterConditions.rules.concat(
-                  filters.rules
+                  filters.rules,
                );
          } else {
             obj.settings.objectWorkspace.filterConditions = filters;
@@ -3476,9 +3478,7 @@ module.exports = class ABDataCollectionCore extends ABMLClass {
    get datacollectionFollow() {
       if (!this.isCursorFollow) return null;
 
-      return (this.AB ?? AB).datacollectionByID(
-         this.settings.followDatacollectionID
-      );
+      return this.AB?.datacollectionByID(this.settings.followDatacollectionID);
    }
 
    get previousCursorId() {
@@ -3499,4 +3499,4 @@ module.exports = class ABDataCollectionCore extends ABMLClass {
 
       return this.waitForDataCollectionToInitialize(this);
    }
-};
+}

@@ -1,4 +1,4 @@
-const ABProcessElement = require("../../../platform/process/tasks/ABProcessElement.js");
+import ABProcessElement from "../../../platform/process/tasks/ABProcessElement.js";
 
 var AccountingBatchProcessingDefaults = {
    category: null,
@@ -42,7 +42,7 @@ var AccountingBatchProcessingDefaults = {
    // values set by the platform .propertiesStash()
 };
 
-module.exports = class AccountingBatchProcessingCore extends ABProcessElement {
+export default class AccountingBatchProcessingCore extends ABProcessElement {
    constructor(attributes, process, AB) {
       attributes.type =
          attributes.type || "process.task.service.accounting.batchProcessing";
@@ -158,4 +158,4 @@ module.exports = class AccountingBatchProcessingCore extends ABProcessElement {
         return null;
     }
     */
-};
+}

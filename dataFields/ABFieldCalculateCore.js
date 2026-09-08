@@ -1,3 +1,5 @@
+import ABField from "../../platform/dataFields/ABField.js";
+
 /*
  * ABFieldCalculate
  *
@@ -5,15 +7,8 @@
  *
  */
 
-const ABField = require("../../platform/dataFields/ABField");
-
-function L(key, altText) {
-   // TODO:
-   return altText; // AD.lang.label.getLabel(key) || altText;
-}
-
 /** Private methods */
-function AGE(dateString) {
+function _AGE(dateString) {
    // validate
    if (!dateString) return 0;
    const dataDate = new Date(dateString);
@@ -41,7 +36,7 @@ function AGE(dateString) {
    // return age;
 }
 
-function YEAR(dateString) {
+function _YEAR(dateString) {
    // validate
    if (!dateString) return 0;
    const dataDate = new Date(dateString);
@@ -50,7 +45,7 @@ function YEAR(dateString) {
    return dataDate.getFullYear();
 }
 
-function MONTH(dateString) {
+function _MONTH(dateString) {
    // validate
    if (!dateString) return 0;
    const dataDate = new Date(dateString);
@@ -60,7 +55,7 @@ function MONTH(dateString) {
    return dataDate.getMonth();
 }
 
-function DAY(dateString) {
+function _DAY(dateString) {
    // validate
    if (!dateString) return 0;
    const dataDate = new Date(dateString);
@@ -69,7 +64,7 @@ function DAY(dateString) {
    return dataDate.getDate();
 }
 
-function DATE(dateString) {
+function _DATE(dateString) {
    // validate
    if (!dateString) return 0;
    const dataDate = new Date(dateString);
@@ -82,7 +77,7 @@ function DATE(dateString) {
    return Math.round(dataDate.getTime() / oneDay);
 }
 
-function HOUR(dateString) {
+function _HOUR(dateString) {
    // validate
    if (!dateString) return 0;
    const dataDate = new Date(dateString);
@@ -95,7 +90,7 @@ function HOUR(dateString) {
    return Math.round(dataDate.getTime() / oneHour);
 }
 
-function MINUTE(dateString) {
+function _MINUTE(dateString) {
    // validate
    if (!dateString) return 0;
    const dataDate = new Date(dateString);
@@ -108,7 +103,7 @@ function MINUTE(dateString) {
    return Math.round(dataDate.getTime() / oneMinute);
 }
 
-function MINUTE_TO_HOUR(mins) {
+function _MINUTE_TO_HOUR(mins) {
    const hours = mins / 60;
    const rhours = Math.floor(hours);
    const minutes = (hours - rhours) * 60;
@@ -132,7 +127,7 @@ const ABFieldCalculateDefaults = {
    isFilterable: (field) => {
       const unsupportedInFilter = ["MINUTE_TO_HOUR", "DATE", "HOUR", "MINUTE"];
       const unsupported = unsupportedInFilter.filter((item) =>
-         field.settings.formula.includes(item)
+         field.settings.formula.includes(item),
       );
       return unsupported.length == 0;
    },
@@ -195,7 +190,7 @@ const defaultValues = {
    decimalPlaces: 0, // 0, 1, 2, 3, 4, 5, 6, 7, 8, 9, 10
 };
 
-module.exports = class ABFieldCalculateCore extends ABField {
+export default class ABFieldCalculateCore extends ABField {
    constructor(values, object) {
       super(values, object, ABFieldCalculateDefaults);
    }
@@ -224,7 +219,7 @@ module.exports = class ABFieldCalculateCore extends ABField {
       rowData,
       place,
       alias = null,
-      recalculate = false
+      recalculate = false,
    ) {
       if (!formula) return "";
 
@@ -249,7 +244,7 @@ module.exports = class ABFieldCalculateCore extends ABField {
             const numberVal = `(${data || 0})`; // (number) - NOTE : (-5) to support negative number
             formula = formula.replace(
                new RegExp("{" + colName + "}", "g"),
-               numberVal
+               numberVal,
             );
          }
          // calculate and formula fields
@@ -264,7 +259,7 @@ module.exports = class ABFieldCalculateCore extends ABField {
 
             formula = formula.replace(
                new RegExp("{" + colName + "}", "g"),
-               calVal
+               calVal,
             );
          }
          // date fields
@@ -272,7 +267,7 @@ module.exports = class ABFieldCalculateCore extends ABField {
             const dateVal = `"${data || ""}"`; // "date"
             formula = formula.replace(
                new RegExp("{" + colName + "}", "g"),
-               dateVal
+               dateVal,
             );
          }
          // boolean fields
@@ -280,7 +275,7 @@ module.exports = class ABFieldCalculateCore extends ABField {
             const booleanVal = `(${data || 0})`; // show 1 or 0 for boolean
             formula = formula.replace(
                new RegExp("{" + colName + "}", "g"),
-               booleanVal
+               booleanVal,
             );
          }
       });
@@ -319,7 +314,7 @@ module.exports = class ABFieldCalculateCore extends ABField {
             rowData,
             place,
             this.alias,
-            recalculate
+            recalculate,
          );
 
          if (typeof result == "string")
@@ -339,4 +334,4 @@ module.exports = class ABFieldCalculateCore extends ABField {
          return "";
       }
    }
-};
+}

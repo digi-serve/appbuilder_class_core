@@ -1,6 +1,6 @@
-const convert = require("xml-js");
+import convert from "xml-js";
 
-module.exports = class ABProcessEngineCore {
+export default class ABProcessEngineCore {
    constructor(instance, process) {
       this.instance = instance;
       this.process = process;
@@ -8,7 +8,7 @@ module.exports = class ABProcessEngineCore {
       if (!this.instance.jsonDefinition) {
          this.instance.jsonDefinition = convert.xml2js(
             this.instance.xmlDefinition,
-            { compact: true }
+            { compact: true },
          );
       }
       if (!this.instance.hashDiagramObjects) {
@@ -109,7 +109,7 @@ module.exports = class ABProcessEngineCore {
     */
    startTask() {
       return this.process.elementForDiagramID(
-         this.instance.context.startTaskID
+         this.instance.context.startTaskID,
       );
    }
 
@@ -186,4 +186,4 @@ module.exports = class ABProcessEngineCore {
          }
       });
    }
-};
+}

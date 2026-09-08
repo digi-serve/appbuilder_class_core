@@ -1,3 +1,6 @@
+import ABObject from "../platform/ABObject.js";
+import ABModelQuery from "../platform/ABModelQuery.js";
+
 //
 // ABObjectQuery
 //
@@ -13,10 +16,7 @@
 // A where statement is also part of the definition.
 //
 
-var ABObject = require("../platform/ABObject");
-var ABModelQuery = require("../platform/ABModelQuery");
-
-module.exports = class ABObjectQueryCore extends ABObject {
+export default class ABObjectQueryCore extends ABObject {
    constructor(attributes, AB) {
       super(attributes, AB);
       /*
@@ -169,10 +169,10 @@ module.exports = class ABObjectQueryCore extends ABObject {
       if (attributes && attributes.settings) {
          // convert from "0" => true/false
          this.settings.grouping = JSON.parse(
-            attributes.settings.grouping || false
+            attributes.settings.grouping || false,
          );
          this.settings.hidePrefix = JSON.parse(
-            attributes.settings.hidePrefix || false
+            attributes.settings.hidePrefix || false,
          );
       }
    }
@@ -255,7 +255,7 @@ module.exports = class ABObjectQueryCore extends ABObject {
          let isNew =
             newFields.filter(
                (f) =>
-                  f.alias == fieldInfo.alias && f.field.id == fieldInfo.fieldID
+                  f.alias == fieldInfo.alias && f.field.id == fieldInfo.fieldID,
             ).length < 1;
 
          if (!isNew) {
@@ -355,7 +355,7 @@ module.exports = class ABObjectQueryCore extends ABObject {
       // matches for which this ABQuery is managing objects:
 
       return this.AB.objects((o) => this.objectIDs.indexOf(o.id) > -1).filter(
-         fn
+         fn,
       );
    }
 
@@ -636,7 +636,7 @@ module.exports = class ABObjectQueryCore extends ABObject {
     */
    urlPointer(acrossApp) {
       console.error(
-         "ABQueryCore.urlPointer(): Depreciated: Where is this being called?"
+         "ABQueryCore.urlPointer(): Depreciated: Where is this being called?",
       );
       return this.application.urlQuery(acrossApp) + this.id;
    }
@@ -681,4 +681,4 @@ module.exports = class ABObjectQueryCore extends ABObject {
 
       return filterConditions;
    }
-};
+}

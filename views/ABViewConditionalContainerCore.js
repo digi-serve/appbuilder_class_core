@@ -1,4 +1,4 @@
-const ABViewContainer = require("../../platform/views/ABViewContainer");
+import ABViewContainer from "../../platform/views/ABViewContainer.js";
 
 const ABViewPropertyDefaults = {
    dataviewID: null,
@@ -11,7 +11,7 @@ const ABViewDefaults = {
    labelKey: "Conditional Container", // {string} the multilingual label key for the class label
 };
 
-module.exports = class ABViewConditionalContainerCore extends ABViewContainer {
+export default class ABViewConditionalContainerCore extends ABViewContainer {
    constructor(values, application, parent, defaultValues) {
       super(values, application, parent, defaultValues || ABViewDefaults);
 
@@ -31,7 +31,7 @@ module.exports = class ABViewConditionalContainerCore extends ABViewContainer {
                   removable: false,
                },
             },
-            this
+            this,
          );
 
          this._views.push(ifPanel);
@@ -46,7 +46,7 @@ module.exports = class ABViewConditionalContainerCore extends ABViewContainer {
                   removable: false,
                },
             },
-            this
+            this,
          );
 
          this._views.push(elsePanel);
@@ -69,4 +69,4 @@ module.exports = class ABViewConditionalContainerCore extends ABViewContainer {
    componentList() {
       return [];
    }
-};
+}

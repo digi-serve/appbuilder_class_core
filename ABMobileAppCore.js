@@ -1,7 +1,7 @@
-var ABMLClass = require("../platform/ABMLClass");
+import ABMLClass from "../platform/ABMLClass.js";
 
-module.exports = class ABMobileAppCore extends ABMLClass {
-   constructor(attributes, application) {
+export default class ABMobileAppCore extends ABMLClass {
+   constructor(attributes /*, _application */) {
       super(["label"]);
 
       /*
@@ -65,4 +65,4 @@ module.exports = class ABMobileAppCore extends ABMLClass {
          translations: obj.translations,
       };
    }
-};
+}

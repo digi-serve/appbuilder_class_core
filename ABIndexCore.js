@@ -1,6 +1,6 @@
-const ABMLClass = require("../platform/ABMLClass");
+import ABMLClass from "../platform/ABMLClass.js";
 
-module.exports = class ABIndexCore extends ABMLClass {
+export default class ABIndexCore extends ABMLClass {
    constructor(attributes, object) {
       super(["label"], object.AB);
       this.object = object;
@@ -36,7 +36,7 @@ module.exports = class ABIndexCore extends ABMLClass {
             if (!field) {
                this._unknownFieldIDs.push(f);
                let err = new Error(
-                  `Index[${this.name}][${this.id}] is referencing an unknown field[${f}]`
+                  `Index[${this.name}][${this.id}] is referencing an unknown field[${f}]`,
                );
                this.AB.notify.developer(err, {
                   index: this.id,
@@ -49,7 +49,7 @@ module.exports = class ABIndexCore extends ABMLClass {
 
       if (this.fields.length == 0) {
          let err = new Error(
-            `Index[${this.name}][${this.id}] is not referencing any fields`
+            `Index[${this.name}][${this.id}] is not referencing any fields`,
          );
          this.AB.notify.developer(err, {
             index: this.id,
@@ -114,4 +114,4 @@ module.exports = class ABIndexCore extends ABMLClass {
 
       return `${indexName}_unique`;
    }
-};
+}

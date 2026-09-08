@@ -1,4 +1,4 @@
-const ABViewWidget = require("../../platform/views/ABViewWidget");
+import ABViewWidget from "../../platform/views/ABViewWidget.js";
 
 const ABViewSchedulerPropertyComponentDefaults = {
    readonly: 0,
@@ -54,7 +54,7 @@ const ABViewDefaults = {
    // the multilingual label key for the class label
 };
 
-module.exports = class ABViewSchedulerCore extends ABViewWidget {
+export default class ABViewSchedulerCore extends ABViewWidget {
    constructor(values, application, parent, defaultValues) {
       super(values, application, parent, defaultValues || ABViewDefaults);
 
@@ -122,7 +122,7 @@ module.exports = class ABViewSchedulerCore extends ABViewWidget {
                   parsedSettings[key1][key2] =
                      this.settings[key1][key2] ??
                      ABViewSchedulerPropertyComponentDefaults[key1][key2];
-               }
+               },
             );
 
             return;
@@ -151,4 +151,4 @@ module.exports = class ABViewSchedulerCore extends ABViewWidget {
    componentList() {
       return [];
    }
-};
+}

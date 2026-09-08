@@ -1,11 +1,11 @@
+import ABField from "../../platform/dataFields/ABField.js";
+
 /*
  * ABFieldDate
  *
  * An ABFieldDate defines a date field type.
  *
  */
-
-const ABField = require("../../platform/dataFields/ABField");
 
 /*function L(key, altText) {
    // TODO:git 
@@ -77,7 +77,7 @@ const defaultValues = {
    validateEndDate: null,
 };
 
-module.exports = class ABFieldDateCore extends ABField {
+export default class ABFieldDateCore extends ABField {
    constructor(values, object, defaultValues = ABFieldDateDefaults) {
       super(values, object, defaultValues);
    }
@@ -191,12 +191,12 @@ module.exports = class ABFieldDateCore extends ABField {
                const minDate = this.AB.rules.subtractDate(
                   new Date(),
                   this.settings.validateRangeBefore,
-                  this.settings.validateRangeUnit
+                  this.settings.validateRangeUnit,
                );
                const maxDate = this.AB.rules.addDate(
                   new Date(),
                   this.settings.validateRangeAfter,
-                  this.settings.validateRangeUnit
+                  this.settings.validateRangeUnit,
                );
                switch (this.settings.validateCondition) {
                   case "dateRange":
@@ -208,7 +208,7 @@ module.exports = class ABFieldDateCore extends ABField {
                            L("Should be in between {0} and {1}", [
                               this.getDateDisplay(minDate),
                               this.getDateDisplay(maxDate),
-                           ])
+                           ]),
                         );
                      }
 
@@ -222,7 +222,7 @@ module.exports = class ABFieldDateCore extends ABField {
                            L("Should be in between {0} and {1}", [
                               startDateDisplay,
                               endDateDisplay,
-                           ])
+                           ]),
                         );
                      }
                      break;
@@ -235,7 +235,7 @@ module.exports = class ABFieldDateCore extends ABField {
                            L("Should not be in between {0} and {1}", [
                               startDateDisplay,
                               endDateDisplay,
-                           ])
+                           ]),
                         );
                      }
                      break;
@@ -247,7 +247,7 @@ module.exports = class ABFieldDateCore extends ABField {
                      if (!isValid)
                         validator.addError(
                            this.columnName,
-                           L("Should equal {0}", [startDateDisplay])
+                           L("Should equal {0}", [startDateDisplay]),
                         );
                      break;
                   case "<>":
@@ -258,7 +258,7 @@ module.exports = class ABFieldDateCore extends ABField {
                      if (!isValid)
                         validator.addError(
                            this.columnName,
-                           L("Should not equal {0}", [startDateDisplay])
+                           L("Should not equal {0}", [startDateDisplay]),
                         );
                      break;
                   case ">":
@@ -269,7 +269,7 @@ module.exports = class ABFieldDateCore extends ABField {
                      if (!isValid)
                         validator.addError(
                            this.columnName,
-                           L("Should after {0}", [startDateDisplay])
+                           L("Should after {0}", [startDateDisplay]),
                         );
                      break;
                   case "<":
@@ -280,7 +280,7 @@ module.exports = class ABFieldDateCore extends ABField {
                      if (!isValid)
                         validator.addError(
                            this.columnName,
-                           L("Should before {0}", [startDateDisplay])
+                           L("Should before {0}", [startDateDisplay]),
                         );
                      break;
                   case ">=":
@@ -291,7 +291,7 @@ module.exports = class ABFieldDateCore extends ABField {
                      if (!isValid)
                         validator.addError(
                            this.columnName,
-                           L("Should after or equal {0}", [startDateDisplay])
+                           L("Should after or equal {0}", [startDateDisplay]),
                         );
                      break;
                   case "<=":
@@ -302,7 +302,7 @@ module.exports = class ABFieldDateCore extends ABField {
                      if (!isValid)
                         validator.addError(
                            this.columnName,
-                           L("Should before or equal {0}", [startDateDisplay])
+                           L("Should before or equal {0}", [startDateDisplay]),
                         );
                      break;
                   case "lessCurrentDate":
@@ -314,7 +314,7 @@ module.exports = class ABFieldDateCore extends ABField {
                            this.columnName,
                            L("Should before {0}", [
                               this.getDateDisplay(currentDate),
-                           ])
+                           ]),
                         );
                      break;
                   case "lessEqualCurrentDate":
@@ -326,7 +326,7 @@ module.exports = class ABFieldDateCore extends ABField {
                            this.columnName,
                            L("Should before or equal {0}", [
                               this.getDateDisplay(currentDate),
-                           ])
+                           ]),
                         );
                      break;
                }
@@ -457,8 +457,7 @@ module.exports = class ABFieldDateCore extends ABField {
       if (dateData && dateData.toString) return dateData.toString();
       else return "";
    }
-};
+}
 
-// Transition Code:
-// revert to static RegEx once babel-loader is working locally.
-module.exports.RegEx = "^[0-9]{4}-[0-9]{2}-[0-9]{2}$";
+// Transition Code: RegEx for date format validation
+export const RegEx = "^[0-9]{4}-[0-9]{2}-[0-9]{2}$";

@@ -1,11 +1,11 @@
+import ABField from "../../platform/dataFields/ABField.js";
+
 /*
  * ABFieldNumber
  *
  * An ABFieldNumber defines a Number field type.
  *
  */
-
-const ABField = require("../../platform/dataFields/ABField");
 
 const ABFieldNumberDefaults = {
    key: "number",
@@ -88,7 +88,7 @@ const defaultValues = {
 
 let L = null; //AB.Label();
 
-module.exports = class ABFieldNumberCore extends ABField {
+export default class ABFieldNumberCore extends ABField {
    constructor(values, object) {
       super(values, object, ABFieldNumberDefaults);
 
@@ -388,4 +388,4 @@ module.exports = class ABFieldNumberCore extends ABField {
          return 0;
       }
    }
-};
+}

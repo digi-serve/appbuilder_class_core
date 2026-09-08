@@ -1,4 +1,4 @@
-const ABMobileViewFormItem = require("../../platform/mobile/ABMobileViewFormItem");
+import ABMobileViewFormItem from "../../platform/mobile/ABMobileViewFormItem.js";
 
 const ABViewFormTextboxPropertyComponentDefaults = {
    type: "single", // 'single', 'multiple' or 'rich'
@@ -11,15 +11,13 @@ const ABViewFormTextboxDefaults = {
    labelKey: "textbox", // {string} the multilingual label key for the class label
 };
 
-module.exports = class ABMobileViewFormTextboxCore extends (
-   ABMobileViewFormItem
-) {
+export default class ABMobileViewFormTextboxCore extends ABMobileViewFormItem {
    constructor(values, application, parent, defaultValues) {
       super(
          values,
          application,
          parent,
-         defaultValues || ABViewFormTextboxDefaults
+         defaultValues || ABViewFormTextboxDefaults,
       );
    }
 
@@ -44,4 +42,4 @@ module.exports = class ABMobileViewFormTextboxCore extends (
       // placeholder is a multilingual value:
       this.unTranslate(this.settings, this.settings, ["placeholder"]);
    }
-};
+}

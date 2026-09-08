@@ -1,4 +1,4 @@
-module.exports = class ABRoleCore {
+export default class ABRoleCore {
    constructor(values) {
       console.error("Transition Code: Where is this being used?");
       // this.application = application;
@@ -52,4 +52,4 @@ module.exports = class ABRoleCore {
    scopes(filter = () => true) {
       return (this._scopes || []).filter(filter);
    }
-};
+}

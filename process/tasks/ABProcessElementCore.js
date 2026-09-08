@@ -1,6 +1,6 @@
-var ABMLClass = require("../../../platform/ABMLClass");
+import ABMLClass from "../../../platform/ABMLClass.js";
 
-module.exports = class ABProcessTaskCore extends ABMLClass {
+export default class ABProcessTaskCore extends ABMLClass {
    constructor(attributes, process, AB, defaultValues) {
       super(["label"], AB);
 
@@ -239,7 +239,7 @@ module.exports = class ABProcessTaskCore extends ABMLClass {
       var myDiagramObj = instance.hashDiagramObjects[this.diagramID];
       if (!myDiagramObj) {
          let error = new Error(
-            `Configuration Error: Did not find my definition for dID[${this.diagramID}]`
+            `Configuration Error: Did not find my definition for dID[${this.diagramID}]`,
          );
          this.onError(instance, error);
          return null;
@@ -256,7 +256,7 @@ module.exports = class ABProcessTaskCore extends ABMLClass {
       var exitFlows = myDiagramObj["bpmn2:outgoing"];
       if (!exitFlows) {
          let error = new Error(
-            `Configuration Error: Did not find any outgoing flows for dID[${this.diagramID}]`
+            `Configuration Error: Did not find any outgoing flows for dID[${this.diagramID}]`,
          );
          this.AB.notify.builder(error, { task: this });
          this.onError(instance, error);
@@ -289,7 +289,7 @@ module.exports = class ABProcessTaskCore extends ABMLClass {
                }
             } else {
                let error = new Error(
-                  `Configuration Error: No ProcessTask instance for diagramID[${tid}]`
+                  `Configuration Error: No ProcessTask instance for diagramID[${tid}]`,
                );
                this.AB.notify.builder(error, { task: this });
                this.onError(instance, error);
@@ -338,7 +338,7 @@ module.exports = class ABProcessTaskCore extends ABMLClass {
     * @param {obj} instance
     * @return {mixed} | null
     */
-   processData(instance, key) {
+   processData(/* _instance, _key */) {
       return null;
    }
 
@@ -443,7 +443,7 @@ module.exports = class ABProcessTaskCore extends ABMLClass {
          // my state wasn't defined?
          console.warn(
             "ABProcessTaskCore:wantToDoSomething(): called without having initialized our state first.",
-            instance
+            instance,
          );
          // initialize our state and try again
          this.initState(instance.context);
@@ -461,7 +461,7 @@ module.exports = class ABProcessTaskCore extends ABMLClass {
       let startElems =
          this.process.elements(
             (elem) =>
-               elem && elem.defaults && elem.defaults.category === "start"
+               elem && elem.defaults && elem.defaults.category === "start",
          ) || [];
       return startElems;
    }
@@ -494,4 +494,4 @@ module.exports = class ABProcessTaskCore extends ABMLClass {
 
       return this.AB.objectByID(objectID);
    }
-};
+}

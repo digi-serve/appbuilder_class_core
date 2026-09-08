@@ -1,11 +1,11 @@
+import ABField from "../../platform/dataFields/ABField.js";
+
 /*
  * ABFieldImageCore
  *
  * An ABFieldImage defines a Image field type.
  *
  */
-
-const ABField = require("../../platform/dataFields/ABField");
 
 const ABFieldImageDefaults = {
    key: "image",
@@ -70,7 +70,7 @@ const defaultValues = {
    defaultImageUrl: "",
 };
 
-module.exports = class ABFieldImageCore extends ABField {
+export default class ABFieldImageCore extends ABField {
    constructor(values, object) {
       super(values, object, ABFieldImageDefaults);
 
@@ -120,7 +120,7 @@ module.exports = class ABFieldImageCore extends ABField {
       this.settings.imageHeight = parseInt(this.settings.imageHeight);
       this.settings.useDefaultImage = parseInt(this.settings.useDefaultImage);
       this.settings.removeExistingData = parseInt(
-         this.settings.removeExistingData
+         this.settings.removeExistingData,
       );
    }
 
@@ -135,4 +135,4 @@ module.exports = class ABFieldImageCore extends ABField {
    isValidData(data, validator) {
       super.isValidData(data, validator);
    }
-};
+}

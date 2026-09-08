@@ -1,16 +1,11 @@
+import ABFieldSelectivity from "../../platform/dataFields/ABFieldSelectivity.js";
+
 /*
  * ABFieldTreeCore
  *
  * An ABFieldTree defines a select list field type.
  *
  */
-
-const ABFieldSelectivity = require("../../platform/dataFields/ABFieldSelectivity");
-
-function L(key, altText) {
-   // TODO:
-   return altText; // AD.lang.label.getLabel(key) || altText;
-}
 
 const ABFieldTreeDefaults = {
    key: "tree",
@@ -70,7 +65,7 @@ const defaultValues = {
    options: [],
 };
 
-module.exports = class ABFieldTreeCore extends ABFieldSelectivity {
+export default class ABFieldTreeCore extends ABFieldSelectivity {
    constructor(values, object) {
       super(values, object, ABFieldTreeDefaults);
    }
@@ -139,7 +134,7 @@ module.exports = class ABFieldTreeCore extends ABFieldSelectivity {
     * for this field.
     * @param {obj} values a key=>value hash of the current values.
     */
-   defaultValue(values) {}
+   defaultValue(/* _values */) {}
 
    /**
     * @method isValidData
@@ -152,4 +147,4 @@ module.exports = class ABFieldTreeCore extends ABFieldSelectivity {
    isValidData(data, validator) {
       super.isValidData(data, validator);
    }
-};
+}

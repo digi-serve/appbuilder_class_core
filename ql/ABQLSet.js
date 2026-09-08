@@ -1,3 +1,7 @@
+import ABQLSetFirst from "../../platform/ql/ABQLSetFirst.js";
+import ABQLSetPluck from "../../platform/ql/ABQLSetPluck.js";
+import ABQLSetSave from "../../platform/ql/ABQLSetSave.js";
+
 /*
  * ABQLSet
  *
@@ -6,8 +10,4 @@
  *
  */
 
-module.exports = [
-   require("../../platform/ql/ABQLSetFirst.js"),
-   require("../../platform/ql/ABQLSetPluck.js"),
-   require("../../platform/ql/ABQLSetSave.js"),
-];
+export default [ABQLSetFirst, ABQLSetPluck, ABQLSetSave];

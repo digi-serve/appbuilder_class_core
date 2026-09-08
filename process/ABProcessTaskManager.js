@@ -1,3 +1,25 @@
+import Import_ABProcessEnd from "../../platform/process/tasks/ABProcessEnd.js";
+import Import_ABProcessGatewayExclusive from "../../platform/process/tasks/ABProcessGatewayExclusive.js";
+import Import_ABProcessTaskEmail from "../../platform/process/tasks/ABProcessTaskEmail.js";
+import Import_ABProcessTaskService from "../../platform/process/tasks/ABProcessTaskService.js";
+import Import_ABProcessTaskServiceAccountingBatchProcessing from "../../platform/process/tasks/ABProcessTaskServiceAccountingBatchProcessing.js";
+import Import_ABProcessTaskServiceAccountingFPClose from "../../platform/process/tasks/ABProcessTaskServiceAccountingFPClose.js";
+import Import_ABProcessTaskServiceAccountingFPYearClose from "../../platform/process/tasks/ABProcessTaskServiceAccountingFPYearClose.js";
+import Import_ABProcessTaskServiceAccountingJEArchive from "../../platform/process/tasks/ABProcessTaskServiceAccountingJEArchive.js";
+import Import_ABProcessTaskServiceApi from "../../platform/process/tasks/ABProcessTaskServiceApi.js";
+import Import_ABProcessTaskServiceCalculate from "../../platform/process/tasks/ABProcessTaskServiceCalculate.js";
+import Import_ABProcessTaskServiceInsertRecord from "../../platform/process/tasks/ABProcessTaskServiceInsertRecord.js";
+import Import_ABProcessTaskServiceQuery from "../../platform/process/tasks/ABProcessTaskServiceQuery.js";
+import Import_ABProcessTaskServiceGetResetPasswordUrl from "../../platform/process/tasks/ABProcessTaskServiceGetResetPasswordUrl.js";
+import Import_ABProcessTaskSubProcess from "../../platform/process/tasks/ABProcessTaskSubProcess.js";
+import Import_ABProcessTaskUser from "../../platform/process/tasks/ABProcessTaskUser.js";
+import Import_ABProcessTaskUserApproval from "../../platform/process/tasks/ABProcessTaskUserApproval.js";
+import Import_ABProcessTaskUserExternal from "../../platform/process/tasks/ABProcessTaskUserExternal.js";
+import Import_ABProcessTaskUserForm from "../../platform/process/tasks/ABProcessTaskUserForm.js";
+import Import_ABProcessTrigger from "../../platform/process/tasks/ABProcessTrigger.js";
+import Import_ABProcessTriggerLifecycle from "../../platform/process/tasks/ABProcessTriggerLifecycle.js";
+import Import_ABProcessTriggerTimer from "../../platform/process/tasks/ABProcessTriggerTimer.js";
+
 /*
  * ABProcessTaskManager
  *
@@ -23,27 +45,27 @@ var Tasks = {};
 var DEFINITIONTYPES = {};
 
 var AllProcessElements = [
-   require("../../platform/process/tasks/ABProcessEnd"),
-   require("../../platform/process/tasks/ABProcessGatewayExclusive"),
-   require("../../platform/process/tasks/ABProcessTaskEmail"),
-   require("../../platform/process/tasks/ABProcessTaskService"),
-   require("../../platform/process/tasks/ABProcessTaskServiceAccountingBatchProcessing"),
-   require("../../platform/process/tasks/ABProcessTaskServiceAccountingFPClose"),
-   require("../../platform/process/tasks/ABProcessTaskServiceAccountingFPYearClose"),
-   require("../../platform/process/tasks/ABProcessTaskServiceAccountingJEArchive"),
-   require("../../platform/process/tasks/ABProcessTaskServiceApi"),
-   require("../../platform/process/tasks/ABProcessTaskServiceCalculate"),
-   require("../../platform/process/tasks/ABProcessTaskServiceInsertRecord"),
-   require("../../platform/process/tasks/ABProcessTaskServiceQuery"),
-   require("../../platform/process/tasks/ABProcessTaskServiceGetResetPasswordUrl"),
-   require("../../platform/process/tasks/ABProcessTaskSubProcess"),
-   require("../../platform/process/tasks/ABProcessTaskUser"),
-   require("../../platform/process/tasks/ABProcessTaskUserApproval"),
-   require("../../platform/process/tasks/ABProcessTaskUserExternal"),
-   require("../../platform/process/tasks/ABProcessTaskUserForm"),
-   require("../../platform/process/tasks/ABProcessTrigger"),
-   require("../../platform/process/tasks/ABProcessTriggerLifecycle"),
-   require("../../platform/process/tasks/ABProcessTriggerTimer"),
+   Import_ABProcessEnd,
+   Import_ABProcessGatewayExclusive,
+   Import_ABProcessTaskEmail,
+   Import_ABProcessTaskService,
+   Import_ABProcessTaskServiceAccountingBatchProcessing,
+   Import_ABProcessTaskServiceAccountingFPClose,
+   Import_ABProcessTaskServiceAccountingFPYearClose,
+   Import_ABProcessTaskServiceAccountingJEArchive,
+   Import_ABProcessTaskServiceApi,
+   Import_ABProcessTaskServiceCalculate,
+   Import_ABProcessTaskServiceInsertRecord,
+   Import_ABProcessTaskServiceQuery,
+   Import_ABProcessTaskServiceGetResetPasswordUrl,
+   Import_ABProcessTaskSubProcess,
+   Import_ABProcessTaskUser,
+   Import_ABProcessTaskUserApproval,
+   Import_ABProcessTaskUserExternal,
+   Import_ABProcessTaskUserForm,
+   Import_ABProcessTrigger,
+   Import_ABProcessTriggerLifecycle,
+   Import_ABProcessTriggerTimer,
 ];
 
 AllProcessElements.forEach((ELEMENT) => {
@@ -64,7 +86,7 @@ AllProcessElements.forEach((ELEMENT) => {
    }
 });
 
-module.exports = {
+export default {
    /*
     * @function allTasks
     * return all the currently defined ABProcessTasks in an array.
